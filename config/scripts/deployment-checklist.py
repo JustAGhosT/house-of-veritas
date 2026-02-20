@@ -81,7 +81,7 @@ class DeploymentChecker:
         
         # Configuration
         self.subscription_id = os.environ.get("AZURE_SUBSCRIPTION_ID", "")
-        self.resource_group = os.environ.get("AZURE_RESOURCE_GROUP", "rg-houseofveritas")
+        self.resource_group = os.environ.get("AZURE_RESOURCE_GROUP", "nl-prod-hov-rg-san")
         self.location = os.environ.get("AZURE_LOCATION", "southafricanorth")
         self.env = os.environ.get("AZURE_ENV", "prod")
         
