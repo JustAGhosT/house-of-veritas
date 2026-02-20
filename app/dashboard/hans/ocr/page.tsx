@@ -474,15 +474,29 @@ export default function OCRPage() {
                           </div>
                         ))}
                         
+                        {/* Import Success Message */}
+                        {importSuccess && (
+                          <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                            <CheckCircle className="h-5 w-5 text-green-400" />
+                            <p className="text-green-300 text-sm">
+                              Successfully imported {importSuccess.imported} new and updated {importSuccess.updated} existing items
+                            </p>
+                          </div>
+                        )}
+                        
                         {/* Action Buttons */}
                         <div className="flex gap-2 pt-4">
                           <Button variant="outline" className="flex-1 border-white/10" onClick={() => copyToClipboard(JSON.stringify(result.items, null, 2))}>
                             <Copy className="h-4 w-4 mr-2" />
                             Copy Items
                           </Button>
-                          <Button className="flex-1 bg-green-600 hover:bg-green-700">
-                            <ShoppingCart className="h-4 w-4 mr-2" />
-                            Add to Inventory
+                          <Button 
+                            className="flex-1 bg-green-600 hover:bg-green-700"
+                            onClick={() => setIsImportDialogOpen(true)}
+                            data-testid="import-to-inventory-btn"
+                          >
+                            <Boxes className="h-4 w-4 mr-2" />
+                            Import to Inventory
                           </Button>
                         </div>
                       </div>
