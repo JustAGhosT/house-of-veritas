@@ -1,8 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useAuth } from "@/lib/auth-context"
+import { NotificationPanel } from "@/components/notification-panel"
 import {
   Home,
   FileText,
@@ -17,7 +19,6 @@ import {
   LogOut,
   Menu,
   X,
-  Bell,
   ChevronDown,
 } from "lucide-react"
 
@@ -72,8 +73,35 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children, persona }: DashboardLayoutProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { user, logout, isLoading, isAuthenticated } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [notificationsOpen, setNotificationsOpen] = useState(false)
+
+  // Auth protection
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push("/login")
+    }
+  }, [isLoading, isAuthenticated, router])
+
+  // Permission check - only Hans can access other dashboards
+  useEffect(() => {
+    if (!isLoading && user) {
+      const dashboardOwner = pathname?.split("/")[2]
+      if (dashboardOwner && dashboardOwner !== user.id && user.id !== "hans") {
+        router.push(`/dashboard/${user.id}`)
+      }
+    }
+  }, [isLoading, user, pathname, router])
+
+  // Show loading while checking auth
+  if (isLoading || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   const navItems = NAV_ITEMS[persona]
   const personaInfo = PERSONA_INFO[persona]
@@ -83,6 +111,10 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
     amber: "from-amber-600 to-amber-800",
     green: "from-green-600 to-green-800",
     purple: "from-purple-600 to-purple-800",
+  }
+
+  const handleLogout = () => {
+    logout()
   }
 
   return (
@@ -139,6 +171,26 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
               </Link>
             )
           })}
+
+          {/* Admin: View Other Dashboards */}
+          {user?.id === "hans" && persona === "hans" && (
+            <div className="pt-4 mt-4 border-t border-white/10">
+              <p className="px-4 text-white/40 text-xs uppercase tracking-wider mb-2">View Team</p>
+              {["charl", "lucky", "irma"].map((userId) => {
+                const info = PERSONA_INFO[userId as keyof typeof PERSONA_INFO]
+                return (
+                  <Link
+                    key={userId}
+                    href={`/dashboard/${userId}`}
+                    className="flex items-center gap-3 px-4 py-2 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-all"
+                  >
+                    <span className="text-lg">{info.icon}</span>
+                    <span className="text-sm">{info.name}</span>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
         </nav>
 
         {/* User Info */}
@@ -148,12 +200,16 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
               {personaInfo.icon}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-medium truncate">{personaInfo.name}</p>
-              <p className="text-white/50 text-xs truncate">{personaInfo.role}</p>
+              <p className="text-white text-sm font-medium truncate">{user?.name || personaInfo.name}</p>
+              <p className="text-white/50 text-xs truncate">{user?.role || personaInfo.role}</p>
             </div>
-            <Link href="/login" className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors">
+            <button 
+              onClick={handleLogout}
+              className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+              data-testid="logout-button"
+            >
               <LogOut className="w-4 h-4" />
-            </Link>
+            </button>
           </div>
         </div>
       </aside>
@@ -174,7 +230,7 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
             {/* Page Title - Hidden on mobile */}
             <div className="hidden lg:block">
               <h2 className="text-white font-semibold">
-                Welcome back, {personaInfo.name}
+                Welcome back, {user?.name || personaInfo.name}
               </h2>
               <p className="text-white/50 text-sm">
                 {new Date().toLocaleDateString("en-ZA", {
@@ -189,51 +245,17 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
             {/* Right Side Actions */}
             <div className="flex items-center gap-4">
               {/* Notifications */}
-              <div className="relative">
-                <button
-                  onClick={() => setNotificationsOpen(!notificationsOpen)}
-                  className="relative p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
-                >
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-                </button>
+              <NotificationPanel />
 
-                {notificationsOpen && (
-                  <div className="absolute right-0 mt-2 w-80 bg-[#0d0d12] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
-                    <div className="p-4 border-b border-white/10">
-                      <h3 className="text-white font-semibold">Notifications</h3>
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      <div className="p-4 hover:bg-white/5 border-b border-white/5">
-                        <p className="text-white text-sm">Document requires signature</p>
-                        <p className="text-white/50 text-xs mt-1">2 hours ago</p>
-                      </div>
-                      <div className="p-4 hover:bg-white/5 border-b border-white/5">
-                        <p className="text-white text-sm">New task assigned</p>
-                        <p className="text-white/50 text-xs mt-1">5 hours ago</p>
-                      </div>
-                      <div className="p-4 hover:bg-white/5">
-                        <p className="text-white text-sm">Leave request approved</p>
-                        <p className="text-white/50 text-xs mt-1">1 day ago</p>
-                      </div>
-                    </div>
-                    <div className="p-3 border-t border-white/10">
-                      <button className="w-full text-center text-sm text-blue-400 hover:text-blue-300">
-                        View all notifications
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Quick Actions */}
-              <Link
-                href="/login"
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
                 className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors text-sm"
+                data-testid="header-logout"
               >
-                <span>Switch User</span>
-                <ChevronDown className="w-4 h-4" />
-              </Link>
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
             </div>
           </div>
         </header>
