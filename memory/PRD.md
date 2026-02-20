@@ -257,11 +257,13 @@ TWILIO_PHONE_NUMBER=+1234567890
 
 ## Future Enhancements (Backlog)
 
+- Calendar Integration (Google Calendar sync)
+- Native Mobile Apps (React Native/Flutter)
 - Payroll/Accounting Integration (QuickBooks/Xero)
 - Biometric Time Clock Integration
-- Native Mobile Apps (React Native/Flutter)
 - Vehicle GPS Tracking
 - Predictive Maintenance AI
+- PDF Report Generation (using jsPDF)
 
 ---
 
@@ -272,17 +274,36 @@ TWILIO_PHONE_NUMBER=+1234567890
 - `/app/lib/notification-context.tsx` - Notification system
 - `/app/lib/services/docuseal.ts` - DocuSeal API integration
 - `/app/lib/services/baserow.ts` - Baserow API integration
+- `/app/lib/services/notification-service.ts` - SMS/Email/Push service
 - `/app/lib/realtime/event-store.ts` - SSE event store
 - `/app/lib/hooks/use-realtime.ts` - Real-time hook
+- `/app/lib/hooks/use-pwa.tsx` - PWA hooks
+- `/app/lib/i18n/translations.ts` - Multi-language translations
+- `/app/lib/i18n/context.tsx` - i18n context
+- `/app/lib/audit-log.ts` - Audit logging
 - `/app/components/notification-panel.tsx` - Notification UI
 - `/app/components/realtime-indicator.tsx` - Real-time status indicator
+- `/app/components/reports-panel.tsx` - Reports UI
+- `/app/components/activity-timeline.tsx` - Activity timeline
 - `/app/components/dashboard-layout.tsx` - Dashboard layout with auth + real-time
 - `/app/app/login/page.tsx` - Login page
+- `/app/app/offline/page.tsx` - Offline fallback
 - `/app/app/dashboard/*/page.tsx` - Persona dashboards
+- `/app/app/dashboard/hans/settings/page.tsx` - Settings page
+- `/app/app/dashboard/hans/reports/page.tsx` - Reports page
+
+### API Endpoints
 - `/app/app/api/realtime/events/route.ts` - SSE endpoint
 - `/app/app/api/realtime/emit/route.ts` - Event emit API
+- `/app/app/api/audit/route.ts` - Audit log API
+- `/app/app/api/reports/route.ts` - Reports API
+- `/app/app/api/notifications/route.ts` - Notifications API
+- `/app/app/api/uploads/route.ts` - File uploads API
 
-### Configuration
+### PWA Assets
+- `/app/public/manifest.json` - PWA manifest
+- `/app/public/sw.js` - Service worker
+- `/app/public/icons/` - App icons
 - `/app/config/` - DocuSeal, Baserow configs
 - `/app/terraform/` - Azure infrastructure
 - `/app/.github/workflows/` - CI/CD pipelines
