@@ -9,6 +9,11 @@
 [![Azure](https://img.shields.io/badge/Azure-Ready-0078D4?logo=microsoftazure)](https://azure.microsoft.com/)
 [![BCEA Compliant](https://img.shields.io/badge/BCEA-Compliant-green)](https://www.labour.gov.za/)
 
+### CI/CD Status
+![Deployment Checklist](https://img.shields.io/badge/Checklist-Automated-blue)
+![Terraform](https://img.shields.io/badge/Terraform-1.5+-purple?logo=terraform)
+![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=githubactions)
+
 ## 🎯 Overview
 
 House of Veritas is a comprehensive digital governance platform designed for estate management, combining legally enforceable e-signatures, operational tracking, and compliance automation. Built on open-source technologies (DocuSeal + Baserow) and deployed on Azure, it provides enterprise-grade security at a sustainable cost (<R1,000/month).
