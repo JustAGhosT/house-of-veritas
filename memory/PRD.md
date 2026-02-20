@@ -227,10 +227,15 @@ TWILIO_PHONE_NUMBER=+1234567890
 - `/app/lib/notification-context.tsx` - Notification system
 - `/app/lib/services/docuseal.ts` - DocuSeal API integration
 - `/app/lib/services/baserow.ts` - Baserow API integration
+- `/app/lib/realtime/event-store.ts` - SSE event store
+- `/app/lib/hooks/use-realtime.ts` - Real-time hook
 - `/app/components/notification-panel.tsx` - Notification UI
-- `/app/components/dashboard-layout.tsx` - Dashboard layout with auth
+- `/app/components/realtime-indicator.tsx` - Real-time status indicator
+- `/app/components/dashboard-layout.tsx` - Dashboard layout with auth + real-time
 - `/app/app/login/page.tsx` - Login page
 - `/app/app/dashboard/*/page.tsx` - Persona dashboards
+- `/app/app/api/realtime/events/route.ts` - SSE endpoint
+- `/app/app/api/realtime/emit/route.ts` - Event emit API
 
 ### Configuration
 - `/app/config/` - DocuSeal, Baserow configs
