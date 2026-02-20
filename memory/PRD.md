@@ -195,6 +195,18 @@ Transform an existing work management platform codebase into a professional, das
 - Preview URL: https://veritas-governance.preview.emergentagent.com
 - Deployment checklist: `python3 /app/config/scripts/deployment-checklist.py`
 
+## CI/CD Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `deployment-checklist.yml` | PR, Push, Daily 6am | Infrastructure verification |
+| `deploy.yml` | Manual, Release | Full deployment pipeline |
+| `deploy-functions.yml` | Push (scripts), Manual | Azure Functions |
+| `terraform-plan.yml` | PR (terraform changes) | Terraform preview |
+| `terraform-apply.yml` | Merge to main | Terraform apply |
+
+See `/.github/WORKFLOWS.md` for full documentation.
+
 ---
 
 Last Updated: December 2025
