@@ -100,9 +100,9 @@ export function Navbar() {
             ))}
             <hr className="border-zinc-800 my-2" />
             <Button variant="ghost" className="justify-start text-zinc-400 hover:text-white">
-              Sign In
+              Admin Login
             </Button>
-            <Button className="shimmer-btn bg-white text-zinc-950 hover:bg-zinc-200 rounded-full">Get Started</Button>
+            <Button className="shimmer-btn bg-blue-600 text-white hover:bg-blue-700 rounded-full">Access Documents</Button>
           </div>
         </motion.div>
       )}
