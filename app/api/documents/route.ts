@@ -1,0 +1,112 @@
+import { NextResponse } from 'next/server'
+
+export async function GET() {
+  const documents = [
+    {
+      id: 1,
+      name: 'Property Charter',
+      type: 'Governance',
+      status: 'Active',
+      lastReview: '2024-01-15',
+      nextReview: '2027-01-15',
+      expiryDays: 750,
+      responsible: 'Hans',
+      signatories: ['Hans', 'Charl', 'Lucky', 'Irma'],
+      signedBy: ['Hans', 'Charl', 'Lucky', 'Irma'],
+      urgency: 'green'
+    },
+    {
+      id: 2,
+      name: 'House Rules',
+      type: 'Operations',
+      status: 'Active',
+      lastReview: '2024-06-01',
+      nextReview: '2025-06-01',
+      expiryDays: 128,
+      responsible: 'Hans',
+      signatories: ['Hans', 'Charl', 'Lucky', 'Irma'],
+      signedBy: ['Hans', 'Charl', 'Lucky', 'Irma'],
+      urgency: 'green'
+    },
+    {
+      id: 3,
+      name: 'Workshop Safety Manual',
+      type: 'Safety',
+      status: 'Review Due',
+      lastReview: '2024-02-01',
+      nextReview: '2025-02-01',
+      expiryDays: 23,
+      responsible: 'Charl',
+      signatories: ['Hans', 'Charl', 'Lucky'],
+      signedBy: ['Hans', 'Charl'],
+      urgency: 'orange'
+    },
+    {
+      id: 4,
+      name: 'Employment Contract - Charl',
+      type: 'HR',
+      status: 'Active',
+      lastReview: '2024-03-15',
+      nextReview: '2025-03-15',
+      expiryDays: 54,
+      responsible: 'Hans',
+      signatories: ['Hans', 'Charl'],
+      signedBy: ['Hans', 'Charl'],
+      urgency: 'yellow'
+    },
+    {
+      id: 5,
+      name: 'Employment Contract - Lucky',
+      type: 'HR',
+      status: 'Active',
+      lastReview: '2024-05-01',
+      nextReview: '2025-05-01',
+      expiryDays: 101,
+      responsible: 'Hans',
+      signatories: ['Hans', 'Lucky'],
+      signedBy: ['Hans', 'Lucky'],
+      urgency: 'green'
+    },
+    {
+      id: 6,
+      name: 'Resident Agreement - Irma',
+      type: 'HR',
+      status: 'Active',
+      lastReview: '2024-04-10',
+      nextReview: '2025-04-10',
+      expiryDays: 79,
+      responsible: 'Hans',
+      signatories: ['Hans', 'Irma'],
+      signedBy: ['Hans', 'Irma'],
+      urgency: 'green'
+    },
+    {
+      id: 7,
+      name: 'Renovation Project Plan',
+      type: 'Project',
+      status: 'Active',
+      lastReview: '2024-12-01',
+      nextReview: '2025-06-01',
+      expiryDays: 182,
+      responsible: 'Hans',
+      signatories: ['Hans', 'Charl'],
+      signedBy: ['Hans', 'Charl'],
+      urgency: 'green'
+    },
+    {
+      id: 8,
+      name: 'Vehicle Usage Policy',
+      type: 'Operations',
+      status: 'Active',
+      lastReview: '2024-07-01',
+      nextReview: '2025-07-01',
+      expiryDays: 182,
+      responsible: 'Hans',
+      signatories: ['Hans', 'Charl', 'Lucky'],
+      signedBy: ['Hans', 'Charl', 'Lucky'],
+      urgency: 'green'
+    }
+  ]
+
+  return NextResponse.json(documents)
+}
