@@ -1,7 +1,7 @@
 variable "environment" {
-  description = "Environment name"
+  description = "Environment name (prod, dev, staging)"
   type        = string
-  default     = "production"
+  default     = "prod"
 }
 
 variable "location" {
@@ -10,13 +10,37 @@ variable "location" {
   default     = "South Africa North"
 }
 
+variable "location_short" {
+  description = "Short location code for naming"
+  type        = string
+  default     = "san"
+}
+
+variable "project_prefix" {
+  description = "Project naming prefix"
+  type        = string
+  default     = "nl"
+}
+
+variable "project_name" {
+  description = "Project short name"
+  type        = string
+  default     = "hov"
+}
+
 variable "resource_group_name" {
   description = "Name of the resource group"
   type        = string
-  default     = "rg-houseofveritas-prod"
+  default     = "nl-prod-hov-rg-san"
 }
 
 # Network variables
+variable "vnet_name" {
+  description = "Virtual network name"
+  type        = string
+  default     = "nl-prod-hov-vnet-san"
+}
+
 variable "vnet_address_space" {
   description = "Address space for VNet"
   type        = string
@@ -43,23 +67,23 @@ variable "database_subnet_prefix" {
 
 # Storage variables
 variable "storage_account_name" {
-  description = "Storage account name (must be globally unique)"
+  description = "Storage account name (must be globally unique, no hyphens)"
   type        = string
-  default     = "sthouseofveritas"
+  default     = "nlprodhovstsan"
 }
 
 # Security variables
 variable "key_vault_name" {
   description = "Key Vault name (must be globally unique)"
   type        = string
-  default     = "kv-houseofveritas"
+  default     = "nl-prod-hov-kv-san"
 }
 
 # Database variables
 variable "db_server_name" {
   description = "PostgreSQL server name"
   type        = string
-  default     = "pg-houseofveritas"
+  default     = "nl-prod-hov-pg-san"
 }
 
 variable "db_admin_username" {
@@ -74,6 +98,33 @@ variable "db_admin_password" {
   sensitive   = true
 }
 
+# Container variables
+variable "docuseal_container_name" {
+  description = "DocuSeal container instance name"
+  type        = string
+  default     = "nl-prod-hov-aci-docuseal-san"
+}
+
+variable "baserow_container_name" {
+  description = "Baserow container instance name"
+  type        = string
+  default     = "nl-prod-hov-aci-baserow-san"
+}
+
+# Gateway variables
+variable "app_gateway_name" {
+  description = "Application Gateway name"
+  type        = string
+  default     = "nl-prod-hov-agw-san"
+}
+
+# Function App variables
+variable "function_app_name" {
+  description = "Azure Function App name"
+  type        = string
+  default     = "nl-prod-hov-func-san"
+}
+
 # Domain variables
 variable "domain_name" {
   description = "Domain name for the application"
@@ -85,7 +136,7 @@ variable "domain_name" {
 variable "smtp_host" {
   description = "SMTP server host"
   type        = string
-  default     = "smtp.gmail.com"
+  default     = "smtp.sendgrid.net"
 }
 
 variable "smtp_port" {
@@ -97,6 +148,7 @@ variable "smtp_port" {
 variable "smtp_username" {
   description = "SMTP username"
   type        = string
+  default     = "apikey"
 }
 
 variable "smtp_password" {
@@ -110,6 +162,7 @@ variable "ssl_certificate_data" {
   description = "SSL certificate data (base64 encoded PFX)"
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 variable "ssl_certificate_password" {
@@ -117,4 +170,16 @@ variable "ssl_certificate_password" {
   type        = string
   sensitive   = true
   default     = ""
+}
+
+# Tags
+variable "tags" {
+  description = "Tags to apply to all resources"
+  type        = map(string)
+  default = {
+    Project     = "HouseOfVeritas"
+    Environment = "Production"
+    ManagedBy   = "Terraform"
+    Owner       = "Hans"
+  }
 }
