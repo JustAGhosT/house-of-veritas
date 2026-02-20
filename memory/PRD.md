@@ -288,13 +288,11 @@ TWILIO_PHONE_NUMBER=+1234567890
 
 ## Future Enhancements (Backlog)
 
-- Calendar Integration (Google Calendar sync)
 - Native Mobile Apps (React Native/Flutter)
 - Payroll/Accounting Integration (QuickBooks/Xero)
 - Biometric Time Clock Integration
 - Vehicle GPS Tracking
-- Predictive Maintenance AI
-- PDF Report Generation (using jsPDF)
+- Advanced AI Analytics (trend analysis, anomaly detection)
 
 ---
 
