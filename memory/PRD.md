@@ -224,6 +224,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - `/app/components/reports-panel.tsx` - Interactive report generation
 - `/app/app/api/reports/route.ts` - Reports API (expenses, tasks, time)
 - CSV export functionality
+- **PDF export** with professional formatting (jsPDF)
 - Summary cards with statistics
 - Date range filtering
 
@@ -239,9 +240,35 @@ TWILIO_PHONE_NUMBER=+1234567890
 - File type validation and size limits
 - Metadata storage for file tracking
 
+### ✅ Phase 9: Advanced Features (COMPLETE - Feb 20, 2026)
+
+#### Google Calendar Integration
+- `/app/app/api/calendar/route.ts` - Calendar API with CRUD operations
+- `/app/components/calendar-panel.tsx` - Interactive calendar UI
+- Event creation, viewing, deletion
+- Monthly calendar view with event indicators
+- **Mode:** MOCK (configure GOOGLE_CLIENT_ID/SECRET for live sync)
+
+#### Predictive Maintenance AI
+- `/app/app/api/ai/maintenance/route.ts` - AI-powered predictions
+- `/app/components/predictive-maintenance.tsx` - Maintenance dashboard
+- Asset health analysis and predictions
+- 6-month cost forecasting
+- Urgent maintenance alerts
+- **Powered by:** Emergent LLM Key + GPT-5.2
+
+#### PDF Report Generation
+- `/app/lib/utils/pdf-generator.ts` - Professional PDF reports
+- Branded headers with HV logo
+- Expense, task, time, and audit reports
+- Summary tables and statistics
+- Page numbers and footers
+
 #### New Pages
-- `/app/app/dashboard/hans/settings/page.tsx` - Settings with language, notifications, PWA
-- `/app/app/dashboard/hans/reports/page.tsx` - Reports and activity logs
+- `/app/app/dashboard/hans/settings/page.tsx` - Language, notifications, PWA
+- `/app/app/dashboard/hans/reports/page.tsx` - Reports & activity logs
+- `/app/app/dashboard/hans/calendar/page.tsx` - Calendar view
+- `/app/app/dashboard/hans/maintenance/page.tsx` - Predictive maintenance
 
 ---
 
