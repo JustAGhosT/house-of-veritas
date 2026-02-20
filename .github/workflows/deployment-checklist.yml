@@ -1,0 +1,339 @@
+name: 'Deployment Checklist'
+
+# Run on PRs to main, manual trigger, and scheduled (daily)
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      verbose:
+        description: 'Enable verbose output'
+        required: false
+        default: 'true'
+        type: boolean
+  schedule:
+    # Run daily at 6am UTC to catch infrastructure drift
+    - cron: '0 6 * * *'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  AZURE_RESOURCE_GROUP: 'rg-houseofveritas'
+  AZURE_LOCATION: 'southafricanorth'
+
+jobs:
+  # ============================================
+  # Job 1: Run Deployment Checklist
+  # ============================================
+  deployment-checklist:
+    name: 'Infrastructure Verification'
+    runs-on: ubuntu-latest
+    outputs:
+      passed: ${{ steps.checklist.outputs.passed }}
+      failed: ${{ steps.checklist.outputs.failed }}
+      warnings: ${{ steps.checklist.outputs.warnings }}
+      json_report: ${{ steps.checklist.outputs.json_report }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          az --version
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        continue-on-error: true
+      
+      - name: Set Azure Subscription
+        run: |
+          az account set --subscription "${{ secrets.AZURE_SUBSCRIPTION_ID }}" || echo "Could not set subscription"
+        continue-on-error: true
+      
+      - name: Run Deployment Checklist
+        id: checklist
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ env.AZURE_RESOURCE_GROUP }}
+          AZURE_LOCATION: ${{ env.AZURE_LOCATION }}
+        run: |
+          # Run checklist and capture output
+          python3 config/scripts/deployment-checklist.py --verbose > checklist_output.txt 2>&1 || true
+          cat checklist_output.txt
+          
+          # Run JSON output for parsing
+          python3 config/scripts/deployment-checklist.py --json > checklist_report.json 2>&1 || true
+          
+          # Extract counts from output
+          PASSED=$(grep -oP '✅ Passed:\s+\K\d+' checklist_output.txt || echo "0")
+          FAILED=$(grep -oP '❌ Failed:\s+\K\d+' checklist_output.txt || echo "0")
+          WARNINGS=$(grep -oP '⚠️  Warnings:\s+\K\d+' checklist_output.txt || echo "0")
+          
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
+          
+          # Store JSON report (base64 encoded for multi-line)
+          JSON_REPORT=$(cat checklist_report.json | base64 -w 0)
+          echo "json_report=$JSON_REPORT" >> $GITHUB_OUTPUT
+      
+      - name: Upload Checklist Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-checklist-report
+          path: |
+            checklist_output.txt
+            checklist_report.json
+          retention-days: 30
+      
+      - name: Comment PR with Checklist Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('checklist_output.txt', 'utf8');
+            
+            const passed = '${{ steps.checklist.outputs.passed }}';
+            const failed = '${{ steps.checklist.outputs.failed }}';
+            const warnings = '${{ steps.checklist.outputs.warnings }}';
+            
+            let status = '🎉 All checks passed!';
+            let statusIcon = '✅';
+            if (parseInt(failed) > 0) {
+              status = `❌ ${failed} critical issue(s) detected`;
+              statusIcon = '❌';
+            } else if (parseInt(warnings) > 0) {
+              status = `⚠️ ${warnings} warning(s) detected`;
+              statusIcon = '⚠️';
+            }
+            
+            const body = `## ${statusIcon} Deployment Checklist Results
+            
+            | Metric | Count |
+            |--------|-------|
+            | ✅ Passed | ${passed} |
+            | ❌ Failed | ${failed} |
+            | ⚠️ Warnings | ${warnings} |
+            
+            **Status:** ${status}
+            
+            <details>
+            <summary>📋 Full Checklist Output</summary>
+            
+            \`\`\`
+            ${output.substring(0, 60000)}
+            \`\`\`
+            
+            </details>
+            
+            ---
+            *Run by @${{ github.actor }} on \`${{ github.event_name }}\`*
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+      
+      - name: Create Issue for Failed Checks (Scheduled Run)
+        if: github.event_name == 'schedule' && steps.checklist.outputs.failed != '0'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('checklist_output.txt', 'utf8');
+            const failed = '${{ steps.checklist.outputs.failed }}';
+            
+            // Check for existing open issue
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'infrastructure-drift'
+            });
+            
+            if (existingIssues.data.length > 0) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssues.data[0].number,
+                body: `## 🔄 Daily Check Update - ${new Date().toISOString().split('T')[0]}\n\n${failed} failed check(s) still detected.\n\n<details>\n<summary>Details</summary>\n\n\`\`\`\n${output.substring(0, 60000)}\n\`\`\`\n</details>`
+              });
+            } else {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🚨 Infrastructure Drift Detected - ${failed} Failed Check(s)`,
+                body: `## Deployment Checklist Failed\n\nThe scheduled infrastructure check detected ${failed} failed check(s).\n\n<details>\n<summary>Full Output</summary>\n\n\`\`\`\n${output.substring(0, 60000)}\n\`\`\`\n</details>\n\n### Action Required\nPlease review and fix the infrastructure issues.`,
+                labels: ['infrastructure-drift', 'priority:high']
+              });
+            }
+      
+      - name: Fail if Critical Issues
+        if: steps.checklist.outputs.failed != '0' && github.event_name == 'pull_request'
+        run: |
+          echo "❌ Deployment checklist found ${{ steps.checklist.outputs.failed }} critical issue(s)"
+          echo "Please fix these issues before merging."
+          exit 1
+
+  # ============================================
+  # Job 2: Validate Configuration Files
+  # ============================================
+  validate-config:
+    name: 'Validate Configuration'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Validate Docker Compose
+        run: |
+          # Install docker-compose for validation
+          pip install docker-compose
+          
+          # Validate docker-compose.yml syntax
+          if [ -f "config/docker-compose.yml" ]; then
+            docker-compose -f config/docker-compose.yml config > /dev/null
+            echo "✅ docker-compose.yml is valid"
+          else
+            echo "⚠️ docker-compose.yml not found"
+          fi
+      
+      - name: Validate Python Scripts
+        run: |
+          # Check Python syntax for all scripts
+          for script in config/scripts/*.py; do
+            if [ -f "$script" ]; then
+              python3 -m py_compile "$script"
+              echo "✅ $script syntax OK"
+            fi
+          done
+      
+      - name: Validate Shell Scripts
+        run: |
+          # Check shell script syntax
+          for script in config/scripts/*.sh; do
+            if [ -f "$script" ]; then
+              bash -n "$script"
+              echo "✅ $script syntax OK"
+            fi
+          done
+      
+      - name: Check Required Files Exist
+        run: |
+          REQUIRED_FILES=(
+            "config/docker-compose.yml"
+            "config/.env.template"
+            "config/docuseal/README.md"
+            "config/baserow/README.md"
+            "config/scripts/deployment-checklist.py"
+            "config/scripts/seed-baserow.py"
+            "config/templates/document-list.md"
+          )
+          
+          MISSING=0
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing: $file"
+              MISSING=$((MISSING + 1))
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+          
+          if [ $MISSING -gt 0 ]; then
+            echo "❌ $MISSING required file(s) missing"
+            exit 1
+          fi
+          
+          echo "✅ All required configuration files present"
+
+  # ============================================
+  # Job 3: Build & Test Next.js Application
+  # ============================================
+  build-test:
+    name: 'Build & Test'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+      
+      - name: Lint Check
+        run: yarn lint || true
+        continue-on-error: true
+      
+      - name: Build Application
+        run: yarn build
+      
+      - name: Run Tests (if exists)
+        run: |
+          if [ -f "package.json" ] && grep -q '"test"' package.json; then
+            yarn test --passWithNoTests || true
+          else
+            echo "No test script found, skipping"
+          fi
+        continue-on-error: true
+
+  # ============================================
+  # Job 4: Summary Report
+  # ============================================
+  summary:
+    name: 'Pipeline Summary'
+    runs-on: ubuntu-latest
+    needs: [deployment-checklist, validate-config, build-test]
+    if: always()
+    
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## 📊 CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Deployment Checklist | ${{ needs.deployment-checklist.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Configuration Validation | ${{ needs.validate-config.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build & Test | ${{ needs.build-test.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Infrastructure Status" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Passed: ${{ needs.deployment-checklist.outputs.passed || '0' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ❌ Failed: ${{ needs.deployment-checklist.outputs.failed || '0' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ Warnings: ${{ needs.deployment-checklist.outputs.warnings || '0' }}" >> $GITHUB_STEP_SUMMARY

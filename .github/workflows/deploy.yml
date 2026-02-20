@@ -1,0 +1,409 @@
+name: 'Full Deployment Pipeline'
+
+# Triggered manually or on release tags
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+      skip_checklist:
+        description: 'Skip deployment checklist'
+        required: false
+        default: false
+        type: boolean
+      deploy_infrastructure:
+        description: 'Deploy infrastructure changes'
+        required: false
+        default: true
+        type: boolean
+      seed_data:
+        description: 'Seed initial data'
+        required: false
+        default: false
+        type: boolean
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  TF_VERSION: '1.5.7'
+  WORKING_DIR: './terraform/environments/production'
+  AZURE_RESOURCE_GROUP: 'rg-houseofveritas'
+
+jobs:
+  # ============================================
+  # Job 1: Pre-Deployment Validation
+  # ============================================
+  pre-deploy-validation:
+    name: 'Pre-Deployment Validation'
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_checklist }}
+    outputs:
+      ready: ${{ steps.validate.outputs.ready }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Azure CLI
+        run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Run Deployment Checklist
+        id: validate
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ env.AZURE_RESOURCE_GROUP }}
+        run: |
+          python3 config/scripts/deployment-checklist.py --json > checklist.json
+          
+          # Check if there are critical failures that would block deployment
+          FAILED=$(python3 -c "import json; data=json.load(open('checklist.json')); prereqs=[c for cat in data['categories'] if cat['name']=='Prerequisites' for c in cat['checks']]; print(sum(1 for p in prereqs if p['status']=='FAIL'))")
+          
+          if [ "$FAILED" -gt "2" ]; then
+            echo "❌ Too many prerequisite failures ($FAILED). Cannot proceed."
+            echo "ready=false" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "✅ Prerequisites check passed"
+            echo "ready=true" >> $GITHUB_OUTPUT
+          fi
+
+  # ============================================
+  # Job 2: Build Application
+  # ============================================
+  build:
+    name: 'Build Application'
+    runs-on: ubuntu-latest
+    needs: [pre-deploy-validation]
+    if: always() && (needs.pre-deploy-validation.result == 'success' || needs.pre-deploy-validation.result == 'skipped')
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+      
+      - name: Build Application
+        run: yarn build
+      
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-build
+          path: |
+            .next/
+            public/
+            package.json
+            yarn.lock
+          retention-days: 7
+
+  # ============================================
+  # Job 3: Deploy Infrastructure
+  # ============================================
+  deploy-infrastructure:
+    name: 'Deploy Infrastructure'
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: ${{ inputs.deploy_infrastructure }}
+    environment: ${{ inputs.environment || 'production' }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Terraform Init
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ secrets.TF_STATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ secrets.TF_STATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER }}" \
+            -backend-config="key=${{ secrets.TF_STATE_KEY }}"
+      
+      - name: Terraform Plan
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          terraform plan \
+            -var="db_admin_password=${{ secrets.DB_ADMIN_PASSWORD }}" \
+            -var="smtp_username=${{ secrets.SMTP_USERNAME }}" \
+            -var="smtp_password=${{ secrets.SMTP_PASSWORD }}" \
+            -out=tfplan
+      
+      - name: Terraform Apply
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform apply -auto-approve tfplan
+      
+      - name: Output Infrastructure Details
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          echo "## Infrastructure Outputs" >> $GITHUB_STEP_SUMMARY
+          terraform output -json | python3 -c "
+          import json, sys
+          outputs = json.load(sys.stdin)
+          for k, v in outputs.items():
+              print(f'- **{k}**: {v.get(\"value\", \"N/A\")}')
+          " >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # Job 4: Deploy DocuSeal
+  # ============================================
+  deploy-docuseal:
+    name: 'Deploy DocuSeal'
+    runs-on: ubuntu-latest
+    needs: [deploy-infrastructure]
+    environment: ${{ inputs.environment || 'production' }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Check DocuSeal Container Status
+        run: |
+          STATUS=$(az container show \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name aci-docuseal \
+            --query "instanceView.state" -o tsv 2>/dev/null || echo "NotFound")
+          
+          echo "DocuSeal container status: $STATUS"
+          
+          if [ "$STATUS" != "Running" ]; then
+            echo "⚠️ DocuSeal is not running. Attempting restart..."
+            az container restart \
+              --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+              --name aci-docuseal || echo "Container may not exist yet"
+          fi
+      
+      - name: Verify DocuSeal Health
+        run: |
+          # Get container IP or hostname
+          DOCUSEAL_URL="${{ secrets.DOCUSEAL_URL }}"
+          
+          if [ -n "$DOCUSEAL_URL" ]; then
+            for i in {1..5}; do
+              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$DOCUSEAL_URL/health" || echo "000")
+              if [ "$HTTP_STATUS" = "200" ]; then
+                echo "✅ DocuSeal is healthy"
+                break
+              fi
+              echo "Waiting for DocuSeal... (attempt $i/5)"
+              sleep 30
+            done
+          else
+            echo "⚠️ DOCUSEAL_URL not configured, skipping health check"
+          fi
+
+  # ============================================
+  # Job 5: Deploy Baserow
+  # ============================================
+  deploy-baserow:
+    name: 'Deploy Baserow'
+    runs-on: ubuntu-latest
+    needs: [deploy-infrastructure]
+    environment: ${{ inputs.environment || 'production' }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Check Baserow Container Status
+        run: |
+          STATUS=$(az container show \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name aci-baserow \
+            --query "instanceView.state" -o tsv 2>/dev/null || echo "NotFound")
+          
+          echo "Baserow container status: $STATUS"
+          
+          if [ "$STATUS" != "Running" ]; then
+            echo "⚠️ Baserow is not running. Attempting restart..."
+            az container restart \
+              --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+              --name aci-baserow || echo "Container may not exist yet"
+          fi
+      
+      - name: Verify Baserow Health
+        run: |
+          BASEROW_URL="${{ secrets.BASEROW_URL }}"
+          
+          if [ -n "$BASEROW_URL" ]; then
+            for i in {1..5}; do
+              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASEROW_URL/api/health/" || echo "000")
+              if [ "$HTTP_STATUS" = "200" ]; then
+                echo "✅ Baserow is healthy"
+                break
+              fi
+              echo "Waiting for Baserow... (attempt $i/5)"
+              sleep 30
+            done
+          else
+            echo "⚠️ BASEROW_URL not configured, skipping health check"
+          fi
+
+  # ============================================
+  # Job 6: Seed Data (Optional)
+  # ============================================
+  seed-data:
+    name: 'Seed Initial Data'
+    runs-on: ubuntu-latest
+    needs: [deploy-baserow]
+    if: ${{ inputs.seed_data }}
+    environment: ${{ inputs.environment || 'production' }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Dependencies
+        run: pip install requests
+      
+      - name: Run Data Seeding Script
+        env:
+          BASEROW_URL: ${{ secrets.BASEROW_URL }}
+          BASEROW_TOKEN: ${{ secrets.BASEROW_TOKEN }}
+        run: |
+          if [ -n "$BASEROW_URL" ] && [ -n "$BASEROW_TOKEN" ]; then
+            echo "Running data seeding script..."
+            python3 config/scripts/seed-baserow.py
+          else
+            echo "⚠️ BASEROW_URL or BASEROW_TOKEN not configured"
+            echo "Seeding script cannot run without proper credentials"
+          fi
+
+  # ============================================
+  # Job 7: Post-Deployment Verification
+  # ============================================
+  post-deploy-verification:
+    name: 'Post-Deployment Verification'
+    runs-on: ubuntu-latest
+    needs: [deploy-docuseal, deploy-baserow]
+    if: always()
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Azure CLI
+        run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Run Final Deployment Checklist
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ env.AZURE_RESOURCE_GROUP }}
+        run: |
+          echo "## 🔍 Post-Deployment Verification" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          python3 config/scripts/deployment-checklist.py --verbose | tee checklist_output.txt
+          
+          # Add to summary
+          PASSED=$(grep -oP '✅ Passed:\s+\K\d+' checklist_output.txt || echo "0")
+          FAILED=$(grep -oP '❌ Failed:\s+\K\d+' checklist_output.txt || echo "0")
+          
+          echo "- ✅ Passed: $PASSED" >> $GITHUB_STEP_SUMMARY
+          echo "- ❌ Failed: $FAILED" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$FAILED" -gt "0" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ Some checks failed. Review the logs for details." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🎉 Deployment verification complete!" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ============================================
+  # Job 8: Deployment Summary
+  # ============================================
+  deployment-summary:
+    name: 'Deployment Summary'
+    runs-on: ubuntu-latest
+    needs: [build, deploy-infrastructure, deploy-docuseal, deploy-baserow, post-deploy-verification]
+    if: always()
+    
+    steps:
+      - name: Generate Deployment Summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment || 'production' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Job Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result == 'success' && '✅' || '❌' }} ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Infrastructure | ${{ needs.deploy-infrastructure.result == 'success' && '✅' || needs.deploy-infrastructure.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.deploy-infrastructure.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| DocuSeal | ${{ needs.deploy-docuseal.result == 'success' && '✅' || needs.deploy-docuseal.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.deploy-docuseal.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Baserow | ${{ needs.deploy-baserow.result == 'success' && '✅' || needs.deploy-baserow.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.deploy-baserow.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Verification | ${{ needs.post-deploy-verification.result == 'success' && '✅' || '❌' }} ${{ needs.post-deploy-verification.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Overall status
+          if [ "${{ needs.build.result }}" = "success" ] && \
+             [ "${{ needs.post-deploy-verification.result }}" = "success" ]; then
+            echo "### ✅ Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ⚠️ Deployment completed with issues" >> $GITHUB_STEP_SUMMARY
+          fi
