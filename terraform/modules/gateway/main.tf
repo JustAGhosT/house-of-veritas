@@ -1,0 +1,192 @@
+# Gateway Module - Application Gateway with WAF for House of Veritas
+
+# Public IP for Application Gateway
+resource "azurerm_public_ip" "gateway" {
+  name                = "${var.environment}-gateway-pip"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+  
+  tags = var.tags
+}
+
+# Application Gateway
+resource "azurerm_application_gateway" "main" {
+  name                = "${var.environment}-appgw"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  
+  sku {
+    name     = "WAF_v2"
+    tier     = "WAF_v2"
+    capacity = 1  # Auto-scale can be enabled later
+  }
+  
+  gateway_ip_configuration {
+    name      = "gateway-ip-config"
+    subnet_id = var.gateway_subnet_id
+  }
+  
+  # Frontend configuration
+  frontend_port {
+    name = "https-port"
+    port = 443
+  }
+  
+  frontend_port {
+    name = "http-port"
+    port = 80
+  }
+  
+  frontend_ip_configuration {
+    name                 = "frontend-ip-config"
+    public_ip_address_id = azurerm_public_ip.gateway.id
+  }
+  
+  # Backend pools
+  backend_address_pool {
+    name = "docuseal-backend"
+    ip_addresses = [var.docuseal_ip_address]
+  }
+  
+  backend_address_pool {
+    name = "baserow-backend"
+    ip_addresses = [var.baserow_ip_address]
+  }
+  
+  # Backend HTTP settings
+  backend_http_settings {
+    name                  = "docuseal-http-settings"
+    cookie_based_affinity = "Disabled"
+    port                  = 3000
+    protocol              = "Http"
+    request_timeout       = 60
+    
+    probe_name = "docuseal-probe"
+  }
+  
+  backend_http_settings {
+    name                  = "baserow-http-settings"
+    cookie_based_affinity = "Disabled"
+    port                  = 80
+    protocol              = "Http"
+    request_timeout       = 60
+    
+    probe_name = "baserow-probe"
+  }
+  
+  # Health probes
+  probe {
+    name                = "docuseal-probe"
+    protocol            = "Http"
+    path                = "/"
+    host                = "docs.${var.domain_name}"
+    interval            = 30
+    timeout             = 30
+    unhealthy_threshold = 3
+    
+    match {
+      status_code = ["200-399"]
+    }
+  }
+  
+  probe {
+    name                = "baserow-probe"
+    protocol            = "Http"
+    path                = "/api/health/"
+    host                = "ops.${var.domain_name}"
+    interval            = 30
+    timeout             = 30
+    unhealthy_threshold = 3
+    
+    match {
+      status_code = ["200-399"]
+    }
+  }
+  
+  # HTTP to HTTPS redirect listener
+  http_listener {
+    name                           = "http-listener"
+    frontend_ip_configuration_name = "frontend-ip-config"
+    frontend_port_name             = "http-port"
+    protocol                       = "Http"
+  }
+  
+  # HTTPS listeners
+  http_listener {
+    name                           = "docuseal-https-listener"
+    frontend_ip_configuration_name = "frontend-ip-config"
+    frontend_port_name             = "https-port"
+    protocol                       = "Https"
+    ssl_certificate_name           = "ssl-cert"
+    host_name                      = "docs.${var.domain_name}"
+  }
+  
+  http_listener {
+    name                           = "baserow-https-listener"
+    frontend_ip_configuration_name = "frontend-ip-config"
+    frontend_port_name             = "https-port"
+    protocol                       = "Https"
+    ssl_certificate_name           = "ssl-cert"
+    host_name                      = "ops.${var.domain_name}"
+  }
+  
+  # SSL Certificate (placeholder - update with actual certificate)
+  ssl_certificate {
+    name     = "ssl-cert"
+    data     = var.ssl_certificate_data
+    password = var.ssl_certificate_password
+  }
+  
+  # Routing rules
+  request_routing_rule {
+    name                       = "http-to-https-redirect"
+    rule_type                  = "Basic"
+    http_listener_name         = "http-listener"
+    redirect_configuration_name = "http-to-https"
+    priority                   = 100
+  }
+  
+  request_routing_rule {
+    name                       = "docuseal-routing"
+    rule_type                  = "Basic"
+    http_listener_name         = "docuseal-https-listener"
+    backend_address_pool_name  = "docuseal-backend"
+    backend_http_settings_name = "docuseal-http-settings"
+    priority                   = 200
+  }
+  
+  request_routing_rule {
+    name                       = "baserow-routing"
+    rule_type                  = "Basic"
+    http_listener_name         = "baserow-https-listener"
+    backend_address_pool_name  = "baserow-backend"
+    backend_http_settings_name = "baserow-http-settings"
+    priority                   = 300
+  }
+  
+  # Redirect configuration
+  redirect_configuration {
+    name                 = "http-to-https"
+    redirect_type        = "Permanent"
+    target_listener_name = "docuseal-https-listener"
+    include_path         = true
+    include_query_string = true
+  }
+  
+  # WAF configuration
+  waf_configuration {
+    enabled          = true
+    firewall_mode    = "Prevention"
+    rule_set_type    = "OWASP"
+    rule_set_version = "3.2"
+    
+    disabled_rule_group {
+      rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+      rules           = []  # Can disable specific rules if needed
+    }
+  }
+  
+  tags = var.tags
+}
