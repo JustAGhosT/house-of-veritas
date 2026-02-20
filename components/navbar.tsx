@@ -29,10 +29,8 @@ export function Navbar() {
         className="relative flex items-center justify-between px-4 py-3 rounded-full bg-zinc-900/40 backdrop-blur-md border border-zinc-800"
       >
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">HV</span>
-          </div>
+        <a href="#" className="flex items-center gap-3">
+          <img src="/hv-logo-small.svg" alt="House of Veritas" className="w-10 h-10" />
           <span className="font-semibold text-white hidden sm:block">House of Veritas</span>
         </a>
 
