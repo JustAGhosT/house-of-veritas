@@ -1,0 +1,79 @@
+import { NextResponse } from 'next/server'
+import { createSubmission, getSubmissionStatus, isDocuSealConfigured } from '@/lib/services/docuseal'
+
+// GET - Get submission status
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const submissionId = searchParams.get('id')
+
+  if (!submissionId) {
+    return NextResponse.json(
+      { error: 'Submission ID required' },
+      { status: 400 }
+    )
+  }
+
+  try {
+    const submission = await getSubmissionStatus(submissionId)
+    
+    if (!submission) {
+      return NextResponse.json(
+        { error: 'Submission not found' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({
+      submission,
+      configured: isDocuSealConfigured(),
+    })
+  } catch (error) {
+    console.error('Error fetching submission:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch submission' },
+      { status: 500 }
+    )
+  }
+}
+
+// POST - Create new submission
+export async function POST(request: Request) {
+  try {
+    const body = await request.json()
+    const { templateId, recipients, metadata } = body
+
+    if (!templateId || !recipients || recipients.length === 0) {
+      return NextResponse.json(
+        { error: 'Template ID and recipients are required' },
+        { status: 400 }
+      )
+    }
+
+    const submission = await createSubmission({
+      templateId,
+      recipients,
+      metadata,
+    })
+
+    if (!submission) {
+      return NextResponse.json(
+        { error: 'Failed to create submission' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      submission,
+      configured: isDocuSealConfigured(),
+      message: isDocuSealConfigured()
+        ? "Signature request sent via DocuSeal"
+        : "Mock submission created - DocuSeal not configured",
+    })
+  } catch (error) {
+    console.error('Error creating submission:', error)
+    return NextResponse.json(
+      { error: 'Failed to create submission' },
+      { status: 500 }
+    )
+  }
+}
