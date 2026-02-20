@@ -12,12 +12,32 @@ Transform an existing work management platform codebase into a professional, das
 - Professional, trustworthy, dark theme with clean typography
 - Primary blue (#1E40AF) for trust, secondary green (#059669) for operations
 - Accent orange for alerts, dark charcoal background with subtle grid pattern
+- **Persona-specific visual themes:**
+  - Hans (Blue): Tech/circuit patterns, network nodes, CPU/monitor vectors
+  - Charl (Amber/Orange): Workshop/tools patterns, gears, wrenches, mechanical vectors
+  - Lucky (Green): Garden/nature patterns, leaves, flowers, trees, grass vectors
+  - Irma (Purple/Pink): Home/domestic patterns, hearts, houses, sparkles vectors
 
 ### User Personas (4 Users)
-1. **Hans** - Owner/Administrator (Full access)
-2. **Charl** - Workshop Operator (Employee tasks, assets, time)
-3. **Lucky** - Gardener/Handyman (Tasks, expenses, vehicle logs)
-4. **Irma** - Resident/Household (Limited household tasks)
+1. **Hans** - Owner/Administrator - Tech Lead, Electronics, Leadership
+   - Email: hans@houseofv.com
+   - Phone: +27692381255
+   - Full platform access, approvals, oversight
+   
+2. **Charl** - Workshop Operator - Electrician, Plumber, Tinkerer, Magicman
+   - Email: charl@houseofv.com
+   - Phone: +27711488390
+   - Tasks, assets, time tracking, vehicle logs
+   
+3. **Lucky** - Gardener & Handyman - Gardening, Painting, Manual Labour
+   - Email: lucky@houseofv.com
+   - Phone: +27794142410
+   - Tasks, expenses, vehicle logs, time tracking
+   
+4. **Irma** - Resident - Babysitting, Cleaning, Food/Cooking
+   - Email: irma@houseofv.com
+   - Phone: +27711488390
+   - Household tasks, documents, meal planning
 
 ### Key Features (8 Modules)
 1. Document Management & E-Signatures (DocuSeal)
@@ -30,7 +50,8 @@ Transform an existing work management platform codebase into a professional, das
 8. Compliance & Document Expiry
 
 ### Technology Stack
-- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS
+- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS, Recharts
+- **Backend (Current):** Next.js API Routes (stubbed)
 - **Backend (Production):** DocuSeal (Ruby on Rails), Baserow (Django/Python)
 - **Database:** PostgreSQL 14
 - **Infrastructure:** Azure (Terraform-managed)
@@ -48,182 +69,138 @@ Transform an existing work management platform codebase into a professional, das
 - 10 stubbed API endpoints
 
 ### ✅ Phase 2: Infrastructure (COMPLETE)
-- Terraform modules (network, compute, storage, security, gateway)
-- GitHub Actions CI/CD workflows
-- Azure deployment documentation
+- Terraform IaC for Azure (nl-{env}-hov-{resourcetype}-san naming convention)
+- CI/CD GitHub Actions workflows
+- Supervisor management for Next.js app
 
-### ✅ Phase 3: Platform Configuration (COMPLETE - December 2025)
-**Delivered:**
-- `/config/docker-compose.yml` - Local development orchestration
-- `/config/.env.template` - Environment variables template
-- `/config/docuseal/README.md` - DocuSeal setup guide
-- `/config/baserow/README.md` - Baserow schema (8 tables with all fields)
-- `/config/templates/document-list.md` - 18+ governance documents
-- `/config/scripts/` - Data seeding, SSL generation, setup scripts
-- `/config/supervisor/nextjs.conf` - Supervisor configuration
+### ✅ Phase 3: Core Platform Setup (COMPLETE)
+- DocuSeal configuration files
+- Baserow configuration files
+- Docker Compose templates
+- Environment variable templates
 
-### ✅ Phase 4: Integration & Automation (COMPLETE - December 2025)
-**Delivered:** 8 Azure Functions for automation
+### ✅ Phase 4: Integration & Automation (COMPLETE)
+- Azure Functions placeholders for:
+  - DocuSeal webhook handling
+  - Document expiry alerts
+  - Recurring task generation
+  - Leave accrual automation
 
-| Function | Trigger | Schedule | Purpose |
-|----------|---------|----------|---------|
-| DocuSealWebhook | HTTP | On demand | Handle signature events |
-| DocumentExpiryAlert | Timer | Daily 6am | Check expiring docs |
-| RecurringTasks | Timer | Monday 8am | Create weekly tasks |
-| OvertimeCalculator | Timer | Sunday 11pm | Calculate overtime (BCEA) |
-| LeaveBalanceUpdate | Timer | Monthly 1st | Update leave balances |
-| ExpenseNotification | HTTP | On demand | Notify on expenses |
-| BudgetReport | Timer | Monthly 5th | Generate financial report |
-| BackupExport | Timer | Sunday midnight | Export to blob storage |
+### ✅ Phase 5: User Experience & Polish (COMPLETE - Feb 20, 2026)
+- **User Authentication System:**
+  - Seeded users with hardcoded passwords (hans123, irma123, charl123, lucky123)
+  - Login page with user selection grid
+  - Password authentication API
+  - Password reset via SMS (Twilio integration ready, simulated in dev)
+  
+- **Persona-Specific Dashboards with Interactive Charts:**
+  - **Hans Dashboard (Blue/Tech theme):**
+    - Budget Overview bar chart (6-month trend)
+    - Task Status pie chart
+    - Employee Performance horizontal bar chart
+    - Document Compliance area chart
+    - Pending Approvals with approve/reject actions
+    - Document Expiry alerts
+    - Recent Activity feed
+    - System Status panel
+    
+  - **Charl Dashboard (Amber/Workshop theme):**
+    - Live time clock with clock in/out
+    - Weekly Task Progress bar chart
+    - Skills Distribution pie chart (Electrical, Plumbing, Mechanical)
+    - Task list with priority badges
+    - Workshop Assets inventory
+    - Vehicle Log with current trip
+    
+  - **Lucky Dashboard (Green/Garden theme):**
+    - Live time clock
+    - Weekly Hours area chart
+    - Task Types pie chart (Gardening, Painting, Labour)
+    - Gardening task list
+    - Expenses with pending/approved status
+    - Expenses trend bar chart
+    - Vehicle trip log table
+    - Weather widget
+    
+  - **Irma Dashboard (Purple/Home theme):**
+    - Welcome banner with greeting
+    - Weekly Task Completion bar chart
+    - Task Distribution pie chart (Cleaning, Cooking, Babysitting)
+    - Household task list
+    - Meal Planning with 3-day schedule
+    - My Documents (signed agreements)
+    - Weekly Schedule calendar view
 
-**Location:** `/config/azure-functions/`
+---
 
-### 🔄 Phase 5: User Experience & Polish (NEXT)
-**Tasks:**
-- Custom dashboards for each persona (Hans, Charl, Lucky, Irma)
-- Mobile optimization
-- Accessibility (WCAG 2.1 AA)
-- Performance optimization
+## API Endpoints
 
-### ⏳ Phase 5: User Experience & Polish
-- Custom dashboards for each persona
-- Mobile optimization
-- Accessibility improvements
+### Authentication
+- `POST /api/auth/login` - User authentication
+- `POST /api/auth/reset-password` - Password reset (SMS/Email)
+- `GET /api/auth/users` - Get all users (without passwords)
 
-### ⏳ Phase 6: Testing & Validation
-- Functional testing (all 8 modules)
-- Integration testing
-- Security testing
+### Dashboard Data
+- `GET /api/stats` - Platform statistics
+- `GET /api/tasks` - Task management
+- `GET /api/assets` - Asset registry
+- `GET /api/employees` - Employee data
+- `GET /api/documents` - Document management
+- `GET /api/expenses` - Expense tracking
+- `GET /api/time` - Time tracking
+- `GET /api/vehicles` - Vehicle logs
+- `GET /api/incidents` - Incident reports
+- `GET /api/contractors` - Contractor management
+
+---
+
+## Upcoming Tasks (P1)
+
+### Phase 6: Frontend Integration
+- Connect dashboards to live DocuSeal and Baserow APIs
+- Replace stubbed endpoints with real data
+- Implement real-time updates
+
+### Phase 7: Testing & UAT
+- End-to-end testing of all user flows
 - Performance testing
+- Security audit
 
-### ⏳ Phase 7: Training & Go-Live
-- User training materials
-- UAT with all 4 users
-- Go-live and stabilization
-
----
-
-## Database Schema (Baserow - 8 Tables)
-
-1. **Employees** - ID, Name, ID Number, Role, Contract Ref, Leave Balance
-2. **Assets** - Asset ID, Type, Condition, Location, Checked Out By
-3. **Tasks** - Title, Assigned To, Due Date, Priority, Status, Time Spent
-4. **Time Clock Entries** - Employee, Date, Clock In/Out, Overtime
-5. **Incidents** - Type, Date, Reporter, Severity, Status, Actions
-6. **Vehicle Logs** - Driver, Vehicle, Odometer, Distance, Fuel, Child Passenger
-7. **Expenses** - Requester, Type, Category, Amount, Approval Status, Receipt
-8. **Document Expiry** - Doc Name, Type, Next Review, Status, DocuSeal Ref
+### Phase 8: Deployment & Go-Live
+- Execute Terraform deployment to Azure
+- Configure production environment
+- Go live checklist
 
 ---
 
-## Key API Endpoints (Stubbed)
+## Future Enhancements (Backlog)
 
-| Endpoint | Description |
-|----------|-------------|
-| `/api/stats` | Dashboard statistics |
-| `/api/documents` | Governance documents |
-| `/api/employees` | Employee records |
-| `/api/expenses` | Expense tracking |
-| `/api/contractors` | Contractor milestones |
-| `/api/tasks` | Task management |
-| `/api/assets` | Asset registry |
-| `/api/incidents` | Incident reports |
-| `/api/vehicles` | Vehicle logs |
-| `/api/time` | Time tracking |
+- Payroll/Accounting Integration (QuickBooks/Xero)
+- Biometric Time Clock Integration
+- Native Mobile Apps (React Native/Flutter)
+- Vehicle GPS Tracking
+- Predictive Maintenance AI
 
 ---
 
-## File Structure
+## Files Reference
 
-```
-/app
-├── .github/
-│   ├── workflows/             # CI/CD Workflows
-│   │   ├── deployment-checklist.yml  # Infrastructure verification
-│   │   ├── deploy.yml                 # Full deployment pipeline
-│   │   ├── deploy-functions.yml       # Azure Functions deployment
-│   │   ├── terraform-plan.yml         # Terraform plan on PRs
-│   │   ├── terraform-apply.yml        # Terraform apply on merge
-│   │   └── terraform-destroy.yml      # Infrastructure teardown
-│   ├── WORKFLOWS.md           # CI/CD documentation
-│   └── SECRETS_TEMPLATE.md    # Required secrets list
-├── app/                       # Next.js application
-│   ├── api/                   # Stubbed API routes
-│   ├── page.tsx               # Landing page
-│   └── layout.tsx             # Root layout
-├── components/                # React components
-├── config/                    # Platform configuration
-│   ├── docker-compose.yml
-│   ├── .env.template
-│   ├── docuseal/
-│   ├── baserow/
-│   ├── nginx/
-│   ├── supervisor/
-│   ├── templates/
-│   ├── scripts/
-│   └── azure-functions/       # 8 Azure Functions (Phase 4)
-│       ├── shared/utils.py    # Shared utilities
-│       ├── DocuSealWebhook/
-│       ├── DocumentExpiryAlert/
-│       ├── RecurringTasks/
-│       ├── OvertimeCalculator/
-│       ├── LeaveBalanceUpdate/
-│       ├── ExpenseNotification/
-│       ├── BudgetReport/
-│       └── BackupExport/
-├── docs/                      # Design documents
-├── terraform/                 # Infrastructure as Code
-├── BACKLOG.md                 # Implementation backlog
-└── FUTURE_ENHANCEMENTS.md     # Future roadmap
-```
+### Core Application
+- `/app/lib/users.ts` - User data and authentication
+- `/app/app/api/auth/` - Authentication API routes
+- `/app/app/login/page.tsx` - Login and password reset UI
+- `/app/app/dashboard/hans/page.tsx` - Admin dashboard
+- `/app/app/dashboard/charl/page.tsx` - Workshop operator dashboard
+- `/app/app/dashboard/lucky/page.tsx` - Gardener dashboard
+- `/app/app/dashboard/irma/page.tsx` - Resident dashboard
+- `/app/components/dashboard-layout.tsx` - Shared dashboard layout
 
----
+### Configuration
+- `/app/config/` - DocuSeal, Baserow, Supervisor configs
+- `/app/terraform/` - Azure infrastructure code
+- `/app/.github/workflows/` - CI/CD pipelines
 
-## Remaining Work (Priority Order)
-
-### P0 - Critical
-1. Production deployment of DocuSeal + Baserow
-2. User account creation
-3. Webhook integration
-4. Azure Functions deployment
-
-### P1 - High
-1. Custom dashboards per persona
-2. Mobile optimization
-3. Full end-to-end testing
-
-### P2 - Medium
-1. Payroll integration
-2. Biometric time clock
-3. Mobile apps
-
-### P3 - Future
-1. GPS vehicle tracking
-2. Predictive maintenance AI
-3. Multi-property support
-
----
-
-## Notes
-
-- The application is now managed by **supervisor** (`supervisorctl status nextjs`)
-- Start command: `supervisorctl start nextjs` (or `yarn build && yarn start` manually)
-- Backend is **MOCKED** - real backend will be DocuSeal + Baserow
-- Preview URL: https://compliance-hub-395.preview.emergentagent.com
-- Deployment checklist: `python3 /app/config/scripts/deployment-checklist.py`
-
-## CI/CD Workflows
-
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `deployment-checklist.yml` | PR, Push, Daily 6am | Infrastructure verification |
-| `deploy.yml` | Manual, Release | Full deployment pipeline |
-| `deploy-functions.yml` | Push (scripts), Manual | Azure Functions |
-| `terraform-plan.yml` | PR (terraform changes) | Terraform preview |
-| `terraform-apply.yml` | Merge to main | Terraform apply |
-
-See `/.github/WORKFLOWS.md` for full documentation.
-
----
-
-Last Updated: December 2025
+### Documentation
+- `/app/BACKLOG.md` - Implementation backlog
+- `/app/FUTURE_ENHANCEMENTS.md` - Future features
+- `/app/docs/NAMING_CONVENTION.md` - Azure naming standards
