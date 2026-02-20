@@ -26,6 +26,48 @@ interface InventoryItem {
   }>
 }
 
+// Helper function to guess category from item name
+function guessCategory(name: string): InventoryItem['category'] {
+  const lowerName = name.toLowerCase()
+  
+  if (/cement|brick|sand|gravel|paint|plaster|timber|wood|pvc|pipe/i.test(lowerName)) {
+    return 'building_materials'
+  }
+  if (/detergent|bleach|soap|cleaner|polish|mop|broom/i.test(lowerName)) {
+    return 'cleaning_supplies'
+  }
+  if (/fertilizer|seed|soil|mulch|compost|plant|garden/i.test(lowerName)) {
+    return 'garden_supplies'
+  }
+  if (/drill|screw|nail|bolt|nut|tape|glue|sandpaper|bit|blade/i.test(lowerName)) {
+    return 'workshop_consumables'
+  }
+  if (/diesel|petrol|fuel|oil/i.test(lowerName)) {
+    return 'fuel'
+  }
+  if (/chlorine|pool|kitchen|bathroom/i.test(lowerName)) {
+    return 'household'
+  }
+  
+  return 'other'
+}
+
+// Helper function to guess unit from item name
+function guessUnit(name: string): string {
+  const lowerName = name.toLowerCase()
+  
+  if (/kg|kilogram/i.test(lowerName)) return 'kg'
+  if (/litre|liter|ml|l$/i.test(lowerName)) return 'litres'
+  if (/bag|sack/i.test(lowerName)) return 'bags'
+  if (/bucket|tub|tin/i.test(lowerName)) return 'buckets'
+  if (/roll|tape/i.test(lowerName)) return 'rolls'
+  if (/pack|box|set/i.test(lowerName)) return 'packs'
+  if (/piece|pcs|pc/i.test(lowerName)) return 'pieces'
+  if (/metre|meter|m$/i.test(lowerName)) return 'metres'
+  
+  return 'units'
+}
+
 // In-memory inventory store
 let inventory: InventoryItem[] = [
   {
