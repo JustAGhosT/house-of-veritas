@@ -152,19 +152,25 @@ Transform an existing work management platform codebase into a professional, das
 │   ├── page.tsx               # Landing page
 │   └── layout.tsx             # Root layout
 ├── components/                # React components
-├── config/                    # Platform configuration (Phase 3)
+├── config/                    # Platform configuration
 │   ├── docker-compose.yml
 │   ├── .env.template
 │   ├── docuseal/
 │   ├── baserow/
 │   ├── nginx/
-│   ├── supervisor/            # Supervisor config for Next.js
+│   ├── supervisor/
 │   ├── templates/
-│   └── scripts/
-│       ├── deployment-checklist.py  # Azure verification script
-│       ├── setup-supervisor.sh      # Supervisor installation
-│       ├── seed-baserow.py          # Data seeding
-│       └── azure-function-*.py      # Azure Functions
+│   ├── scripts/
+│   └── azure-functions/       # 8 Azure Functions (Phase 4)
+│       ├── shared/utils.py    # Shared utilities
+│       ├── DocuSealWebhook/
+│       ├── DocumentExpiryAlert/
+│       ├── RecurringTasks/
+│       ├── OvertimeCalculator/
+│       ├── LeaveBalanceUpdate/
+│       ├── ExpenseNotification/
+│       ├── BudgetReport/
+│       └── BackupExport/
 ├── docs/                      # Design documents
 ├── terraform/                 # Infrastructure as Code
 ├── BACKLOG.md                 # Implementation backlog
