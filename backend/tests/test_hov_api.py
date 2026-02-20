@@ -352,10 +352,10 @@ class TestSecurityChecks:
     
     def test_password_not_in_login_response(self):
         """Verify password is never exposed in login response"""
-        # Use irma who wasn't affected by password reset tests
+        # Use hans who wasn't affected by password reset tests (lucky/irma were reset)
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "irma@houseofv.com",
-            "password": "irma123"
+            "email": "hans@houseofv.com",
+            "password": "hans123"
         })
         assert response.status_code == 200
         
@@ -364,7 +364,7 @@ class TestSecurityChecks:
         assert "password" not in data.get("user", {})
         # Check entire response doesn't contain password string
         response_text = response.text.lower()
-        assert "irma123" not in response_text
+        assert "hans123" not in response_text
     
     def test_api_returns_proper_error_codes(self):
         """Verify APIs return proper HTTP error codes"""
