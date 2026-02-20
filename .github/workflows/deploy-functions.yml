@@ -26,8 +26,8 @@ permissions:
   id-token: write
 
 env:
-  AZURE_RESOURCE_GROUP: 'rg-houseofveritas'
-  AZURE_FUNCTIONAPP_NAME: 'func-houseofveritas'
+  AZURE_RESOURCE_GROUP: 'nl-prod-hov-rg-san'
+  AZURE_FUNCTIONAPP_NAME: 'nl-prod-hov-func-san'
   PYTHON_VERSION: '3.11'
 
 jobs:
