@@ -63,16 +63,16 @@ export function Footer() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-16 pt-8 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4"
         >
-          <p className="text-sm text-zinc-500">&copy; {new Date().getFullYear()} Apex, Inc. All rights reserved.</p>
+          <p className="text-sm text-zinc-500">&copy; {new Date().getFullYear()} House of Veritas. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <a href="#" className="text-sm text-zinc-500 hover:text-white transition-colors">
-              Twitter
+              Documentation
             </a>
             <a href="#" className="text-sm text-zinc-500 hover:text-white transition-colors">
-              GitHub
+              Support
             </a>
             <a href="#" className="text-sm text-zinc-500 hover:text-white transition-colors">
-              Discord
+              Contact
             </a>
           </div>
         </motion.div>
