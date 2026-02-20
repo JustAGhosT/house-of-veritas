@@ -1,0 +1,19 @@
+# House of Veritas - Azure Functions Requirements
+
+# Azure Functions SDK
+azure-functions>=1.17.0
+
+# HTTP Requests
+requests>=2.31.0
+
+# Azure Storage (for backups)
+azure-storage-blob>=12.19.0
+
+# Email (SendGrid)
+sendgrid>=6.10.0
+
+# Twilio SMS (optional)
+twilio>=8.10.0
+
+# Date/Time utilities
+python-dateutil>=2.8.2
