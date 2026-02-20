@@ -274,7 +274,11 @@ TWILIO_PHONE_NUMBER=+1234567890
 
 ## Upcoming Tasks
 
-### P1: Phase 9 - Deployment & Go-Live
+### P1: Phase 10 - Production Deployment
+- Deploy to Azure (requires Azure credentials)
+- Configure production environment
+- Set up Twilio for real SMS notifications
+- Configure Google Calendar OAuth credentials
 - Deploy DocuSeal and Baserow to Azure
 - Configure production environment variables
 - Execute Terraform deployment
