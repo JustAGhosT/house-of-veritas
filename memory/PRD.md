@@ -386,6 +386,9 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Native Mobile Apps (React Native/Flutter)
 - Vehicle GPS Tracking
 - Advanced AI Analytics (trend analysis, anomaly detection)
+- Online Store Integration (Cashbuild, Builders) for order lists
+- Asset photo gallery with Azure Blob Storage
+- Real marketplace API integrations (posting to Gumtree/FB/OLX)
 
 ---
 
@@ -407,17 +410,29 @@ TWILIO_PHONE_NUMBER=+1234567890
 - `/app/components/realtime-indicator.tsx` - Real-time status indicator
 - `/app/components/reports-panel.tsx` - Reports UI
 - `/app/components/activity-timeline.tsx` - Activity timeline
-- `/app/components/dashboard-layout.tsx` - Dashboard layout with auth + real-time
+- `/app/components/dashboard-layout.tsx` - Dashboard layout with grid background
+- `/app/components/grid-room-background.tsx` - Grid/3D background component
+- `/app/components/image-upload.tsx` - Image upload component
 - `/app/app/login/page.tsx` - Login page
 - `/app/app/offline/page.tsx` - Offline fallback
 - `/app/app/dashboard/*/page.tsx` - Persona dashboards
+- `/app/app/dashboard/hans/assets/page.tsx` - Asset management
+- `/app/app/dashboard/hans/inventory/page.tsx` - Inventory management
+- `/app/app/dashboard/hans/ocr/page.tsx` - OCR Scanner
+- `/app/app/dashboard/hans/marketplace/page.tsx` - Marketplace
 - `/app/app/dashboard/hans/settings/page.tsx` - Settings page
 - `/app/app/dashboard/hans/reports/page.tsx` - Reports page
+- `/app/app/dashboard/lucky/inventory/page.tsx` - Lucky's garden inventory
 
 ### API Endpoints
 - `/app/app/api/realtime/events/route.ts` - SSE endpoint
 - `/app/app/api/realtime/emit/route.ts` - Event emit API
 - `/app/app/api/audit/route.ts` - Audit log API
+- `/app/app/api/assets/enhanced/route.ts` - Asset management API
+- `/app/app/api/inventory/route.ts` - Inventory API with OCR import
+- `/app/app/api/ocr/route.ts` - OCR processing API
+- `/app/app/api/marketplace/route.ts` - Marketplace management API
+- `/app/app/api/files/route.ts` - File upload API
 - `/app/app/api/reports/route.ts` - Reports API
 - `/app/app/api/notifications/route.ts` - Notifications API
 - `/app/app/api/uploads/route.ts` - File uploads API
