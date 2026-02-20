@@ -20,7 +20,7 @@ export function FinalCTA() {
       >
         <h2
           className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight"
-          style={{ fontFamily: "var(--font-cal-sans)" }}
+          style={{ fontFamily: "var(--font-inter)" }}
         >
           Ready to transform your governance?
         </h2>

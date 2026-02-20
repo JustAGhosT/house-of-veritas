@@ -129,7 +129,7 @@ export function BentoGrid() {
         >
           <h2
             className="text-3xl sm:text-4xl font-bold text-white mb-4"
-            style={{ fontFamily: "var(--font-instrument-sans)" }}
+            style={{ fontFamily: "var(--font-inter)" }}
           >
             Everything you need to ship
           </h2>

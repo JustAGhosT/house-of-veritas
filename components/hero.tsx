@@ -40,7 +40,7 @@ export function Hero() {
         {/* Headline with text mask animation */}
         <h1
           className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6"
-          style={{ fontFamily: "var(--font-cal-sans), sans-serif" }}
+          style={{ fontFamily: "var(--font-inter), sans-serif" }}
         >
           <span className="block overflow-hidden">
             <motion.span className="block" variants={textRevealVariants} initial="hidden" animate="visible" custom={0}>

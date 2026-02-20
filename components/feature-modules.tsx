@@ -116,7 +116,7 @@ export function FeatureModules() {
         >
           <h2
             className="text-3xl sm:text-4xl font-bold text-white mb-4"
-            style={{ fontFamily: "var(--font-instrument-sans)" }}
+            style={{ fontFamily: "var(--font-inter)" }}
           >
             Complete Governance Platform
           </h2>
