@@ -1,0 +1,32 @@
+# Example terraform.tfvars file
+# Copy this to terraform.tfvars and fill in your values
+# DO NOT commit terraform.tfvars to version control!
+
+environment         = "production"
+location            = "South Africa North"
+resource_group_name = "rg-houseofveritas-prod"
+
+# Storage (must be globally unique, lowercase, no hyphens)
+storage_account_name = "sthouseofveritas"
+
+# Key Vault (must be globally unique)
+key_vault_name = "kv-houseofveritas"
+
+# Database
+db_server_name      = "pg-houseofveritas"
+db_admin_username   = "hov_admin"
+db_admin_password   = "CHANGE_ME_SECURE_PASSWORD_HERE"  # Generate a strong password
+
+# Domain
+domain_name = "houseofveritas.za"  # Or .co.za
+
+# SMTP Configuration (Gmail example)
+smtp_host     = "smtp.gmail.com"
+smtp_port     = "587"
+smtp_username = "your-email@gmail.com"
+smtp_password = "your-app-specific-password"
+
+# SSL Certificate
+# Generate with: cat your-cert.pfx | base64
+ssl_certificate_data     = "BASE64_ENCODED_PFX_CERTIFICATE"
+ssl_certificate_password = "your-certificate-password"
