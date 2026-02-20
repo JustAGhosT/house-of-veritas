@@ -426,19 +426,19 @@ All endpoints return JSON data aligned with the technical specifications.
 - ✅ Document template list (18+ governance documents)
 
 ### Phase 4: Production Deployment (Next)
-- DocuSeal + Baserow integration
-- Azure infrastructure deployment
-- User authentication
-- Real data migration
+- Deploy DocuSeal + Baserow on Azure
+- User account creation (4 users)
+- Data migration from seeding scripts
 - UAT and training
+- Webhook registration
 
-### Phase 3: Enhancements (3-6 months)
+### Phase 5: Enhancements (3-6 months)
 - Mobile apps (React Native)
 - Biometric time clock
 - Advanced analytics
 - Reporting suite
 
-### Phase 4: Scale (6-12 months)
+### Phase 6: Scale (6-12 months)
 - Multi-property support
 - Payroll integration
 - GPS vehicle tracking
