@@ -126,27 +126,38 @@ Transform an existing work management platform codebase into a professional, das
 
 ```
 /app
-├── app/                    # Next.js application
-│   ├── api/               # Stubbed API routes
-│   ├── page.tsx           # Landing page
-│   └── layout.tsx         # Root layout
-├── components/            # React components
-├── config/                # Platform configuration (NEW - Phase 3)
+├── .github/
+│   ├── workflows/             # CI/CD Workflows
+│   │   ├── deployment-checklist.yml  # Infrastructure verification
+│   │   ├── deploy.yml                 # Full deployment pipeline
+│   │   ├── deploy-functions.yml       # Azure Functions deployment
+│   │   ├── terraform-plan.yml         # Terraform plan on PRs
+│   │   ├── terraform-apply.yml        # Terraform apply on merge
+│   │   └── terraform-destroy.yml      # Infrastructure teardown
+│   ├── WORKFLOWS.md           # CI/CD documentation
+│   └── SECRETS_TEMPLATE.md    # Required secrets list
+├── app/                       # Next.js application
+│   ├── api/                   # Stubbed API routes
+│   ├── page.tsx               # Landing page
+│   └── layout.tsx             # Root layout
+├── components/                # React components
+├── config/                    # Platform configuration (Phase 3)
 │   ├── docker-compose.yml
 │   ├── .env.template
 │   ├── docuseal/
 │   ├── baserow/
 │   ├── nginx/
+│   ├── supervisor/            # Supervisor config for Next.js
 │   ├── templates/
 │   └── scripts/
-├── docs/                  # Design documents
-│   ├── 01-platform-specification.md
-│   ├── 02-azure-deployment-guide.md
-│   ├── 03-functional-design.md
-│   └── 04-technical-design.md
-├── terraform/             # Infrastructure as Code
-├── BACKLOG.md             # Implementation backlog
-└── FUTURE_ENHANCEMENTS.md # Future roadmap
+│       ├── deployment-checklist.py  # Azure verification script
+│       ├── setup-supervisor.sh      # Supervisor installation
+│       ├── seed-baserow.py          # Data seeding
+│       └── azure-function-*.py      # Azure Functions
+├── docs/                      # Design documents
+├── terraform/                 # Infrastructure as Code
+├── BACKLOG.md                 # Implementation backlog
+└── FUTURE_ENHANCEMENTS.md     # Future roadmap
 ```
 
 ---
