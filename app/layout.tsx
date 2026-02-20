@@ -18,7 +18,27 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "House of Veritas - Digital Governance & Estate Management",
   description: "Secure platform for estate management, document compliance, and operational accountability. BCEA-compliant with full audit trails.",
-    generator: 'v0.app'
+  generator: 'v0.app',
+  manifest: '/manifest.json',
+  themeColor: '#1E40AF',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'House of Veritas',
+  },
+  formatDetection: {
+    telephone: true,
+  },
+  icons: {
+    icon: '/icons/icon.svg',
+    apple: '/icons/icon-192x192.svg',
+  },
 }
 
 export default function RootLayout({
