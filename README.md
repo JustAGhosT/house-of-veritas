@@ -33,6 +33,11 @@ Comprehensive design documents are available in the [`/docs`](/docs) directory:
 3. **[Functional Design](/docs/03-functional-design.md)** - 8 feature modules, workflows, user stories
 4. **[Technical Design](/docs/04-technical-design.md)** - Architecture, database schema, APIs, security
 
+### Project Management
+
+- **[Implementation Backlog](/BACKLOG.md)** - Prioritized backlog for full end-to-end implementation (7 phases)
+- **[Future Enhancements](/FUTURE_ENHANCEMENTS.md)** - Strategic roadmap for platform evolution and upgrades
+
 ---
 
 ## 🏗️ Architecture
