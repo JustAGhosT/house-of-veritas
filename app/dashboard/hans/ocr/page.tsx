@@ -82,6 +82,13 @@ export default function OCRPage() {
   const [error, setError] = useState<string | null>(null)
   const [history, setHistory] = useState<OCRResult[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  // Import to Inventory state
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
+  const [importLocation, setImportLocation] = useState("Workshop Store")
+  const [importCategory, setImportCategory] = useState("")
+  const [importing, setImporting] = useState(false)
+  const [importSuccess, setImportSuccess] = useState<{ imported: number; updated: number } | null>(null)
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
