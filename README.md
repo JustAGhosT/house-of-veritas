@@ -238,11 +238,23 @@ house-of-veritas/
 │   ├── footer.tsx              # Footer with links
 │   ├── final-cta.tsx           # Bottom CTA section
 │   └── ui/                     # shadcn/ui components
+├── config/                     # Platform configuration
+│   ├── docker-compose.yml      # Local development orchestration
+│   ├── .env.template           # Environment variables template
+│   ├── docuseal/               # DocuSeal setup documentation
+│   ├── baserow/                # Baserow setup & schema docs
+│   ├── nginx/                  # Reverse proxy configuration
+│   ├── templates/              # Document template list (18+)
+│   └── scripts/                # Setup & automation scripts
 ├── docs/
 │   ├── 01-platform-specification.md
 │   ├── 02-azure-deployment-guide.md
 │   ├── 03-functional-design.md
 │   └── 04-technical-design.md
+├── terraform/                  # Infrastructure as Code (Azure)
+│   ├── modules/                # Reusable Terraform modules
+│   ├── environments/           # Environment configurations
+│   └── DEPLOYMENT.md           # Deployment guide
 ├── hooks/                      # Custom React hooks
 ├── lib/                        # Utility functions
 ├── public/                     # Static assets
@@ -393,14 +405,27 @@ All endpoints return JSON data aligned with the technical specifications.
 
 ## 🛣️ Roadmap
 
-### Phase 1: MVP (Current)
+### Phase 1: MVP ✅ Complete
 - ✅ Landing page with feature showcase
 - ✅ Stubbed backend APIs
 - ✅ Professional design system
 - ✅ Role-based dashboard previews
 - ✅ Comprehensive documentation
 
-### Phase 2: Production Deployment (0-3 months)
+### Phase 2: Infrastructure ✅ Complete
+- ✅ Terraform modules (network, compute, storage, security, gateway)
+- ✅ GitHub Actions CI/CD workflows
+- ✅ Azure deployment documentation
+
+### Phase 3: Platform Configuration ✅ Complete
+- ✅ Docker Compose for local development
+- ✅ DocuSeal configuration & setup guide
+- ✅ Baserow schema & setup guide (8 tables)
+- ✅ Data seeding scripts (employees, assets, documents)
+- ✅ Azure Functions for webhooks & automation
+- ✅ Document template list (18+ governance documents)
+
+### Phase 4: Production Deployment (Next)
 - DocuSeal + Baserow integration
 - Azure infrastructure deployment
 - User authentication
@@ -467,6 +492,8 @@ Built with:
 
 ## 📝 Version History
 
+- **v1.2.0** (2025-12) - Phase 3 complete: DocuSeal/Baserow configuration, scripts, automation
+- **v1.1.0** (2025-01-23) - Phase 2 complete: Terraform infrastructure, CI/CD
 - **v1.0.0** (2025-01-23) - Initial release with landing page and stubbed backend
 - **v0.1.0** (2025-01-20) - Project initialization and design documents
 
