@@ -30,7 +30,9 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${manrope.variable} ${inter.variable} font-sans antialiased`}>
         <div className="noise-overlay" aria-hidden="true" />
-        {children}
+        <Providers>
+          {children}
+        </Providers>
         <Analytics />
       </body>
     </html>
