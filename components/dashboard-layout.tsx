@@ -21,6 +21,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  BarChart3,
 } from "lucide-react"
 
 // Navigation items per role
@@ -35,6 +36,7 @@ const NAV_ITEMS = {
     { name: "Expenses", href: "/dashboard/hans/expenses", icon: DollarSign },
     { name: "Vehicles", href: "/dashboard/hans/vehicles", icon: Car },
     { name: "Incidents", href: "/dashboard/hans/incidents", icon: AlertTriangle },
+    { name: "Reports", href: "/dashboard/hans/reports", icon: BarChart3 },
     { name: "Settings", href: "/dashboard/hans/settings", icon: Settings },
   ],
   charl: [
