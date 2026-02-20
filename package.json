@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.31.0",
     "@emotion/is-prop-valid": "latest",
     "@hookform/resolvers": "^3.10.0",
     "@nuxt/kit": "latest",
