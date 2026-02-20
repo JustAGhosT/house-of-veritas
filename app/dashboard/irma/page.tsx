@@ -17,6 +17,8 @@ import {
   Clock,
   Heart,
   ShoppingCart,
+  CookingPot,
+  Shirt,
 } from "lucide-react"
 import {
   BarChart,
@@ -59,12 +61,49 @@ const mealSchedule = [
   { day: "Saturday", breakfast: "Pancakes", lunch: "Leftovers", dinner: "Braai Night", status: "planned" },
 ]
 
+// Home/Domestic-themed background pattern
+function HomePattern() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Heart patterns */}
+      <svg className="absolute top-10 right-10 w-64 h-64 text-purple-500/5" viewBox="0 0 100 100">
+        <path d="M50 88 C20 60 5 40 5 25 C5 10 20 5 35 15 C42 20 47 28 50 35 C53 28 58 20 65 15 C80 5 95 10 95 25 C95 40 80 60 50 88 Z" fill="currentColor"/>
+      </svg>
+      {/* House */}
+      <svg className="absolute bottom-20 left-10 w-48 h-48 text-purple-500/5" viewBox="0 0 100 100">
+        <polygon points="50,10 90,45 90,90 10,90 10,45" fill="currentColor"/>
+        <rect x="40" y="60" width="20" height="30" fill="rgba(10,10,15,0.5)"/>
+        <rect x="60" y="50" width="15" height="15" fill="rgba(10,10,15,0.3)"/>
+        <rect x="25" y="50" width="15" height="15" fill="rgba(10,10,15,0.3)"/>
+      </svg>
+      {/* Sparkle/Star */}
+      <svg className="absolute top-1/3 left-1/4 w-32 h-32 text-purple-500/5" viewBox="0 0 100 100">
+        <path d="M50 5 L55 40 L90 50 L55 60 L50 95 L45 60 L10 50 L45 40 Z" fill="currentColor"/>
+      </svg>
+      {/* Baby/Child icon */}
+      <svg className="absolute bottom-1/4 right-1/4 w-40 h-40 text-pink-500/5" viewBox="0 0 100 100">
+        <circle cx="50" cy="35" r="25" fill="currentColor"/>
+        <ellipse cx="50" cy="75" rx="30" ry="20" fill="currentColor"/>
+      </svg>
+      {/* Cooking pot */}
+      <svg className="absolute top-1/2 right-10 w-36 h-36 text-amber-500/5" viewBox="0 0 100 100">
+        <ellipse cx="50" cy="35" rx="35" ry="10" fill="currentColor"/>
+        <path d="M15 35 L15 70 Q15 85 50 85 Q85 85 85 70 L85 35" fill="currentColor"/>
+        <rect x="10" y="25" width="80" height="5" fill="currentColor"/>
+        <rect x="45" y="15" width="10" height="15" fill="currentColor"/>
+      </svg>
+      {/* Decorative dots pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:30px_30px]" />
+    </div>
+  )
+}
+
 // Custom tooltip for charts
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#1a1a24] border border-white/10 rounded-lg p-3 shadow-xl">
-        <p className="text-white font-medium mb-1">{label}</p>
+      <div className="bg-purple-950 border border-purple-500/20 rounded-lg p-3 shadow-xl">
+        <p className="text-purple-100 font-medium mb-1">{label}</p>
         {payload.map((entry: any, index: number) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
             {entry.name}: {entry.value}
@@ -93,90 +132,95 @@ export default function IrmaDashboard() {
 
   return (
     <DashboardLayout persona="irma">
+      {/* Persona-specific background */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-purple-950/40 via-[#0a0a0f] to-pink-950/30" />
+      <HomePattern />
+
       {/* Welcome Banner */}
-      <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-purple-600/20 to-purple-800/20 border border-purple-500/30" data-testid="welcome-banner">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-xl bg-purple-500/20 flex items-center justify-center text-3xl">
+      <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-purple-600/30 to-pink-700/20 border border-purple-500/30 backdrop-blur-sm relative overflow-hidden" data-testid="welcome-banner">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgMzIgQzEwIDI0IDUgMTggNSAxMiBDNSA2IDEwIDQgMTUgOCBDMTggMTAgMTkgMTMgMjAgMTUgQzIxIDEzIDIyIDEwIDI1IDggQzMwIDQgMzUgNiAzNSAxMiBDMzUgMTggMzAgMjQgMjAgMzIgWiIgZmlsbD0icmdiYSgxNjgsMTMzLDI0NywwLjA1KSIvPjwvc3ZnPg==')] opacity-50" />
+        <div className="flex items-center gap-4 relative">
+          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 border border-purple-500/30 flex items-center justify-center text-3xl">
             🏠
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white">{getGreeting()}, Irma</h2>
-            <p className="text-white/60">Here's your household overview for today</p>
+            <h2 className="text-2xl font-bold text-purple-100">{getGreeting()}, Irma</h2>
+            <p className="text-purple-200/60">Here's your household overview for today</p>
           </div>
         </div>
       </div>
 
       {/* Specialty Tags */}
       <div className="mb-6 flex flex-wrap gap-2">
-        <span className="px-3 py-1.5 rounded-full bg-purple-500/20 text-purple-400 text-sm font-medium flex items-center gap-2">
+        <span className="px-3 py-1.5 rounded-full bg-purple-500/20 text-purple-400 text-sm font-medium flex items-center gap-2 border border-purple-500/30">
           <Sparkles className="w-4 h-4" /> Cleaning
         </span>
-        <span className="px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-400 text-sm font-medium flex items-center gap-2">
-          <UtensilsCrossed className="w-4 h-4" /> Cooking
+        <span className="px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-400 text-sm font-medium flex items-center gap-2 border border-amber-500/30">
+          <CookingPot className="w-4 h-4" /> Cooking
         </span>
-        <span className="px-3 py-1.5 rounded-full bg-pink-500/20 text-pink-400 text-sm font-medium flex items-center gap-2">
+        <span className="px-3 py-1.5 rounded-full bg-pink-500/20 text-pink-400 text-sm font-medium flex items-center gap-2 border border-pink-500/30">
           <Baby className="w-4 h-4" /> Babysitting
         </span>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="p-4 rounded-xl bg-white/5 border border-white/10" data-testid="stat-tasks-today">
+        <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/20 backdrop-blur-sm" data-testid="stat-tasks-today">
           <div className="flex items-center gap-3 mb-2">
             <ClipboardList className="w-5 h-5 text-purple-400" />
-            <p className="text-white/60 text-sm">Today's Tasks</p>
+            <p className="text-purple-200/60 text-sm">Today's Tasks</p>
           </div>
-          <p className="text-2xl font-bold text-white">3</p>
+          <p className="text-2xl font-bold text-purple-100">3</p>
           <p className="text-purple-400 text-sm">2 completed</p>
         </div>
-        <div className="p-4 rounded-xl bg-white/5 border border-white/10" data-testid="stat-documents">
+        <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/20 backdrop-blur-sm" data-testid="stat-documents">
           <div className="flex items-center gap-3 mb-2">
             <FileText className="w-5 h-5 text-purple-400" />
-            <p className="text-white/60 text-sm">Documents</p>
+            <p className="text-purple-200/60 text-sm">Documents</p>
           </div>
-          <p className="text-2xl font-bold text-white">4</p>
+          <p className="text-2xl font-bold text-purple-100">4</p>
           <p className="text-green-400 text-sm">All signed</p>
         </div>
-        <div className="p-4 rounded-xl bg-white/5 border border-white/10" data-testid="stat-weekly">
+        <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/20 backdrop-blur-sm" data-testid="stat-weekly">
           <div className="flex items-center gap-3 mb-2">
             <Calendar className="w-5 h-5 text-purple-400" />
-            <p className="text-white/60 text-sm">This Week</p>
+            <p className="text-purple-200/60 text-sm">This Week</p>
           </div>
-          <p className="text-2xl font-bold text-white">24</p>
-          <p className="text-white/50 text-sm">tasks completed</p>
+          <p className="text-2xl font-bold text-purple-100">24</p>
+          <p className="text-purple-200/50 text-sm">tasks completed</p>
         </div>
-        <div className="p-4 rounded-xl bg-white/5 border border-white/10" data-testid="stat-meals">
+        <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/20 backdrop-blur-sm" data-testid="stat-meals">
           <div className="flex items-center gap-3 mb-2">
             <UtensilsCrossed className="w-5 h-5 text-purple-400" />
-            <p className="text-white/60 text-sm">Meals Planned</p>
+            <p className="text-purple-200/60 text-sm">Meals Planned</p>
           </div>
-          <p className="text-2xl font-bold text-white">9</p>
-          <p className="text-white/50 text-sm">next 3 days</p>
+          <p className="text-2xl font-bold text-purple-100">9</p>
+          <p className="text-purple-200/50 text-sm">next 3 days</p>
         </div>
       </div>
 
       {/* Charts Row */}
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
         {/* Weekly Completion */}
-        <div className="bg-[#0d0d12] border border-white/10 rounded-2xl p-6 lg:col-span-2" data-testid="weekly-completion-chart">
+        <div className="bg-purple-950/40 border border-purple-500/20 rounded-2xl p-6 lg:col-span-2 backdrop-blur-sm" data-testid="weekly-completion-chart">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-white font-semibold">Weekly Task Completion</h3>
-              <p className="text-white/50 text-sm">Tasks completed vs total</p>
+              <h3 className="text-purple-100 font-semibold">Weekly Task Completion</h3>
+              <p className="text-purple-200/50 text-sm">Tasks completed vs total</p>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-white">92%</p>
+              <p className="text-2xl font-bold text-purple-100">92%</p>
               <p className="text-green-400 text-sm">Completion rate</p>
             </div>
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weeklyTaskData} barGap={8}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                <XAxis dataKey="day" stroke="#ffffff60" fontSize={12} />
-                <YAxis stroke="#ffffff60" fontSize={12} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(168,85,247,0.1)" />
+                <XAxis dataKey="day" stroke="rgba(168,85,247,0.6)" fontSize={12} />
+                <YAxis stroke="rgba(168,85,247,0.6)" fontSize={12} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="total" fill="#ffffff15" radius={[4, 4, 0, 0]} name="Total" />
+                <Bar dataKey="total" fill="rgba(168,85,247,0.2)" radius={[4, 4, 0, 0]} name="Total" />
                 <Bar dataKey="completed" fill="#a855f7" radius={[4, 4, 0, 0]} name="Completed" />
               </BarChart>
             </ResponsiveContainer>
@@ -184,9 +228,9 @@ export default function IrmaDashboard() {
         </div>
 
         {/* Task Distribution */}
-        <div className="bg-[#0d0d12] border border-white/10 rounded-2xl p-6" data-testid="task-distribution-chart">
-          <h3 className="text-white font-semibold mb-2">Task Distribution</h3>
-          <p className="text-white/50 text-sm mb-4">By category this month</p>
+        <div className="bg-purple-950/40 border border-purple-500/20 rounded-2xl p-6 backdrop-blur-sm" data-testid="task-distribution-chart">
+          <h3 className="text-purple-100 font-semibold mb-2">Task Distribution</h3>
+          <p className="text-purple-200/50 text-sm mb-4">By category this month</p>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -211,8 +255,8 @@ export default function IrmaDashboard() {
             {taskTypeData.map((task) => (
               <div key={task.name} className="flex items-center gap-2 text-sm">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: task.color }} />
-                <span className="text-white/60">{task.name}</span>
-                <span className="text-white ml-auto">{task.value}%</span>
+                <span className="text-purple-200/60">{task.name}</span>
+                <span className="text-purple-100 ml-auto">{task.value}%</span>
               </div>
             ))}
           </div>
@@ -222,63 +266,63 @@ export default function IrmaDashboard() {
       {/* Main Content */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Household Tasks */}
-        <div className="bg-[#0d0d12] border border-white/10 rounded-2xl overflow-hidden" data-testid="household-tasks">
-          <div className="p-6 border-b border-white/10 flex items-center justify-between">
+        <div className="bg-purple-950/40 border border-purple-500/20 rounded-2xl overflow-hidden backdrop-blur-sm" data-testid="household-tasks">
+          <div className="p-6 border-b border-purple-500/20 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Home className="w-5 h-5 text-purple-400" />
               <div>
-                <h3 className="text-white font-semibold">Household Tasks</h3>
-                <p className="text-white/50 text-sm">Today's roster</p>
+                <h3 className="text-purple-100 font-semibold">Household Tasks</h3>
+                <p className="text-purple-200/50 text-sm">Today's roster</p>
               </div>
             </div>
           </div>
           <div className="p-4 space-y-3">
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group" data-testid="task-morning-kitchen">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group" data-testid="task-morning-kitchen">
               <CheckCircle className="w-5 h-5 text-green-400" />
               <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-purple-400" />
               </div>
               <div className="flex-1">
-                <p className="text-white/50 line-through">Morning kitchen clean</p>
-                <p className="text-white/40 text-sm">Completed at 8:30 AM</p>
+                <p className="text-purple-200/50 line-through">Morning kitchen clean</p>
+                <p className="text-purple-200/40 text-sm">Completed at 8:30 AM</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white/60" />
+              <ChevronRight className="w-4 h-4 text-purple-400/40 group-hover:text-purple-400/60" />
             </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group" data-testid="task-laundry">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group" data-testid="task-laundry">
               <CheckCircle className="w-5 h-5 text-green-400" />
               <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-purple-400" />
+                <Shirt className="w-4 h-4 text-purple-400" />
               </div>
               <div className="flex-1">
-                <p className="text-white/50 line-through">Laundry - bedding</p>
-                <p className="text-white/40 text-sm">Completed at 10:15 AM</p>
+                <p className="text-purple-200/50 line-through">Laundry - bedding</p>
+                <p className="text-purple-200/40 text-sm">Completed at 10:15 AM</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white/60" />
+              <ChevronRight className="w-4 h-4 text-purple-400/40 group-hover:text-purple-400/60" />
             </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group" data-testid="task-dinner">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group" data-testid="task-dinner">
               <AlertCircle className="w-5 h-5 text-amber-400" />
               <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                <UtensilsCrossed className="w-4 h-4 text-amber-400" />
+                <CookingPot className="w-4 h-4 text-amber-400" />
               </div>
               <div className="flex-1">
-                <p className="text-white font-medium">Meal preparation - dinner</p>
-                <p className="text-white/50 text-sm">Lamb Curry · Due by 5:00 PM</p>
+                <p className="text-purple-100 font-medium">Meal preparation - dinner</p>
+                <p className="text-purple-200/50 text-sm">Lamb Curry · Due by 5:00 PM</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white/60" />
+              <ChevronRight className="w-4 h-4 text-purple-400/40 group-hover:text-purple-400/60" />
             </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group" data-testid="task-babysitting">
-              <Circle className="w-5 h-5 text-white/40" />
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group" data-testid="task-babysitting">
+              <Circle className="w-5 h-5 text-purple-200/40" />
               <div className="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center">
                 <Baby className="w-4 h-4 text-pink-400" />
               </div>
               <div className="flex-1">
-                <p className="text-white font-medium">Evening childcare</p>
-                <p className="text-white/50 text-sm">6:00 PM - 8:00 PM</p>
+                <p className="text-purple-100 font-medium">Evening childcare</p>
+                <p className="text-purple-200/50 text-sm">6:00 PM - 8:00 PM</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white/60" />
+              <ChevronRight className="w-4 h-4 text-purple-400/40 group-hover:text-purple-400/60" />
             </div>
           </div>
-          <div className="p-4 border-t border-white/10">
+          <div className="p-4 border-t border-purple-500/20">
             <button className="w-full text-center text-purple-400 hover:text-purple-300 text-sm font-medium">
               View weekly schedule
             </button>
@@ -286,40 +330,40 @@ export default function IrmaDashboard() {
         </div>
 
         {/* Meal Planning */}
-        <div className="bg-[#0d0d12] border border-white/10 rounded-2xl overflow-hidden" data-testid="meal-planning">
-          <div className="p-6 border-b border-white/10 flex items-center justify-between">
+        <div className="bg-purple-950/40 border border-purple-500/20 rounded-2xl overflow-hidden backdrop-blur-sm" data-testid="meal-planning">
+          <div className="p-6 border-b border-purple-500/20 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <UtensilsCrossed className="w-5 h-5 text-purple-400" />
               <div>
-                <h3 className="text-white font-semibold">Meal Planning</h3>
-                <p className="text-white/50 text-sm">Upcoming meals</p>
+                <h3 className="text-purple-100 font-semibold">Meal Planning</h3>
+                <p className="text-purple-200/50 text-sm">Upcoming meals</p>
               </div>
             </div>
-            <button className="px-3 py-1.5 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors text-sm font-medium">
+            <button className="px-3 py-1.5 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors text-sm font-medium border border-purple-500/30">
               + Add Meal
             </button>
           </div>
           <div className="p-4 space-y-4">
             {mealSchedule.map((meal, index) => (
-              <div key={index} className={`p-4 rounded-xl ${meal.status === 'in_progress' ? 'bg-purple-500/10 border border-purple-500/30' : 'bg-white/5'}`}>
+              <div key={index} className={`p-4 rounded-xl ${meal.status === 'in_progress' ? 'bg-purple-500/20 border border-purple-500/30' : 'bg-purple-950/50 border border-purple-500/10'}`}>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-white font-medium">{meal.day}</span>
+                  <span className="text-purple-100 font-medium">{meal.day}</span>
                   {meal.status === 'in_progress' && (
-                    <span className="px-2 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs">Active</span>
+                    <span className="px-2 py-1 rounded-full bg-purple-500/30 text-purple-300 text-xs border border-purple-500/40">Active</span>
                   )}
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-sm">
                   <div>
-                    <p className="text-white/50 mb-1">Breakfast</p>
-                    <p className="text-white">{meal.breakfast}</p>
+                    <p className="text-purple-200/50 mb-1">Breakfast</p>
+                    <p className="text-purple-100">{meal.breakfast}</p>
                   </div>
                   <div>
-                    <p className="text-white/50 mb-1">Lunch</p>
-                    <p className="text-white">{meal.lunch}</p>
+                    <p className="text-purple-200/50 mb-1">Lunch</p>
+                    <p className="text-purple-100">{meal.lunch}</p>
                   </div>
                   <div>
-                    <p className="text-white/50 mb-1">Dinner</p>
-                    <p className="text-white">{meal.dinner}</p>
+                    <p className="text-purple-200/50 mb-1">Dinner</p>
+                    <p className="text-purple-100">{meal.dinner}</p>
                   </div>
                 </div>
               </div>
@@ -328,44 +372,44 @@ export default function IrmaDashboard() {
         </div>
 
         {/* My Documents */}
-        <div className="bg-[#0d0d12] border border-white/10 rounded-2xl overflow-hidden" data-testid="my-documents">
-          <div className="p-6 border-b border-white/10 flex items-center justify-between">
+        <div className="bg-purple-950/40 border border-purple-500/20 rounded-2xl overflow-hidden backdrop-blur-sm" data-testid="my-documents">
+          <div className="p-6 border-b border-purple-500/20 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <FileText className="w-5 h-5 text-purple-400" />
               <div>
-                <h3 className="text-white font-semibold">My Documents</h3>
-                <p className="text-white/50 text-sm">Signed agreements</p>
+                <h3 className="text-purple-100 font-semibold">My Documents</h3>
+                <p className="text-purple-200/50 text-sm">Signed agreements</p>
               </div>
             </div>
           </div>
           <div className="p-4 space-y-3">
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group">
               <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
                 <CheckCircle className="w-5 h-5 text-green-400" />
               </div>
               <div className="flex-1">
-                <p className="text-white font-medium">Resident Agreement</p>
-                <p className="text-white/50 text-sm">Signed Jan 2024 · Valid until Jan 2026</p>
+                <p className="text-purple-100 font-medium">Resident Agreement</p>
+                <p className="text-purple-200/50 text-sm">Signed Jan 2024 · Valid until Jan 2026</p>
               </div>
               <button className="text-purple-400 text-sm hover:text-purple-300">View</button>
             </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group">
               <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
                 <CheckCircle className="w-5 h-5 text-green-400" />
               </div>
               <div className="flex-1">
-                <p className="text-white font-medium">House Rules</p>
-                <p className="text-white/50 text-sm">Signed Jan 2024 · Annual review</p>
+                <p className="text-purple-100 font-medium">House Rules</p>
+                <p className="text-purple-200/50 text-sm">Signed Jan 2024 · Annual review</p>
               </div>
               <button className="text-purple-400 text-sm hover:text-purple-300">View</button>
             </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group">
               <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
                 <CheckCircle className="w-5 h-5 text-green-400" />
               </div>
               <div className="flex-1">
-                <p className="text-white font-medium">POPIA Consent</p>
-                <p className="text-white/50 text-sm">Signed Jan 2024 · 3-year validity</p>
+                <p className="text-purple-100 font-medium">POPIA Consent</p>
+                <p className="text-purple-200/50 text-sm">Signed Jan 2024 · 3-year validity</p>
               </div>
               <button className="text-purple-400 text-sm hover:text-purple-300">View</button>
             </div>
@@ -373,13 +417,13 @@ export default function IrmaDashboard() {
         </div>
 
         {/* Weekly Schedule Preview */}
-        <div className="bg-[#0d0d12] border border-white/10 rounded-2xl overflow-hidden" data-testid="weekly-schedule">
-          <div className="p-6 border-b border-white/10">
+        <div className="bg-purple-950/40 border border-purple-500/20 rounded-2xl overflow-hidden backdrop-blur-sm" data-testid="weekly-schedule">
+          <div className="p-6 border-b border-purple-500/20">
             <div className="flex items-center gap-3">
               <Calendar className="w-5 h-5 text-purple-400" />
               <div>
-                <h3 className="text-white font-semibold">This Week's Schedule</h3>
-                <p className="text-white/50 text-sm">Household task roster</p>
+                <h3 className="text-purple-100 font-semibold">This Week's Schedule</h3>
+                <p className="text-purple-200/50 text-sm">Household task roster</p>
               </div>
             </div>
           </div>
@@ -388,9 +432,9 @@ export default function IrmaDashboard() {
               {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, index) => {
                 const isToday = index === 3
                 return (
-                  <div key={day} className={`text-center p-3 rounded-xl ${isToday ? "bg-purple-500/20 border border-purple-500/30" : "bg-white/5"}`}>
-                    <p className={`text-sm font-medium mb-1 ${isToday ? "text-purple-400" : "text-white/60"}`}>{day}</p>
-                    <p className={`text-lg font-bold ${isToday ? "text-white" : "text-white/80"}`}>{16 + index}</p>
+                  <div key={day} className={`text-center p-3 rounded-xl ${isToday ? "bg-purple-500/30 border border-purple-500/40" : "bg-purple-950/50 border border-purple-500/10"}`}>
+                    <p className={`text-sm font-medium mb-1 ${isToday ? "text-purple-300" : "text-purple-200/60"}`}>{day}</p>
+                    <p className={`text-lg font-bold ${isToday ? "text-purple-100" : "text-purple-100/80"}`}>{16 + index}</p>
                     <div className="mt-2 space-y-1">
                       {index < 5 && (
                         <>
@@ -406,7 +450,7 @@ export default function IrmaDashboard() {
                 )
               })}
             </div>
-            <div className="mt-4 flex items-center gap-4 text-sm text-white/60">
+            <div className="mt-4 flex items-center gap-4 text-sm text-purple-200/60">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-1 rounded-full bg-purple-500/60" />
                 <span>Cleaning</span>
