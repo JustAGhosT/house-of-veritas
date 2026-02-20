@@ -14,17 +14,59 @@ This directory contains all configuration files, scripts, and templates needed t
 │   └── README.md             # Baserow setup guide
 ├── nginx/
 │   └── nginx.conf            # Reverse proxy configuration
+├── supervisor/
+│   └── nextjs.conf           # Supervisor config for Next.js
 ├── templates/
 │   └── document-list.md      # List of 18+ governance documents
 └── scripts/
-    ├── init-multi-db.sh      # PostgreSQL multi-database init
-    ├── seed-baserow.py       # Data seeding script
-    ├── generate-ssl-certs.sh # Self-signed SSL generator
-    ├── azure-function-webhook.py    # DocuSeal webhook handler
-    └── document-expiry-alert.py     # Daily expiry check function
+    ├── deployment-checklist.py   # Azure deployment verification
+    ├── setup-supervisor.sh       # Supervisor installation script
+    ├── init-multi-db.sh          # PostgreSQL multi-database init
+    ├── seed-baserow.py           # Data seeding script
+    ├── generate-ssl-certs.sh     # Self-signed SSL generator
+    ├── azure-function-webhook.py # DocuSeal webhook handler
+    └── document-expiry-alert.py  # Daily expiry check function
 ```
 
-## Quick Start (Local Development)
+## 🚀 Quick Start
+
+### Run Deployment Checklist
+
+Before deploying, run the checklist to see what's configured and what's missing:
+
+```bash
+# Run the deployment checklist
+python3 /app/config/scripts/deployment-checklist.py --verbose
+
+# Output as JSON (for CI/CD pipelines)
+python3 /app/config/scripts/deployment-checklist.py --json
+```
+
+The checklist verifies:
+- ✅ Prerequisites (Azure CLI, Terraform, local config)
+- ✅ Azure Resources (Resource Group, VNet, Storage, Key Vault, PostgreSQL)
+- ✅ Application Services (DocuSeal, Baserow containers)
+- ✅ Networking (Application Gateway, DNS, SSL)
+
+### Setup Supervisor (Development Environment)
+
+```bash
+# Install supervisor configuration for Next.js
+sudo bash /app/config/scripts/setup-supervisor.sh
+
+# Or manually:
+sudo cp /app/config/supervisor/nextjs.conf /etc/supervisor/conf.d/
+sudo supervisorctl reread && sudo supervisorctl update
+sudo supervisorctl start nextjs
+```
+
+Useful supervisor commands:
+```bash
+supervisorctl status nextjs          # Check status
+supervisorctl restart nextjs         # Restart service
+tail -f /var/log/supervisor/nextjs.out.log  # View logs
+tail -f /var/log/supervisor/nextjs.err.log  # View errors
+```
 
 ### Prerequisites
 
