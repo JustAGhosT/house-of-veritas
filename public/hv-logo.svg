@@ -1,0 +1,52 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Shield -->
+  <defs>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Shield Shape -->
+  <path d="M60 10 L100 30 L100 60 Q100 90 60 110 Q20 90 20 60 L20 30 Z" 
+        fill="url(#shieldGradient)" 
+        stroke="#1e3a8a" 
+        stroke-width="2"
+        filter="url(#glow)"/>
+  
+  <!-- Inner Shield Detail -->
+  <path d="M60 20 L90 35 L90 60 Q90 82 60 98 Q30 82 30 60 L30 35 Z" 
+        fill="none" 
+        stroke="rgba(255,255,255,0.2)" 
+        stroke-width="1"/>
+  
+  <!-- H Letter -->
+  <path d="M40 45 L40 75 M40 60 L55 60 M55 45 L55 75" 
+        stroke="white" 
+        stroke-width="6" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
+  
+  <!-- V Letter -->
+  <path d="M65 45 L72.5 75 L80 45" 
+        stroke="white" 
+        stroke-width="6" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
+  
+  <!-- Bottom Banner -->
+  <path d="M30 85 Q60 92 90 85" 
+        stroke="rgba(255,255,255,0.3)" 
+        stroke-width="2" 
+        fill="none"/>
+</svg>
