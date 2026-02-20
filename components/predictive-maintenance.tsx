@@ -56,6 +56,25 @@ export function PredictiveMaintenancePanel() {
     }
   }
 
+  const autoScheduleMaintenance = async () => {
+    setScheduling(true)
+    try {
+      const response = await fetch('/api/maintenance/schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'auto-schedule' }),
+      })
+      const result = await response.json()
+      if (result.success) {
+        alert(`Scheduled ${result.scheduledCount} maintenance items and created ${result.calendarEventsCreated} calendar events!`)
+      }
+    } catch (error) {
+      console.error('Failed to auto-schedule:', error)
+    } finally {
+      setScheduling(false)
+    }
+  }
+
   useEffect(() => {
     fetchData()
   }, [filter])
