@@ -1,126 +1,42 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Lock, User, ArrowRight, Shield, Eye, EyeOff, Phone, Mail, ArrowLeft, Smartphone } from "lucide-react"
-
-// User type for display
-interface UserInfo {
-  id: string
-  name: string
-  email: string
-  role: string
-  description: string
-  color: string
-  icon: string
-  specialty: string[]
-}
-
-// Persona display info
-const PERSONA_COLORS: Record<string, string> = {
-  blue: "from-blue-600 to-blue-800",
-  amber: "from-amber-600 to-amber-800",
-  green: "from-green-600 to-green-800",
-  purple: "from-purple-600 to-purple-800",
-}
+import { useAuth } from "@/lib/auth-context"
+import { Lock, Mail, Eye, EyeOff, ArrowRight, Shield, Phone, Smartphone, ArrowLeft } from "lucide-react"
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [view, setView] = useState<"select" | "login" | "reset">("select")
-  const [selectedUser, setSelectedUser] = useState<UserInfo | null>(null)
+  const { login, isLoading: authLoading } = useAuth()
+  const [view, setView] = useState<"login" | "reset">("login")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [resetEmail, setResetEmail] = useState("")
   const [resetMethod, setResetMethod] = useState<"sms" | "email">("sms")
   const [resetSuccess, setResetSuccess] = useState<string | null>(null)
   const [demoPassword, setDemoPassword] = useState<string | null>(null)
-  const [users, setUsers] = useState<UserInfo[]>([
-    {
-      id: "hans",
-      name: "Hans",
-      email: "hans@houseofv.com",
-      role: "Owner & Administrator",
-      description: "Full platform access, approvals, and oversight",
-      color: "blue",
-      icon: "👔",
-      specialty: ["Tech", "Leadership", "Electronics"],
-    },
-    {
-      id: "charl",
-      name: "Charl",
-      email: "charl@houseofv.com",
-      role: "Workshop Operator",
-      description: "Tasks, assets, time tracking, vehicle logs",
-      color: "amber",
-      icon: "🔧",
-      specialty: ["Tinkerer", "Electrician", "Plumber", "Magicman"],
-    },
-    {
-      id: "lucky",
-      name: "Lucky",
-      email: "lucky@houseofv.com",
-      role: "Gardener & Handyman",
-      description: "Tasks, expenses, vehicle logs, time tracking",
-      color: "green",
-      icon: "🌿",
-      specialty: ["Gardening", "Painting", "Manual Labour"],
-    },
-    {
-      id: "irma",
-      name: "Irma",
-      email: "irma@houseofv.com",
-      role: "Resident",
-      description: "Household tasks, documents, limited access",
-      color: "purple",
-      icon: "🏠",
-      specialty: ["Babysitting", "Cleaning", "Food"],
-    },
-  ])
-
-  const handleSelectUser = (user: UserInfo) => {
-    setSelectedUser(user)
-    setView("login")
-    setPassword("")
-    setError("")
-    setDemoPassword(null)
-  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedUser || !password) return
+    if (!email || !password) return
 
     setIsLoading(true)
     setError("")
 
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: selectedUser.id,
-          password: password,
-        }),
-      })
+    const result = await login(email, password)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error || "Login failed")
-        setIsLoading(false)
-        return
-      }
-
-      // Redirect to dashboard
-      router.push(data.redirectTo)
-    } catch (err) {
-      setError("Connection error. Please try again.")
-      setIsLoading(false)
+    if (!result.success) {
+      setError(result.error || "Login failed")
     }
+    setIsLoading(false)
   }
 
   const handleResetPassword = async () => {
-    if (!selectedUser) return
+    if (!resetEmail) {
+      setError("Please enter your email address")
+      return
+    }
 
     setIsLoading(true)
     setError("")
@@ -132,7 +48,7 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: selectedUser.email,
+          email: resetEmail,
           method: resetMethod,
         }),
       })
@@ -156,24 +72,20 @@ export default function LoginPage() {
     }
   }
 
-  const handleBackToLogin = () => {
-    setView("login")
-    setResetSuccess(null)
-    setDemoPassword(null)
-    setError("")
-  }
-
-  const handleBackToSelect = () => {
-    setView("select")
-    setSelectedUser(null)
-    setPassword("")
-    setError("")
-    setResetSuccess(null)
-    setDemoPassword(null)
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] flex flex-col">
+      {/* Background Pattern */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-950/30 via-[#0a0a0f] to-purple-950/20" />
+      <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(59,130,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-[size:50px_50px]" />
+
       {/* Header */}
       <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl">
         <div className="container mx-auto px-6 py-4">
@@ -190,112 +102,54 @@ export default function LoginPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto px-6 py-12">
-        <div className="max-w-4xl mx-auto">
-          {/* User Selection View */}
-          {view === "select" && (
-            <>
-              {/* Title */}
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
-                  <Shield className="w-4 h-4 text-blue-400" />
-                  <span className="text-blue-400 text-sm font-medium">Secure Access</span>
-                </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                  Select Your Profile
-                </h2>
-                <p className="text-white/60 max-w-md mx-auto">
-                  Choose your user profile to access your personalized dashboard with role-specific features and permissions.
-                </p>
-              </div>
-
-              {/* User Grid */}
-              <div className="grid md:grid-cols-2 gap-6" data-testid="user-selection-grid">
-                {users.map((user) => (
-                  <button
-                    key={user.id}
-                    onClick={() => handleSelectUser(user)}
-                    data-testid={`select-user-${user.id}`}
-                    className="group relative p-6 rounded-2xl border border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer text-left"
-                  >
-                    {/* Gradient Background on Hover */}
-                    <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${PERSONA_COLORS[user.color]} opacity-0 group-hover:opacity-5 transition-opacity`} />
-                    
-                    <div className="relative flex items-start gap-4">
-                      {/* Avatar */}
-                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${PERSONA_COLORS[user.color]} flex items-center justify-center text-2xl shrink-0`}>
-                        {user.icon}
-                      </div>
-                      
-                      {/* Info */}
-                      <div className="flex-1 text-left">
-                        <h3 className="text-lg font-semibold text-white mb-1">
-                          {user.name}
-                        </h3>
-                        <p className={`text-sm font-medium mb-2 bg-gradient-to-r ${PERSONA_COLORS[user.color]} bg-clip-text text-transparent`}>
-                          {user.role}
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {user.specialty.map((spec) => (
-                            <span key={spec} className="px-2 py-0.5 text-xs rounded-full bg-white/10 text-white/60">
-                              {spec}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      {/* Arrow */}
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 text-white/40 group-hover:bg-white/10 group-hover:text-white/60 transition-all">
-                        <ArrowRight className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-
+      <main className="flex-1 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md">
           {/* Login View */}
-          {view === "login" && selectedUser && (
-            <div className="max-w-md mx-auto">
-              {/* Back Button */}
-              <button
-                onClick={handleBackToSelect}
-                className="flex items-center gap-2 text-white/60 hover:text-white mb-8 transition-colors"
-                data-testid="back-to-select"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back to user selection</span>
-              </button>
-
-              {/* User Card */}
-              <div className={`p-6 rounded-2xl bg-gradient-to-br ${PERSONA_COLORS[selectedUser.color]}/20 border border-white/10 mb-8`}>
-                <div className="flex items-center gap-4">
-                  <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${PERSONA_COLORS[selectedUser.color]} flex items-center justify-center text-3xl`}>
-                    {selectedUser.icon}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-white">{selectedUser.name}</h3>
-                    <p className="text-white/60">{selectedUser.role}</p>
-                    <p className="text-white/40 text-sm">{selectedUser.email}</p>
-                  </div>
+          {view === "login" && (
+            <div className="bg-[#0d0d12]/80 border border-white/10 rounded-2xl p-8 backdrop-blur-xl" data-testid="login-card">
+              {/* Header */}
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500/20 border border-blue-500/30 mb-4">
+                  <Shield className="w-8 h-8 text-blue-400" />
                 </div>
+                <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
+                <p className="text-white/60">Sign in to access your dashboard</p>
               </div>
 
-              {/* Login Form */}
-              <form onSubmit={handleLogin} className="space-y-6" data-testid="login-form">
+              {/* Form */}
+              <form onSubmit={handleLogin} className="space-y-5" data-testid="login-form">
+                <div>
+                  <label htmlFor="email" className="block text-white/80 text-sm font-medium mb-2">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@houseofv.com"
+                      className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                      data-testid="email-input"
+                      required
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label htmlFor="password" className="block text-white/80 text-sm font-medium mb-2">
                     Password
                   </label>
                   <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                     <input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
-                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all pr-12"
+                      className="w-full pl-12 pr-12 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all"
                       data-testid="password-input"
                       required
                     />
@@ -316,21 +170,13 @@ export default function LoginPage() {
                   </div>
                 )}
 
-                {demoPassword && (
-                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20" data-testid="demo-password">
-                    <p className="text-amber-400 text-sm font-medium mb-1">Demo Mode - New Password:</p>
-                    <p className="text-white font-mono text-lg">{demoPassword}</p>
-                    <p className="text-white/50 text-xs mt-2">In production, this would be sent via SMS.</p>
-                  </div>
-                )}
-
                 <button
                   type="submit"
-                  disabled={isLoading || !password}
+                  disabled={isLoading || !email || !password}
                   className={`w-full py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
-                    isLoading || !password
+                    isLoading || !email || !password
                       ? "bg-white/10 text-white/40 cursor-not-allowed"
-                      : `bg-gradient-to-r ${PERSONA_COLORS[selectedUser.color]} text-white hover:opacity-90`
+                      : "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-500 hover:to-blue-600"
                   }`}
                   data-testid="login-submit"
                 >
@@ -338,51 +184,95 @@ export default function LoginPage() {
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <>
-                      <Lock className="w-4 h-4" />
                       <span>Sign In</span>
+                      <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setView("reset")}
+                  onClick={() => {
+                    setView("reset")
+                    setError("")
+                    setResetEmail(email)
+                  }}
                   className="w-full text-center text-white/50 hover:text-white text-sm transition-colors"
                   data-testid="forgot-password"
                 >
                   Forgot your password?
                 </button>
               </form>
+
+              {/* Demo Credentials */}
+              <div className="mt-8 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                <p className="text-amber-400 text-sm font-medium mb-2">Demo Credentials</p>
+                <div className="grid grid-cols-2 gap-2 text-xs text-white/60">
+                  <div>hans@houseofv.com</div>
+                  <div className="text-white/40">hans123</div>
+                  <div>charl@houseofv.com</div>
+                  <div className="text-white/40">charl123</div>
+                  <div>lucky@houseofv.com</div>
+                  <div className="text-white/40">lucky123</div>
+                  <div>irma@houseofv.com</div>
+                  <div className="text-white/40">irma123</div>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Password Reset View */}
-          {view === "reset" && selectedUser && (
-            <div className="max-w-md mx-auto">
+          {view === "reset" && (
+            <div className="bg-[#0d0d12]/80 border border-white/10 rounded-2xl p-8 backdrop-blur-xl" data-testid="reset-card">
               {/* Back Button */}
               <button
-                onClick={handleBackToLogin}
-                className="flex items-center gap-2 text-white/60 hover:text-white mb-8 transition-colors"
+                onClick={() => {
+                  setView("login")
+                  setResetSuccess(null)
+                  setDemoPassword(null)
+                  setError("")
+                }}
+                className="flex items-center gap-2 text-white/60 hover:text-white mb-6 transition-colors"
                 data-testid="back-to-login"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Back to login</span>
               </button>
 
-              {/* Title */}
+              {/* Header */}
               <div className="text-center mb-8">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 flex items-center justify-center mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-500/30 mb-4">
                   <Lock className="w-8 h-8 text-amber-400" />
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-2">Reset Password</h2>
-                <p className="text-white/60">
-                  We'll send a new password to {selectedUser.name}
-                </p>
+                <p className="text-white/60">We'll send a new password to your phone or email</p>
+              </div>
+
+              {/* Email Input */}
+              <div className="mb-6">
+                <label htmlFor="reset-email" className="block text-white/80 text-sm font-medium mb-2">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <input
+                    id="reset-email"
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    placeholder="you@houseofv.com"
+                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all"
+                    data-testid="reset-email-input"
+                    required
+                  />
+                </div>
               </div>
 
               {/* Reset Method Selection */}
               <div className="space-y-3 mb-6" data-testid="reset-method-selection">
+                <p className="text-white/60 text-sm mb-2">Delivery method:</p>
                 <button
+                  type="button"
                   onClick={() => setResetMethod("sms")}
                   className={`w-full p-4 rounded-xl border flex items-center gap-4 transition-all ${
                     resetMethod === "sms"
@@ -391,31 +281,22 @@ export default function LoginPage() {
                   }`}
                   data-testid="reset-method-sms"
                 >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                     resetMethod === "sms" ? "bg-blue-500/20" : "bg-white/10"
                   }`}>
-                    <Smartphone className={`w-6 h-6 ${resetMethod === "sms" ? "text-blue-400" : "text-white/60"}`} />
+                    <Smartphone className={`w-5 h-5 ${resetMethod === "sms" ? "text-blue-400" : "text-white/60"}`} />
                   </div>
                   <div className="flex-1 text-left">
-                    <p className={`font-medium ${resetMethod === "sms" ? "text-white" : "text-white/80"}`}>
-                      SMS to Cellphone
-                    </p>
-                    <p className="text-white/50 text-sm">
-                      Send new password via SMS
-                    </p>
+                    <p className={`font-medium ${resetMethod === "sms" ? "text-white" : "text-white/80"}`}>SMS</p>
+                    <p className="text-white/50 text-sm">Send to registered cellphone</p>
                   </div>
-                  <div className={`w-5 h-5 rounded-full border-2 ${
+                  <div className={`w-4 h-4 rounded-full border-2 ${
                     resetMethod === "sms" ? "border-blue-400 bg-blue-400" : "border-white/30"
-                  }`}>
-                    {resetMethod === "sms" && (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-white" />
-                      </div>
-                    )}
-                  </div>
+                  }`} />
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => setResetMethod("email")}
                   className={`w-full p-4 rounded-xl border flex items-center gap-4 transition-all ${
                     resetMethod === "email"
@@ -424,43 +305,19 @@ export default function LoginPage() {
                   }`}
                   data-testid="reset-method-email"
                 >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                     resetMethod === "email" ? "bg-blue-500/20" : "bg-white/10"
                   }`}>
-                    <Mail className={`w-6 h-6 ${resetMethod === "email" ? "text-blue-400" : "text-white/60"}`} />
+                    <Mail className={`w-5 h-5 ${resetMethod === "email" ? "text-blue-400" : "text-white/60"}`} />
                   </div>
                   <div className="flex-1 text-left">
-                    <p className={`font-medium ${resetMethod === "email" ? "text-white" : "text-white/80"}`}>
-                      Email
-                    </p>
-                    <p className="text-white/50 text-sm">
-                      Send new password via email
-                    </p>
+                    <p className={`font-medium ${resetMethod === "email" ? "text-white" : "text-white/80"}`}>Email</p>
+                    <p className="text-white/50 text-sm">Send to registered email</p>
                   </div>
-                  <div className={`w-5 h-5 rounded-full border-2 ${
+                  <div className={`w-4 h-4 rounded-full border-2 ${
                     resetMethod === "email" ? "border-blue-400 bg-blue-400" : "border-white/30"
-                  }`}>
-                    {resetMethod === "email" && (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-white" />
-                      </div>
-                    )}
-                  </div>
+                  }`} />
                 </button>
-              </div>
-
-              {/* Destination Info */}
-              <div className="p-4 rounded-xl bg-white/5 border border-white/10 mb-6">
-                <p className="text-white/60 text-sm mb-1">
-                  {resetMethod === "sms" ? "Sending to:" : "Sending to:"}
-                </p>
-                <p className="text-white font-medium">
-                  {resetMethod === "sms" ? (
-                    <>Cellphone ending in ****{selectedUser.id === "hans" ? "55" : selectedUser.id === "lucky" ? "10" : "90"}</>
-                  ) : (
-                    selectedUser.email
-                  )}
-                </p>
               </div>
 
               {error && (
@@ -483,11 +340,11 @@ export default function LoginPage() {
 
               <button
                 onClick={handleResetPassword}
-                disabled={isLoading}
+                disabled={isLoading || !resetEmail}
                 className={`w-full py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
-                  isLoading
+                  isLoading || !resetEmail
                     ? "bg-white/10 text-white/40 cursor-not-allowed"
-                    : "bg-gradient-to-r from-amber-600 to-amber-800 text-white hover:opacity-90"
+                    : "bg-gradient-to-r from-amber-600 to-amber-700 text-white hover:from-amber-500 hover:to-amber-600"
                 }`}
                 data-testid="reset-submit"
               >
@@ -495,38 +352,25 @@ export default function LoginPage() {
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    {resetMethod === "sms" ? <Phone className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
                     <span>Send New Password</span>
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
 
               {resetSuccess && (
                 <button
-                  onClick={handleBackToLogin}
-                  className="w-full mt-4 py-3 px-4 rounded-xl font-medium bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all"
+                  onClick={() => {
+                    setView("login")
+                    setResetSuccess(null)
+                    setDemoPassword(null)
+                  }}
+                  className="w-full mt-4 py-3 px-4 rounded-xl font-medium bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all border border-blue-500/30"
                   data-testid="return-to-login"
                 >
                   Return to Login
                 </button>
               )}
-            </div>
-          )}
-
-          {/* Security Notice */}
-          {view === "select" && (
-            <div className="mt-12 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0">
-                  <Lock className="w-4 h-4 text-amber-400" />
-                </div>
-                <div>
-                  <h4 className="text-amber-400 font-medium mb-1">Development Mode</h4>
-                  <p className="text-white/60 text-sm">
-                    Default passwords: hans123, irma123, charl123, lucky123. In production, SMS-based password reset will be enabled with Twilio integration.
-                  </p>
-                </div>
-              </div>
             </div>
           )}
         </div>
