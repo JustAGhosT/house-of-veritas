@@ -30,10 +30,12 @@ import {
 const NAV_ITEMS = {
   hans: [
     { name: "Overview", href: "/dashboard/hans", icon: Home },
+    { name: "Calendar", href: "/dashboard/hans/calendar", icon: Calendar },
     { name: "Documents", href: "/dashboard/hans/documents", icon: FileText },
     { name: "Employees", href: "/dashboard/hans/employees", icon: Users },
     { name: "Tasks", href: "/dashboard/hans/tasks", icon: ClipboardList },
     { name: "Assets", href: "/dashboard/hans/assets", icon: Package },
+    { name: "Maintenance", href: "/dashboard/hans/maintenance", icon: Wrench },
     { name: "Time & Attendance", href: "/dashboard/hans/time", icon: Clock },
     { name: "Expenses", href: "/dashboard/hans/expenses", icon: DollarSign },
     { name: "Vehicles", href: "/dashboard/hans/vehicles", icon: Car },
