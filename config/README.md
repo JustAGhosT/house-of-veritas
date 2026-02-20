@@ -68,7 +68,7 @@ tail -f /var/log/supervisor/nextjs.out.log  # View logs
 tail -f /var/log/supervisor/nextjs.err.log  # View errors
 ```
 
-### Prerequisites
+## 🐳 Local Development (Docker)
 
 - Docker & Docker Compose v2.x
 - Python 3.9+
