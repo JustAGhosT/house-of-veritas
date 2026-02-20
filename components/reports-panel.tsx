@@ -149,6 +149,15 @@ export function ReportsPanel() {
           <Download className="w-4 h-4" />
           Export CSV
         </button>
+
+        <button
+          onClick={downloadPDF}
+          disabled={!reportData}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 transition-colors"
+        >
+          <FileDown className="w-4 h-4" />
+          Export PDF
+        </button>
       </div>
 
       {/* Report Content */}
