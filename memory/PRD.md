@@ -178,10 +178,11 @@ Transform an existing work management platform codebase into a professional, das
 
 ## Notes
 
-- The application is **NOT** managed by supervisor (Next.js standalone)
-- Start command: `yarn build && yarn start`
+- The application is now managed by **supervisor** (`supervisorctl status nextjs`)
+- Start command: `supervisorctl start nextjs` (or `yarn build && yarn start` manually)
 - Backend is **MOCKED** - real backend will be DocuSeal + Baserow
 - Preview URL: https://veritas-governance.preview.emergentagent.com
+- Deployment checklist: `python3 /app/config/scripts/deployment-checklist.py`
 
 ---
 
