@@ -23,8 +23,8 @@ const instrumentSans = localFont({
 })
 
 export const metadata: Metadata = {
-  title: "Apex - Enterprise SaaS Platform",
-  description: "The modern platform for teams who ship fast. Built for scale, designed for speed.",
+  title: "House of Veritas - Digital Governance & Estate Management",
+  description: "Secure platform for estate management, document compliance, and operational accountability. BCEA-compliant with full audit trails.",
     generator: 'v0.app'
 }
 
