@@ -297,11 +297,81 @@ TWILIO_PHONE_NUMBER=+1234567890
 - `/app/app/dashboard/hans/maintenance/page.tsx` - Predictive maintenance
 - `/app/app/dashboard/hans/payroll/page.tsx` - Payroll & biometric time clock
 
+### ✅ Phase 11: Asset Management, OCR & Marketplace (COMPLETE - Feb 20, 2026)
+
+#### Asset Management System
+- `/app/app/api/assets/enhanced/route.ts` - Enhanced asset CRUD API
+- `/app/app/dashboard/hans/assets/page.tsx` - Asset management UI
+- Full CRUD operations with photos, conditions, sale status
+- Asset categories: vehicles, garden equipment, workshop tools, electronics, etc.
+- Condition tracking: excellent, good, fair, poor, needs repair
+- Sale status: not for sale, for sale, pending sale, sold
+- Brand, model, serial number tracking
+- Purchase price and current value tracking
+- Maintenance history logging
+- Location and responsibility assignment
+- Tag-based organization
+
+#### Inventory Tracking System
+- `/app/app/api/inventory/route.ts` - Inventory management API
+- `/app/app/dashboard/hans/inventory/page.tsx` - Inventory UI for Hans
+- `/app/app/dashboard/lucky/inventory/page.tsx` - Garden inventory for Lucky
+- Stock level tracking with min/max/reorder points
+- Low stock and critical alerts
+- Consumption logging with purpose tracking
+- Restock functionality with cost updates
+- Shopping list generation with store links
+- Import from OCR feature
+
+#### OCR Document Scanner
+- `/app/app/api/ocr/route.ts` - OCR processing API
+- `/app/app/dashboard/hans/ocr/page.tsx` - OCR Scanner UI
+- Document type selection: invoices, receipts, handwritten requests
+- Drag-and-drop file upload
+- Extracted text with structured data
+- Line item detection with quantities and prices
+- Vendor information extraction
+- **Import to Inventory** - Auto-create inventory items from scanned invoices
+- **Mode:** MOCK (configure AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT for live OCR)
+
+#### Marketplace Integration
+- `/app/app/api/marketplace/route.ts` - Marketplace management API
+- `/app/app/dashboard/hans/marketplace/page.tsx` - Marketplace UI
+- Platform support: Gumtree, Facebook Marketplace, OLX, BidOrBuy, AutoTrader
+- AI-powered listing generation
+- Auto-publish to multiple platforms (drafts)
+- Listing tracking with views and inquiries
+- Potential revenue calculation
+- **Mode:** MOCK (creates draft listings, doesn't post to external platforms)
+
+#### File Upload System
+- `/app/app/api/files/route.ts` - File upload API with Azure Blob support
+- `/app/components/image-upload.tsx` - Image upload component
+- Support for images and PDFs (10MB max)
+- Azure Blob Storage ready (fallback to local storage)
+- Chunked uploads for large files
+- **Mode:** MOCK (uses local /tmp/uploads when Azure not configured)
+
+#### Visual Enhancements
+- `/app/app/globals.css` - Grid/3D room background CSS
+- `/app/components/grid-room-background.tsx` - Grid background component
+- Subtle perspective grid effect on dashboard pages
+- Dark theme with grid floor effect
+
+#### Updated Navigation
+- Assets, Inventory, OCR Scanner, Marketplace added to Hans navigation
+- Inventory added to Lucky navigation (garden supplies only)
+
 ---
 
 ## Upcoming Tasks
 
-### P1: Phase 11 - Production Deployment
+### P1: Configure External Services
+- **Azure Document Intelligence** - Provide AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT and KEY for live OCR
+- **Azure Blob Storage** - Provide connection string for image uploads
+- Marketplace seller account setup (Gumtree, Facebook, OLX)
+
+### P2: Phase 12 - Production Deployment
 - Deploy to Azure (requires Azure credentials)
 - Configure production environment
 - Set up Twilio for real SMS notifications
