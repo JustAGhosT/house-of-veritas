@@ -62,10 +62,10 @@ export function Navbar() {
         {/* CTA Buttons */}
         <div className="hidden md:flex items-center gap-3">
           <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-zinc-800">
-            Sign In
+            Admin Login
           </Button>
-          <Button size="sm" className="shimmer-btn bg-white text-zinc-950 hover:bg-zinc-200 rounded-full px-4">
-            Get Started
+          <Button size="sm" className="shimmer-btn bg-blue-600 text-white hover:bg-blue-700 rounded-full px-4">
+            Access Documents
           </Button>
         </div>
 
