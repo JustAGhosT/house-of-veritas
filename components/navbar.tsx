@@ -30,10 +30,10 @@ export function Navbar() {
       >
         {/* Logo */}
         <a href="#" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
-            <span className="text-zinc-950 font-bold text-sm">A</span>
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center">
+            <span className="text-white font-bold text-sm">HV</span>
           </div>
-          <span className="font-semibold text-white hidden sm:block">Apex</span>
+          <span className="font-semibold text-white hidden sm:block">House of Veritas</span>
         </a>
 
         {/* Desktop Nav Items */}
