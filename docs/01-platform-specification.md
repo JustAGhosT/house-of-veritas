@@ -1,0 +1,175 @@
+# House of Veritas — Platform Specification
+
+## Module/Feature Name
+
+House of Veritas Document Management & Operational Governance Platform
+
+## Marketing Name
+
+House of Veritas Digital Governance Suite
+
+## Platform/Mesh Layer(s)
+
+- **Application Layer:** DocuSeal (document workflows, e-signature)
+- **Data Layer:** Baserow (registries, operational tracking)
+- **Infrastructure Layer:** Azure (container orchestration, databases, blob storage, gateway)
+
+## Primary Personas
+
+- **Hans Jurgens Smit** (Owner/Executor, Administrator)
+- **Charl** (Employee/Resident, Workshop Operator)
+- **Lucky** (Employee, Gardener/Handyman)
+- **Irma** (Resident, Household/Childcare)
+- **External witnesses or arbiters** (ad hoc, for signatures or dispute resolution)
+
+## Core Value Proposition
+
+A secure, enforceable, and user-friendly governance platform for House of Veritas, automating document signing, operational records, and compliance for a multi-role estate environment.
+
+## Priority
+
+P0 - Critical
+
+## License Tier
+
+Free/Open Source
+
+## Readiness
+
+Draft
+
+## Business Outcome/Success Metrics
+
+- 100% digital signature and document compliance for all governance artifacts
+- Accurate, current digital employee, asset, and incident registries
+- Zero missed annual reviews or document expiries
+- Improved auditability and reduced operational ambiguity
+
+## Integration Points
+
+- Bi-directional webhook/APIs between DocuSeal and Baserow for status sync
+- Azure Blob Storage for document archival
+- Azure Active Directory or local user management for authentication
+- Notification engines for reminders and expiry alerts
+
+## TL;DR
+
+Deploy an Azure-hosted platform using DocuSeal and Baserow to digitalize, automate, and securely manage all legal/operational documents, tasks, and compliance functions for House of Veritas. This enables seamless signing, live registries, annual review automation, and granular access control across all users and governance documents.
+
+## Problem Statement
+
+House of Veritas manages 18 legal and operational documents as well as daily operational records for employees, residents, and assets. Existing processes are partially paper-based and decentralized, which leads to difficulties in tracking compliance, document access, and operational accountability. Confusion over responsibilities, missed expiring documents, and insufficient audit logs pose real operational and legal risks.
+
+## Core Challenge
+
+The main challenge is consolidating all document management, signing, and operational tracking into an integrated, enforceable, low-cost platform with fine-grained access control—while remaining legible and usable for all stakeholders.
+
+## Current State
+
+Documents are managed manually or with generic digital tools. Signature workflows are ad hoc. Tasks, assets, and incidents are tracked with spreadsheets or on paper, and document versioning is informal. Annual reviews, expiry, and legal compliance require significant manual oversight.
+
+## Why Now?
+
+Volume and complexity of governance have outpaced manual approaches. Legally binding e-signatures are now available in open source (DocuSeal). Cloud deployment (Azure) enables security and business continuity. As House of Veritas formalizes as both residential and operational workspace, robust records and compliance become essential.
+
+---
+
+## Expanded Financial & Time Tracking Functionality
+
+### Dual-Mode Financial Tracking
+
+#### 1. Post-Hoc Expense Logging
+
+Users may log actual incurred expenses against configured categories:
+- Materials
+- Labor/Contractors
+- Utilities
+- Fuel
+- Vehicle Maintenance
+- Tool/Equipment Purchase
+- Household Supplies
+- Professional Services
+- Emergency/Unplanned
+- Other
+
+Each expense log includes: date, payee, amount, category, related document/project, uploaded receipt, notes, and after-the-fact approval by Hans if required.
+
+#### 2. In-System Expense Approval Workflow with Contractor Payment Milestones
+
+**Submit Expense Request:** Any authorized user (e.g., Lucky) completes a request form in Baserow specifying:
+- Item/requested purchase/service
+- Budget line or project (Doc 2, Doc 7, etc.)
+- Category (see list above)
+- Amount requested
+- Purpose/justification
+- Contractor/vendor details (if contractor payment)
+- Payment milestone requested (e.g., deposit, stage payment, completion, final)
+- Attachments (quotes, invoices)
+
+**Approval Workflow:**
+1. Request submitted – Baserow record created
+2. Hans receives task in dashboard and notification
+3. Hans reviews, approves/edits/rejects (optional comments)
+4. If approved, the payment is scheduled; user receives notification to proceed
+5. User logs actual expense/payout on completion (receipted), closing the loop
+
+**Contractor Payment Milestone Tracking:**
+- Fields: Contractor Name, Total Contract Amount, Deposit %/Amount, Milestone Stage (description), Stage %/Amount, Stage Actual Date, Completion %, Final Payment Trigger (conditions: e.g. inspection passed), Status.
+- Milestones outlined per project (e.g., Doc 7 — Renovation Project Plan), supporting multiple milestones per contract.
+- Payments tracked against original contract value, automatically highlighting overrun/remaining amounts.
+
+### Dual-Mode Time Tracking
+
+#### 1. Simple Task-Level Time Logging
+
+For each assigned task/daily to-do:
+- Field for "Time Spent" (to be completed upon completion)
+- Optionally, "Task Comments" for notes on complexity/delays
+- Allows summary views of hours expended per project, person, period
+
+#### 2. Full Clock-In / Clock-Out Tracking with Overtime Calculation
+
+**New Baserow table: Time Clock Entries**
+
+Fields:
+- Employee
+- Date
+- Clock-in Time
+- Clock-out Time
+- Break Duration (minutes)
+- Total Hours (auto-calculated)
+- Overtime Hours (auto-calculated: >9/day, >45/week per BCEA; customizable)
+- Approval Status (Pending, Approved, Rejected)
+- Notes
+
+Each employee records daily attendance, either directly from dashboard or via mobile-friendly form. Weekly dashboard summary auto-flags over-overtime cases for Hans' attention.
+
+### Document Expiry Tracker
+
+**Documents To Be Tracked for Expiry/Renewal:**
+
+| Document | Expiry/Review Cycle | Alert Default |
+|----------|---------------------|---------------|
+| Property Charter (Doc 1) | 3 years | 60d, 30d, 7d prior |
+| House Rules (Doc 2) | 1 year (annual review) | 60d, 30d, 7d prior |
+| Workshop Safety Manual (Doc 3) | 1 year (OHS review/cert if req) | 60d, 30d, 7d prior |
+| Employment Contracts (Doc 4) | Annual review | 60d, 30d, 7d prior |
+| Resident Agreement (Doc 5) | Annual review | 60d, 30d, 7d prior |
+| Vehicle Usage Policy (Doc 13) | 1 year | 60d, 30d, 7d prior |
+| Insurance Register (Doc 14) | Per policy renewal date | 60d, 30d, 7d prior |
+| Succession Protocol (Doc 18) | 3 years (legal/beneficiary update) | 60d, 30d, 7d prior |
+
+**Multi-Stage Alerting System:**
+- Storage: Baserow table tracks each document's last update, next expiry/review, assigned responsible, status.
+- Alerting:
+  - First alert: 60 days out (notification banner/email, color = green)
+  - Second: 30 days out (banner/email, color = yellow)
+  - Final: 7 days out (urgent, banner/email/red)
+- Alerts configurable per document type (Hans can set custom notice periods)
+- Dashboard View: Expiry panel with color-coded urgency, quick-action: "Initiate Review/Renewal" button per document
+
+---
+
+## Summary
+
+By embedding comprehensive and configurable dual-mode financial and time tracking, robust contractor milestone management, granular expense categorization, and a highly visible multi-stage document expiry alert system, the House of Veritas platform fully covers operational, financial, and legal risk. The architecture supports experimentation and flexibility, allowing the Owner/Administrator to refine processes as usage matures, while ensuring all critical governance needs are digitized, tracked, and auditable.
