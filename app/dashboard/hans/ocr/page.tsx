@@ -553,6 +553,102 @@ export default function OCRPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Import to Inventory Dialog */}
+        <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+          <DialogContent className="bg-[#0d0d12] border-white/10 text-white">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Boxes className="h-5 w-5 text-green-400" />
+                Import Items to Inventory
+              </DialogTitle>
+              <DialogDescription className="text-white/60">
+                Import {result?.items?.length || 0} items from the scanned document
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {/* Vendor Info */}
+              {result?.vendor?.name && (
+                <div className="p-3 bg-white/5 rounded-lg">
+                  <p className="text-white/40 text-xs uppercase tracking-wider mb-1">Supplier</p>
+                  <p className="text-white font-medium">{result.vendor.name}</p>
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                <Label>Storage Location</Label>
+                <Select value={importLocation} onValueChange={setImportLocation}>
+                  <SelectTrigger className="bg-white/5 border-white/10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Workshop Store">Workshop Store</SelectItem>
+                    <SelectItem value="Garden Shed">Garden Shed</SelectItem>
+                    <SelectItem value="Garage">Garage</SelectItem>
+                    <SelectItem value="Pool House">Pool House</SelectItem>
+                    <SelectItem value="Main House">Main House</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Override Category (optional)</Label>
+                <Select value={importCategory} onValueChange={setImportCategory}>
+                  <SelectTrigger className="bg-white/5 border-white/10">
+                    <SelectValue placeholder="Auto-detect from item names" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Auto-detect</SelectItem>
+                    <SelectItem value="building_materials">Building Materials</SelectItem>
+                    <SelectItem value="cleaning_supplies">Cleaning Supplies</SelectItem>
+                    <SelectItem value="garden_supplies">Garden Supplies</SelectItem>
+                    <SelectItem value="workshop_consumables">Workshop Consumables</SelectItem>
+                    <SelectItem value="household">Household</SelectItem>
+                    <SelectItem value="fuel">Fuel</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Preview Items */}
+              <div className="space-y-2">
+                <Label>Items to Import</Label>
+                <div className="max-h-40 overflow-y-auto space-y-1">
+                  {result?.items?.map((item, idx) => (
+                    <div key={idx} className="flex justify-between text-sm p-2 bg-white/5 rounded">
+                      <span className="text-white">{item.name}</span>
+                      <span className="text-white/60">
+                        {item.quantity || 1} {item.unit || "units"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleImportToInventory}
+                disabled={importing}
+                className="bg-green-600 hover:bg-green-700"
+                data-testid="confirm-import-btn"
+              >
+                {importing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Importing...
+                  </>
+                ) : (
+                  <>
+                    <Boxes className="h-4 w-4 mr-2" />
+                    Import {result?.items?.length || 0} Items
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   )
