@@ -25,8 +25,9 @@ permissions:
   issues: write
 
 env:
-  AZURE_RESOURCE_GROUP: 'rg-houseofveritas'
+  AZURE_RESOURCE_GROUP: 'nl-prod-hov-rg-san'
   AZURE_LOCATION: 'southafricanorth'
+  AZURE_ENV: 'prod'
 
 jobs:
   # ============================================
