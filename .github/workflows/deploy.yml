@@ -37,7 +37,8 @@ permissions:
 env:
   TF_VERSION: '1.5.7'
   WORKING_DIR: './terraform/environments/production'
-  AZURE_RESOURCE_GROUP: 'rg-houseofveritas'
+  AZURE_RESOURCE_GROUP: 'nl-prod-hov-rg-san'
+  AZURE_ENV: 'prod'
 
 jobs:
   # ============================================
