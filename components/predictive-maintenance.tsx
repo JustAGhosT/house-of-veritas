@@ -12,6 +12,8 @@ import {
   RefreshCw,
   Sparkles,
   ChevronRight,
+  CalendarPlus,
+  CheckCircle,
 } from 'lucide-react'
 
 interface Prediction {
@@ -37,6 +39,7 @@ interface MaintenanceData {
 export function PredictiveMaintenancePanel() {
   const [data, setData] = useState<MaintenanceData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [scheduling, setScheduling] = useState(false)
   const [filter, setFilter] = useState<'all' | 'vehicle' | 'equipment'>('all')
 
   const fetchData = async () => {
