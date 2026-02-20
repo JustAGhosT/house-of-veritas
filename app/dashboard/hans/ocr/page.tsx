@@ -171,6 +171,7 @@ export default function OCRPage() {
     setPreview(null)
     setResult(null)
     setError(null)
+    setImportSuccess(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
@@ -189,6 +190,44 @@ export default function OCRPage() {
     if (confidence >= 0.9) return "text-green-400"
     if (confidence >= 0.7) return "text-yellow-400"
     return "text-red-400"
+  }
+
+  // Import items to inventory
+  const handleImportToInventory = async () => {
+    if (!result?.items || result.items.length === 0) return
+    
+    setImporting(true)
+    setImportSuccess(null)
+    
+    try {
+      const res = await fetch("/api/inventory", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "import-from-ocr",
+          items: result.items,
+          supplier: result.vendor?.name,
+          location: importLocation,
+          category: importCategory || undefined,
+        }),
+      })
+      
+      const data = await res.json()
+      
+      if (data.success) {
+        setImportSuccess({
+          imported: data.imported,
+          updated: data.updated,
+        })
+        setIsImportDialogOpen(false)
+      } else {
+        setError(data.error || "Import failed")
+      }
+    } catch (err: any) {
+      setError(err.message || "Import failed")
+    } finally {
+      setImporting(false)
+    }
   }
 
   return (
