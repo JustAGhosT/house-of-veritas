@@ -126,7 +126,10 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f]">
+    <div className="min-h-screen bg-[#0a0a0f] relative">
+      {/* Grid Background */}
+      <SimpleGridBackground />
+      
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
