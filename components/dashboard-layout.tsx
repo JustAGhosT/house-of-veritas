@@ -22,6 +22,8 @@ import {
   X,
   ChevronDown,
   BarChart3,
+  Calendar,
+  Wrench,
 } from "lucide-react"
 
 // Navigation items per role
