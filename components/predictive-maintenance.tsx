@@ -131,6 +131,15 @@ export function PredictiveMaintenancePanel() {
           </select>
 
           <button
+            onClick={autoScheduleMaintenance}
+            disabled={scheduling}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors text-sm"
+          >
+            {scheduling ? <Loader2 className="w-4 h-4 animate-spin" /> : <CalendarPlus className="w-4 h-4" />}
+            Auto-Schedule
+          </button>
+
+          <button
             onClick={fetchData}
             className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
           >
