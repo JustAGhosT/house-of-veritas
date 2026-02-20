@@ -59,20 +59,31 @@ Transform an existing work management platform codebase into a professional, das
 - `/config/docuseal/README.md` - DocuSeal setup guide
 - `/config/baserow/README.md` - Baserow schema (8 tables with all fields)
 - `/config/templates/document-list.md` - 18+ governance documents
-- `/config/scripts/seed-baserow.py` - Data seeding (employees, assets, documents, tasks)
-- `/config/scripts/azure-function-webhook.py` - DocuSeal webhook handler
-- `/config/scripts/document-expiry-alert.py` - Daily expiry check function
-- `/config/scripts/generate-ssl-certs.sh` - SSL certificate generator
-- `/config/scripts/init-multi-db.sh` - PostgreSQL multi-database init
-- `/config/nginx/nginx.conf` - Reverse proxy configuration
+- `/config/scripts/` - Data seeding, SSL generation, setup scripts
+- `/config/supervisor/nextjs.conf` - Supervisor configuration
 
-### 🔄 Phase 4: Production Deployment (NEXT)
+### ✅ Phase 4: Integration & Automation (COMPLETE - December 2025)
+**Delivered:** 8 Azure Functions for automation
+
+| Function | Trigger | Schedule | Purpose |
+|----------|---------|----------|---------|
+| DocuSealWebhook | HTTP | On demand | Handle signature events |
+| DocumentExpiryAlert | Timer | Daily 6am | Check expiring docs |
+| RecurringTasks | Timer | Monday 8am | Create weekly tasks |
+| OvertimeCalculator | Timer | Sunday 11pm | Calculate overtime (BCEA) |
+| LeaveBalanceUpdate | Timer | Monthly 1st | Update leave balances |
+| ExpenseNotification | HTTP | On demand | Notify on expenses |
+| BudgetReport | Timer | Monthly 5th | Generate financial report |
+| BackupExport | Timer | Sunday midnight | Export to blob storage |
+
+**Location:** `/config/azure-functions/`
+
+### 🔄 Phase 5: User Experience & Polish (NEXT)
 **Tasks:**
-- Deploy DocuSeal + Baserow containers on Azure
-- Create user accounts (4 users)
-- Run data migration from seeding scripts
-- Register webhooks
-- Configure Azure Functions
+- Custom dashboards for each persona (Hans, Charl, Lucky, Irma)
+- Mobile optimization
+- Accessibility (WCAG 2.1 AA)
+- Performance optimization
 
 ### ⏳ Phase 5: User Experience & Polish
 - Custom dashboards for each persona
