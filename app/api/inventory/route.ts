@@ -308,11 +308,77 @@ export async function POST(request: Request) {
   }
 }
 
-// Generate shopping list from low stock items
+// Generate shopping list from low stock items OR import from OCR
 export async function PUT(request: Request) {
   try {
     const body = await request.json()
     const { action, store } = body
+
+    // Import items from OCR result to inventory
+    if (action === 'import-from-ocr') {
+      const { items, supplier, location, category } = body
+      
+      if (!items || !Array.isArray(items) || items.length === 0) {
+        return NextResponse.json({ error: 'No items to import' }, { status: 400 })
+      }
+
+      const importedItems: InventoryItem[] = []
+      const updatedItems: InventoryItem[] = []
+      const errors: string[] = []
+
+      for (const ocrItem of items) {
+        const { name, quantity, price, total, unit } = ocrItem
+        
+        // Try to find existing item by name (fuzzy match)
+        const existingIndex = inventory.findIndex(i => 
+          i.name.toLowerCase().includes(name.toLowerCase()) ||
+          name.toLowerCase().includes(i.name.toLowerCase())
+        )
+
+        if (existingIndex >= 0) {
+          // Update existing item - add to stock
+          const existing = inventory[existingIndex]
+          existing.currentStock += quantity || 1
+          if (price) existing.unitCost = price
+          existing.totalValue = existing.currentStock * existing.unitCost
+          existing.lastRestocked = new Date().toISOString().split('T')[0]
+          if (supplier) existing.supplier = supplier
+          updatedItems.push(existing)
+        } else {
+          // Create new inventory item
+          const unitCost = price || (total && quantity ? total / quantity : 0)
+          const newItem: InventoryItem = {
+            id: `inv_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+            name,
+            category: category || guessCategory(name),
+            unit: unit || guessUnit(name),
+            currentStock: quantity || 1,
+            minStock: Math.ceil((quantity || 1) * 0.2),
+            maxStock: (quantity || 1) * 3,
+            reorderPoint: Math.ceil((quantity || 1) * 0.3),
+            lastRestocked: new Date().toISOString().split('T')[0],
+            averageConsumption: 0,
+            location: location || 'Workshop Store',
+            supplier: supplier,
+            unitCost,
+            totalValue: (quantity || 1) * unitCost,
+            consumptionHistory: [],
+          }
+          inventory.push(newItem)
+          importedItems.push(newItem)
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        imported: importedItems.length,
+        updated: updatedItems.length,
+        importedItems,
+        updatedItems,
+        errors: errors.length > 0 ? errors : undefined,
+        message: `Successfully processed ${importedItems.length + updatedItems.length} items (${importedItems.length} new, ${updatedItems.length} updated)`,
+      })
+    }
 
     if (action === 'generate-shopping-list') {
       const lowStockItems = inventory.filter(i => i.currentStock <= i.reorderPoint)
