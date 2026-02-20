@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { NotificationPanel } from "@/components/notification-panel"
 import { RealTimeIndicator } from "@/components/realtime-indicator"
+import { SimpleGridBackground } from "@/components/grid-room-background"
 import {
   Home,
   FileText,
