@@ -1,0 +1,87 @@
+name: 'Terraform Apply'
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/terraform-apply.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TF_VERSION: '1.5.7'
+  WORKING_DIR: './terraform/environments/production'
+
+jobs:
+  terraform-apply:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Terraform Init
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ secrets.TF_STATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ secrets.TF_STATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER }}" \
+            -backend-config="key=${{ secrets.TF_STATE_KEY }}"
+      
+      - name: Terraform Plan
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          terraform plan \
+            -var="db_admin_password=${{ secrets.DB_ADMIN_PASSWORD }}" \
+            -var="smtp_username=${{ secrets.SMTP_USERNAME }}" \
+            -var="smtp_password=${{ secrets.SMTP_PASSWORD }}" \
+            -var="ssl_certificate_data=${{ secrets.SSL_CERTIFICATE_DATA }}" \
+            -var="ssl_certificate_password=${{ secrets.SSL_CERTIFICATE_PASSWORD }}" \
+            -out=tfplan
+      
+      - name: Terraform Apply
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform apply -auto-approve tfplan
+      
+      - name: Terraform Output
+        id: output
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          terraform output -json > outputs.json
+          cat outputs.json
+      
+      - name: Create Deployment Tag
+        run: |
+          TAG="deploy-$(date +'%Y%m%d-%H%M%S')"
+          git tag $TAG
+          git push origin $TAG
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Send Success Notification
+        if: success()
+        run: |
+          echo "Deployment successful!"
+          echo "Check outputs.json for resource details"
+      
+      - name: Send Failure Notification
+        if: failure()
+        run: |
+          echo "Deployment failed! Check logs for details."
