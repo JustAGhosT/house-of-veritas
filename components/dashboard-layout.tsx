@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { NotificationPanel } from "@/components/notification-panel"
+import { RealTimeIndicator } from "@/components/realtime-indicator"
 import {
   Home,
   FileText,
@@ -244,6 +245,9 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-4">
+              {/* Real-time Status Indicator */}
+              <RealTimeIndicator />
+              
               {/* Notifications */}
               <NotificationPanel />
 
