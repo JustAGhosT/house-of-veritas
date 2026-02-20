@@ -115,12 +115,18 @@ class TestAuthLogin:
 
 
 class TestPasswordReset:
-    """Password reset endpoint tests"""
+    """Password reset endpoint tests
+    
+    NOTE: These tests modify in-memory passwords. Run auth login tests BEFORE
+    these tests, or restart the server between test runs.
+    Uses test-specific emails to avoid affecting other tests.
+    """
     
     def test_reset_password_sms_success(self):
         """Test password reset via SMS generates new password"""
+        # Use lucky for SMS test to avoid affecting hans/charl login tests
         response = requests.post(f"{BASE_URL}/api/auth/reset-password", json={
-            "email": "hans@houseofv.com",
+            "email": "lucky@houseofv.com",
             "method": "sms"
         })
         assert response.status_code == 200
