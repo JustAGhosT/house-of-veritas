@@ -1,0 +1,253 @@
+/* Grid Room Background Effects */
+
+/* 3D Grid Room - perspective room effect */
+.grid-room-bg {
+  position: relative;
+  background: linear-gradient(180deg, #0a0a0f 0%, #0d0d14 50%, #0a0a0f 100%);
+}
+
+.grid-room-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    /* Vertical lines */
+    linear-gradient(90deg, transparent 0%, transparent calc(50% - 0.5px), rgba(59, 130, 246, 0.05) 50%, transparent calc(50% + 0.5px), transparent 100%),
+    /* Horizontal lines with perspective */
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 60px,
+      rgba(59, 130, 246, 0.03) 60px,
+      rgba(59, 130, 246, 0.03) 61px
+    );
+  background-size: 80px 100%, 100% 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.grid-room-bg::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    /* Floor grid with perspective */
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent 60%,
+      rgba(59, 130, 246, 0.02) 60%,
+      rgba(59, 130, 246, 0.05) 100%
+    ),
+    /* Radial glow */
+    radial-gradient(
+      ellipse 100% 50% at 50% 100%,
+      rgba(59, 130, 246, 0.1) 0%,
+      transparent 70%
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Wireframe grid - subtle tech grid */
+.wireframe-grid-bg {
+  position: relative;
+  background: #0a0a0f;
+}
+
+.wireframe-grid-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Perspective grid floor */
+.perspective-floor-bg {
+  position: relative;
+  background: linear-gradient(180deg, #0a0a0f 0%, #0d0d18 100%);
+}
+
+.perspective-floor-bg::before {
+  content: '';
+  position: fixed;
+  top: 50%;
+  left: -50%;
+  right: -50%;
+  bottom: 0;
+  background: 
+    linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+  background-size: 60px 40px;
+  transform: perspective(500px) rotateX(60deg);
+  transform-origin: center top;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* Hexagon pattern background */
+.hex-pattern-bg {
+  position: relative;
+  background: #0a0a0f;
+}
+
+.hex-pattern-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.03'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Circuit board pattern */
+.circuit-bg {
+  position: relative;
+  background: #0a0a0f;
+}
+
+.circuit-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Animated gradient mesh */
+.gradient-mesh-bg {
+  position: relative;
+  background: 
+    radial-gradient(at 40% 20%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, rgba(139, 92, 246, 0.05) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+    #0a0a0f;
+}
+
+/* Dot matrix pattern */
+.dot-matrix-bg {
+  position: relative;
+  background: #0a0a0f;
+}
+
+.dot-matrix-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Scanlines effect */
+.scanlines-bg {
+  position: relative;
+  background: #0a0a0f;
+}
+
+.scanlines-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Glow accents */
+.glow-accent-top {
+  position: relative;
+}
+
+.glow-accent-top::before {
+  content: '';
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Content container to ensure proper z-index */
+.content-above-bg {
+  position: relative;
+  z-index: 1;
+}
+
+/* Animation for subtle movement */
+@keyframes grid-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+.animated-grid::before {
+  animation: grid-pulse 8s ease-in-out infinite;
+}
+
+/* Combination classes */
+.futuristic-bg {
+  background: linear-gradient(180deg, #0a0a0f 0%, #0d0d18 50%, #0a0a0f 100%);
+}
+
+.futuristic-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    /* Grid lines */
+    linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+    /* Glow spots */
+    radial-gradient(ellipse at 20% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+  background-size: 60px 60px, 60px 60px, 100% 100%, 100% 100%;
+  pointer-events: none;
+  z-index: 0;
+}
