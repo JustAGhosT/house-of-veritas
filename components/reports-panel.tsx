@@ -64,6 +64,25 @@ export function ReportsPanel() {
     window.URL.revokeObjectURL(url)
   }
 
+  const downloadPDF = () => {
+    if (!reportData?.data) return
+    
+    const reportTitles: Record<string, string> = {
+      expenses: 'Expense Report',
+      tasks: 'Task Report',
+      time: 'Time & Attendance Report',
+      all: 'Comprehensive Report',
+    }
+
+    generatePDFReport({
+      title: reportTitles[reportType] || 'Report',
+      subtitle: 'House of Veritas - Estate Management',
+      generatedAt: new Date(),
+      data: reportData.data,
+      type: reportType as any,
+    })
+  }
+
   useEffect(() => {
     fetchReport()
   }, [reportType])
