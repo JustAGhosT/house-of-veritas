@@ -380,7 +380,7 @@ export default function LoginPage() {
       <footer className="border-t border-white/10 py-6">
         <div className="container mx-auto px-6 text-center">
           <p className="text-white/40 text-sm">
-            © 2025 House of Veritas. All rights reserved.
+            © 2026 House of Veritas. All rights reserved.
           </p>
         </div>
       </footer>
