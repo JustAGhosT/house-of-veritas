@@ -12,7 +12,9 @@ import {
   Loader2,
   BarChart3,
   TrendingUp,
+  FileDown,
 } from 'lucide-react'
+import { generatePDFReport } from '@/lib/utils/pdf-generator'
 
 type ReportType = 'expenses' | 'tasks' | 'time' | 'all'
 
