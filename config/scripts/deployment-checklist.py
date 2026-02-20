@@ -83,16 +83,19 @@ class DeploymentChecker:
         self.subscription_id = os.environ.get("AZURE_SUBSCRIPTION_ID", "")
         self.resource_group = os.environ.get("AZURE_RESOURCE_GROUP", "rg-houseofveritas")
         self.location = os.environ.get("AZURE_LOCATION", "southafricanorth")
+        self.env = os.environ.get("AZURE_ENV", "prod")
         
-        # Expected resources
+        # Naming convention: nl-{env}-hov-{resourcetype}-san
+        # Expected resources with new naming convention
         self.expected_resources = {
-            "vnet": "vnet-houseofveritas",
-            "postgres": "pg-houseofveritas",
-            "storage": "sthouseofveritas",
-            "keyvault": "kv-houseofveritas",
-            "appgateway": "agw-houseofveritas",
-            "docuseal": "aci-docuseal",
-            "baserow": "aci-baserow",
+            "vnet": f"nl-{self.env}-hov-vnet-san",
+            "postgres": f"nl-{self.env}-hov-pg-san",
+            "storage": f"nl{self.env}hovstsan",  # Storage accounts can't have hyphens
+            "keyvault": f"nl-{self.env}-hov-kv-san",
+            "appgateway": f"nl-{self.env}-hov-agw-san",
+            "docuseal": f"nl-{self.env}-hov-aci-docuseal-san",
+            "baserow": f"nl-{self.env}-hov-aci-baserow-san",
+            "functionapp": f"nl-{self.env}-hov-func-san",
         }
     
     def run_command(self, command: List[str], capture_output: bool = True) -> tuple:
