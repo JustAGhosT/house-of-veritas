@@ -25,6 +25,9 @@ import {
   BarChart3,
   Calendar,
   Wrench,
+  Boxes,
+  ScanLine,
+  Store,
 } from "lucide-react"
 
 // Navigation items per role
@@ -37,6 +40,9 @@ const NAV_ITEMS = {
     { name: "Tasks", href: "/dashboard/hans/tasks", icon: ClipboardList },
     { name: "Payroll", href: "/dashboard/hans/payroll", icon: DollarSign },
     { name: "Assets", href: "/dashboard/hans/assets", icon: Package },
+    { name: "Inventory", href: "/dashboard/hans/inventory", icon: Boxes },
+    { name: "OCR Scanner", href: "/dashboard/hans/ocr", icon: ScanLine },
+    { name: "Marketplace", href: "/dashboard/hans/marketplace", icon: Store },
     { name: "Maintenance", href: "/dashboard/hans/maintenance", icon: Wrench },
     { name: "Time & Attendance", href: "/dashboard/hans/time", icon: Clock },
     { name: "Expenses", href: "/dashboard/hans/expenses", icon: DollarSign },
@@ -56,6 +62,7 @@ const NAV_ITEMS = {
     { name: "My Dashboard", href: "/dashboard/lucky", icon: Home },
     { name: "My Tasks", href: "/dashboard/lucky/tasks", icon: ClipboardList },
     { name: "Time Clock", href: "/dashboard/lucky/time", icon: Clock },
+    { name: "Inventory", href: "/dashboard/lucky/inventory", icon: Boxes },
     { name: "Expenses", href: "/dashboard/lucky/expenses", icon: DollarSign },
     { name: "Vehicle Log", href: "/dashboard/lucky/vehicles", icon: Car },
     { name: "My Documents", href: "/dashboard/lucky/documents", icon: FileText },
