@@ -140,8 +140,9 @@ class TestPasswordReset:
     
     def test_reset_password_email_success(self):
         """Test password reset via email generates new password"""
+        # Use irma for email test to avoid affecting other login tests
         response = requests.post(f"{BASE_URL}/api/auth/reset-password", json={
-            "email": "charl@houseofv.com",
+            "email": "irma@houseofv.com",
             "method": "email"
         })
         assert response.status_code == 200
