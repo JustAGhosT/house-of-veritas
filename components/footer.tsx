@@ -4,10 +4,10 @@ import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 
 const footerLinks = {
-  Product: ["Features", "Pricing", "Changelog", "Roadmap", "API"],
-  Resources: ["Documentation", "Guides", "Blog", "Community", "Templates"],
-  Company: ["About", "Careers", "Press", "Partners", "Contact"],
-  Legal: ["Privacy", "Terms", "Security", "Cookies", "Licenses"],
+  Platform: ["Documents", "Operations", "Reports", "Dashboards", "Compliance"],
+  Resources: ["Documentation", "User Guides", "Training", "Support", "API"],
+  Company: ["About", "Contact", "Privacy", "Terms", "Security"],
+  Legal: ["BCEA Compliance", "POPIA", "ECT Act", "Audit Logs", "Certifications"],
 }
 
 export function Footer() {
