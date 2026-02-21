@@ -14,13 +14,16 @@ fi
 
 # TypeScript check
 TS_OUTPUT=$(npx tsc --noEmit 2>&1 || true)
-TS_ERRORS=$(echo "$TS_OUTPUT" | grep -c "error TS" || echo "0")
+FAIL=0
+
+TS_ERRORS=$(echo "$TS_OUTPUT" | grep -c "error TS" || true)
 if [ "$TS_ERRORS" = "0" ]; then
     echo "TypeScript: PASSED"
 else
     echo "TypeScript: FAILED ($TS_ERRORS errors)"
     echo "Fix type errors before finishing."
     echo "$TS_OUTPUT" | grep "error TS" | head -10
+    FAIL=1
 fi
 
 # Unit tests
@@ -28,9 +31,10 @@ TEST_OUTPUT=$(npm test -- --run 2>&1 || true)
 if echo "$TEST_OUTPUT" | grep -q "Tests.*passed"; then
     echo "Tests: PASSED"
 elif echo "$TEST_OUTPUT" | grep -q "failed"; then
-    FAIL_COUNT=$(echo "$TEST_OUTPUT" | grep -oE '[0-9]+ failed' | head -1 || echo "?")
+    FAIL_COUNT=$(echo "$TEST_OUTPUT" | grep -oE '[0-9]+ failed' | head -1 || true)
     echo "Tests: FAILED ($FAIL_COUNT)"
     echo "Fix failing tests before finishing."
+    FAIL=1
 else
     echo "Tests: CHECK NEEDED"
 fi
@@ -40,3 +44,5 @@ CHANGED=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
 if [ "$CHANGED" -gt 0 ]; then
     echo "Git: $CHANGED uncommitted changes"
 fi
+
+exit $FAIL

@@ -25,7 +25,8 @@ Rules for Next.js development in HouseOfVeritas.
 ## Middleware
 - `middleware.ts` at project root handles auth, rate limiting, and route protection
 - Public paths are defined in `PUBLIC_PATHS` array
-- Auth context is injected via `x-user-id`, `x-user-role`, `x-user-email` headers
+- Auth context is injected via `x-user-id` and `x-user-role` headers
+- Avoid propagating PII (email) in headers — resolve from user store by ID when needed
 - Rate limiting: 5/min for login, 100/min for general API
 
 ## Styling

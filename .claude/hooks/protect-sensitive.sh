@@ -23,6 +23,7 @@ if [ -z "$FILE_PATH" ]; then
 fi
 
 BLOCKED_PATTERNS=(
+    ".env"
     ".env.local"
     ".env.production"
     "terraform.tfvars"

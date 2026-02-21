@@ -37,7 +37,7 @@ fi
 # Quick build check
 echo "Type-checking..."
 BUILD_OUTPUT=$(npx tsc --noEmit 2>&1 || true)
-ERROR_COUNT=$(echo "$BUILD_OUTPUT" | grep -c "error TS" || echo "0")
+ERROR_COUNT=$(echo "$BUILD_OUTPUT" | grep -c "error TS" || true)
 if [ "$ERROR_COUNT" = "0" ]; then
     echo "TypeScript: PASSED"
 else

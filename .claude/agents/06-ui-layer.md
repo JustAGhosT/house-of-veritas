@@ -26,7 +26,7 @@ next.config.*
 ### Page Completeness
 - [ ] Login page renders and handles form submission
 - [ ] Kiosk page functional for public requests
-- [ ] Each user dashboard (hans, charl, lucky, irma) has unique content
+- [ ] Each user dashboard (admin, operator-1, operator-2, resident) has unique content
 - [ ] Admin dashboard shows aggregated data
 - [ ] Navigation links work and indicate active route
 - [ ] 404 / error pages styled
