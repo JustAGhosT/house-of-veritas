@@ -397,7 +397,15 @@ export default function InventoryPage() {
                         <td className="px-6 py-4">
                           <div>
                             <p className="text-white font-medium">{item.name}</p>
-                            <p className="text-white/40 text-sm">{item.supplier || "—"}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-white/40 text-sm">{item.supplier || "—"}</p>
+                              {item.barcode && (
+                                <Badge variant="outline" className="text-xs font-mono text-white/30">
+                                  <ScanLine className="h-3 w-3 mr-1" />
+                                  {item.barcode}
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
