@@ -239,8 +239,80 @@ export async function POST(request: Request) {
       })
     }
 
-    // Auto-publish to multiple platforms
+    // Auto-publish to multiple platforms using real marketplace service
     if (action === 'auto-publish') {
+      const { assetId, assetName, platforms, title, description, price, photos, category, condition, location } = body
+
+      // Prepare listing data for the marketplace service
+      const listingData: ServiceListing = {
+        title,
+        description,
+        price,
+        currency: 'ZAR',
+        category,
+        condition,
+        location: {
+          city: location || 'Stellenbosch',
+          province: 'Western Cape',
+        },
+        images: photos || [],
+        contactName: 'House of Veritas',
+        contactPhone: '+27711488390',
+        contactEmail: 'sales@houseofv.com',
+      }
+
+      // Publish to all selected platforms
+      const publishResults = await marketplaceService.publishToMultiplePlatforms(listingData, platforms)
+
+      // Create local listings for tracking
+      const newListings: MarketplaceListing[] = []
+      
+      for (const result of publishResults) {
+        const platformKey = result.platform
+        const platform = MARKETPLACE_PLATFORMS[platformKey as keyof typeof MARKETPLACE_PLATFORMS]
+        
+        if (!platform) continue
+
+        const listing: MarketplaceListing = {
+          id: `listing_${Date.now()}_${platformKey}`,
+          assetId,
+          assetName,
+          platform: platformKey,
+          listingType: 'fixed_price',
+          price,
+          title,
+          description,
+          photos: photos || [],
+          category,
+          condition,
+          location: location || 'Stellenbosch',
+          contactPhone: '+27711488390',
+          contactEmail: 'sales@houseofv.com',
+          status: result.requiresManualAction ? 'pending' : (result.success ? 'active' : 'draft'),
+          listingUrl: result.listingUrl,
+          externalListingId: result.listingId,
+          manualInstructions: result.manualInstructions,
+          createdAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        }
+
+        listings.push(listing)
+        newListings.push(listing)
+      }
+
+      return NextResponse.json({
+        success: true,
+        listings: newListings,
+        publishResults,
+        platformsInfo: marketplaceService.getSupportedPlatforms(),
+        note: publishResults.some(r => r.requiresManualAction)
+          ? 'Some listings require manual completion. See instructions for each platform.'
+          : 'All listings published successfully.',
+      })
+    }
+
+    // Legacy auto-publish (backwards compatibility)
+    if (action === 'auto-publish-legacy') {
       const { assetId, assetName, platforms, title, description, price, photos, category, condition, location } = body
 
       const newListings: MarketplaceListing[] = []
