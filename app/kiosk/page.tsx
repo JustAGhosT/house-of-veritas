@@ -760,25 +760,276 @@ export default function KioskPage() {
               tasks.map((task) => (
                 <Card key={task.id} className="bg-white/5 border-white/10">
                   <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-white font-medium">{task.title}</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-white font-medium ${task.status === "completed" ? "line-through opacity-50" : ""}`}>
+                          {task.title}
+                        </p>
+                        {task.description && (
+                          <p className="text-white/50 text-sm mt-1 line-clamp-2">{task.description}</p>
+                        )}
                         {task.dueDate && (
-                          <p className="text-white/40 text-sm">Due: {task.dueDate}</p>
+                          <p className="text-white/40 text-sm mt-1">Due: {task.dueDate}</p>
                         )}
                       </div>
-                      <Badge className={
-                        task.priority === "high" ? "bg-red-500" :
-                        task.priority === "medium" ? "bg-yellow-500" : "bg-gray-500"
-                      }>
-                        {task.priority}
-                      </Badge>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Badge className={
+                          task.priority === "high" ? "bg-red-500" :
+                          task.priority === "medium" ? "bg-yellow-500" : "bg-gray-500"
+                        }>
+                          {task.priority}
+                        </Badge>
+                        {task.status !== "completed" && (
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 h-8 w-8 p-0"
+                            onClick={() => completeTask(task.id)}
+                            data-testid={`complete-task-${task.id}`}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
               ))
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Stock Request Dialog */}
+      <Dialog open={showStockRequest} onOpenChange={setShowStockRequest}>
+        <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5 text-blue-400" />
+              Request Stock Order
+            </DialogTitle>
+            <DialogDescription className="text-white/60">
+              Submit a request for stock that needs to be ordered
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Item Name *</Label>
+              <Input
+                value={stockRequest.itemName}
+                onChange={(e) => setStockRequest(s => ({ ...s, itemName: e.target.value }))}
+                placeholder="e.g., Pool chlorine, Cement bags"
+                className="bg-white/5 border-white/10"
+                data-testid="stock-item-name-input"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Quantity</Label>
+                <Input
+                  type="number"
+                  value={stockRequest.quantity}
+                  onChange={(e) => setStockRequest(s => ({ ...s, quantity: parseInt(e.target.value) || 1 }))}
+                  min="1"
+                  className="bg-white/5 border-white/10"
+                  data-testid="stock-quantity-input"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Urgency</Label>
+                <Select
+                  value={stockRequest.urgency}
+                  onValueChange={(v: "normal" | "urgent") => setStockRequest(s => ({ ...s, urgency: v }))}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Notes (optional)</Label>
+              <Textarea
+                value={stockRequest.notes}
+                onChange={(e) => setStockRequest(s => ({ ...s, notes: e.target.value }))}
+                placeholder="Any additional details..."
+                className="bg-white/5 border-white/10 min-h-[80px]"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowStockRequest(false)} className="border-white/10">
+              Cancel
+            </Button>
+            <Button
+              onClick={submitStockRequest}
+              disabled={loading || !stockRequest.itemName}
+              className="bg-blue-600 hover:bg-blue-700"
+              data-testid="submit-stock-request-btn"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit Request"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Salary Advance Dialog */}
+      <Dialog open={showAdvanceRequest} onOpenChange={setShowAdvanceRequest}>
+        <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Banknote className="h-5 w-5 text-yellow-400" />
+              Request Salary Advance
+            </DialogTitle>
+            <DialogDescription className="text-white/60">
+              Submit a request for a salary advance (requires approval)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Amount (R) *</Label>
+              <Input
+                type="number"
+                value={advanceRequest.amount || ""}
+                onChange={(e) => setAdvanceRequest(a => ({ ...a, amount: parseFloat(e.target.value) || 0 }))}
+                placeholder="Enter amount"
+                min="100"
+                step="100"
+                className="bg-white/5 border-white/10 text-xl h-14"
+                data-testid="advance-amount-input"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Reason *</Label>
+              <Textarea
+                value={advanceRequest.reason}
+                onChange={(e) => setAdvanceRequest(a => ({ ...a, reason: e.target.value }))}
+                placeholder="Please explain why you need the advance..."
+                className="bg-white/5 border-white/10 min-h-[100px]"
+                data-testid="advance-reason-input"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Repayment Plan</Label>
+              <Select
+                value={advanceRequest.repaymentPlan}
+                onValueChange={(v) => setAdvanceRequest(a => ({ ...a, repaymentPlan: v }))}
+              >
+                <SelectTrigger className="bg-white/5 border-white/10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1month">Full deduction next month</SelectItem>
+                  <SelectItem value="2months">Split over 2 months</SelectItem>
+                  <SelectItem value="3months">Split over 3 months</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-sm text-yellow-300">
+              <AlertTriangle className="h-4 w-4 inline mr-2" />
+              Advances are subject to approval by management and will be deducted from future salary.
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAdvanceRequest(false)} className="border-white/10">
+              Cancel
+            </Button>
+            <Button
+              onClick={submitAdvanceRequest}
+              disabled={loading || advanceRequest.amount <= 0 || !advanceRequest.reason}
+              className="bg-yellow-600 hover:bg-yellow-700"
+              data-testid="submit-advance-request-btn"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit Request"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Report Issue Dialog */}
+      <Dialog open={showIssueReport} onOpenChange={setShowIssueReport}>
+        <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Wrench className="h-5 w-5 text-rose-400" />
+              Report Issue / Maintenance
+            </DialogTitle>
+            <DialogDescription className="text-white/60">
+              Report a broken item or maintenance issue
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Asset / Item Name *</Label>
+              <Input
+                value={issueReport.assetName}
+                onChange={(e) => setIssueReport(i => ({ ...i, assetName: e.target.value }))}
+                placeholder="e.g., Pool pump, Gate motor, Lawnmower"
+                className="bg-white/5 border-white/10"
+                data-testid="issue-asset-name-input"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Issue Type</Label>
+                <Select
+                  value={issueReport.issueType}
+                  onValueChange={(v: "broken" | "maintenance" | "safety" | "other") => setIssueReport(i => ({ ...i, issueType: v }))}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="broken">Broken / Not Working</SelectItem>
+                    <SelectItem value="maintenance">Needs Maintenance</SelectItem>
+                    <SelectItem value="safety">Safety Hazard</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Location</Label>
+                <Input
+                  value={issueReport.location}
+                  onChange={(e) => setIssueReport(i => ({ ...i, location: e.target.value }))}
+                  placeholder="e.g., Pool area"
+                  className="bg-white/5 border-white/10"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Description *</Label>
+              <Textarea
+                value={issueReport.description}
+                onChange={(e) => setIssueReport(i => ({ ...i, description: e.target.value }))}
+                placeholder="Describe the issue in detail..."
+                className="bg-white/5 border-white/10 min-h-[100px]"
+                data-testid="issue-description-input"
+              />
+            </div>
+            {issueReport.issueType === "safety" && (
+              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-300">
+                <AlertTriangle className="h-4 w-4 inline mr-2" />
+                Safety hazards are flagged as high priority and will be reviewed immediately.
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowIssueReport(false)} className="border-white/10">
+              Cancel
+            </Button>
+            <Button
+              onClick={submitIssueReport}
+              disabled={loading || !issueReport.assetName || !issueReport.description}
+              className="bg-rose-600 hover:bg-rose-700"
+              data-testid="submit-issue-report-btn"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Report Issue"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
