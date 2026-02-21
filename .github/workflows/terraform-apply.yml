@@ -78,6 +78,7 @@ jobs:
         run: terraform apply -auto-approve tfplan
 
       - name: Clear deployer IP from firewall
+        if: always()
         working-directory: ${{ env.WORKING_DIR }}
         run: |
           terraform apply \
