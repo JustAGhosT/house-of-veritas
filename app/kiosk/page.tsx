@@ -119,12 +119,14 @@ export default function KioskPage() {
   const [showStockRequest, setShowStockRequest] = useState(false)
   const [showAdvanceRequest, setShowAdvanceRequest] = useState(false)
   const [showIssueReport, setShowIssueReport] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
   const [scannedItem, setScannedItem] = useState<ScannedItem | null>(null)
   const [actionType, setActionType] = useState<"consume" | "restock">("consume")
   const [quantity, setQuantity] = useState("1")
   const [purpose, setPurpose] = useState("")
   const [tasks, setTasks] = useState<Task[]>([])
   const [actionSuccess, setActionSuccess] = useState(false)
+  const [requestHistory, setRequestHistory] = useState<RequestHistory[]>([])
   
   // Form states
   const [stockRequest, setStockRequest] = useState<StockRequest>({
