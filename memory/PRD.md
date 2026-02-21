@@ -481,11 +481,31 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Filter by Employee** - API supports `?employeeId=X` parameter
 
 #### Notification System Integration
-- **Approval Notifications** - SMS/in-app sent when request approved
-- **Rejection Notifications** - SMS/in-app sent when request rejected
+- **Approval Notifications** - SMS/WhatsApp/Email sent when request approved
+- **Rejection Notifications** - SMS/WhatsApp/Email sent when request rejected
 - **Manager Alerts** - In-app notification for new requests
 - **Priority Escalation** - SMS added for urgent/safety items
-- **Note:** SMS delivery **MOCKED** (Twilio not configured)
+
+### ✅ Phase 15: Notification Preferences System (COMPLETE - Feb 21, 2026)
+
+#### User Preference Selection
+- `/app/app/api/notifications/preferences/route.ts` - Preferences API
+- MongoDB collection: `notification_preferences`
+- Three channel options: SMS, WhatsApp, Email
+- Persistent preference storage per user
+
+#### Kiosk Notification Settings
+- **Bell Icon** - Added to kiosk header for quick access
+- **Preference Dialog** - Visual selection of preferred channel
+- **Fallback Order Display** - Shows automatic fallback sequence
+- **Auto-Fallback** - If primary fails, tries next option automatically
+
+#### Twilio Integration
+- Twilio SDK installed and configured
+- SMS sending via `twilio.messages.create()`
+- WhatsApp support via `whatsapp:` prefix
+- Graceful fallback when delivery fails
+- **Status:** Configured (awaiting production phone number)
 
 ---
 
