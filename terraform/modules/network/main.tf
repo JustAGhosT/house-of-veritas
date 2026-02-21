@@ -24,6 +24,8 @@ resource "azurerm_subnet" "containers" {
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = [var.container_subnet_prefix]
 
+  service_endpoints = ["Microsoft.KeyVault", "Microsoft.Storage"]
+
   delegation {
     name = "container-delegation"
     service_delegation {
