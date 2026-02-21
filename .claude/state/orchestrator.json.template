@@ -1,0 +1,40 @@
+{
+  "_comment": "Persistent orchestrator state. Copy to orchestrator.json on first run. Survives across Claude/Cursor sessions. The orchestrator reads this at step 1 and writes it at step 8. Keep phase_history trimmed to the last 10 entries.",
+  "last_updated": null,
+  "last_phase_completed": 0,
+  "last_phase_result": null,
+  "current_metrics": {
+    "ts_errors": null,
+    "lint_errors": null,
+    "test_passed": null,
+    "test_failed": null,
+    "test_skipped": null,
+    "todo_count": null,
+    "fixme_count": null,
+    "console_log_count": null,
+    "any_type_count": null,
+    "backlog_p0": null,
+    "backlog_p1": null,
+    "backlog_p2": null,
+    "backlog_p3": null,
+    "api_routes_total": null,
+    "api_routes_tested": null,
+    "components_total": null,
+    "components_tested": null
+  },
+  "phase_history": [],
+  "team_health": {
+    "cicd": { "workflows": null, "passing": null, "grade": null },
+    "infrastructure": { "modules": null, "security_findings": null, "grade": null },
+    "testing": { "coverage_pct": null, "unit_tests": null, "e2e_tests": null, "grade": null },
+    "api": { "routes": null, "auth_coverage": null, "functions": null, "grade": null },
+    "database": { "persistence": null, "backup_status": null, "grade": null },
+    "ui": { "pages": null, "dead_links": null, "a11y_score": null, "grade": null },
+    "architecture": { "in_memory_stores": null, "circular_deps": null, "grade": null },
+    "refactoring": { "dry_violations": null, "console_logs": null, "any_types": null, "grade": null },
+    "bugs": { "p0_count": null, "p1_count": null, "total": null, "grade": null },
+    "vertical": { "features_complete": null, "features_total": 11, "grade": null }
+  },
+  "blockers": [],
+  "next_action": "Run assess-all or individual assess commands to initialize state"
+}
