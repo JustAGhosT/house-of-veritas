@@ -666,6 +666,33 @@ export default function InventoryPage() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Label Print Dialog */}
+        <LabelPrintDialog
+          items={items}
+          open={isLabelPrintOpen}
+          onOpenChange={setIsLabelPrintOpen}
+        />
+
+        {/* Batch Scan Dialogs */}
+        <BatchScanDialog
+          mode="stockcount"
+          open={isStockCountOpen}
+          onOpenChange={setIsStockCountOpen}
+          onComplete={handleBatchComplete}
+        />
+        <BatchScanDialog
+          mode="consume"
+          open={isBatchConsumeOpen}
+          onOpenChange={setIsBatchConsumeOpen}
+          onComplete={handleBatchComplete}
+        />
+        <BatchScanDialog
+          mode="restock"
+          open={isBatchRestockOpen}
+          onOpenChange={setIsBatchRestockOpen}
+          onComplete={handleBatchComplete}
+        />
       </div>
     </DashboardLayout>
   )
