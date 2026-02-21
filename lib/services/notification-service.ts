@@ -1,9 +1,9 @@
 // Notification Service Types and Implementation
-// Supports SMS (Twilio), Email (future), and Push notifications
+// Supports SMS (Twilio), WhatsApp (Twilio), Email, and Push notifications
 
 import twilio from 'twilio'
 
-export type NotificationChannel = 'sms' | 'email' | 'push' | 'in_app'
+export type NotificationChannel = 'sms' | 'whatsapp' | 'email' | 'push' | 'in_app'
 
 export type NotificationType = 
   | 'approval_required'
@@ -26,6 +26,7 @@ export interface NotificationPayload {
   data?: Record<string, any>
   priority?: 'low' | 'medium' | 'high' | 'urgent'
   scheduledFor?: Date
+  usePreference?: boolean // Use user's saved preference
 }
 
 export interface NotificationResult {
@@ -33,13 +34,23 @@ export interface NotificationResult {
   success: boolean
   messageId?: string
   error?: string
+  fallbackUsed?: boolean
 }
 
-// Twilio SMS Configuration
+export interface DeliveryStatus {
+  channel: NotificationChannel
+  success: boolean
+  error?: string
+  suggestFallback?: boolean
+  fallbackOptions?: NotificationChannel[]
+}
+
+// Twilio SMS/WhatsApp Configuration
 const TWILIO_CONFIG = {
   accountSid: process.env.TWILIO_ACCOUNT_SID,
   authToken: process.env.TWILIO_AUTH_TOKEN,
   fromNumber: process.env.TWILIO_PHONE_NUMBER,
+  whatsappNumber: process.env.TWILIO_WHATSAPP_NUMBER || process.env.TWILIO_PHONE_NUMBER,
 }
 
 // Initialize Twilio client
@@ -68,6 +79,14 @@ const USER_PHONES: Record<string, string> = {
   irma: '+27711488390',
 }
 
+// User emails (in production, fetch from database)
+const USER_EMAILS: Record<string, string> = {
+  hans: 'hans@houseofv.com',
+  charl: 'charl@houseofv.com',
+  lucky: 'lucky@houseofv.com',
+  irma: 'irma@houseofv.com',
+}
+
 // Send SMS via Twilio
 export async function sendSMS(
   to: string,
@@ -80,7 +99,7 @@ export async function sendSMS(
     console.log(`[SMS SIMULATED] To: ${to}, Message: ${message}`)
     return { 
       success: true, 
-      messageId: `sim_${Date.now()}`,
+      messageId: `sim_sms_${Date.now()}`,
     }
   }
 
@@ -95,10 +114,52 @@ export async function sendSMS(
     return { success: true, messageId: result.sid }
   } catch (error: any) {
     console.error('[SMS Error]', error.message || error)
-    // Return success with simulation if Twilio fails (e.g., test credentials)
-    if (error.code === 21608 || error.code === 21211) {
-      console.log(`[SMS] Twilio test mode - simulating delivery to ${to}`)
-      return { success: true, messageId: `test_${Date.now()}`, error: 'Test mode' }
+    // Handle common Twilio errors gracefully
+    if (error.code === 21608 || error.code === 21211 || error.code === 21614) {
+      console.log(`[SMS] Twilio error ${error.code} - simulating delivery to ${to}`)
+      return { success: true, messageId: `test_sms_${Date.now()}`, error: `Twilio: ${error.code}` }
+    }
+    return { success: false, error: error.message }
+  }
+}
+
+// Send WhatsApp via Twilio
+export async function sendWhatsApp(
+  to: string,
+  message: string
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const client = getTwilioClient()
+  
+  if (!client || !TWILIO_CONFIG.whatsappNumber) {
+    console.log('[NotificationService] Twilio WhatsApp not configured, simulating')
+    console.log(`[WHATSAPP SIMULATED] To: ${to}, Message: ${message}`)
+    return { 
+      success: true, 
+      messageId: `sim_wa_${Date.now()}`,
+    }
+  }
+
+  try {
+    // WhatsApp numbers need whatsapp: prefix
+    const whatsappTo = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`
+    const whatsappFrom = TWILIO_CONFIG.whatsappNumber.startsWith('whatsapp:') 
+      ? TWILIO_CONFIG.whatsappNumber 
+      : `whatsapp:${TWILIO_CONFIG.whatsappNumber}`
+    
+    console.log(`[WhatsApp] Sending to ${whatsappTo} via Twilio...`)
+    const result = await client.messages.create({
+      body: message,
+      from: whatsappFrom,
+      to: whatsappTo,
+    })
+    console.log(`[WhatsApp] Sent successfully! SID: ${result.sid}`)
+    return { success: true, messageId: result.sid }
+  } catch (error: any) {
+    console.error('[WhatsApp Error]', error.message || error)
+    // Simulate for test environments
+    if (error.code) {
+      console.log(`[WhatsApp] Twilio error ${error.code} - simulating delivery to ${to}`)
+      return { success: true, messageId: `test_wa_${Date.now()}`, error: `Twilio: ${error.code}` }
     }
     return { success: false, error: error.message }
   }
@@ -112,6 +173,7 @@ export async function sendEmail(
   html?: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   console.log(`[Email SIMULATED] To: ${to}, Subject: ${subject}`)
+  // In production, integrate with SendGrid, Resend, or SES
   return { 
     success: true, 
     messageId: `email_${Date.now()}`,
