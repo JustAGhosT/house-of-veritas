@@ -85,6 +85,7 @@ let inventory: InventoryItem[] = [
     supplier: 'Cashbuild',
     unitCost: 89.95,
     totalValue: 719.60,
+    barcode: '6001234567890',
     consumptionHistory: [
       { date: '2026-02-18', quantity: 2, usedBy: 'charl', purpose: 'Fence repair' },
     ],
@@ -98,6 +99,7 @@ let inventory: InventoryItem[] = [
     minStock: 3,
     maxStock: 6,
     reorderPoint: 3,
+    barcode: '6001234567891',
     lastRestocked: '2026-01-25',
     averageConsumption: 2,
     location: 'Pool House',
