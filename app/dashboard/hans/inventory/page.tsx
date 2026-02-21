@@ -247,6 +247,14 @@ export default function InventoryPage() {
     // Could auto-open consume or restock dialog based on context
   }
 
+  // Handle batch scan completion
+  const handleBatchComplete = () => {
+    fetchInventory()
+    setIsBatchConsumeOpen(false)
+    setIsBatchRestockOpen(false)
+    setIsStockCountOpen(false)
+  }
+
   return (
     <DashboardLayout persona="hans">
       <div className="space-y-6 relative z-10">
@@ -260,11 +268,37 @@ export default function InventoryPage() {
             <p className="text-white/60 mt-1">Track stock levels and manage consumption</p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <ScannerButton 
-              onItemFound={handleBarcodeItemFound}
-              mode="lookup"
-              className="bg-cyan-600 hover:bg-cyan-700"
-            />
+            {/* Scan Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="bg-cyan-600 hover:bg-cyan-700">
+                  <ScanLine className="h-4 w-4 mr-2" />
+                  Scan
+                  <ChevronDown className="h-4 w-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-[#0d0d12] border-white/10">
+                <DropdownMenuItem onClick={() => setIsStockCountOpen(true)} className="text-white cursor-pointer">
+                  <ClipboardList className="h-4 w-4 mr-2 text-blue-400" />
+                  Stock Count
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsBatchConsumeOpen(true)} className="text-white cursor-pointer">
+                  <ArrowDown className="h-4 w-4 mr-2 text-orange-400" />
+                  Batch Consume
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsBatchRestockOpen(true)} className="text-white cursor-pointer">
+                  <ArrowUp className="h-4 w-4 mr-2 text-green-400" />
+                  Batch Restock
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            {/* Print Labels Button */}
+            <Button variant="outline" onClick={() => setIsLabelPrintOpen(true)} className="border-white/10">
+              <Printer className="h-4 w-4 mr-2" />
+              Print Labels
+            </Button>
+            
             <Button variant="outline" onClick={generateShoppingList} className="border-white/10" data-testid="shopping-list-btn">
               <ShoppingCart className="h-4 w-4 mr-2" />
               Shopping List
