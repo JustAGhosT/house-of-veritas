@@ -407,16 +407,53 @@ TWILIO_PHONE_NUMBER=+1234567890
   - Troubleshooting guide
 - `/app/README.md` - Updated with current app features, API reference, project structure
 
+### ✅ Phase 12: Employee Kiosk Mode (COMPLETE - Feb 21, 2026)
+
+#### Mobile Kiosk Interface
+- `/app/app/kiosk/page.tsx` - Complete kiosk UI with PIN-based authentication
+- Mobile-first responsive design (optimized for tablets/phones)
+- Real-time clock display with date
+
+#### Kiosk Features
+- **PIN-Based Login** - Simple 4-digit PIN entry with number pad
+  - Charl (1234), Lucky (5678), Irma (9012), Hans (0000)
+- **Clock In/Out** - Time tracking with status badge
+- **Scan Item** - Barcode scanning for inventory lookup
+- **Use Stock** - Quick consumption recording
+- **My Tasks** - View and complete assigned tasks
+- **Order Stock** - Submit stock order requests (NEW)
+  - Item name, quantity, urgency level, notes
+- **Ask Advance** - Request salary advance (NEW)
+  - Amount, reason, repayment plan selection
+  - Warning about management approval requirement
+- **Report Issue** - Report maintenance/broken items (NEW)
+  - Asset name, issue type (broken/maintenance/safety/other)
+  - Location, detailed description
+  - Safety hazard priority flagging
+
+#### Kiosk API
+- `/app/app/api/kiosk/requests/route.ts` - Request management API
+- **GET** - List requests with filters (employeeId, type, status)
+- **POST** - Create new requests (stock_order, salary_advance, issue_report)
+- **PATCH** - Update request status (approve/reject)
+- Summary counts by type and status
+- **Mode:** MOCK (in-memory storage)
+
 ---
 
 ## Upcoming Tasks
 
-### P1: Configure External Services
+### P1: Real Marketplace API Integrations
+- **Gumtree API** - Requires API credentials from user
+- **eBay API** - Requires developer account setup
+- **Facebook Marketplace** - Requires Facebook App credentials
+- Service layer ready at `/app/lib/services/marketplace-service.ts`
+
+### P2: Configure External Services
 - **Azure Document Intelligence** - Provide AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT and KEY for live OCR
 - **Azure Blob Storage** - Provide connection string for image uploads
-- Marketplace seller account setup (Gumtree, Facebook, OLX)
 
-### P2: Phase 12 - Production Deployment
+### P3: Phase 13 - Production Deployment
 - Deploy to Azure (requires Azure credentials)
 - Configure production environment
 - Set up Twilio for real SMS notifications
@@ -433,7 +470,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Advanced AI Analytics (trend analysis, anomaly detection)
 - Online Store Integration (Cashbuild, Builders) for order lists
 - Asset photo gallery with Azure Blob Storage
-- Real marketplace API integrations (posting to Gumtree/FB/OLX)
+- Kiosk request approval workflow for managers
 
 ---
 
