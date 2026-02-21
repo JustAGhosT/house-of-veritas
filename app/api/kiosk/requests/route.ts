@@ -14,7 +14,7 @@ interface KioskRequest {
   notes?: string
 }
 
-// Mock database
+// Mock database with more seed data
 const requests: KioskRequest[] = [
   {
     id: "req-001",
@@ -31,6 +31,7 @@ const requests: KioskRequest[] = [
     status: "approved",
     reviewedBy: "hans",
     reviewedAt: new Date(Date.now() - 43200000).toISOString(),
+    notes: "Approved. Please order from Stodels.",
   },
   {
     id: "req-002",
@@ -45,6 +46,77 @@ const requests: KioskRequest[] = [
     },
     timestamp: new Date(Date.now() - 172800000).toISOString(),
     status: "pending",
+  },
+  {
+    id: "req-003",
+    type: "salary_advance",
+    employeeId: "lucky",
+    employeeName: "Lucky",
+    data: {
+      amount: 1500,
+      reason: "School fees for my daughter due this week",
+      repaymentPlan: "2months",
+    },
+    timestamp: new Date(Date.now() - 3600000).toISOString(),
+    status: "pending",
+  },
+  {
+    id: "req-004",
+    type: "stock_order",
+    employeeId: "charl",
+    employeeName: "Charl",
+    data: {
+      itemName: "WD-40 lubricant spray",
+      quantity: 3,
+      urgency: "urgent",
+      notes: "Gate motor making grinding noises, need to lubricate urgently",
+    },
+    timestamp: new Date(Date.now() - 7200000).toISOString(),
+    status: "pending",
+  },
+  {
+    id: "req-005",
+    type: "issue_report",
+    employeeId: "irma",
+    employeeName: "Irma",
+    data: {
+      assetName: "Kitchen dishwasher",
+      issueType: "broken",
+      description: "Not draining water properly, leaves puddles inside after cycle",
+      location: "Main Kitchen",
+    },
+    timestamp: new Date(Date.now() - 14400000).toISOString(),
+    status: "pending",
+  },
+  {
+    id: "req-006",
+    type: "issue_report",
+    employeeId: "lucky",
+    employeeName: "Lucky",
+    data: {
+      assetName: "Pool pump room door",
+      issueType: "safety",
+      description: "Door lock is broken, pool chemicals accessible to anyone",
+      location: "Pool area",
+    },
+    timestamp: new Date(Date.now() - 1800000).toISOString(),
+    status: "pending",
+  },
+  {
+    id: "req-007",
+    type: "salary_advance",
+    employeeId: "charl",
+    employeeName: "Charl",
+    data: {
+      amount: 800,
+      reason: "Car repairs needed for commute",
+      repaymentPlan: "1month",
+    },
+    timestamp: new Date(Date.now() - 259200000).toISOString(),
+    status: "rejected",
+    reviewedBy: "hans",
+    reviewedAt: new Date(Date.now() - 172800000).toISOString(),
+    notes: "Please resubmit with vehicle repair quote attached.",
   },
 ]
 
