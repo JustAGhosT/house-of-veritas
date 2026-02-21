@@ -1,0 +1,10 @@
+{
+  "plugins": {
+    "notion-workspace": {
+      "enabled": true
+    },
+    "compound-engineering": {
+      "enabled": true
+    }
+  }
+}

@@ -1,13 +1,12 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server"
+import { getAuthContext } from "@/lib/auth/rbac"
 
-// Payroll Service Configuration
 const QUICKBOOKS_CONFIG = {
   clientId: process.env.QUICKBOOKS_CLIENT_ID,
   clientSecret: process.env.QUICKBOOKS_CLIENT_SECRET,
   realmId: process.env.QUICKBOOKS_REALM_ID,
 }
 
-// Check if QuickBooks is configured
 export function isQuickBooksConfigured(): boolean {
   return !!(QUICKBOOKS_CONFIG.clientId && QUICKBOOKS_CONFIG.clientSecret)
 }
@@ -64,8 +63,11 @@ function calculatePayroll(employee: typeof EMPLOYEE_PAYROLL[0]) {
   }
 }
 
-// GET - Get payroll summary or status
 export async function GET(request: Request) {
+  const auth = getAuthContext(request)
+  if (!auth || auth.role !== "admin") {
+    return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
+  }
   const { searchParams } = new URL(request.url)
   const action = searchParams.get('action')
   const employeeId = searchParams.get('employeeId')
@@ -120,8 +122,11 @@ export async function GET(request: Request) {
   })
 }
 
-// POST - Run payroll or sync with QuickBooks
 export async function POST(request: Request) {
+  const auth = getAuthContext(request)
+  if (!auth || auth.role !== "admin") {
+    return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
+  }
   try {
     const body = await request.json()
     const { action, month, employeeId, adjustments } = body

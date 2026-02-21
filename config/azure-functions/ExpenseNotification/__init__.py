@@ -97,7 +97,7 @@ def handle_webhook(req_body: Dict) -> Dict:
                         "expense_type": item.get("Type", "N/A"),
                         "date": item.get("Date", "N/A"),
                         "description": item.get("Notes", "No description"),
-                        "baserow_url": config.baserow_url or "https://ops.houseofveritas.za"
+                        "baserow_url": config.baserow_url or "https://ops.nexamesh.ai"
                     }
                 )
                 
@@ -153,7 +153,7 @@ Pending Expenses:
 {chr(10).join(expense_list)}
 
 Please review and approve/reject at:
-{config.baserow_url or 'https://ops.houseofveritas.za'}
+{config.baserow_url or 'https://ops.nexamesh.ai'}
 
 ---
 This is an automated notification from House of Veritas.

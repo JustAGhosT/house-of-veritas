@@ -6,6 +6,8 @@ import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { NotificationPanel } from "@/components/notification-panel"
 import { RealTimeIndicator } from "@/components/realtime-indicator"
+import { ConnectionStatus } from "@/components/connection-status"
+import { ErrorBoundary } from "@/components/error-boundary"
 import { SimpleGridBackground } from "@/components/grid-room-background"
 import {
   Home,
@@ -105,7 +107,7 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
   useEffect(() => {
     if (!isLoading && user) {
       const dashboardOwner = pathname?.split("/")[2]
-      if (dashboardOwner && dashboardOwner !== user.id && user.id !== "hans") {
+      if (dashboardOwner && dashboardOwner !== user.id && user.role !== "admin") {
         router.push(`/dashboard/${user.id}`)
       }
     }
@@ -264,7 +266,7 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-4">
-              {/* Real-time Status Indicator */}
+              <ConnectionStatus />
               <RealTimeIndicator />
               
               {/* Notifications */}
@@ -283,9 +285,10 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
           </div>
         </header>
 
-        {/* Page Content */}
         <main className="p-6">
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </main>
       </div>
     </div>

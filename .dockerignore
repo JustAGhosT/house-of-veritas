@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.env.local
+.env
+*.md
+tests
+terraform
+config/azure-functions
+.github
+.cursor
+.vscode

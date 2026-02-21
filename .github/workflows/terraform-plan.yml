@@ -31,9 +31,17 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
       
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Set Terraform ARM credentials
+        run: |
+          CREDS='${{ secrets.AZURE_CREDENTIALS }}'
+          echo "ARM_CLIENT_ID=$(echo $CREDS | jq -r .clientId)" >> $GITHUB_ENV
+          echo "ARM_CLIENT_SECRET=$(echo $CREDS | jq -r .clientSecret)" >> $GITHUB_ENV
+          echo "ARM_TENANT_ID=$(echo $CREDS | jq -r .tenantId)" >> $GITHUB_ENV
+          echo "ARM_SUBSCRIPTION_ID=$(echo $CREDS | jq -r .subscriptionId)" >> $GITHUB_ENV
       
       - name: Terraform Init
         working-directory: ${{ env.WORKING_DIR }}
@@ -42,7 +50,7 @@ jobs:
             -backend-config="resource_group_name=${{ secrets.TF_STATE_RESOURCE_GROUP }}" \
             -backend-config="storage_account_name=${{ secrets.TF_STATE_STORAGE_ACCOUNT }}" \
             -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER }}" \
-            -backend-config="key=${{ secrets.TF_STATE_KEY }}"
+            -backend-config="key=${{ secrets.TF_STATE_KEY || 'production.terraform.tfstate' }}"
       
       - name: Terraform Validate
         working-directory: ${{ env.WORKING_DIR }}
@@ -58,6 +66,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
         run: |
           terraform plan \
+            -var="domain_name=${{ vars.DOMAIN_NAME || 'nexamesh.ai' }}" \
             -var="db_admin_password=${{ secrets.DB_ADMIN_PASSWORD }}" \
             -var="smtp_username=${{ secrets.SMTP_USERNAME }}" \
             -var="smtp_password=${{ secrets.SMTP_PASSWORD }}" \

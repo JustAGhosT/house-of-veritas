@@ -18,37 +18,28 @@ yarn-error.log*
 
 # env files
 .env*
+*.env
+*.env.*
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts-e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
+next-env.d.ts
+
+# Azure credentials
+azure-credentials.json
+
+# Terraform
+*.tfvars
+!*.tfvars.example
+*.tfstate
+*.tfstate.*
+.terraform/
+tfplan
+terraform/crash.log
+
+# Claude agent reports and state (generated)
+.claude/reports/
+.claude/state/*.json

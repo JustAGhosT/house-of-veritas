@@ -1,35 +1,59 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server"
+import {
+  getTasks,
+  getExpenses,
+  getEmployees,
+  isBaserowConfigured,
+} from "@/lib/services/baserow"
 
 export async function GET() {
+  const [tasks, expenses, employees] = await Promise.all([
+    getTasks(),
+    getExpenses(),
+    getEmployees(),
+  ])
+
+  const now = new Date()
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    .toISOString()
+    .split("T")[0]
+
+  const monthExpenses = expenses.filter((e) => e.date >= monthStart)
+
   const stats = {
-    documents: {
-      total: 18,
-      digitized: 18,
-      pending: 0,
-      compliance: 100
-    },
+    dataSource: isBaserowConfigured() ? "live" : "mock",
     users: {
-      total: 4,
-      active: 4,
-      names: ['Hans', 'Charl', 'Lucky', 'Irma']
-    },
-    uptime: {
-      percentage: 99.9,
-      lastIncident: '2024-11-15'
+      total: employees.length,
+      active: employees.length,
+      names: employees.map((e) => e.fullName.split(" ")[0]),
     },
     tasks: {
-      total: 47,
-      completed: 38,
-      inProgress: 6,
-      overdue: 3
+      total: tasks.length,
+      completed: tasks.filter((t) => t.status === "Completed").length,
+      inProgress: tasks.filter((t) => t.status === "In Progress").length,
+      overdue: tasks.filter(
+        (t) => t.dueDate && t.dueDate < now.toISOString().split("T")[0] && t.status !== "Completed"
+      ).length,
+    },
+    expenses: {
+      thisMonth: monthExpenses.reduce((sum, e) => sum + e.amount, 0),
+      pending: expenses.filter((e) => e.approvalStatus === "Pending").length,
+      approved: expenses.filter((e) => e.approvalStatus === "Approved").length,
     },
     budget: {
       allocated: 45000,
-      spent: 38250,
-      remaining: 6750,
-      percentage: 85
-    }
+      spent: monthExpenses
+        .filter((e) => e.approvalStatus === "Approved")
+        .reduce((sum, e) => sum + e.amount, 0),
+      remaining: 0,
+      percentage: 0,
+    },
   }
+
+  stats.budget.remaining = stats.budget.allocated - stats.budget.spent
+  stats.budget.percentage = Math.round(
+    (stats.budget.spent / stats.budget.allocated) * 100
+  )
 
   return NextResponse.json(stats)
 }

@@ -355,11 +355,11 @@ export default function HansDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
-          title="Documents Digitized"
-          value={stats?.documents?.total || 18}
-          change="100% compliant"
+          title="Active Tasks"
+          value={stats?.tasks?.total || 0}
+          change={`${stats?.tasks?.completed || 0} completed`}
           changeType="up"
-          icon={FileText}
+          icon={ClipboardList}
           color="blue"
         />
         <StatCard
@@ -369,17 +369,17 @@ export default function HansDashboard() {
           color="green"
         />
         <StatCard
-          title="Pending Tasks"
-          value={12}
-          change="+3 this week"
-          changeType="up"
-          icon={ClipboardList}
+          title="Pending Approvals"
+          value={stats?.expenses?.pending || 0}
+          change={stats?.tasks?.overdue ? `${stats.tasks.overdue} overdue` : undefined}
+          changeType={stats?.tasks?.overdue > 0 ? "down" : "neutral"}
+          icon={AlertTriangle}
           color="amber"
         />
         <StatCard
           title="Monthly Expenses"
-          value={`R${(stats?.budget?.spent || 38250).toLocaleString()}`}
-          change={`${stats?.budget?.percentage || 85}% of budget`}
+          value={`R${(stats?.expenses?.thisMonth || 0).toLocaleString()}`}
+          change={`${stats?.budget?.percentage || 0}% of budget`}
           changeType="neutral"
           icon={DollarSign}
           color="purple"

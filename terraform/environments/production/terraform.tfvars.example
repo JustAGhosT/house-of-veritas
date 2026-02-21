@@ -18,7 +18,7 @@ db_admin_username   = "hov_admin"
 db_admin_password   = "CHANGE_ME_SECURE_PASSWORD_HERE"  # Generate a strong password
 
 # Domain
-domain_name = "houseofveritas.za"  # Or .co.za
+domain_name = "nexamesh.ai"  # Or .co.za
 
 # SMTP Configuration (Gmail example)
 smtp_host     = "smtp.gmail.com"

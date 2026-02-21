@@ -221,7 +221,7 @@ def main(timer: func.TimerRequest) -> None:
                 "total_hours": f"{report['total_hours']:.1f}",
                 "overtime_hours": f"{report['overtime_hours']:.1f}",
                 "overtime_cost": f"{report['overtime_cost']:.2f}",
-                "baserow_url": config.baserow_url or "https://ops.houseofveritas.za"
+                "baserow_url": config.baserow_url or "https://ops.nexamesh.ai"
             }
         )
     
@@ -248,7 +248,7 @@ Details:
 ])}
 
 Please review and approve at:
-{config.baserow_url or 'https://ops.houseofveritas.za'}
+{config.baserow_url or 'https://ops.nexamesh.ai'}
 
 ---
 Per BCEA, overtime must be approved and compensated at the appropriate rate.

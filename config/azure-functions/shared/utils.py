@@ -47,7 +47,7 @@ class Config:
     
     # Email (SendGrid)
     sendgrid_api_key: str = ""
-    email_from: str = "alerts@houseofveritas.za"
+    email_from: str = "alerts@nexamesh.ai"
     
     # SMS (Twilio)
     twilio_account_sid: str = ""
@@ -55,7 +55,7 @@ class Config:
     twilio_phone_number: str = ""
     
     # Admin contacts
-    admin_email: str = "hans@houseofveritas.za"
+    admin_email: str = "hans@nexamesh.ai"
     admin_phone: str = ""
     
     # Azure Storage
@@ -81,11 +81,11 @@ class Config:
             docuseal_api_key=os.environ.get("DOCUSEAL_API_KEY", ""),
             docuseal_webhook_secret=os.environ.get("DOCUSEAL_WEBHOOK_SECRET", ""),
             sendgrid_api_key=os.environ.get("SENDGRID_API_KEY", ""),
-            email_from=os.environ.get("EMAIL_FROM", "alerts@houseofveritas.za"),
+            email_from=os.environ.get("EMAIL_FROM", "alerts@nexamesh.ai"),
             twilio_account_sid=os.environ.get("TWILIO_ACCOUNT_SID", ""),
             twilio_auth_token=os.environ.get("TWILIO_AUTH_TOKEN", ""),
             twilio_phone_number=os.environ.get("TWILIO_PHONE_NUMBER", ""),
-            admin_email=os.environ.get("ADMIN_EMAIL", "hans@houseofveritas.za"),
+            admin_email=os.environ.get("ADMIN_EMAIL", "hans@nexamesh.ai"),
             admin_phone=os.environ.get("ADMIN_PHONE", ""),
             storage_connection_string=os.environ.get("AZURE_STORAGE_CONNECTION_STRING", ""),
             backup_container=os.environ.get("BACKUP_CONTAINER", "backups"),

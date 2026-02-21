@@ -1,0 +1,58 @@
+# Claude Agent System
+
+This project has a multi-agent assessment framework in `.claude/`.
+
+## Structure
+- `.claude/agents/` - Agent definitions (role, scope, checklist)
+- `.claude/commands/` - Executable prompts (assessment + operational)
+- `.claude/hooks/` - Lifecycle hooks (session-start, protect-sensitive, etc.)
+- `.claude/rules/` - Domain-specific coding rules (security, testing, typescript, nextjs, infrastructure)
+- `.claude/state/` - Persistent orchestrator state (gitignored)
+- `.claude/reports/` - Generated assessment output (gitignored)
+- `.claude/settings.json` - Permissions, hooks, and env config
+
+## Root Files
+- `CLAUDE.md` - Project context for AI sessions
+- `AGENTS.md` - Agent system documentation
+- `AGENT_TEAMS.md` - Team-based agent organization
+- `AGENT_BACKLOG.md` - Prioritized action items from latest assessment
+
+## Usage
+
+### Assessment Commands
+- To run an individual agent: read the command file and follow its instructions
+- To run all agents: read `.claude/commands/assess-all.md` and use subagents for parallelism
+- Reports go to `.claude/reports/` - never commit these
+
+### Operational Commands
+- `healthcheck` - Quick project health snapshot
+- `fix` - Fix highest-priority issues from latest assessment
+- `discover` - Scan codebase and update orchestrator state
+- `deploy` - Pre-deployment verification checklist
+- `review-pr` - Review a PR against project standards
+- `security-audit` - Focused security scan
+
+## When the user says "assess" or "audit"
+1. Check if they want a specific domain (CI/CD, infra, testing, etc.)
+2. Read the corresponding command from `.claude/commands/`
+3. Follow the instructions exactly
+4. Write output to `.claude/reports/`
+
+## When making code changes
+1. Read the relevant rules from `.claude/rules/` before coding
+2. Follow security rules for auth, secrets, and validation
+3. Follow TypeScript rules for type safety
+4. Follow testing rules for test structure and coverage
+
+## Agent IDs
+- 00: Orchestrator (master coordinator)
+- 01: CI/CD
+- 02: Infrastructure
+- 03: Testing
+- 04: API/Functions
+- 05: Database
+- 06: UI Layer
+- 07: Architecture
+- 08: Refactoring (SOLID/DRY)
+- 09: Bugs & Features
+- 10: Vertical Feature Completeness
