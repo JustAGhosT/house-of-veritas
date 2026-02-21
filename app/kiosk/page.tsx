@@ -474,11 +474,20 @@ export default function KioskPage() {
         </div>
       </div>
 
-      {/* Main Actions Grid */}
-      <div className="flex-1 grid grid-cols-2 gap-4 max-w-lg mx-auto w-full">
+      {/* Success Toast */}
+      {successMessage && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top">
+          <CheckCircle className="h-5 w-5" />
+          {successMessage}
+        </div>
+      )}
+
+      {/* Main Actions Grid - 3 columns on larger screens */}
+      <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-2xl mx-auto w-full">
         {/* Clock In/Out */}
         <Button
-          className={`h-40 flex flex-col gap-3 text-xl ${
+          data-testid="kiosk-clock-btn"
+          className={`h-32 sm:h-36 flex flex-col gap-2 text-base sm:text-lg ${
             currentUser.clockedIn 
               ? "bg-red-600 hover:bg-red-700" 
               : "bg-green-600 hover:bg-green-700"
@@ -486,38 +495,71 @@ export default function KioskPage() {
           onClick={handleClockInOut}
           disabled={loading}
         >
-          <Clock className="h-12 w-12" />
+          <Clock className="h-10 w-10" />
           {currentUser.clockedIn ? "Clock Out" : "Clock In"}
         </Button>
 
         {/* Scan Item */}
         <Button
-          className="h-40 flex flex-col gap-3 text-xl bg-cyan-600 hover:bg-cyan-700"
+          data-testid="kiosk-scan-btn"
+          className="h-32 sm:h-36 flex flex-col gap-2 text-base sm:text-lg bg-cyan-600 hover:bg-cyan-700"
           onClick={() => setShowScanner(true)}
         >
-          <ScanLine className="h-12 w-12" />
+          <ScanLine className="h-10 w-10" />
           Scan Item
         </Button>
 
-        {/* Quick Consume */}
+        {/* Use Stock */}
         <Button
-          className="h-40 flex flex-col gap-3 text-xl bg-orange-600 hover:bg-orange-700"
+          data-testid="kiosk-use-stock-btn"
+          className="h-32 sm:h-36 flex flex-col gap-2 text-base sm:text-lg bg-orange-600 hover:bg-orange-700"
           onClick={() => {
             setActionType("consume")
             setShowScanner(true)
           }}
         >
-          <ArrowDown className="h-12 w-12" />
+          <ArrowDown className="h-10 w-10" />
           Use Stock
         </Button>
 
         {/* My Tasks */}
         <Button
-          className="h-40 flex flex-col gap-3 text-xl bg-purple-600 hover:bg-purple-700"
+          data-testid="kiosk-tasks-btn"
+          className="h-32 sm:h-36 flex flex-col gap-2 text-base sm:text-lg bg-purple-600 hover:bg-purple-700"
           onClick={openTasks}
         >
-          <ClipboardList className="h-12 w-12" />
+          <ClipboardList className="h-10 w-10" />
           My Tasks
+        </Button>
+
+        {/* Request Stock Order */}
+        <Button
+          data-testid="kiosk-order-stock-btn"
+          className="h-32 sm:h-36 flex flex-col gap-2 text-base sm:text-lg bg-blue-600 hover:bg-blue-700"
+          onClick={() => setShowStockRequest(true)}
+        >
+          <ShoppingCart className="h-10 w-10" />
+          Order Stock
+        </Button>
+
+        {/* Request Advance */}
+        <Button
+          data-testid="kiosk-advance-btn"
+          className="h-32 sm:h-36 flex flex-col gap-2 text-base sm:text-lg bg-yellow-600 hover:bg-yellow-700"
+          onClick={() => setShowAdvanceRequest(true)}
+        >
+          <Banknote className="h-10 w-10" />
+          Ask Advance
+        </Button>
+
+        {/* Report Issue */}
+        <Button
+          data-testid="kiosk-report-issue-btn"
+          className="h-32 sm:h-36 flex flex-col gap-2 text-base sm:text-lg bg-rose-600 hover:bg-rose-700 col-span-2 sm:col-span-1"
+          onClick={() => setShowIssueReport(true)}
+        >
+          <Wrench className="h-10 w-10" />
+          Report Issue
         </Button>
       </div>
 
