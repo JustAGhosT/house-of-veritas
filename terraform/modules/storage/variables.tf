@@ -23,6 +23,12 @@ variable "database_subnet_id" {
   type        = string
 }
 
+variable "deployer_ip_addresses" {
+  description = "IP addresses allowed to manage Storage Account (e.g. CI runner)"
+  type        = list(string)
+  default     = []
+}
+
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)

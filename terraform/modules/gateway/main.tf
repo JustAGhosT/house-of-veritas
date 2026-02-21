@@ -263,7 +263,7 @@ resource "azurerm_application_gateway" "main" {
     rule_set_type    = "OWASP"
     rule_set_version = "3.2"
 
-  
+
   }
 
   tags = var.tags

@@ -55,6 +55,13 @@ jobs:
             -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER }}" \
             -backend-config="key=${{ secrets.TF_STATE_KEY || 'production.terraform.tfstate' }}"
       
+      - name: Get runner public IP
+        id: ip
+        run: |
+          IP=$(curl -fsS --retry 3 --retry-delay 1 --max-time 10 https://api.ipify.org) || { echo "Failed to fetch runner IP"; exit 1; }
+          [ -z "$IP" ] && { echo "Empty IP response"; exit 1; }
+          echo "ip=$IP" >> $GITHUB_OUTPUT
+
       - name: Terraform Destroy
         working-directory: ${{ env.WORKING_DIR }}
         run: |
@@ -65,6 +72,7 @@ jobs:
             -var="smtp_password=${{ secrets.SMTP_PASSWORD }}" \
             -var="ssl_certificate_data=${{ secrets.SSL_CERTIFICATE_DATA }}" \
             -var="ssl_certificate_password=${{ secrets.SSL_CERTIFICATE_PASSWORD }}" \
+            -var="deployer_ip=${{ steps.ip.outputs.ip }}" \
             -auto-approve
       
       - name: Send Notification

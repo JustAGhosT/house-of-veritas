@@ -58,29 +58,29 @@ resource "azurerm_linux_function_app" "main" {
     FUNCTIONS_WORKER_RUNTIME       = "python"
     APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.functions.instrumentation_key
 
-    BASEROW_URL            = "https://ops.${var.domain_name}"
-    BASEROW_TOKEN          = var.baserow_api_token
-    DOCUSEAL_URL           = "https://docs.${var.domain_name}"
-    DOCUSEAL_API_KEY       = var.docuseal_api_key
+    BASEROW_URL             = "https://ops.${var.domain_name}"
+    BASEROW_TOKEN           = var.baserow_api_token
+    DOCUSEAL_URL            = "https://docs.${var.domain_name}"
+    DOCUSEAL_API_KEY        = var.docuseal_api_key
     DOCUSEAL_WEBHOOK_SECRET = var.docuseal_webhook_secret
 
-    TABLE_EMPLOYEES        = var.baserow_table_employees
-    TABLE_ASSETS           = var.baserow_table_assets
-    TABLE_TASKS            = var.baserow_table_tasks
-    TABLE_TIME_CLOCK       = var.baserow_table_time_clock
-    TABLE_INCIDENTS        = var.baserow_table_incidents
-    TABLE_VEHICLE_LOGS     = var.baserow_table_vehicle_logs
-    TABLE_EXPENSES         = var.baserow_table_expenses
-    TABLE_DOCUMENT_EXPIRY  = var.baserow_table_document_expiry
+    TABLE_EMPLOYEES       = var.baserow_table_employees
+    TABLE_ASSETS          = var.baserow_table_assets
+    TABLE_TASKS           = var.baserow_table_tasks
+    TABLE_TIME_CLOCK      = var.baserow_table_time_clock
+    TABLE_INCIDENTS       = var.baserow_table_incidents
+    TABLE_VEHICLE_LOGS    = var.baserow_table_vehicle_logs
+    TABLE_EXPENSES        = var.baserow_table_expenses
+    TABLE_DOCUMENT_EXPIRY = var.baserow_table_document_expiry
 
-    SENDGRID_API_KEY       = var.sendgrid_api_key
-    EMAIL_FROM             = "alerts@${var.domain_name}"
-    ADMIN_EMAIL            = "hans@${var.domain_name}"
-    ADMIN_PHONE            = var.admin_phone
+    SENDGRID_API_KEY = var.sendgrid_api_key
+    EMAIL_FROM       = "alerts@${var.domain_name}"
+    ADMIN_EMAIL      = "hans@${var.domain_name}"
+    ADMIN_PHONE      = var.admin_phone
 
     AZURE_STORAGE_CONNECTION_STRING = var.storage_connection_string
-    BACKUP_CONTAINER       = "backups"
-    ARCHIVE_CONTAINER      = "archive"
+    BACKUP_CONTAINER                = "backups"
+    ARCHIVE_CONTAINER               = "archive"
   }
 
   identity {

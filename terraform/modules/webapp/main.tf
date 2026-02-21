@@ -44,8 +44,8 @@ resource "azurerm_linux_web_app" "main" {
     JWT_SECRET = var.jwt_secret
 
     AZURE_STORAGE_CONNECTION_STRING = var.storage_connection_string
-    DOCUMENT_INTELLIGENCE_ENDPOINT = var.document_intelligence_endpoint
-    DOCUMENT_INTELLIGENCE_KEY      = var.document_intelligence_key
+    DOCUMENT_INTELLIGENCE_ENDPOINT  = var.document_intelligence_endpoint
+    DOCUMENT_INTELLIGENCE_KEY       = var.document_intelligence_key
   }, var.extra_app_settings)
 
   identity {

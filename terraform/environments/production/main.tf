@@ -60,33 +60,31 @@ module "network" {
 module "storage" {
   source = "../../modules/storage"
 
-  resource_group_name  = azurerm_resource_group.main.name
-  location             = azurerm_resource_group.main.location
-  storage_account_name = var.storage_account_name
-  container_subnet_id  = module.network.container_subnet_id
-  database_subnet_id   = module.network.database_subnet_id
+  resource_group_name   = azurerm_resource_group.main.name
+  location              = azurerm_resource_group.main.location
+  storage_account_name  = var.storage_account_name
+  container_subnet_id   = module.network.container_subnet_id
+  database_subnet_id    = module.network.database_subnet_id
+  deployer_ip_addresses = var.deployer_ip != "" ? [var.deployer_ip] : []
 
   tags = local.common_tags
-
-  depends_on = [module.network]
 }
 
 # Security Module (Key Vault)
 module "security" {
   source = "../../modules/security"
 
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  key_vault_name      = var.key_vault_name
-  container_subnet_id = module.network.container_subnet_id
-  db_admin_password   = var.db_admin_password
-  docuseal_secret_key = random_password.docuseal_secret.result
-  baserow_secret_key  = random_password.baserow_secret.result
-  smtp_password       = var.smtp_password
+  resource_group_name   = azurerm_resource_group.main.name
+  location              = azurerm_resource_group.main.location
+  key_vault_name        = var.key_vault_name
+  container_subnet_id   = module.network.container_subnet_id
+  deployer_ip_addresses = var.deployer_ip != "" ? [var.deployer_ip] : []
+  db_admin_password     = var.db_admin_password
+  docuseal_secret_key   = random_password.docuseal_secret.result
+  baserow_secret_key    = random_password.baserow_secret.result
+  smtp_password         = var.smtp_password
 
   tags = local.common_tags
-
-  depends_on = [module.network]
 }
 
 # Database Module
@@ -223,18 +221,18 @@ module "dns" {
 module "monitoring" {
   source = "../../modules/monitoring"
 
-  resource_group_name = azurerm_resource_group.main.name
-  resource_group_id   = azurerm_resource_group.main.id
-  location            = azurerm_resource_group.main.location
-  workspace_name      = "${var.project_prefix}-${var.environment}-${var.project_name}-law-${var.location_short}"
-  alert_email         = "hans@nexamesh.ai"
+  resource_group_name    = azurerm_resource_group.main.name
+  resource_group_id      = azurerm_resource_group.main.id
+  location               = azurerm_resource_group.main.location
+  workspace_name         = "${var.project_prefix}-${var.environment}-${var.project_name}-law-${var.location_short}"
+  alert_email            = "hans@nexamesh.ai"
   database_server_id     = module.database.server_id
   enable_database_alerts = true
   function_app_id        = module.functions.function_app_id
   enable_function_alerts = true
   web_app_id             = module.webapp.web_app_id
   enable_webapp_alerts   = true
-  monthly_budget      = 1000
+  monthly_budget         = 1000
 
   tags = local.common_tags
 
