@@ -244,10 +244,11 @@ class TestApprovalWorkflow:
     
     def test_patch_nonexistent_request(self):
         """PATCH /api/kiosk/requests - Non-existent request returns 404"""
+        # Use a valid ObjectId format that doesn't exist
         response = requests.patch(
             f"{BASE_URL}/api/kiosk/requests",
             json={
-                "requestId": "nonexistent-request-id",
+                "requestId": "000000000000000000000000",  # Valid ObjectId format, but doesn't exist
                 "status": "approved"
             }
         )
