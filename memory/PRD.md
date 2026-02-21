@@ -334,6 +334,28 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Barcode displayed in inventory table rows
 - Uses `html5-qrcode` library
 
+#### Barcode Label Printing
+- `/app/components/barcode-label-generator.tsx` - Label generation component
+- Configurable label sizes: Small (180×80), Medium (240×100), Large (300×150)
+- Code types: Code 128, QR Code
+- Toggle options: Show Name, Barcode, Location, Category
+- Select/deselect items for printing
+- Live preview of labels
+- Print to any connected printer
+- Download as SVG files
+- Generates proper Code 128 barcodes with checksums
+
+#### Batch Scanning Operations
+- `/app/components/batch-scanner.tsx` - Batch scanning component
+- **Stock Count Mode** - Scan multiple items for inventory verification
+- **Batch Consume Mode** - Record consumption for multiple items at once
+- **Batch Restock Mode** - Add stock to multiple items simultaneously
+- Default quantity and purpose settings
+- Real-time item lookup and validation
+- Found/Not Found status indicators
+- Editable quantities per item
+- Bulk submit to inventory API
+
 #### OCR Document Scanner
 - `/app/app/api/ocr/route.ts` - OCR processing API
 - `/app/app/dashboard/hans/ocr/page.tsx` - OCR Scanner UI
@@ -372,6 +394,18 @@ TWILIO_PHONE_NUMBER=+1234567890
 #### Updated Navigation
 - Assets, Inventory, OCR Scanner, Marketplace added to Hans navigation
 - Inventory added to Lucky navigation (garden supplies only)
+
+#### Documentation Updates (Feb 21, 2026)
+- `/app/docs/02-azure-deployment-guide.md` - Complete deployment guide with:
+  - PowerShell commands for Windows users
+  - Bash commands for Linux/macOS users
+  - Service Principal creation steps
+  - GitHub secrets configuration
+  - Terraform backend setup (Azure Blob Storage)
+  - SSL certificate generation (Let's Encrypt)
+  - Application setup and go-live checklist
+  - Troubleshooting guide
+- `/app/README.md` - Updated with current app features, API reference, project structure
 
 ---
 
