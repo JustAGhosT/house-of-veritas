@@ -558,7 +558,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - `/app/app/dashboard/lucky/inventory/page.tsx` - Lucky's garden inventory
 
 ### API Endpoints
-- `/app/app/api/kiosk/requests/route.ts` - Kiosk request API
+- `/app/app/api/kiosk/requests/route.ts` - Kiosk request API (MongoDB)
 - `/app/app/api/realtime/events/route.ts` - SSE endpoint
 - `/app/app/api/realtime/emit/route.ts` - Event emit API
 - `/app/app/api/audit/route.ts` - Audit log API
