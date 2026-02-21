@@ -463,6 +463,30 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Added "Approvals" to Hans's dashboard navigation (priority placement)
 - CheckSquare icon for approval center
 
+### ✅ Phase 14: MongoDB Persistence & Notifications (COMPLETE - Feb 21, 2026)
+
+#### MongoDB Integration
+- `/app/lib/db/mongodb.ts` - MongoDB connection utility
+- Database: `house_of_veritas`
+- Collection: `kiosk_requests`
+- Auto-seeds 7 initial requests on first load
+- ObjectId-based document IDs
+- Full CRUD operations with persistent storage
+
+#### Employee Request History
+- **My Requests Button** - Added to kiosk main menu (indigo color)
+- **Request History Dialog** - Shows employee's submitted requests
+- **Status Badges** - Pending (yellow), Approved (green), Rejected (red)
+- **Feedback Display** - Approved/rejected notes shown inline
+- **Filter by Employee** - API supports `?employeeId=X` parameter
+
+#### Notification System Integration
+- **Approval Notifications** - SMS/in-app sent when request approved
+- **Rejection Notifications** - SMS/in-app sent when request rejected
+- **Manager Alerts** - In-app notification for new requests
+- **Priority Escalation** - SMS added for urgent/safety items
+- **Note:** SMS delivery **MOCKED** (Twilio not configured)
+
 ---
 
 ## Upcoming Tasks
