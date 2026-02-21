@@ -173,7 +173,7 @@ export default function KioskPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: currentUser.clockedIn ? "clock-out" : "clock-in",
+          action: currentUser.clockedIn ? "clockOut" : "clockIn",
           employeeId: currentUser.id,
         }),
       })
