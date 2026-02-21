@@ -228,12 +228,12 @@ module "monitoring" {
   location            = azurerm_resource_group.main.location
   workspace_name      = "${var.project_prefix}-${var.environment}-${var.project_name}-law-${var.location_short}"
   alert_email         = "hans@nexamesh.ai"
-  database_server_id   = module.database.server_id
+  database_server_id     = module.database.server_id
   enable_database_alerts = true
-  function_app_id      = module.functions.function_app_id
+  function_app_id        = module.functions.function_app_id
   enable_function_alerts = true
-  web_app_id           = module.webapp.web_app_id
-  enable_webapp_alerts = true
+  web_app_id             = module.webapp.web_app_id
+  enable_webapp_alerts   = true
   monthly_budget      = 1000
 
   tags = local.common_tags
