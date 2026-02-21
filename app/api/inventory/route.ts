@@ -193,8 +193,25 @@ export async function GET(request: Request) {
   const category = searchParams.get('category')
   const lowStock = searchParams.get('lowStock') === 'true'
   const location = searchParams.get('location')
+  const barcode = searchParams.get('barcode')
+  const search = searchParams.get('search')
 
   let items = [...inventory]
+
+  // Barcode lookup - exact match
+  if (barcode) {
+    items = items.filter(i => i.barcode === barcode)
+    return NextResponse.json({ items })
+  }
+
+  // Search by name
+  if (search) {
+    const searchLower = search.toLowerCase()
+    items = items.filter(i => 
+      i.name.toLowerCase().includes(searchLower) ||
+      i.barcode?.includes(search)
+    )
+  }
 
   if (category) {
     items = items.filter(i => i.category === category)
