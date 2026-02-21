@@ -222,6 +222,12 @@ export default function InventoryPage() {
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  // Handle barcode scan result
+  const handleBarcodeItemFound = (item: InventoryItem) => {
+    setSelectedItem(item)
+    // Could auto-open consume or restock dialog based on context
+  }
+
   return (
     <DashboardLayout persona="hans">
       <div className="space-y-6 relative z-10">
@@ -234,7 +240,12 @@ export default function InventoryPage() {
             </h1>
             <p className="text-white/60 mt-1">Track stock levels and manage consumption</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <ScannerButton 
+              onItemFound={handleBarcodeItemFound}
+              mode="lookup"
+              className="bg-cyan-600 hover:bg-cyan-700"
+            />
             <Button variant="outline" onClick={generateShoppingList} className="border-white/10" data-testid="shopping-list-btn">
               <ShoppingCart className="h-4 w-4 mr-2" />
               Shopping List
