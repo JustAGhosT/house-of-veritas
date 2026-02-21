@@ -477,7 +477,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Azure Document Intelligence** - Provide AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT and KEY for live OCR
 - **Azure Blob Storage** - Provide connection string for image uploads
 
-### P3: Phase 13 - Production Deployment
+### P3: Production Deployment
 - Deploy to Azure (requires Azure credentials)
 - Configure production environment
 - Set up Twilio for real SMS notifications
