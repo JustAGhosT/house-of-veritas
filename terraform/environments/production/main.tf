@@ -68,8 +68,6 @@ module "storage" {
   deployer_ip_addresses = var.deployer_ip != "" ? [var.deployer_ip] : []
 
   tags = local.common_tags
-
-  depends_on = [module.network]
 }
 
 # Security Module (Key Vault)
@@ -87,8 +85,6 @@ module "security" {
   smtp_password         = var.smtp_password
 
   tags = local.common_tags
-
-  depends_on = [module.network]
 }
 
 # Database Module
@@ -225,18 +221,18 @@ module "dns" {
 module "monitoring" {
   source = "../../modules/monitoring"
 
-  resource_group_name = azurerm_resource_group.main.name
-  resource_group_id   = azurerm_resource_group.main.id
-  location            = azurerm_resource_group.main.location
-  workspace_name      = "${var.project_prefix}-${var.environment}-${var.project_name}-law-${var.location_short}"
-  alert_email         = "hans@nexamesh.ai"
+  resource_group_name    = azurerm_resource_group.main.name
+  resource_group_id      = azurerm_resource_group.main.id
+  location               = azurerm_resource_group.main.location
+  workspace_name         = "${var.project_prefix}-${var.environment}-${var.project_name}-law-${var.location_short}"
+  alert_email            = "hans@nexamesh.ai"
   database_server_id     = module.database.server_id
   enable_database_alerts = true
   function_app_id        = module.functions.function_app_id
   enable_function_alerts = true
   web_app_id             = module.webapp.web_app_id
   enable_webapp_alerts   = true
-  monthly_budget      = 1000
+  monthly_budget         = 1000
 
   tags = local.common_tags
 

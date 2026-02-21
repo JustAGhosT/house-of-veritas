@@ -55,7 +55,10 @@ jobs:
       
       - name: Get runner public IP
         id: ip
-        run: echo "ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
+        run: |
+          IP=$(curl -fsS --retry 3 --retry-delay 1 --max-time 10 https://api.ipify.org) || { echo "Failed to fetch runner IP"; exit 1; }
+          [ -z "$IP" ] && { echo "Empty IP response"; exit 1; }
+          echo "ip=$IP" >> $GITHUB_OUTPUT
 
       - name: Terraform Plan
         working-directory: ${{ env.WORKING_DIR }}
@@ -73,6 +76,19 @@ jobs:
       - name: Terraform Apply
         working-directory: ${{ env.WORKING_DIR }}
         run: terraform apply -auto-approve tfplan
+
+      - name: Clear deployer IP from firewall
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          terraform apply \
+            -var="domain_name=${{ vars.DOMAIN_NAME || 'nexamesh.ai' }}" \
+            -var="db_admin_password=${{ secrets.DB_ADMIN_PASSWORD }}" \
+            -var="smtp_username=${{ secrets.SMTP_USERNAME }}" \
+            -var="smtp_password=${{ secrets.SMTP_PASSWORD }}" \
+            -var="ssl_certificate_data=${{ secrets.SSL_CERTIFICATE_DATA }}" \
+            -var="ssl_certificate_password=${{ secrets.SSL_CERTIFICATE_PASSWORD }}" \
+            -var="deployer_ip=" \
+            -auto-approve
       
       - name: Terraform Output
         id: output
