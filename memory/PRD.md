@@ -525,6 +525,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - `/app/app/offline/page.tsx` - Offline fallback
 - `/app/app/kiosk/page.tsx` - Employee kiosk interface
 - `/app/app/dashboard/*/page.tsx` - Persona dashboards
+- `/app/app/dashboard/hans/approvals/page.tsx` - Manager approval center
 - `/app/app/dashboard/hans/assets/page.tsx` - Asset management
 - `/app/app/dashboard/hans/inventory/page.tsx` - Inventory management
 - `/app/app/dashboard/hans/ocr/page.tsx` - OCR Scanner
