@@ -273,6 +273,23 @@ export default function KioskPage() {
     setShowTasks(true)
   }
 
+  // Fetch request history
+  const fetchRequestHistory = async () => {
+    if (!currentUser) return
+    try {
+      const res = await fetch(`/api/kiosk/requests?employeeId=${currentUser.id}`)
+      const data = await res.json()
+      setRequestHistory(data.requests || [])
+    } catch (err) {
+      console.error("Failed to fetch request history:", err)
+    }
+  }
+
+  const openHistory = () => {
+    fetchRequestHistory()
+    setShowHistory(true)
+  }
+
   // Mark task as complete
   const completeTask = async (taskId: string) => {
     try {
