@@ -28,12 +28,14 @@ import {
   Boxes,
   ScanLine,
   Store,
+  CheckSquare,
 } from "lucide-react"
 
 // Navigation items per role
 const NAV_ITEMS = {
   hans: [
     { name: "Overview", href: "/dashboard/hans", icon: Home },
+    { name: "Approvals", href: "/dashboard/hans/approvals", icon: CheckSquare },
     { name: "Calendar", href: "/dashboard/hans/calendar", icon: Calendar },
     { name: "Documents", href: "/dashboard/hans/documents", icon: FileText },
     { name: "Employees", href: "/dashboard/hans/employees", icon: Users },
