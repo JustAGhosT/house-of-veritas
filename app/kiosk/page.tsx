@@ -550,13 +550,24 @@ export default function KioskPage() {
             <p className="text-white/60 text-sm">{currentUser.role}</p>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-3xl font-mono text-white">
-            {currentTime.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}
-          </p>
-          <Badge className={currentUser.clockedIn ? "bg-green-500" : "bg-gray-500"}>
-            {currentUser.clockedIn ? "Clocked In" : "Clocked Out"}
-          </Badge>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-10 w-10 text-white/60 hover:text-white hover:bg-white/10"
+            onClick={openNotificationPrefs}
+            data-testid="kiosk-notification-settings"
+          >
+            <Bell className="h-5 w-5" />
+          </Button>
+          <div className="text-right">
+            <p className="text-3xl font-mono text-white">
+              {currentTime.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}
+            </p>
+            <Badge className={currentUser.clockedIn ? "bg-green-500" : "bg-gray-500"}>
+              {currentUser.clockedIn ? "Clocked In" : "Clocked Out"}
+            </Badge>
+          </div>
         </div>
       </div>
 
