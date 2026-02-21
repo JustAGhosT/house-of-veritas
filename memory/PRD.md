@@ -497,6 +497,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - `/app/components/image-upload.tsx` - Image upload component
 - `/app/app/login/page.tsx` - Login page
 - `/app/app/offline/page.tsx` - Offline fallback
+- `/app/app/kiosk/page.tsx` - Employee kiosk interface
 - `/app/app/dashboard/*/page.tsx` - Persona dashboards
 - `/app/app/dashboard/hans/assets/page.tsx` - Asset management
 - `/app/app/dashboard/hans/inventory/page.tsx` - Inventory management
@@ -507,6 +508,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - `/app/app/dashboard/lucky/inventory/page.tsx` - Lucky's garden inventory
 
 ### API Endpoints
+- `/app/app/api/kiosk/requests/route.ts` - Kiosk request API
 - `/app/app/api/realtime/events/route.ts` - SSE endpoint
 - `/app/app/api/realtime/emit/route.ts` - Event emit API
 - `/app/app/api/audit/route.ts` - Audit log API
