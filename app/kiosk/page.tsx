@@ -42,6 +42,8 @@ import {
   Check,
   X,
   ChevronLeft,
+  History,
+  XCircle,
 } from "lucide-react"
 
 interface KioskUser {
@@ -88,6 +90,17 @@ interface IssueReport {
   issueType: "broken" | "maintenance" | "safety" | "other"
   description: string
   location: string
+}
+
+interface RequestHistory {
+  id: string
+  type: "stock_order" | "salary_advance" | "issue_report"
+  data: Record<string, any>
+  timestamp: string
+  status: "pending" | "approved" | "rejected" | "completed"
+  reviewedBy?: string
+  reviewedAt?: string
+  notes?: string
 }
 
 export default function KioskPage() {
