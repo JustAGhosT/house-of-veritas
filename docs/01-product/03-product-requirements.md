@@ -139,11 +139,11 @@ Transform an existing work management platform codebase into a professional, das
 
 ```env
 # DocuSeal
-DOCUSEAL_API_URL=https://docs.houseofveritas.za/api
+DOCUSEAL_API_URL=https://docs.nexamesh.ai/api
 DOCUSEAL_API_KEY=your_api_key
 
 # Baserow
-BASEROW_API_URL=https://ops.houseofveritas.za/api
+BASEROW_API_URL=https://ops.nexamesh.ai/api
 BASEROW_API_TOKEN=your_token
 BASEROW_DATABASE_ID=your_db_id
 BASEROW_TABLE_EMPLOYEES=table_id
@@ -170,7 +170,7 @@ TWILIO_PHONE_NUMBER=+1234567890
   - XSS prevention (React escaping)
   - Generic error messages (no info leakage)
 - **Performance:** All APIs under 15ms response time
-- **Test Report:** `/app/docs/PHASE7_TEST_REPORT.md`
+- **Test Report:** `/app/docs/05-project/03-test-report.md`
 
 ### ✅ Phase 7.5: Real-Time Updates (COMPLETE - Feb 20, 2026)
 - **Server-Sent Events (SSE) Implementation:**
@@ -396,7 +396,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Inventory added to Lucky navigation (garden supplies only)
 
 #### Documentation Updates (Feb 21, 2026)
-- `/app/docs/02-azure-deployment-guide.md` - Complete deployment guide with:
+- `/app/docs/03-deployment/01-deployment-guide.md` - Complete deployment guide with:
   - PowerShell commands for Windows users
   - Bash commands for Linux/macOS users
   - Service Principal creation steps

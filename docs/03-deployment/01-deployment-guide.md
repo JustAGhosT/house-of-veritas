@@ -1,157 +1,63 @@
-# House of Veritas — Azure Infrastructure Deployment Guide
+# House of Veritas — Deployment Guide
 
-## Module/Feature Name
+## Overview
 
-Azure IaC Deployment for DocuSeal & Baserow
+This guide covers end-to-end deployment of the House of Veritas platform on Azure, including infrastructure provisioning, DNS configuration, SSL certificates, CI/CD pipelines, and application integration.
 
-## Marketing Name
+### Platform Components
 
-House of Veritas Cloud Foundation
+| Component | Purpose | Azure Service |
+|-----------|---------|---------------|
+| DocuSeal | Document signing & templates | Container Instance |
+| Baserow | Operational tracking & data | Container Instance |
+| PostgreSQL | Application databases | Flexible Server |
+| Blob Storage | Documents, backups, asset photos | Storage Account |
+| Document Intelligence | OCR scanning for documents | Cognitive Services |
+| Application Gateway | SSL termination, WAF, routing | App Gateway WAF v2 |
+| Key Vault | Secrets management | Key Vault |
+| DNS | Domain routing | Azure DNS |
 
-## Platform/Mesh Layer(s)
+### Architecture
 
-Azure Cloud: Infrastructure Layer (network, compute, storage, database, security)
-
-## Core Value Proposition
-
-A secure, automated, and maintainable deployment pipeline for House of Veritas digital operations, enabling compliant document signing and operational management via open-source platforms on Azure.
-
-## Priority
-
-P0 - Critical
-
-## Business Outcome/Success Metrics
-
-- Zero unplanned downtime within first 30 days after go-live
-- <R1,000/month operating cost (Azure)
-- 100% audit trail coverage for signed governance documents
-- All users able to access, sign, and manage assigned documents/tasks
-
-## TL;DR
-
-We're deploying DocuSeal and Baserow—open-source platforms for secure document signing and operational tracking—on Azure, using Terraform for fully automated, repeatable, and auditable infrastructure provisioning, with CI/CD managed by GitHub Actions.
-
----
-
-## Infrastructure Architecture
-
-### Three-Tier Architecture
-
-1. **Presentation Tier:** Web browsers → Application Gateway (SSL, WAF)
-2. **Application Tier:** Azure Container Instances (DocuSeal, Baserow)
-3. **Data Tier:** Azure PostgreSQL + Blob Storage (private subnet)
-
-### Network Architecture
-
-- **VNet:** 10.0.0.0/16
-  - Gateway Subnet: 10.0.1.0/24
-  - Container Subnet: 10.0.2.0/24
-  - Database Subnet: 10.0.3.0/24
-- **NSGs:** Minimal required traffic, deny by default
-- **Application Gateway:** Public IP, SSL, WAF, path-based routing
-- **Private Endpoints:** PostgreSQL via Azure Private Link
-
-### Technology Stack
-
-- **IaC:** Terraform 1.5+ with Azure Provider
-- **CI/CD:** GitHub Actions
-- **Containers:** DocuSeal (Ruby on Rails), Baserow (Django/Python)
-- **Database:** Azure PostgreSQL Flexible Server
-- **Storage:** Azure Blob Storage (documents, backups)
-- **Secrets:** Azure Key Vault
-- **Monitoring:** Azure Monitor, Log Analytics
-
----
-
-## Cost Management
-
-### Monthly Baseline: R950
-
-- Database: R400
-- Containers: R300
-- Blob Storage: R50
-- Application Gateway: R150
-- Key Vault/NAT: R50
-
-### Optimization Strategies
-
-- Scale DB/containers only on usage
-- Hot/cool/archive lifecycle for storage
-- Minimal log retention
-- Alert at R800 (>80%)
-- Monthly review
-
----
-
-## Deployment Procedure
-
-### Prerequisites
-
-- Azure subscription (active with billing enabled)
-- Azure CLI >= 2.50.0 installed
-- Terraform >= 1.5.0 installed
-- GitHub account with repository access
-- Domain name (e.g., houseofveritas.za)
-- SSH key pair (for secure access)
-
----
-
-## Step 1: Create Service Principal for Terraform
-
-### Bash (Linux/macOS)
-
-```bash
-# Login to Azure
-az login
-
-# List available subscriptions
-az account list --output table
-
-# Set your subscription
-SUBSCRIPTION_ID="your-subscription-id-here"
-az account set --subscription "$SUBSCRIPTION_ID"
-
-# Create Service Principal with Contributor role
-az ad sp create-for-rbac \
-  --name "sp-houseofveritas-terraform" \
-  --role "Contributor" \
-  --scopes "/subscriptions/$SUBSCRIPTION_ID" \
-  --sdk-auth > azure-credentials.json
-
-# View credentials (KEEP THESE SECURE!)
-cat azure-credentials.json
-
-# Extract individual values for GitHub Secrets
-jq -r '.clientId' azure-credentials.json       # ARM_CLIENT_ID
-jq -r '.clientSecret' azure-credentials.json   # ARM_CLIENT_SECRET
-jq -r '.tenantId' azure-credentials.json       # ARM_TENANT_ID
-jq -r '.subscriptionId' azure-credentials.json # ARM_SUBSCRIPTION_ID
+```
+Internet → Application Gateway (WAF + SSL) → Container Instances → PostgreSQL
+                                                    ↓
+                                              Blob Storage
+                                              Document Intelligence
 ```
 
-### PowerShell (Windows)
+- **Domain:** nexamesh.ai (docs.nexamesh.ai, ops.nexamesh.ai)
+- **Region:** South Africa North
+- **Monthly cost:** ~R950
+
+---
+
+## Prerequisites
+
+- Azure CLI >= 2.50.0
+- Terraform >= 1.5.0
+- GitHub account with repository access
+- PowerShell 7+ (Windows) or Bash (Linux/macOS)
+
+---
+
+## Step 1: Azure Authentication
+
+### Create Service Principal
 
 ```powershell
-# Login to Azure
 az login
-
-# List available subscriptions
 az account list --output table
 
-# Set your subscription
-$SUBSCRIPTION_ID = "your-subscription-id-here"
+$SUBSCRIPTION_ID = "22f9eb18-6553-4b7d-9451-47d0195085fe"
 az account set --subscription $SUBSCRIPTION_ID
 
-# Create Service Principal with Contributor role
 az ad sp create-for-rbac `
   --name "sp-houseofveritas-terraform" `
   --role "Contributor" `
   --scopes "/subscriptions/$SUBSCRIPTION_ID" `
   --sdk-auth | Out-File -FilePath azure-credentials.json
 
-# View credentials (KEEP THESE SECURE!)
-Get-Content azure-credentials.json
-
-# Extract individual values for GitHub Secrets (requires PowerShell 7+)
 $creds = Get-Content azure-credentials.json | ConvertFrom-Json
 Write-Host "ARM_CLIENT_ID: $($creds.clientId)"
 Write-Host "ARM_CLIENT_SECRET: $($creds.clientSecret)"
@@ -159,128 +65,41 @@ Write-Host "ARM_TENANT_ID: $($creds.tenantId)"
 Write-Host "ARM_SUBSCRIPTION_ID: $($creds.subscriptionId)"
 ```
 
----
+### Set Environment Variables
 
-## Step 2: Set Up GitHub Repository with Secrets
+All secrets are stored in `.env.local` at the project root (gitignored). Load them into your session:
 
-### Create Repository
-
-```bash
-# Clone or initialize repository
-git clone https://github.com/your-org/house-of-veritas.git
-cd house-of-veritas
-
-# Or create new
-gh repo create house-of-veritas --private --clone
-```
-
-### Configure GitHub Secrets
-
-Navigate to: **Settings → Secrets and variables → Actions → New repository secret**
-
-Add these secrets:
-
-| Secret Name | Value | Description |
-|-------------|-------|-------------|
-| `AZURE_CREDENTIALS` | `$(cat azure-credentials.json)` | Full JSON from Step 1 |
-| `ARM_CLIENT_ID` | From azure-credentials.json | Service Principal App ID |
-| `ARM_CLIENT_SECRET` | From azure-credentials.json | Service Principal Password |
-| `ARM_TENANT_ID` | From azure-credentials.json | Azure AD Tenant ID |
-| `ARM_SUBSCRIPTION_ID` | From azure-credentials.json | Azure Subscription ID |
-| `TF_STATE_RESOURCE_GROUP` | `rg-houseofveritas-tfstate` | State storage RG |
-| `TF_STATE_STORAGE_ACCOUNT` | `sthoveritastfstate` | State storage account |
-| `TF_STATE_CONTAINER` | `tfstate` | State container name |
-| `DB_ADMIN_PASSWORD` | Generated secure password | Database admin password |
-| `SMTP_USERNAME` | `your-email@gmail.com` | SMTP email for notifications |
-| `SMTP_PASSWORD` | Gmail App Password | SMTP authentication |
-
-#### Generate Secure Database Password
-
-**Bash:**
-```bash
-openssl rand -base64 32
-# Example output: K8x9mNp2qR4sT6uV8wX0yZ2aB4cD6eF8
-```
-
-**PowerShell:**
 ```powershell
-[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }) -as [byte[]])
-# Or using .NET
-Add-Type -AssemblyName System.Web
-[System.Web.Security.Membership]::GeneratePassword(32, 8)
+# Load from .env.local
+Get-Content .env.local | ForEach-Object {
+  if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
+    [System.Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), "Process")
+  }
+}
+
+# Verify
+Write-Host "ARM_CLIENT_ID: $env:ARM_CLIENT_ID"
 ```
+
+See `.env.local` for the full list of environment variables and secrets.
 
 ---
 
-## Step 3: Configure Terraform Backend (Azure Blob Storage)
+## Step 2: Terraform State Backend
 
-### Bash (Linux/macOS)
-
-```bash
-# Set variables
-RESOURCE_GROUP="rg-houseofveritas-tfstate"
-STORAGE_ACCOUNT="sthoveritastfstate"  # Must be globally unique, lowercase, 3-24 chars
-CONTAINER="tfstate"
-LOCATION="southafricanorth"
-
-# Create resource group for Terraform state
-az group create \
-  --name "$RESOURCE_GROUP" \
-  --location "$LOCATION" \
-  --tags "Purpose=TerraformState" "Project=HouseOfVeritas"
-
-# Create storage account (Standard_LRS for cost efficiency)
-az storage account create \
-  --name "$STORAGE_ACCOUNT" \
-  --resource-group "$RESOURCE_GROUP" \
-  --location "$LOCATION" \
-  --sku Standard_LRS \
-  --kind StorageV2 \
-  --encryption-services blob \
-  --min-tls-version TLS1_2 \
-  --allow-blob-public-access false
-
-# Get storage account key
-ACCOUNT_KEY=$(az storage account keys list \
-  --resource-group "$RESOURCE_GROUP" \
-  --account-name "$STORAGE_ACCOUNT" \
-  --query '[0].value' -o tsv)
-
-# Create container for state files
-az storage container create \
-  --name "$CONTAINER" \
-  --account-name "$STORAGE_ACCOUNT" \
-  --account-key "$ACCOUNT_KEY" \
-  --public-access off
-
-# Enable versioning for state file recovery
-az storage account blob-service-properties update \
-  --account-name "$STORAGE_ACCOUNT" \
-  --resource-group "$RESOURCE_GROUP" \
-  --enable-versioning true
-
-# Verify creation
-echo "Storage Account: $STORAGE_ACCOUNT"
-echo "Container: $CONTAINER"
-echo "Account Key: $ACCOUNT_KEY"
-```
-
-### PowerShell (Windows)
+Create the storage account for remote Terraform state.
 
 ```powershell
-# Set variables
 $RESOURCE_GROUP = "rg-houseofveritas-tfstate"
-$STORAGE_ACCOUNT = "sthoveritastfstate"  # Must be globally unique
+$STORAGE_ACCOUNT = "sthoveritastfstate"
 $CONTAINER = "tfstate"
 $LOCATION = "southafricanorth"
 
-# Create resource group
 az group create `
   --name $RESOURCE_GROUP `
   --location $LOCATION `
   --tags "Purpose=TerraformState" "Project=HouseOfVeritas"
 
-# Create storage account
 az storage account create `
   --name $STORAGE_ACCOUNT `
   --resource-group $RESOURCE_GROUP `
@@ -291,34 +110,26 @@ az storage account create `
   --min-tls-version TLS1_2 `
   --allow-blob-public-access false
 
-# Get storage account key
 $ACCOUNT_KEY = az storage account keys list `
   --resource-group $RESOURCE_GROUP `
   --account-name $STORAGE_ACCOUNT `
   --query '[0].value' -o tsv
 
-# Create container
 az storage container create `
   --name $CONTAINER `
   --account-name $STORAGE_ACCOUNT `
   --account-key $ACCOUNT_KEY `
   --public-access off
 
-# Enable versioning
 az storage account blob-service-properties update `
   --account-name $STORAGE_ACCOUNT `
   --resource-group $RESOURCE_GROUP `
   --enable-versioning true
-
-# Output results
-Write-Host "Storage Account: $STORAGE_ACCOUNT"
-Write-Host "Container: $CONTAINER"
-Write-Host "Account Key: $ACCOUNT_KEY"
 ```
 
-### Create Backend Configuration File
+### Backend Configuration
 
-Create `terraform/environments/production/backend.hcl`:
+File: `terraform/environments/production/backend.hcl`
 
 ```hcl
 resource_group_name  = "rg-houseofveritas-tfstate"
@@ -329,442 +140,457 @@ key                  = "production.terraform.tfstate"
 
 ---
 
-## Step 4: Run Terraform Deployment
+## Step 3: Configure Secrets
 
-### Bash (Linux/macOS)
+All secrets live in **`.env.local`** at the project root. This file is gitignored and should never be committed.
 
-```bash
-# Navigate to Terraform directory
-cd terraform/environments/production
+### .env.local (local development & deployment)
 
-# Set environment variables for authentication
-export ARM_CLIENT_ID="your-client-id"
-export ARM_CLIENT_SECRET="your-client-secret"
-export ARM_TENANT_ID="your-tenant-id"
-export ARM_SUBSCRIPTION_ID="your-subscription-id"
+The file contains all credentials needed for local Terraform runs:
 
-# Initialize Terraform with backend configuration
-terraform init \
-  -backend-config="backend.hcl" \
-  -upgrade
+| Variable | Purpose |
+|----------|---------|
+| `ARM_CLIENT_ID` | Service Principal App ID |
+| `ARM_CLIENT_SECRET` | Service Principal Password |
+| `ARM_TENANT_ID` | Azure AD Tenant ID |
+| `ARM_SUBSCRIPTION_ID` | Azure Subscription ID |
+| `TF_STATE_RESOURCE_GROUP` | Terraform state resource group |
+| `TF_STATE_STORAGE_ACCOUNT` | Terraform state storage account |
+| `TF_STATE_CONTAINER` | Terraform state container |
+| `TF_STATE_KEY` | Terraform state blob key |
+| `TF_STATE_STORAGE_KEY` | Storage account access key |
+| `DB_ADMIN_PASSWORD` | PostgreSQL admin password |
+| `DOMAIN_NAME` | Active domain (`nexamesh.ai`) |
+| `SMTP_HOST` | SMTP server host |
+| `SMTP_PORT` | SMTP server port |
+| `SMTP_USERNAME` | SMTP username |
+| `SMTP_PASSWORD` | SMTP password / API key |
+| `SSL_CERTIFICATE_DATA` | Base64-encoded PFX (empty until configured) |
+| `SSL_CERTIFICATE_PASSWORD` | PFX password (empty until configured) |
 
-# Format check (ensure consistent style)
-terraform fmt -check -recursive
+### terraform.tfvars (Terraform variable overrides)
 
-# Validate configuration syntax
-terraform validate
+Create `terraform/environments/production/terraform.tfvars` referencing your `.env.local` values:
 
-# Create execution plan
-terraform plan \
-  -var-file="terraform.tfvars" \
-  -out=tfplan
-
-# Review the plan output carefully!
-# Expected: ~50-60 resources, estimated cost ~R950/month
-
-# Apply the plan (this takes 15-30 minutes)
-terraform apply tfplan
-
-# Save outputs for reference
-terraform output -json > deployment-outputs.json
-
-# Get specific outputs
-terraform output application_gateway_public_ip
-terraform output docuseal_fqdn
-terraform output baserow_fqdn
+```hcl
+domain_name       = "nexamesh.ai"
+db_admin_password = "<from .env.local DB_ADMIN_PASSWORD>"
+smtp_password     = "<from .env.local SMTP_PASSWORD>"
 ```
 
-### PowerShell (Windows)
+> **Note:** Both `.env.local` and `*.tfvars` are in `.gitignore`.
+
+### GitHub Repository Secrets (CI/CD)
+
+Mirror `.env.local` values into GitHub. Navigate to: **Settings → Secrets and variables → Actions**
+
+#### Secrets
+
+| Secret | Source in `.env.local` |
+|--------|----------------------|
+| `AZURE_CREDENTIALS` | Full JSON from `azure-credentials.json` |
+| `ARM_CLIENT_ID` | `ARM_CLIENT_ID` |
+| `ARM_CLIENT_SECRET` | `ARM_CLIENT_SECRET` |
+| `ARM_TENANT_ID` | `ARM_TENANT_ID` |
+| `ARM_SUBSCRIPTION_ID` | `ARM_SUBSCRIPTION_ID` |
+| `DB_ADMIN_PASSWORD` | `DB_ADMIN_PASSWORD` |
+| `SMTP_USERNAME` | `SMTP_USERNAME` |
+| `SMTP_PASSWORD` | `SMTP_PASSWORD` |
+| `SSL_CERTIFICATE_DATA` | `SSL_CERTIFICATE_DATA` |
+| `SSL_CERTIFICATE_PASSWORD` | `SSL_CERTIFICATE_PASSWORD` |
+| `TF_STATE_RESOURCE_GROUP` | `TF_STATE_RESOURCE_GROUP` |
+| `TF_STATE_STORAGE_ACCOUNT` | `TF_STATE_STORAGE_ACCOUNT` |
+| `TF_STATE_CONTAINER` | `TF_STATE_CONTAINER` |
+| `TF_STATE_KEY` | `TF_STATE_KEY` |
+
+#### Variables (non-sensitive)
+
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `DOMAIN_NAME` | `nexamesh.ai` | Active domain for the platform |
+
+---
+
+## Step 4: Deploy Infrastructure
+
+### Initialize and Plan
 
 ```powershell
-# Navigate to Terraform directory
 Set-Location terraform\environments\production
 
-# Set environment variables for authentication
-$env:ARM_CLIENT_ID = "your-client-id"
-$env:ARM_CLIENT_SECRET = "your-client-secret"
-$env:ARM_TENANT_ID = "your-tenant-id"
-$env:ARM_SUBSCRIPTION_ID = "your-subscription-id"
-
-# Initialize Terraform with backend configuration
-terraform init `
-  -backend-config="backend.hcl" `
-  -upgrade
-
-# Format check
+terraform init -backend-config="backend.hcl" -upgrade
 terraform fmt -check -recursive
-
-# Validate configuration
 terraform validate
 
-# Create execution plan
-terraform plan `
-  -var-file="terraform.tfvars" `
-  -out=tfplan
+terraform plan -var-file="terraform.tfvars" -out=tfplan
+```
 
-# Review the plan output carefully!
+### Review Plan
 
-# Apply the plan (15-30 minutes)
+Expected resources (~42):
+
+| Category | Resources | Count |
+|----------|-----------|-------|
+| Network | VNet, 3 subnets, 3 NSGs, 3 associations | 10 |
+| Storage | Storage account, 4 containers, lifecycle policy | 6 |
+| Security | Key Vault, access policies, 4 secrets | 6 |
+| Database | PostgreSQL server, 2 databases, DNS zone, configs | 7 |
+| Compute | 2 container groups, 2 file shares, 2 KV policies | 6 |
+| Gateway | Application Gateway, public IP | 2 |
+| Cognitive | Document Intelligence account | 1 |
+| DNS | 3 A records (docs, ops, root) | 3 |
+| Other | Random passwords | 2 |
+
+### Apply
+
+```powershell
 terraform apply tfplan
 
-# Save outputs
 terraform output -json | Out-File deployment-outputs.json
 
-# Get specific outputs
+# Key outputs
 terraform output application_gateway_public_ip
-terraform output docuseal_fqdn
-terraform output baserow_fqdn
+terraform output document_intelligence_endpoint
+terraform output storage_blob_endpoint
 ```
 
 ---
 
-## Step 5: Configure DNS to Point to Application Gateway
+## Step 5: DNS Configuration
 
-### Get Application Gateway Public IP
+DNS records are automatically created by the DNS Terraform module pointing to the Application Gateway IP:
 
-**Bash:**
-```bash
-# Get IP from Terraform output
-APP_GATEWAY_IP=$(terraform output -raw application_gateway_public_ip)
-echo "Application Gateway IP: $APP_GATEWAY_IP"
-
-# Or query Azure directly
-az network public-ip show \
-  --resource-group rg-houseofveritas-prod \
-  --name production-gateway-pip \
-  --query ipAddress -o tsv
-```
-
-**PowerShell:**
-```powershell
-# Get IP from Terraform output
-$APP_GATEWAY_IP = terraform output -raw application_gateway_public_ip
-Write-Host "Application Gateway IP: $APP_GATEWAY_IP"
-
-# Or query Azure directly
-az network public-ip show `
-  --resource-group rg-houseofveritas-prod `
-  --name production-gateway-pip `
-  --query ipAddress -o tsv
-```
-
-### Create DNS Records
-
-In your DNS provider (GoDaddy, Cloudflare, etc.), create these A records:
-
-| Type | Name | Value | TTL |
-|------|------|-------|-----|
-| A | docs | `<APP_GATEWAY_IP>` | 300 |
-| A | ops | `<APP_GATEWAY_IP>` | 300 |
-| A | @ | `<APP_GATEWAY_IP>` | 300 |
+| Record | Type | Target |
+|--------|------|--------|
+| `docs.nexamesh.ai` | A | Application Gateway IP |
+| `ops.nexamesh.ai` | A | Application Gateway IP |
+| `nexamesh.ai` | A | Application Gateway IP |
 
 ### Verify DNS Propagation
 
-**Bash:**
-```bash
-# Check DNS resolution
-nslookup docs.houseofveritas.za
-nslookup ops.houseofveritas.za
-
-# Using dig (more detailed)
-dig docs.houseofveritas.za +short
-dig ops.houseofveritas.za +short
-
-# Check global propagation
-# Visit: https://dnschecker.org/#A/docs.houseofveritas.za
-```
-
-**PowerShell:**
 ```powershell
-# Check DNS resolution
-Resolve-DnsName docs.houseofveritas.za
-Resolve-DnsName ops.houseofveritas.za
-
-# Or using nslookup
-nslookup docs.houseofveritas.za
-nslookup ops.houseofveritas.za
+Resolve-DnsName docs.nexamesh.ai
+Resolve-DnsName ops.nexamesh.ai
 ```
+
+### Azure DNS Zone
+
+The DNS zone `nexamesh.ai` is in resource group `nl-prod-nexamesh-rg-san`. Ensure the domain registrar's nameservers point to:
+
+- `ns1-09.azure-dns.com`
+- `ns2-09.azure-dns.net`
+- `ns3-09.azure-dns.org`
+- `ns4-09.azure-dns.info`
 
 ---
 
-## Step 6: Generate SSL Certificates (Let's Encrypt)
+## Step 6: SSL Certificates
 
-### Option A: Certbot on Linux/macOS
+The Application Gateway starts in HTTP-only mode. Once DNS is propagated, generate an SSL certificate.
 
-```bash
-# Install Certbot
-# Ubuntu/Debian
-sudo apt-get update && sudo apt-get install -y certbot
-
-# macOS (Homebrew)
-brew install certbot
-
-# Generate wildcard certificate (DNS challenge)
-sudo certbot certonly \
-  --manual \
-  --preferred-challenges dns \
-  -d '*.houseofveritas.za' \
-  -d 'houseofveritas.za' \
-  --email admin@houseofveritas.za \
-  --agree-tos
-
-# Follow prompts to add DNS TXT records:
-# _acme-challenge.houseofveritas.za → <provided-value>
-
-# Wait for DNS propagation (check with)
-nslookup -type=TXT _acme-challenge.houseofveritas.za
-
-# Certificates saved to:
-# /etc/letsencrypt/live/houseofveritas.za/fullchain.pem
-# /etc/letsencrypt/live/houseofveritas.za/privkey.pem
-
-# Convert to PFX for Azure
-CERT_PASSWORD="YourSecurePassword123!"
-sudo openssl pkcs12 -export \
-  -out certificate.pfx \
-  -inkey /etc/letsencrypt/live/houseofveritas.za/privkey.pem \
-  -in /etc/letsencrypt/live/houseofveritas.za/fullchain.pem \
-  -passout pass:$CERT_PASSWORD
-
-# Base64 encode for Azure Key Vault / GitHub Secret
-base64 -w 0 certificate.pfx > certificate-base64.txt
-cat certificate-base64.txt
-```
-
-### Option B: Windows (win-acme)
+### Option A: Let's Encrypt (Free)
 
 ```powershell
-# Download win-acme from https://www.win-acme.com/
-# Extract to C:\win-acme
+# Using win-acme (Windows)
+# Download from https://www.win-acme.com/
 
-# Run interactive wizard
-cd C:\win-acme
-.\wacs.exe
-
-# Select options:
-# 1. Create certificate (manually)
-# 2. Manual input - *.houseofveritas.za, houseofveritas.za
-# 3. DNS validation (manual)
-# 4. Follow prompts to add TXT records
-
-# Or use command line
-.\wacs.exe --target manual --host "*.houseofveritas.za,houseofveritas.za" `
+.\wacs.exe --target manual --host "*.nexamesh.ai,nexamesh.ai" `
   --validation dns-manual `
-  --store pfxfile --pfxfilepath C:\certs\houseofveritas.pfx `
+  --store pfxfile --pfxfilepath C:\certs\nexamesh.pfx `
   --pfxpassword "YourSecurePassword123!"
 
-# Base64 encode for GitHub Secret
-$pfxBytes = [System.IO.File]::ReadAllBytes("C:\certs\houseofveritas.pfx")
+# Base64 encode for Terraform / GitHub Secrets
+$pfxBytes = [System.IO.File]::ReadAllBytes("C:\certs\nexamesh.pfx")
 $base64 = [Convert]::ToBase64String($pfxBytes)
 $base64 | Out-File certificate-base64.txt
 ```
 
-### Upload Certificate to Azure Key Vault
+For DNS validation, add a TXT record via Azure DNS (or update `acme_challenge_value` in Terraform):
 
-**Bash:**
-```bash
-# Upload PFX to Key Vault
-az keyvault certificate import \
-  --vault-name "kv-houseofveritas" \
-  --name "ssl-wildcard" \
-  --file certificate.pfx \
-  --password "$CERT_PASSWORD"
-
-# Verify upload
-az keyvault certificate show \
-  --vault-name "kv-houseofveritas" \
-  --name "ssl-wildcard"
+```powershell
+az network dns record-set txt add-record `
+  --resource-group nl-prod-nexamesh-rg-san `
+  --zone-name nexamesh.ai `
+  --record-set-name _acme-challenge `
+  --value "<acme-challenge-value>"
 ```
 
-**PowerShell:**
+### Option B: Azure-managed Certificate
+
+Upload to Key Vault after generation:
+
 ```powershell
-# Upload PFX to Key Vault
 az keyvault certificate import `
-  --vault-name "kv-houseofveritas" `
+  --vault-name "nl-prod-hov-kv-san" `
   --name "ssl-wildcard" `
   --file certificate.pfx `
-  --password $CERT_PASSWORD
+  --password "YourSecurePassword123!"
+```
 
-# Verify upload
-az keyvault certificate show `
-  --vault-name "kv-houseofveritas" `
-  --name "ssl-wildcard"
+### Enable SSL in Terraform
+
+Add to `terraform.tfvars`:
+
+```hcl
+ssl_certificate_data     = "<base64-encoded-pfx>"
+ssl_certificate_password = "YourSecurePassword123!"
+```
+
+Then re-plan and apply. The gateway module automatically adds HTTPS listeners and HTTP→HTTPS redirects when SSL data is provided.
+
+---
+
+## Step 7: Azure Services Integration
+
+### 7.1 Document Intelligence (OCR)
+
+Provisioned automatically by the `cognitive` Terraform module as `nl-prod-hov-di-san`.
+
+**Retrieve credentials:**
+
+```powershell
+terraform output document_intelligence_endpoint
+terraform output -raw document_intelligence_key
+```
+
+**App configuration keys:**
+
+| Key | Source |
+|-----|--------|
+| `AZURE_DI_ENDPOINT` | `terraform output document_intelligence_endpoint` |
+| `AZURE_DI_KEY` | `terraform output -raw document_intelligence_key` |
+
+**Usage (Python example):**
+
+```python
+from azure.ai.formrecognizer import DocumentAnalysisClient
+from azure.core.credentials import AzureKeyCredential
+
+client = DocumentAnalysisClient(
+    endpoint=os.environ["AZURE_DI_ENDPOINT"],
+    credential=AzureKeyCredential(os.environ["AZURE_DI_KEY"])
+)
+
+poller = client.begin_analyze_document("prebuilt-document", document=file_stream)
+result = poller.result()
+```
+
+### 7.2 Blob Storage (Asset Photo Uploads)
+
+The `asset-uploads` container is provisioned automatically alongside `documents` and `backups`.
+
+**Retrieve credentials:**
+
+```powershell
+terraform output storage_account_name
+terraform output storage_blob_endpoint
+terraform output -raw storage_connection_string
+```
+
+**App configuration keys:**
+
+| Key | Source |
+|-----|--------|
+| `AZURE_STORAGE_ACCOUNT` | `nlprodhovstsan` |
+| `AZURE_STORAGE_CONNECTION_STRING` | `terraform output -raw storage_connection_string` |
+| `AZURE_STORAGE_CONTAINER_ASSETS` | `asset-uploads` |
+| `AZURE_STORAGE_CONTAINER_DOCS` | `documents` |
+
+**Usage (Python example):**
+
+```python
+from azure.storage.blob import BlobServiceClient
+
+blob_service = BlobServiceClient.from_connection_string(
+    os.environ["AZURE_STORAGE_CONNECTION_STRING"]
+)
+container = blob_service.get_container_client("asset-uploads")
+container.upload_blob(name=filename, data=file_data, overwrite=True)
+```
+
+### 7.3 Storage Containers Summary
+
+| Container | Purpose | Lifecycle |
+|-----------|---------|-----------|
+| `documents` | Signed documents from DocuSeal | Cool at 90d, Archive at 365d |
+| `backups` | Database and config backups | Cool at 7d, Delete at 30d |
+| `asset-uploads` | Asset registry photos | No auto-tiering |
+| `tfstate` | Terraform state files | Versioned |
+
+---
+
+## Step 8: CI/CD Pipeline
+
+### Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `terraform-plan.yml` | PR to `main` | Validates Terraform, comments plan on PR |
+| `terraform-apply.yml` | Push to `main` (terraform/ changes) | Applies infrastructure changes |
+| `deploy.yml` | Manual / Release tag | Full deployment (build, infra, containers, verify) |
+| `deploy-functions.yml` | Manual | Deploys Azure Functions |
+| `terraform-destroy.yml` | Manual (requires "DESTROY" input) | Tears down infrastructure |
+| `deployment-checklist.yml` | PR / Push / Schedule | Validates infrastructure health |
+
+### Pipeline Flow
+
+```
+PR Created → terraform-plan (validate + plan + PR comment)
+     ↓
+Merge to main → terraform-apply (plan + apply + tag)
+     ↓
+Release tag → deploy.yml (full pipeline):
+  1. Pre-deployment validation
+  2. Build Next.js app
+  3. Deploy infrastructure (Terraform)
+  4. Deploy DocuSeal container
+  5. Deploy Baserow container
+  6. Seed data (optional)
+  7. Post-deployment verification
+  8. Deployment summary
+```
+
+### Deploy Manually
+
+Trigger via GitHub Actions UI or CLI:
+
+```powershell
+gh workflow run deploy.yml `
+  -f environment=production `
+  -f deploy_infrastructure=true `
+  -f seed_data=false
 ```
 
 ---
 
-## Step 7: Set Up Applications
+## Step 9: Application Setup
 
-### 7.1 Create Admin Accounts
+### 9.1 DocuSeal (docs.nexamesh.ai)
 
-**DocuSeal** (https://docs.houseofveritas.za):
-```bash
-# Access via browser and create first admin account
-# Email: hans@houseofveritas.za
-# Follow on-screen setup wizard
-```
+1. Navigate to `https://docs.nexamesh.ai` (or `http://` before SSL)
+2. Create admin account (first user becomes admin)
+3. Configure email settings in Settings → Email
+4. Upload document templates via Templates → New Template
 
-**Baserow** (https://ops.houseofveritas.za):
-```bash
-# Access via browser and create first admin account
-# Email: hans@houseofveritas.za
-# Create workspace: "House of Veritas Operations"
-```
+**API access:**
 
-### 7.2 Configure SMTP
-
-**DocuSeal** - Already configured via environment variables in Terraform.
-
-Verify in DocuSeal admin panel:
-- Settings → Email Configuration
-- Test email delivery
-
-**Baserow** - Configure in admin settings:
-```
-SMTP Host: smtp.gmail.com
-SMTP Port: 587
-SMTP Username: your-email@gmail.com
-SMTP Password: (App Password from Google)
-Use TLS: Yes
-```
-
-### 7.3 Upload Document Templates
-
-**Bash (using DocuSeal API):**
-```bash
-# Get API token from DocuSeal admin panel
-DOCUSEAL_API_KEY="your-api-key"
-DOCUSEAL_URL="https://docs.houseofveritas.za"
-
-# Upload employment contract template
-curl -X POST "$DOCUSEAL_URL/api/templates" \
-  -H "X-Auth-Token: $DOCUSEAL_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Employment Contract - Standard",
-    "folder_name": "Employment",
-    "document_urls": ["https://storage.url/employment-contract.pdf"]
-  }'
-
-# List all templates
-curl -X GET "$DOCUSEAL_URL/api/templates" \
-  -H "X-Auth-Token: $DOCUSEAL_API_KEY"
-```
-
-**PowerShell:**
 ```powershell
 $DOCUSEAL_API_KEY = "your-api-key"
-$DOCUSEAL_URL = "https://docs.houseofveritas.za"
+$DOCUSEAL_URL = "https://docs.nexamesh.ai"
 
-# Upload template
 $headers = @{
   "X-Auth-Token" = $DOCUSEAL_API_KEY
   "Content-Type" = "application/json"
 }
-$body = @{
-  name = "Employment Contract - Standard"
-  folder_name = "Employment"
-} | ConvertTo-Json
 
 Invoke-RestMethod -Uri "$DOCUSEAL_URL/api/templates" `
+  -Method Get -Headers $headers
+```
+
+### 9.2 Baserow (ops.nexamesh.ai)
+
+1. Navigate to `https://ops.nexamesh.ai` (or `http://` before SSL)
+2. Create admin account
+3. Create workspace: "House of Veritas Operations"
+4. Import or create tables for:
+   - Employee Registry
+   - Asset Registry
+   - Task Management
+   - Incident Management
+   - Vehicle Logs
+   - Financial Tracking
+
+### 9.3 Webhooks
+
+Register DocuSeal webhook for automated processing:
+
+```powershell
+$body = @{
+  url = "https://nl-prod-hov-func-san.azurewebsites.net/api/docuseal-webhook"
+  events = @("submission.completed", "submission.expired")
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "$DOCUSEAL_URL/api/webhooks" `
   -Method Post -Headers $headers -Body $body
-```
-
-### 7.4 Seed Baserow Data
-
-**Bash:**
-```bash
-BASEROW_API_KEY="your-api-key"
-BASEROW_URL="https://ops.houseofveritas.za"
-
-# Create Employees table data
-curl -X POST "$BASEROW_URL/api/database/rows/table/1/?user_field_names=true" \
-  -H "Authorization: Token $BASEROW_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '[
-    {
-      "Name": "Hans Smit",
-      "Role": "Owner/Administrator",
-      "Email": "hans@houseofveritas.za",
-      "Status": "Active"
-    },
-    {
-      "Name": "Charl",
-      "Role": "Workshop Operator",
-      "Email": "charl@houseofveritas.za",
-      "Status": "Active"
-    }
-  ]'
-```
-
-### 7.5 Configure Webhooks and Automation
-
-**DocuSeal Webhook Setup:**
-```bash
-# Register webhook for document completion
-curl -X POST "$DOCUSEAL_URL/api/webhooks" \
-  -H "X-Auth-Token: $DOCUSEAL_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://your-function-app.azurewebsites.net/api/docuseal-webhook",
-    "events": ["submission.completed", "submission.expired"]
-  }'
-```
-
-**Azure Function for webhook processing:**
-```bash
-# Deploy webhook processor
-cd config/azure-functions
-func azure functionapp publish hov-functions-prod
 ```
 
 ---
 
-## Step 8: Onboard Users and Go Live
+## Step 10: User Onboarding
 
-### Create User Accounts
+### User Accounts
 
-| User | Email | Role | Access Level |
-|------|-------|------|--------------|
-| Hans | hans@houseofveritas.za | Administrator | Full access |
-| Charl | charl@houseofveritas.za | Workshop Operator | Tasks, Assets, Time |
-| Lucky | lucky@houseofveritas.za | Gardener | Tasks, Expenses, Vehicles |
-| Irma | irma@houseofveritas.za | Household | Tasks, Documents |
-
-### Conduct Training Session
-
-1. Login procedure demonstration
-2. Document signing walkthrough
-3. Task management training
-4. Time tracking (clock in/out)
-5. Expense submission
-6. Mobile access setup
+| User | Email | Role | Access |
+|------|-------|------|--------|
+| Hans | hans@nexamesh.ai | Administrator | Full access |
+| Charl | charl@nexamesh.ai | Workshop Operator | Tasks, Assets, Time |
+| Lucky | lucky@nexamesh.ai | Gardener | Tasks, Expenses, Vehicles |
+| Irma | irma@nexamesh.ai | Household | Tasks, Documents |
 
 ### Go-Live Checklist
 
-```bash
-# Verify all services are running
-az container show --resource-group rg-houseofveritas-prod --name production-docuseal --query instanceView.state
-az container show --resource-group rg-houseofveritas-prod --name production-baserow --query instanceView.state
+```powershell
+# Verify containers are running
+az container show --resource-group nl-prod-hov-rg-san --name prod-docuseal --query instanceView.state
+az container show --resource-group nl-prod-hov-rg-san --name prod-baserow --query instanceView.state
 
 # Check Application Gateway health
-az network application-gateway show-backend-health \
-  --resource-group rg-houseofveritas-prod \
-  --name production-appgw
+az network application-gateway show-backend-health `
+  --resource-group nl-prod-hov-rg-san `
+  --name prod-appgw
 
-# Verify SSL certificates
-curl -vI https://docs.houseofveritas.za 2>&1 | grep "SSL certificate"
-curl -vI https://ops.houseofveritas.za 2>&1 | grep "SSL certificate"
+# Verify DNS resolution
+Resolve-DnsName docs.nexamesh.ai
+Resolve-DnsName ops.nexamesh.ai
 
-# Test email delivery
-# (Send test email from DocuSeal admin panel)
-
-# Verify database connectivity
-az postgres flexible-server show \
-  --resource-group rg-houseofveritas-prod \
-  --name pg-houseofveritas \
+# Check database
+az postgres flexible-server show `
+  --resource-group nl-prod-hov-rg-san `
+  --name nl-prod-hov-pg-san `
   --query state
+
+# Test Document Intelligence
+az cognitiveservices account show `
+  --resource-group nl-prod-hov-rg-san `
+  --name nl-prod-hov-di-san `
+  --query provisioningState
 ```
+
+---
+
+## All Secrets & Configuration Reference
+
+### Terraform Variables
+
+| Variable | Default | Source |
+|----------|---------|--------|
+| `domain_name` | `nexamesh.ai` | tfvars |
+| `db_admin_password` | — | tfvars (sensitive) |
+| `smtp_password` | — | tfvars (sensitive) |
+| `ssl_certificate_data` | `""` | tfvars (sensitive, optional) |
+| `ssl_certificate_password` | `""` | tfvars (sensitive, optional) |
+| `dns_zone_name` | `nexamesh.ai` | default |
+| `dns_zone_resource_group` | `nl-prod-nexamesh-rg-san` | default |
+| `document_intelligence_name` | `nl-prod-hov-di-san` | default |
+| `storage_account_name` | `nlprodhovstsan` | default |
+| `key_vault_name` | `nl-prod-hov-kv-san` | default |
+| `db_server_name` | `nl-prod-hov-pg-san` | default |
+| `resource_group_name` | `nl-prod-hov-rg-san` | default |
+
+### Terraform Outputs (post-deploy)
+
+| Output | Purpose |
+|--------|---------|
+| `application_gateway_public_ip` | Public entry point IP |
+| `document_intelligence_endpoint` | OCR API endpoint |
+| `document_intelligence_key` | OCR API key (sensitive) |
+| `storage_connection_string` | Blob storage connection (sensitive) |
+| `storage_blob_endpoint` | Blob endpoint URL |
+| `asset_uploads_container` | Container name for photos |
+| `key_vault_uri` | Key Vault URI |
+| `database_server_fqdn` | PostgreSQL FQDN |
+| `docuseal_url` | `https://docs.nexamesh.ai` |
+| `baserow_url` | `https://ops.nexamesh.ai` |
 
 ---
 
@@ -772,72 +598,53 @@ az postgres flexible-server show \
 
 ### Container Issues
 
-```bash
-# View container logs
-az container logs --resource-group rg-houseofveritas-prod --name production-docuseal --tail 100
-az container logs --resource-group rg-houseofveritas-prod --name production-baserow --tail 100
+```powershell
+# View logs
+az container logs --resource-group nl-prod-hov-rg-san --name prod-docuseal --tail 100
+az container logs --resource-group nl-prod-hov-rg-san --name prod-baserow --tail 100
 
-# Restart containers
-az container restart --resource-group rg-houseofveritas-prod --name production-docuseal
-az container restart --resource-group rg-houseofveritas-prod --name production-baserow
-
-# Check container events
-az container show --resource-group rg-houseofveritas-prod --name production-docuseal --query "containers[0].instanceView.events"
+# Restart
+az container restart --resource-group nl-prod-hov-rg-san --name prod-docuseal
+az container restart --resource-group nl-prod-hov-rg-san --name prod-baserow
 ```
 
 ### Terraform State Lock
 
-```bash
-# Check for existing lock
-az storage blob show \
-  --account-name sthoveritastfstate \
-  --container-name tfstate \
-  --name production.terraform.tfstate \
-  --query "properties.lease.state"
-
-# Break lock if stuck (use with caution!)
-az storage blob lease break \
-  --account-name sthoveritastfstate \
-  --container-name tfstate \
+```powershell
+az storage blob lease break `
+  --account-name sthoveritastfstate `
+  --container-name tfstate `
   --blob-name production.terraform.tfstate
+```
+
+### DNS Not Resolving
+
+```powershell
+# Verify Azure DNS records
+az network dns record-set a list `
+  --resource-group nl-prod-nexamesh-rg-san `
+  --zone-name nexamesh.ai `
+  --output table
+
+# Check nameserver delegation
+Resolve-DnsName -Name nexamesh.ai -Type NS
 ```
 
 ---
 
 ## Security & Compliance
 
-### Security Hardening
-
-- All private except gateway
-- NSG deny by default
-- Managed identities for containers
-- Azure Key Vault RBAC
-- 12+ char passwords, 90d expiry
-- 2FA for Hans
-- Session timeout: 8hrs
-- CSRF/input validation
-- Monthly image updates
-- Quarterly security review
-- Annual penetration test
-
-### Compliance
-
-- BCEA (Basic Conditions of Employment Act)
-- POPIA (Protection of Personal Information Act)
-- ECT Act (Electronic Communications and Transactions Act)
-- Full audit trails
-- Encrypted at rest (AES-256)
-- Encrypted in transit (TLS 1.2+)
+- All subnets private except gateway; NSG deny-by-default
+- Managed identities for container KV access
+- Key Vault with network ACLs (container subnet only)
+- TLS 1.2+ enforced on storage and database
+- WAF (OWASP 3.2) on Application Gateway
+- Blob versioning and soft-delete enabled
+- POPIA, BCEA, ECT Act compliant
+- Full audit trails on all document operations
 
 ---
 
-## Summary
-
-This deployment guide provides complete, production-ready infrastructure setup for House of Veritas on Azure, with automated provisioning, robust security, comprehensive monitoring, and clear operational procedures. The platform is designed to be cost-effective (<R1,000/month), secure, and maintainable with minimal manual intervention.
-
----
-
-**Last Updated:** February 2026  
-**Document Version:** 2.0  
-**Terraform Version:** 1.5.7  
-**Azure Provider Version:** 3.80
+**Last Updated:** February 2026
+**Terraform Version:** 1.5.7
+**Azure Provider Version:** ~> 3.80

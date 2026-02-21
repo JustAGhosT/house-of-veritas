@@ -243,7 +243,7 @@ User Browser → Application Gateway (SSL/WAF)
 ## API Architecture & Integration
 
 ### DocuSeal API
-- **Base URL:** `https://docs.houseofveritas.za/api`
+- **Base URL:** `https://docs.nexamesh.ai/api`
 - **Authentication:** API key (stored in Key Vault)
 - **Key Endpoints:**
   - `POST /api/templates` - Upload document template
@@ -252,7 +252,7 @@ User Browser → Application Gateway (SSL/WAF)
   - `POST /api/webhooks` - Register webhook
 
 ### Baserow API
-- **Base URL:** `https://ops.houseofveritas.za/api`
+- **Base URL:** `https://ops.nexamesh.ai/api`
 - **Authentication:** Per-user API tokens (Key Vault)
 - **Key Endpoints:**
   - `GET /api/database/tables/` - List tables
@@ -340,8 +340,8 @@ VNet: 10.0.0.0/16
 - **SSL Termination:** TLS 1.2+
 - **WAF:** OWASP Top 10 protection
 - **Path-Based Routing:**
-  - `docs.houseofveritas.za` → DocuSeal container
-  - `ops.houseofveritas.za` → Baserow container
+  - `docs.nexamesh.ai` → DocuSeal container
+  - `ops.nexamesh.ai` → Baserow container
 - **Health Probes:** 30s interval
 
 ### Private Endpoints
@@ -690,7 +690,7 @@ terraform apply tfplan
 ```
 
 **Step 5: Configure DNS**
-- Create A records for `docs.houseofveritas.za` and `ops.houseofveritas.za`
+- Create A records for `docs.nexamesh.ai` and `ops.nexamesh.ai`
 - Point to Application Gateway public IP
 
 **Step 6: Generate SSL Certificates**

@@ -118,6 +118,13 @@ variable "app_gateway_name" {
   default     = "nl-prod-hov-agw-san"
 }
 
+# Web App variables
+variable "web_app_name" {
+  description = "Azure Web App name for the Next.js frontend"
+  type        = string
+  default     = "nl-prod-hov-app-san"
+}
+
 # Function App variables
 variable "function_app_name" {
   description = "Azure Function App name"
@@ -125,11 +132,51 @@ variable "function_app_name" {
   default     = "nl-prod-hov-func-san"
 }
 
+variable "functions_storage_account_name" {
+  description = "Storage account for Function App code (must be globally unique, no hyphens)"
+  type        = string
+  default     = "nlprodhovfuncstsan"
+}
+
+variable "baserow_api_token" {
+  description = "Baserow API token for function app integrations"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "docuseal_api_key" {
+  description = "DocuSeal API key for function app integrations"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "docuseal_webhook_secret" {
+  description = "Secret for validating DocuSeal webhook signatures"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "sendgrid_api_key" {
+  description = "SendGrid API key for email notifications"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "admin_phone" {
+  description = "Admin phone number for SMS alerts"
+  type        = string
+  default     = ""
+}
+
 # Domain variables
 variable "domain_name" {
   description = "Domain name for the application"
   type        = string
-  default     = "houseofveritas.za"
+  default     = "nexamesh.ai"
 }
 
 # SMTP variables
@@ -157,6 +204,26 @@ variable "smtp_password" {
   sensitive   = true
 }
 
+# Document Intelligence (OCR) variables
+variable "document_intelligence_name" {
+  description = "Name of the Document Intelligence account"
+  type        = string
+  default     = "nl-prod-hov-di-san"
+}
+
+# DNS variables
+variable "dns_zone_name" {
+  description = "Azure DNS zone name"
+  type        = string
+  default     = "nexamesh.ai"
+}
+
+variable "dns_zone_resource_group" {
+  description = "Resource group containing the DNS zone"
+  type        = string
+  default     = "nl-prod-nexamesh-rg-san"
+}
+
 # SSL Certificate variables
 variable "ssl_certificate_data" {
   description = "SSL certificate data (base64 encoded PFX)"
@@ -172,14 +239,3 @@ variable "ssl_certificate_password" {
   default     = ""
 }
 
-# Tags
-variable "tags" {
-  description = "Tags to apply to all resources"
-  type        = map(string)
-  default = {
-    Project     = "HouseOfVeritas"
-    Environment = "Production"
-    ManagedBy   = "Terraform"
-    Owner       = "Hans"
-  }
-}

@@ -163,7 +163,7 @@ You have been assigned {len(tasks)} tasks for this week:
 {task_list}
 
 View and update your tasks at:
-{config.baserow_url or 'https://ops.houseofveritas.za'}
+{config.baserow_url or 'https://ops.nexamesh.ai'}
 
 ---
 This is an automated notification from House of Veritas.

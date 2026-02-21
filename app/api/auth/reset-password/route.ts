@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
-import { findUserByEmail, findUserByPhone, generateRandomPassword, setPassword } from '@/lib/users'
+import { NextResponse } from "next/server"
+import { findUserByEmail, findUserByPhone, generateRandomPassword, setPassword } from "@/lib/users"
 
 // Twilio credentials from environment
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID

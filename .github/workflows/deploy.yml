@@ -108,10 +108,16 @@ jobs:
           cache: 'yarn'
       
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
+      
+      - name: Lint
+        run: npm run lint
+      
+      - name: Run Unit Tests
+        run: npm test
       
       - name: Build Application
-        run: yarn build
+        run: npm run build
       
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -121,7 +127,8 @@ jobs:
             .next/
             public/
             package.json
-            yarn.lock
+            package-lock.json
+            next.config.ts
           retention-days: 7
 
   # ============================================
@@ -161,9 +168,12 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
         run: |
           terraform plan \
+            -var="domain_name=${{ vars.DOMAIN_NAME || 'nexamesh.ai' }}" \
             -var="db_admin_password=${{ secrets.DB_ADMIN_PASSWORD }}" \
             -var="smtp_username=${{ secrets.SMTP_USERNAME }}" \
             -var="smtp_password=${{ secrets.SMTP_PASSWORD }}" \
+            -var="ssl_certificate_data=${{ secrets.SSL_CERTIFICATE_DATA }}" \
+            -var="ssl_certificate_password=${{ secrets.SSL_CERTIFICATE_PASSWORD }}" \
             -out=tfplan
       
       - name: Terraform Apply
@@ -182,7 +192,47 @@ jobs:
           " >> $GITHUB_STEP_SUMMARY
 
   # ============================================
-  # Job 4: Deploy DocuSeal
+  # Job 4: Deploy Next.js Web App
+  # ============================================
+  deploy-webapp:
+    name: 'Deploy Web App'
+    runs-on: ubuntu-latest
+    needs: [build, deploy-infrastructure]
+    if: always() && needs.build.result == 'success' && (needs.deploy-infrastructure.result == 'success' || needs.deploy-infrastructure.result == 'skipped')
+    environment: ${{ inputs.environment || 'production' }}
+    
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nextjs-build
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.WEBAPP_NAME || 'nl-prod-hov-app-san' }}
+          package: .
+      
+      - name: Verify Web App Health
+        run: |
+          APP_URL="https://${{ vars.WEBAPP_NAME || 'nl-prod-hov-app-san' }}.azurewebsites.net"
+          for i in {1..10}; do
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL" || echo "000")
+            if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "302" ]; then
+              echo "Web App is healthy (HTTP $HTTP_STATUS)"
+              break
+            fi
+            echo "Waiting for Web App... (attempt $i/10, got HTTP $HTTP_STATUS)"
+            sleep 15
+          done
+
+  # ============================================
+  # Job 5: Deploy DocuSeal
   # ============================================
   deploy-docuseal:
     name: 'Deploy DocuSeal'
@@ -327,7 +377,7 @@ jobs:
   post-deploy-verification:
     name: 'Post-Deployment Verification'
     runs-on: ubuntu-latest
-    needs: [deploy-docuseal, deploy-baserow]
+    needs: [deploy-webapp, deploy-docuseal, deploy-baserow]
     if: always()
     
     steps:
@@ -378,7 +428,7 @@ jobs:
   deployment-summary:
     name: 'Deployment Summary'
     runs-on: ubuntu-latest
-    needs: [build, deploy-infrastructure, deploy-docuseal, deploy-baserow, post-deploy-verification]
+    needs: [build, deploy-infrastructure, deploy-webapp, deploy-docuseal, deploy-baserow, post-deploy-verification]
     if: always()
     
     steps:
@@ -396,6 +446,7 @@ jobs:
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Build | ${{ needs.build.result == 'success' && '✅' || '❌' }} ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Infrastructure | ${{ needs.deploy-infrastructure.result == 'success' && '✅' || needs.deploy-infrastructure.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.deploy-infrastructure.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Web App | ${{ needs.deploy-webapp.result == 'success' && '✅' || needs.deploy-webapp.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.deploy-webapp.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| DocuSeal | ${{ needs.deploy-docuseal.result == 'success' && '✅' || needs.deploy-docuseal.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.deploy-docuseal.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Baserow | ${{ needs.deploy-baserow.result == 'success' && '✅' || needs.deploy-baserow.result == 'skipped' && '⏭️' || '❌' }} ${{ needs.deploy-baserow.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Verification | ${{ needs.post-deploy-verification.result == 'success' && '✅' || '❌' }} ${{ needs.post-deploy-verification.result }} |" >> $GITHUB_STEP_SUMMARY

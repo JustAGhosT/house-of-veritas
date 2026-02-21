@@ -253,12 +253,11 @@ jobs:
         run: |
           REQUIRED_FILES=(
             "config/docker-compose.yml"
-            "config/.env.template"
             "config/docuseal/README.md"
             "config/baserow/README.md"
             "config/scripts/deployment-checklist.py"
             "config/scripts/seed-baserow.py"
-            "config/templates/document-list.md"
+            "docs/04-configuration/04-document-templates.md"
           )
           
           MISSING=0

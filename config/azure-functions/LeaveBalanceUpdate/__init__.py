@@ -93,7 +93,7 @@ def send_employee_notification(
             "annual_leave": f"{update_result['new_balance']:.2f}",
             "sick_leave": "30",  # Full sick leave balance shown
             "family_leave": "3",  # Full family leave shown
-            "baserow_url": config.baserow_url or "https://ops.houseofveritas.za"
+            "baserow_url": config.baserow_url or "https://ops.nexamesh.ai"
         }
     )
 

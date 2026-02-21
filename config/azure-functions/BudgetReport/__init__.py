@@ -179,7 +179,7 @@ NOTES
 ✅  Categories marked with checkmark are within budget
 
 For detailed transaction history, access:
-{config.baserow_url or 'https://ops.houseofveritas.za'}
+{config.baserow_url or 'https://ops.nexamesh.ai'}
 
 ================================================================================
 END OF REPORT

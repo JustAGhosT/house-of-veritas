@@ -1,8 +1,12 @@
-import { NextResponse } from 'next/server'
-import { auditLog, logActivity, AuditAction } from '@/lib/audit-log'
+import { NextResponse } from "next/server"
+import { auditLog, logActivity, AuditAction } from "@/lib/audit-log"
+import { getAuthContext } from "@/lib/auth/rbac"
 
-// GET - Fetch audit logs
 export async function GET(request: Request) {
+  const auth = getAuthContext(request)
+  if (!auth || auth.role !== "admin") {
+    return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
+  }
   const { searchParams } = new URL(request.url)
   const userId = searchParams.get('userId')
   const action = searchParams.get('action') as AuditAction | null
@@ -34,7 +38,6 @@ export async function GET(request: Request) {
   })
 }
 
-// POST - Create a new audit log entry
 export async function POST(request: Request) {
   try {
     const body = await request.json()

@@ -1,25 +1,13 @@
 name: 'Azure Functions Deployment'
 
-# Deploy Azure Functions for automation
 on:
   push:
     branches:
       - main
     paths:
-      - 'config/scripts/azure-function-*.py'
-      - 'config/scripts/document-expiry-*.py'
+      - 'config/azure-functions/**'
       - '.github/workflows/deploy-functions.yml'
   workflow_dispatch:
-    inputs:
-      function:
-        description: 'Function to deploy'
-        required: true
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - webhook-handler
-          - document-expiry
 
 permissions:
   contents: read
@@ -31,28 +19,25 @@ env:
   PYTHON_VERSION: '3.11'
 
 jobs:
-  # ============================================
-  # Build and Deploy Azure Functions
-  # ============================================
   deploy-functions:
     name: 'Deploy Azure Functions'
     runs-on: ubuntu-latest
     environment: production
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+
       - name: Check Function App Exists
         id: check-app
         run: |
@@ -60,92 +45,41 @@ jobs:
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
             --query "name" -o tsv 2>/dev/null || echo "")
-          
+
           if [ -n "$EXISTS" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
-            echo "✅ Function App exists"
+            echo "Function App exists"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "⚠️ Function App does not exist"
+            echo "Function App does not exist - deploy infrastructure first"
           fi
-      
+
       - name: Create Function App Package
         if: steps.check-app.outputs.exists == 'true'
         run: |
-          # Create function app directory structure
-          mkdir -p function_app/DocuSealWebhook
-          mkdir -p function_app/DocumentExpiryAlert
-          
-          # Copy webhook handler
-          cp config/scripts/azure-function-webhook.py function_app/DocuSealWebhook/__init__.py
-          
-          # Copy expiry alert function
-          cp config/scripts/document-expiry-alert.py function_app/DocumentExpiryAlert/__init__.py
-          
-          # Create function.json for HTTP trigger (webhook)
-          cat > function_app/DocuSealWebhook/function.json << 'EOF'
-          {
-            "scriptFile": "__init__.py",
-            "bindings": [
-              {
-                "authLevel": "function",
-                "type": "httpTrigger",
-                "direction": "in",
-                "name": "req",
-                "methods": ["post"]
-              },
-              {
-                "type": "http",
-                "direction": "out",
-                "name": "$return"
-              }
-            ]
-          }
-          EOF
-          
-          # Create function.json for Timer trigger (expiry alert)
-          cat > function_app/DocumentExpiryAlert/function.json << 'EOF'
-          {
-            "scriptFile": "__init__.py",
-            "bindings": [
-              {
-                "name": "timer",
-                "type": "timerTrigger",
-                "direction": "in",
-                "schedule": "0 0 6 * * *"
-              }
-            ]
-          }
-          EOF
-          
-          # Create host.json
-          cat > function_app/host.json << 'EOF'
-          {
-            "version": "2.0",
-            "logging": {
-              "applicationInsights": {
-                "samplingSettings": {
-                  "isEnabled": true,
-                  "excludedTypes": "Request"
-                }
-              }
-            },
-            "extensionBundle": {
-              "id": "Microsoft.Azure.Functions.ExtensionBundle",
-              "version": "[3.*, 4.0.0)"
-            }
-          }
-          EOF
-          
-          # Create requirements.txt
-          cat > function_app/requirements.txt << 'EOF'
-          azure-functions
-          requests
-          sendgrid
-          EOF
-          
-          echo "✅ Function app package created"
-      
+          mkdir -p function_app
+
+          cp -r config/azure-functions/DocuSealWebhook function_app/
+          cp -r config/azure-functions/DocumentExpiryAlert function_app/
+          cp -r config/azure-functions/RecurringTasks function_app/
+          cp -r config/azure-functions/OvertimeCalculator function_app/
+          cp -r config/azure-functions/LeaveBalanceUpdate function_app/
+          cp -r config/azure-functions/ExpenseNotification function_app/
+          cp -r config/azure-functions/BudgetReport function_app/
+          cp -r config/azure-functions/BackupExport function_app/
+          cp -r config/azure-functions/shared function_app/
+
+          cp config/azure-functions/host.json function_app/
+          cp config/azure-functions/requirements.txt function_app/
+
+          echo "Function app package created with all 8 functions"
+
+      - name: Install Dependencies
+        if: steps.check-app.outputs.exists == 'true'
+        run: |
+          cd function_app
+          pip install --target=".python_packages/lib/site-packages" -r requirements.txt
+
       - name: Deploy to Azure Functions
         if: steps.check-app.outputs.exists == 'true'
         uses: Azure/functions-action@v1
@@ -153,41 +87,32 @@ jobs:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
           package: function_app
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-      
-      - name: Configure Function App Settings
-        if: steps.check-app.outputs.exists == 'true'
-        run: |
-          az functionapp config appsettings set \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
-            --settings \
-              "BASEROW_URL=${{ secrets.BASEROW_URL }}" \
-              "BASEROW_TOKEN=${{ secrets.BASEROW_TOKEN }}" \
-              "DOCUSEAL_WEBHOOK_SECRET=${{ secrets.DOCUSEAL_WEBHOOK_SECRET }}" \
-              "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" \
-              "ALERT_FROM_EMAIL=alerts@houseofveritas.za" \
-              "ALERT_TO_ADMIN=${{ secrets.ADMIN_EMAIL }}"
-          
-          echo "✅ Function app settings configured"
-      
+
       - name: Verify Deployment
         if: steps.check-app.outputs.exists == 'true'
         run: |
-          # List deployed functions
           az functionapp function list \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
             --output table
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
+
           echo "## Azure Functions Deployment" >> $GITHUB_STEP_SUMMARY
-          echo "- **DocuSealWebhook**: HTTP Trigger (POST)" >> $GITHUB_STEP_SUMMARY
-          echo "- **DocumentExpiryAlert**: Timer Trigger (Daily 6am UTC)" >> $GITHUB_STEP_SUMMARY
-      
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Function | Trigger | Schedule |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|---------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| DocuSealWebhook | HTTP POST | On demand |" >> $GITHUB_STEP_SUMMARY
+          echo "| DocumentExpiryAlert | Timer | Daily 6:00 AM |" >> $GITHUB_STEP_SUMMARY
+          echo "| RecurringTasks | Timer | Monday 8:00 AM |" >> $GITHUB_STEP_SUMMARY
+          echo "| OvertimeCalculator | Timer | Sunday 11:00 PM |" >> $GITHUB_STEP_SUMMARY
+          echo "| LeaveBalanceUpdate | Timer | Monthly 1st 7:00 AM |" >> $GITHUB_STEP_SUMMARY
+          echo "| ExpenseNotification | HTTP POST | On demand |" >> $GITHUB_STEP_SUMMARY
+          echo "| BudgetReport | Timer | Monthly 5th 8:00 AM |" >> $GITHUB_STEP_SUMMARY
+          echo "| BackupExport | Timer | Sunday midnight |" >> $GITHUB_STEP_SUMMARY
+
       - name: Skip Notice
         if: steps.check-app.outputs.exists != 'true'
         run: |
-          echo "## ⚠️ Deployment Skipped" >> $GITHUB_STEP_SUMMARY
+          echo "## Deployment Skipped" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Function App '${{ env.AZURE_FUNCTIONAPP_NAME }}' does not exist." >> $GITHUB_STEP_SUMMARY
           echo "Deploy infrastructure first using the Terraform workflow." >> $GITHUB_STEP_SUMMARY

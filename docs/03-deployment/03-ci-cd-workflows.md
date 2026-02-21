@@ -238,6 +238,6 @@ gh workflow run deploy-functions.yml -f function=all
 ## Related Documentation
 
 - [Deployment Checklist Script](/config/scripts/deployment-checklist.py)
-- [Terraform Configuration](/terraform/DEPLOYMENT.md)
-- [Azure Deployment Guide](/docs/02-azure-deployment-guide.md)
-- [Technical Design](/docs/04-technical-design.md)
+- [Deployment Guide](/docs/03-deployment/01-deployment-guide.md)
+- [Technical Design](/docs/02-architecture/01-technical-design.md)
+- [Infrastructure](/docs/02-architecture/03-infrastructure.md)

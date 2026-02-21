@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react"
 import { useRouter, usePathname } from "next/navigation"
 
 interface User {
@@ -25,29 +25,32 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Storage keys
-const USER_STORAGE_KEY = "hov_user"
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
 
-  // Load user from localStorage on mount
-  useEffect(() => {
-    const storedUser = localStorage.getItem(USER_STORAGE_KEY)
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser))
-      } catch (e) {
-        localStorage.removeItem(USER_STORAGE_KEY)
+  const checkSession = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/me")
+      if (res.ok) {
+        const data = await res.json()
+        setUser(data.user)
+      } else {
+        setUser(null)
       }
+    } catch {
+      setUser(null)
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }, [])
 
-  // Protect routes
+  useEffect(() => {
+    checkSession()
+  }, [checkSession])
+
   useEffect(() => {
     if (isLoading) return
 
@@ -55,17 +58,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isDashboardPage = pathname?.startsWith("/dashboard")
 
     if (!user && isDashboardPage) {
-      // Not logged in, trying to access dashboard
       router.push("/login")
     } else if (user && isAuthPage) {
-      // Logged in, on login page - redirect to their dashboard
       router.push(`/dashboard/${user.id}`)
     } else if (user && isDashboardPage) {
-      // Check if user is accessing their own dashboard or has permission
       const dashboardUser = pathname?.split("/")[2]
       if (dashboardUser && dashboardUser !== user.id) {
-        // Only Hans (admin) can view other dashboards
-        if (user.id !== "hans") {
+        if (user.role !== "admin") {
           router.push(`/dashboard/${user.id}`)
         }
       }
@@ -86,22 +85,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: data.error || "Login failed" }
       }
 
-      // Store user in state and localStorage
       setUser(data.user)
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user))
-
-      // Redirect to user's dashboard
       router.push(data.redirectTo)
-
       return { success: true }
-    } catch (error) {
+    } catch {
       return { success: false, error: "Connection error. Please try again." }
     }
   }
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" })
+    } catch {
+      // Clear state even if server call fails
+    }
     setUser(null)
-    localStorage.removeItem(USER_STORAGE_KEY)
     router.push("/login")
   }
 
@@ -128,7 +126,6 @@ export function useAuth() {
   return context
 }
 
-// HOC to protect pages
 export function withAuth<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   options?: { allowedUsers?: string[] }
@@ -142,9 +139,8 @@ export function withAuth<P extends object>(
         router.push("/login")
       }
 
-      // Check if user is allowed to access this page
       if (!isLoading && user && options?.allowedUsers) {
-        if (!options.allowedUsers.includes(user.id) && user.id !== "hans") {
+        if (!options.allowedUsers.includes(user.id) && user.role !== "admin") {
           router.push(`/dashboard/${user.id}`)
         }
       }

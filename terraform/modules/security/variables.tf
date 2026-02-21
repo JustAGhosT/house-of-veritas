@@ -28,21 +28,21 @@ variable "docuseal_secret_key" {
   description = "DocuSeal secret key"
   type        = string
   sensitive   = true
-  default     = "changeme-docuseal-secret"  # Change in production
+  default     = "changeme-docuseal-secret" # Change in production
 }
 
 variable "baserow_secret_key" {
   description = "Baserow secret key"
   type        = string
   sensitive   = true
-  default     = "changeme-baserow-secret"  # Change in production
+  default     = "changeme-baserow-secret" # Change in production
 }
 
 variable "smtp_password" {
   description = "SMTP password for email notifications"
   type        = string
   sensitive   = true
-  default     = ""  # Set in production
+  default     = "" # Set in production
 }
 
 variable "tags" {

@@ -74,7 +74,7 @@
   - **Acceptance:** Azure account active, billing configured
 
 - [ ] **Story 2.1.2:** Domain name acquisition
-  - [ ] Purchase domain: houseofveritas.za (or .co.za)
+  - [ ] Purchase domain: nexamesh.ai (or .co.za)
   - [ ] Configure DNS provider
   - [ ] Set up DNS management access
   - **Acceptance:** Domain purchased, DNS accessible
@@ -187,8 +187,8 @@
 **Priority:** P0
 
 - [ ] **Story 2.5.1:** DNS configuration
-  - [ ] Create A records for docs.houseofveritas.za
-  - [ ] Create A records for ops.houseofveritas.za
+  - [ ] Create A records for docs.nexamesh.ai
+  - [ ] Create A records for ops.nexamesh.ai
   - [ ] Point to Application Gateway IP
   - [ ] Verify DNS propagation
   - **Acceptance:** DNS resolves correctly
@@ -218,7 +218,7 @@
   - [x] Create docker-compose.yml for DocuSeal
   - [x] Configure environment variables template
   - [x] Document volume mounts for persistence
-  - [x] Create setup guide (/config/docuseal/README.md)
+  - [x] Create setup guide (/docs/04-configuration/01-docuseal-setup.md)
   - **Acceptance:** DocuSeal configuration ready for deployment
 
 - [x] **Story 3.1.2:** DocuSeal initial configuration documentation
@@ -232,7 +232,7 @@
   - [x] List all 18+ governance documents with details
   - [x] Document template creation process
   - [x] Include signers and review cycles
-  - [x] Create checklist for tracking (/config/templates/document-list.md)
+  - [x] Create checklist for tracking (/docs/04-configuration/04-document-templates.md)
   - **Acceptance:** Template list complete
 
 - [x] **Story 3.1.4:** DocuSeal API integration documentation
@@ -250,7 +250,7 @@
   - [ ] Configure environment variables from Key Vault
   - [ ] Set up PostgreSQL connection
   - [ ] Deploy container
-  - **Acceptance:** Baserow accessible at ops.houseofveritas.za
+  - **Acceptance:** Baserow accessible at ops.nexamesh.ai
 
 - [ ] **Story 3.2.2:** Baserow initial configuration
   - [ ] Create Hans admin account
@@ -268,7 +268,7 @@
   - [x] Document Vehicle Logs table with all fields
   - [x] Document Expenses table with all fields
   - [x] Document Document Expiry table with all fields
-  - **Acceptance:** All 8 tables documented (/config/baserow/README.md)
+  - **Acceptance:** All 8 tables documented (/docs/04-configuration/02-baserow-setup.md)
 
 - [x] **Story 3.2.4:** Document relationships & formulas
   - [x] Document Employee links to Tasks, Assets, Incidents

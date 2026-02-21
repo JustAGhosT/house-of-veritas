@@ -42,7 +42,7 @@ interface CreateSubmissionRequest {
 
 // Default config - uses environment variables or fallback
 const getConfig = (): DocuSealConfig => ({
-  apiUrl: process.env.DOCUSEAL_API_URL || "https://docs.houseofveritas.za/api",
+  apiUrl: process.env.DOCUSEAL_API_URL || "https://docs.nexamesh.ai/api",
   apiKey: process.env.DOCUSEAL_API_KEY || "",
 })
 
@@ -245,7 +245,7 @@ function getMockSubmissionStatus(submissionId: string): SignatureSubmission {
     status: isCompleted ? "completed" : "pending",
     createdAt: new Date(Date.now() - 86400000), // Yesterday
     completedAt: isCompleted ? new Date() : undefined,
-    documentUrl: isCompleted ? `https://docs.houseofveritas.za/documents/${submissionId}` : undefined,
+    documentUrl: isCompleted ? `https://docs.nexamesh.ai/documents/${submissionId}` : undefined,
   }
 }
 

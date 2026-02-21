@@ -38,48 +38,89 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - network first, fallback to cache
-self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') return;
+const CACHEABLE_API_PATHS = ['/api/stats', '/api/auth/users', '/api/health'];
+const API_CACHE_NAME = 'hov-api-cache-v1';
 
-  // Skip API requests (always go to network)
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') {
+    if (event.request.method === 'POST' && !navigator.onLine) {
+      event.respondWith(queueOfflineMutation(event.request));
+    }
+    return;
+  }
+
   if (event.request.url.includes('/api/')) {
+    const isCacheable = CACHEABLE_API_PATHS.some(p => event.request.url.includes(p));
+    if (isCacheable) {
+      event.respondWith(networkFirstApi(event.request));
+    }
     return;
   }
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clone the response before caching
         const responseClone = response.clone();
-        
-        // Cache successful responses
         if (response.status === 200) {
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseClone);
           });
         }
-        
         return response;
       })
       .catch(() => {
-        // Network failed, try cache
         return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          
-          // If no cache and it's a navigation request, show offline page
+          if (cachedResponse) return cachedResponse;
           if (event.request.mode === 'navigate') {
             return caches.match(OFFLINE_URL);
           }
-          
           return new Response('Offline', { status: 503 });
         });
       })
   );
 });
+
+async function networkFirstApi(request) {
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(API_CACHE_NAME);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    return new Response(JSON.stringify({ error: 'Offline', cached: false }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+async function queueOfflineMutation(request) {
+  try {
+    const body = await request.clone().text();
+    const cache = await caches.open('hov-offline-data');
+    const key = `offline-mutation-${Date.now()}`;
+    await cache.put(
+      new Request(key),
+      new Response(JSON.stringify({ url: request.url, method: request.method, body }))
+    );
+    if (self.registration.sync) {
+      await self.registration.sync.register('sync-mutations');
+    }
+    return new Response(JSON.stringify({ queued: true }), {
+      status: 202,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch {
+    return new Response(JSON.stringify({ error: 'Cannot queue offline' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}
 
 // Push notification event
 self.addEventListener('push', (event) => {

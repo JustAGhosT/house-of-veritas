@@ -49,6 +49,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
         run: |
           terraform plan \
+            -var="domain_name=${{ vars.DOMAIN_NAME || 'nexamesh.ai' }}" \
             -var="db_admin_password=${{ secrets.DB_ADMIN_PASSWORD }}" \
             -var="smtp_username=${{ secrets.SMTP_USERNAME }}" \
             -var="smtp_password=${{ secrets.SMTP_PASSWORD }}" \

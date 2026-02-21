@@ -127,7 +127,7 @@ export interface VehicleLog {
 
 // Default config - uses environment variables or fallback
 const getConfig = (): BaserowConfig => ({
-  apiUrl: process.env.BASEROW_API_URL || "https://ops.houseofveritas.za/api",
+  apiUrl: process.env.BASEROW_API_URL || "https://ops.nexamesh.ai/api",
   apiToken: process.env.BASEROW_API_TOKEN || "",
   databaseId: process.env.BASEROW_DATABASE_ID || "",
 })

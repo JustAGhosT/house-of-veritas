@@ -37,8 +37,8 @@ BASEROW_TOKEN = os.environ.get("BASEROW_TOKEN", "")
 TABLE_DOCUMENTS = os.environ.get("TABLE_DOCUMENTS", "")
 TABLE_EMPLOYEES = os.environ.get("TABLE_EMPLOYEES", "")
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", "")
-ALERT_FROM_EMAIL = os.environ.get("ALERT_FROM_EMAIL", "alerts@houseofveritas.za")
-ALERT_TO_ADMIN = os.environ.get("ALERT_TO_ADMIN", "hans@houseofveritas.za")
+ALERT_FROM_EMAIL = os.environ.get("ALERT_FROM_EMAIL", "alerts@nexamesh.ai")
+ALERT_TO_ADMIN = os.environ.get("ALERT_TO_ADMIN", "hans@nexamesh.ai")
 
 # Alert thresholds (days)
 ALERT_THRESHOLDS = [60, 30, 7]
@@ -141,7 +141,7 @@ Action Required:
 Please review and renew this document before it expires.
 
 Access the document management system at:
-https://docs.houseofveritas.za
+https://docs.nexamesh.ai
 
 ---
 This is an automated alert from House of Veritas Document Management.
@@ -180,10 +180,10 @@ Total Documents Requiring Attention: {len(alerts)}
     content += """
 ---
 Access the document management system at:
-https://docs.houseofveritas.za
+https://docs.nexamesh.ai
 
 For operations dashboard:
-https://ops.houseofveritas.za
+https://ops.nexamesh.ai
 
 ---
 This is an automated summary from House of Veritas Document Management.

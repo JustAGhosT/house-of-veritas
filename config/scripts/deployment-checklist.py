@@ -298,7 +298,7 @@ class DeploymentChecker:
                 message=f"VNet '{vnet_name}' does not exist",
                 details="Network infrastructure needs to be deployed first",
                 fix_command="cd /app/terraform/environments/production && terraform apply -target=module.network",
-                documentation="/app/docs/02-azure-deployment-guide.md"
+                documentation="/app/docs/03-deployment/01-deployment-guide.md"
             )
         
         try:
@@ -334,7 +334,7 @@ class DeploymentChecker:
                 message=f"PostgreSQL server '{pg_name}' does not exist",
                 details="Database infrastructure needs to be deployed",
                 fix_command="cd /app/terraform/environments/production && terraform apply -target=module.database",
-                documentation="/app/docs/04-technical-design.md#database-design"
+                documentation="/app/docs/02-architecture/01-technical-design.md#database-design"
             )
         
         try:
@@ -380,7 +380,7 @@ class DeploymentChecker:
                 message=f"Storage account '{storage_name}' does not exist",
                 details="Storage infrastructure needs to be deployed for documents and backups",
                 fix_command="cd /app/terraform/environments/production && terraform apply -target=module.storage",
-                documentation="/app/docs/04-technical-design.md#storage"
+                documentation="/app/docs/02-architecture/01-technical-design.md#storage"
             )
         
         try:
@@ -415,7 +415,7 @@ class DeploymentChecker:
                 message=f"Key Vault '{kv_name}' does not exist",
                 details="Key Vault is required for secure storage of secrets",
                 fix_command="cd /app/terraform/environments/production && terraform apply -target=module.security",
-                documentation="/app/docs/04-technical-design.md#secret-management"
+                documentation="/app/docs/02-architecture/01-technical-design.md#secret-management"
             )
         
         # Check for required secrets
@@ -525,7 +525,7 @@ class DeploymentChecker:
                 message=f"Application Gateway '{agw_name}' does not exist",
                 details="Application Gateway is required for SSL termination and routing",
                 fix_command="cd /app/terraform/environments/production && terraform apply -target=module.gateway",
-                documentation="/app/docs/04-technical-design.md#application-gateway"
+                documentation="/app/docs/02-architecture/01-technical-design.md#application-gateway"
             )
         
         try:
@@ -567,7 +567,7 @@ class DeploymentChecker:
     
     def check_dns(self) -> CheckResult:
         """Check DNS configuration (basic check)."""
-        domains = ["docs.houseofveritas.za", "ops.houseofveritas.za"]
+        domains = ["docs.nexamesh.ai", "ops.nexamesh.ai"]
         
         # This is a basic check - in reality you'd check Azure DNS or external DNS
         return CheckResult(
@@ -576,7 +576,7 @@ class DeploymentChecker:
             message="DNS configuration requires manual verification",
             details=f"Verify that {', '.join(domains)} point to Application Gateway IP",
             fix_command="Create A records pointing to Application Gateway public IP",
-            documentation="/app/docs/02-azure-deployment-guide.md#dns-configuration"
+            documentation="/app/docs/03-deployment/01-deployment-guide.md#dns-configuration"
         )
     
     def check_ssl_certificates(self) -> CheckResult:
@@ -596,7 +596,7 @@ class DeploymentChecker:
                 message="Unable to check SSL certificates",
                 details="Key Vault may not exist or you may lack permissions",
                 fix_command="Generate Let's Encrypt certificates and upload to Key Vault",
-                documentation="/app/docs/02-azure-deployment-guide.md#ssl-setup"
+                documentation="/app/docs/03-deployment/01-deployment-guide.md#ssl-setup"
             )
         
         try:
@@ -607,8 +607,8 @@ class DeploymentChecker:
                     status=Status.FAIL,
                     message="No SSL certificates found in Key Vault",
                     details="SSL certificates are required for HTTPS",
-                    fix_command="certbot certonly --standalone -d docs.houseofveritas.za -d ops.houseofveritas.za && az keyvault certificate import ...",
-                    documentation="/app/docs/02-azure-deployment-guide.md#ssl-setup"
+                    fix_command="certbot certonly --standalone -d docs.nexamesh.ai -d ops.nexamesh.ai && az keyvault certificate import ...",
+                    documentation="/app/docs/03-deployment/01-deployment-guide.md#ssl-setup"
                 )
             
             return CheckResult(
@@ -629,8 +629,8 @@ class DeploymentChecker:
         required_files = [
             "/app/config/docker-compose.yml",
             "/app/config/.env.template",
-            "/app/config/docuseal/README.md",
-            "/app/config/baserow/README.md",
+            "/app/docs/04-configuration/01-docuseal-setup.md",
+            "/app/docs/04-configuration/02-baserow-setup.md",
             "/app/config/scripts/seed-baserow.py"
         ]
         
@@ -914,7 +914,7 @@ class DeploymentChecker:
             {
                 "name": "Configure DNS Records",
                 "complete": False,  # Manual step
-                "command": "Create A records for docs.houseofveritas.za and ops.houseofveritas.za"
+                "command": "Create A records for docs.nexamesh.ai and ops.nexamesh.ai"
             },
             {
                 "name": "Configure SSL Certificates",
@@ -929,7 +929,7 @@ class DeploymentChecker:
             {
                 "name": "Create User Accounts",
                 "complete": False,  # Post-deployment
-                "command": "See /app/config/docuseal/README.md and /app/config/baserow/README.md"
+                "command": "See /app/docs/04-configuration/01-docuseal-setup.md and /app/docs/04-configuration/02-baserow-setup.md"
             }
         ]
     
