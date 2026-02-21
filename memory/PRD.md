@@ -537,6 +537,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - `/app/lib/i18n/translations.ts` - Multi-language translations
 - `/app/lib/i18n/context.tsx` - i18n context
 - `/app/lib/audit-log.ts` - Audit logging
+- `/app/lib/db/mongodb.ts` - MongoDB connection utility
 - `/app/components/notification-panel.tsx` - Notification UI
 - `/app/components/realtime-indicator.tsx` - Real-time status indicator
 - `/app/components/reports-panel.tsx` - Reports UI
