@@ -297,6 +297,53 @@ export default function KioskPage() {
     setShowHistory(true)
   }
 
+  // Fetch notification preference
+  const fetchNotificationPref = async () => {
+    if (!currentUser) return
+    try {
+      const res = await fetch(`/api/notifications/preferences?userId=${currentUser.id}`)
+      const data = await res.json()
+      if (data.preference?.preferredChannel) {
+        setNotificationPref(data.preference.preferredChannel)
+      }
+    } catch (err) {
+      console.error("Failed to fetch notification pref:", err)
+    }
+  }
+
+  // Save notification preference
+  const saveNotificationPref = async (channel: "sms" | "whatsapp" | "email") => {
+    if (!currentUser) return
+    setLoading(true)
+    try {
+      await fetch("/api/notifications/preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: currentUser.id,
+          preferredChannel: channel,
+          fallbackOrder: channel === "sms" 
+            ? ["sms", "whatsapp", "email"]
+            : channel === "whatsapp"
+            ? ["whatsapp", "sms", "email"]
+            : ["email", "sms", "whatsapp"],
+        }),
+      })
+      setNotificationPref(channel)
+      setShowNotificationPrefs(false)
+      showSuccess(`Notifications will be sent via ${channel.toUpperCase()}`)
+    } catch (err) {
+      console.error("Failed to save notification pref:", err)
+      setError("Failed to save preference")
+    }
+    setLoading(false)
+  }
+
+  const openNotificationPrefs = () => {
+    fetchNotificationPref()
+    setShowNotificationPrefs(true)
+  }
+
   // Mark task as complete
   const completeTask = async (taskId: string) => {
     try {
