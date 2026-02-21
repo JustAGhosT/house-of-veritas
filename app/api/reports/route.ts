@@ -42,6 +42,12 @@ export async function GET(request: Request) {
   }
 
   if (format === "csv") {
+    if (reportType === "all") {
+      return NextResponse.json(
+        { error: "CSV format is not supported for report type 'all'. Use 'expenses', 'tasks', or 'time'." },
+        { status: 400 }
+      )
+    }
     const csv = generateCsv(reportType, data)
     return new Response(csv, {
       headers: {

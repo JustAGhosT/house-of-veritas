@@ -116,18 +116,18 @@ def calculate_overtime(
     regular_hours = min(total_hours, Decimal(str(STANDARD_HOURS_PER_WEEK)))
     overtime_hours = max(Decimal("0"), total_hours - Decimal(str(STANDARD_HOURS_PER_WEEK)))
     
-    # Sunday hours are always at 2x, even within regular hours
-    # For simplicity, we'll calculate sunday bonus separately
-    sunday_bonus = sunday_hours * (OVERTIME_RATE_SUNDAY - 1) * hourly_rate
-    
-    # Regular overtime (weekday) calculation
-    weekday_overtime_hours = max(Decimal("0"), overtime_hours - sunday_hours)
+    # Split overtime between Sunday and weekday
+    sunday_overtime_hours = min(overtime_hours, sunday_hours)
+    weekday_overtime_hours = max(Decimal("0"), overtime_hours - sunday_overtime_hours)
+
+    # Sunday regular hours (not overtime) still get 2x premium
+    sunday_regular_hours = max(Decimal("0"), sunday_hours - sunday_overtime_hours)
+    sunday_regular_bonus = sunday_regular_hours * (OVERTIME_RATE_SUNDAY - 1) * hourly_rate
+
     weekday_overtime_cost = weekday_overtime_hours * OVERTIME_RATE_WEEKDAY * hourly_rate
-    
-    # Sunday overtime
-    sunday_overtime_cost = sunday_hours * OVERTIME_RATE_SUNDAY * hourly_rate
-    
-    total_overtime_cost = weekday_overtime_cost + sunday_bonus
+    sunday_overtime_cost = sunday_overtime_hours * OVERTIME_RATE_SUNDAY * hourly_rate
+
+    total_overtime_cost = weekday_overtime_cost + sunday_overtime_cost + sunday_regular_bonus
     
     return {
         "total_hours": float(total_hours),

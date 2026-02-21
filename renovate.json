@@ -1,0 +1,48 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":automergePatch",
+    "group:allNonMajor"
+  ],
+  "labels": ["dependencies"],
+  "rangeStrategy": "bump",
+  "packageRules": [
+    {
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true
+    },
+    {
+      "matchPackageNames": ["next", "react", "react-dom"],
+      "groupName": "next.js core",
+      "automerge": false
+    },
+    {
+      "matchPackagePatterns": ["^@radix-ui/"],
+      "groupName": "radix-ui",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^@testing-library/"],
+      "groupName": "testing-library",
+      "automerge": true
+    },
+    {
+      "matchManagers": ["terraform"],
+      "groupName": "terraform providers",
+      "automerge": false,
+      "labels": ["dependencies", "infrastructure"]
+    },
+    {
+      "matchManagers": ["pip_requirements"],
+      "groupName": "python dependencies",
+      "automerge": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"]
+  },
+  "schedule": ["before 6am on monday"]
+}

@@ -263,10 +263,7 @@ resource "azurerm_application_gateway" "main" {
     rule_set_type    = "OWASP"
     rule_set_version = "3.2"
 
-    disabled_rule_group {
-      rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
-      rules           = []
-    }
+  
   }
 
   tags = var.tags

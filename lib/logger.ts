@@ -35,10 +35,10 @@ function createLogFn(level: LogLevel) {
   return (message: string, meta?: Record<string, unknown>) => {
     if (!shouldLog(level)) return
     emit({
+      ...meta,
       level,
       message,
       timestamp: new Date().toISOString(),
-      ...meta,
     })
   }
 }
