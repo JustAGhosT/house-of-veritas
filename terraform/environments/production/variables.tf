@@ -239,3 +239,9 @@ variable "ssl_certificate_password" {
   default     = ""
 }
 
+variable "deployer_ip" {
+  description = "Public IP of the deployer (CI runner) to whitelist on Key Vault and Storage firewalls"
+  type        = string
+  default     = ""
+}
+

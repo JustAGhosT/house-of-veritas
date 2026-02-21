@@ -45,6 +45,12 @@ variable "smtp_password" {
   default     = "" # Set in production
 }
 
+variable "deployer_ip_addresses" {
+  description = "IP addresses (CIDR) allowed to manage Key Vault (e.g. CI runner)"
+  type        = list(string)
+  default     = []
+}
+
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)
