@@ -69,6 +69,7 @@ interface InventoryItem {
   averageConsumption: number
   location: string
   supplier?: string
+  barcode?: string
   unitCost: number
   totalValue: number
 }
