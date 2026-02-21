@@ -122,6 +122,12 @@ export default function InventoryPage() {
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([])
   const [selectedStore, setSelectedStore] = useState("cashbuild")
   
+  // New dialog states for barcode features
+  const [isLabelPrintOpen, setIsLabelPrintOpen] = useState(false)
+  const [isBatchConsumeOpen, setIsBatchConsumeOpen] = useState(false)
+  const [isBatchRestockOpen, setIsBatchRestockOpen] = useState(false)
+  const [isStockCountOpen, setIsStockCountOpen] = useState(false)
+  
   // Form states
   const [consumeQuantity, setConsumeQuantity] = useState("")
   const [consumePurpose, setConsumePurpose] = useState("")
