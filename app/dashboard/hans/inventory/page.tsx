@@ -24,7 +24,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 import { ScannerButton } from "@/components/barcode-scanner"
+import { LabelPrintDialog } from "@/components/barcode-label-generator"
+import { BatchScanDialog } from "@/components/batch-scanner"
 import {
   Boxes,
   Plus,
@@ -37,6 +46,9 @@ import {
   ExternalLink,
   RefreshCw,
   ScanLine,
+  Printer,
+  ClipboardList,
+  ChevronDown,
 } from "lucide-react"
 
 const CATEGORIES = [
