@@ -180,30 +180,73 @@ export async function sendEmail(
   }
 }
 
-// Main notification dispatcher
+// Fetch user's notification preference from database
+async function getUserPreference(userId: string): Promise<{
+  preferredChannel: NotificationChannel
+  fallbackOrder: NotificationChannel[]
+  phoneNumber?: string
+  whatsappNumber?: string
+  email?: string
+} | null> {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/notifications/preferences?userId=${userId}`)
+    if (response.ok) {
+      const data = await response.json()
+      return data.preference
+    }
+  } catch (error) {
+    console.error('[NotificationService] Failed to fetch user preference:', error)
+  }
+  return null
+}
+
+// Main notification dispatcher with preference support
 export async function sendNotification(
   payload: NotificationPayload
 ): Promise<NotificationResult[]> {
   const results: NotificationResult[] = []
   const userPhone = USER_PHONES[payload.userId]
+  const userEmail = USER_EMAILS[payload.userId] || `${payload.userId}@houseofv.com`
 
-  for (const channel of payload.channels) {
+  // Get user preference if requested
+  let channels = payload.channels
+  let preference = null
+  
+  if (payload.usePreference) {
+    preference = await getUserPreference(payload.userId)
+    if (preference && preference.preferredChannel) {
+      // Use preferred channel first, then fallbacks
+      channels = [preference.preferredChannel, ...(preference.fallbackOrder || []).filter(c => c !== preference.preferredChannel)]
+    }
+  }
+
+  for (const channel of channels) {
     let result: NotificationResult
 
     switch (channel) {
       case 'sms':
-        if (userPhone) {
-          const smsResult = await sendSMS(userPhone, `${payload.title}\n${payload.message}`)
+        const phoneForSms = preference?.phoneNumber || userPhone
+        if (phoneForSms) {
+          const smsResult = await sendSMS(phoneForSms, `${payload.title}\n${payload.message}`)
           result = { channel: 'sms', ...smsResult }
         } else {
           result = { channel: 'sms', success: false, error: 'No phone number for user' }
         }
         break
 
+      case 'whatsapp':
+        const phoneForWa = preference?.whatsappNumber || preference?.phoneNumber || userPhone
+        if (phoneForWa) {
+          const waResult = await sendWhatsApp(phoneForWa, `*${payload.title}*\n${payload.message}`)
+          result = { channel: 'whatsapp', ...waResult }
+        } else {
+          result = { channel: 'whatsapp', success: false, error: 'No WhatsApp number for user' }
+        }
+        break
+
       case 'email':
-        // In production, fetch user email from database
-        const userEmail = `${payload.userId}@houseofv.com`
-        const emailResult = await sendEmail(userEmail, payload.title, payload.message)
+        const emailForUser = preference?.email || userEmail
+        const emailResult = await sendEmail(emailForUser, payload.title, payload.message)
         result = { channel: 'email', ...emailResult }
         break
 
@@ -223,9 +266,58 @@ export async function sendNotification(
     }
 
     results.push(result)
+
+    // If using preferences and first channel succeeds, don't try fallbacks
+    if (payload.usePreference && result.success && !result.error) {
+      break
+    }
   }
 
   return results
+}
+
+// Send notification with automatic fallback on failure
+export async function sendNotificationWithFallback(
+  payload: NotificationPayload
+): Promise<{
+  results: NotificationResult[]
+  deliveryStatus: DeliveryStatus
+  fallbackSuggestion?: {
+    message: string
+    options: NotificationChannel[]
+  }
+}> {
+  const results = await sendNotification({ ...payload, usePreference: true })
+  
+  // Check if primary delivery succeeded
+  const primaryResult = results[0]
+  const success = primaryResult?.success && !primaryResult?.error
+  
+  // Build delivery status
+  const deliveryStatus: DeliveryStatus = {
+    channel: primaryResult?.channel || payload.channels[0],
+    success,
+    error: primaryResult?.error,
+    suggestFallback: !success,
+  }
+
+  // If failed, suggest fallback options
+  let fallbackSuggestion
+  if (!success) {
+    const triedChannels = results.map(r => r.channel)
+    const remainingChannels = (['sms', 'whatsapp', 'email'] as NotificationChannel[])
+      .filter(c => !triedChannels.includes(c))
+    
+    if (remainingChannels.length > 0) {
+      fallbackSuggestion = {
+        message: `Didn't receive via ${primaryResult?.channel}? Try another option:`,
+        options: remainingChannels,
+      }
+      deliveryStatus.fallbackOptions = remainingChannels
+    }
+  }
+
+  return { results, deliveryStatus, fallbackSuggestion }
 }
 
 // Notification templates
