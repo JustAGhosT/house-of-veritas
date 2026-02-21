@@ -44,6 +44,11 @@ import {
   ChevronLeft,
   History,
   XCircle,
+  Bell,
+  MessageSquare,
+  Mail,
+  Smartphone,
+  Settings,
 } from "lucide-react"
 
 interface KioskUser {
