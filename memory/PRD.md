@@ -518,9 +518,8 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Advanced AI Analytics (trend analysis, anomaly detection)
 - Online Store Integration (Cashbuild, Builders) for order lists
 - Asset photo gallery with Azure Blob Storage
-- Employee notification when request is approved/rejected
-- Request history view for employees in kiosk
-- Persistent database for kiosk requests (MongoDB)
+- Configure Twilio for real SMS notification delivery
+- MongoDB Atlas for production deployment
 
 ---
 
