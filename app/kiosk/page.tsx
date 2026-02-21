@@ -1235,6 +1235,109 @@ export default function KioskPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Notification Preferences Dialog */}
+      <Dialog open={showNotificationPrefs} onOpenChange={setShowNotificationPrefs}>
+        <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-blue-400" />
+              Notification Preferences
+            </DialogTitle>
+            <DialogDescription className="text-white/60">
+              Choose how you want to receive notifications when your requests are processed
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            {/* SMS Option */}
+            <button
+              onClick={() => saveNotificationPref("sms")}
+              disabled={loading}
+              className={`w-full p-4 rounded-xl border transition-all flex items-center gap-4 ${
+                notificationPref === "sms"
+                  ? "border-blue-500 bg-blue-500/10"
+                  : "border-white/10 hover:border-white/20 hover:bg-white/5"
+              }`}
+              data-testid="pref-sms"
+            >
+              <div className={`p-3 rounded-lg ${notificationPref === "sms" ? "bg-blue-500/20" : "bg-white/5"}`}>
+                <Smartphone className="h-6 w-6 text-blue-400" />
+              </div>
+              <div className="text-left flex-1">
+                <p className="text-white font-medium">SMS</p>
+                <p className="text-white/60 text-sm">Receive text messages</p>
+              </div>
+              {notificationPref === "sms" && (
+                <CheckCircle className="h-5 w-5 text-blue-400" />
+              )}
+            </button>
+
+            {/* WhatsApp Option */}
+            <button
+              onClick={() => saveNotificationPref("whatsapp")}
+              disabled={loading}
+              className={`w-full p-4 rounded-xl border transition-all flex items-center gap-4 ${
+                notificationPref === "whatsapp"
+                  ? "border-green-500 bg-green-500/10"
+                  : "border-white/10 hover:border-white/20 hover:bg-white/5"
+              }`}
+              data-testid="pref-whatsapp"
+            >
+              <div className={`p-3 rounded-lg ${notificationPref === "whatsapp" ? "bg-green-500/20" : "bg-white/5"}`}>
+                <MessageSquare className="h-6 w-6 text-green-400" />
+              </div>
+              <div className="text-left flex-1">
+                <p className="text-white font-medium">WhatsApp</p>
+                <p className="text-white/60 text-sm">Receive WhatsApp messages</p>
+              </div>
+              {notificationPref === "whatsapp" && (
+                <CheckCircle className="h-5 w-5 text-green-400" />
+              )}
+            </button>
+
+            {/* Email Option */}
+            <button
+              onClick={() => saveNotificationPref("email")}
+              disabled={loading}
+              className={`w-full p-4 rounded-xl border transition-all flex items-center gap-4 ${
+                notificationPref === "email"
+                  ? "border-purple-500 bg-purple-500/10"
+                  : "border-white/10 hover:border-white/20 hover:bg-white/5"
+              }`}
+              data-testid="pref-email"
+            >
+              <div className={`p-3 rounded-lg ${notificationPref === "email" ? "bg-purple-500/20" : "bg-white/5"}`}>
+                <Mail className="h-6 w-6 text-purple-400" />
+              </div>
+              <div className="text-left flex-1">
+                <p className="text-white font-medium">Email</p>
+                <p className="text-white/60 text-sm">Receive email notifications</p>
+              </div>
+              {notificationPref === "email" && (
+                <CheckCircle className="h-5 w-5 text-purple-400" />
+              )}
+            </button>
+          </div>
+          <div className="p-3 bg-white/5 rounded-lg text-sm text-white/60">
+            <p>If delivery fails, we&apos;ll automatically try the next option in order:</p>
+            <p className="mt-1 font-medium text-white/80">
+              {notificationPref === "sms" && "SMS → WhatsApp → Email"}
+              {notificationPref === "whatsapp" && "WhatsApp → SMS → Email"}
+              {notificationPref === "email" && "Email → SMS → WhatsApp"}
+            </p>
+          </div>
+          <DialogFooter className="mt-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowNotificationPrefs(false)}
+              className="w-full border-white/10"
+              disabled={loading}
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Done"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
