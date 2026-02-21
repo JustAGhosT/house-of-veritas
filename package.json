@@ -48,6 +48,7 @@
     "date-fns": "^4.1.0",
     "embla-carousel-react": "8.5.1",
     "framer-motion": "12.24.5",
+    "html5-qrcode": "^2.3.8",
     "input-otp": "1.4.1",
     "jspdf": "^4.2.0",
     "jspdf-autotable": "^5.0.7",
