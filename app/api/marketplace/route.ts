@@ -1,6 +1,52 @@
 import { NextResponse } from 'next/server'
+import { MarketplaceService, MarketplaceListing as ServiceListing } from '@/lib/services/marketplace-service'
 
-// Marketplace platforms
+// Initialize marketplace service with environment configs
+const marketplaceConfigs = [
+  {
+    platform: 'gumtree',
+    enabled: true,
+    credentials: process.env.GUMTREE_USERNAME ? {
+      username: process.env.GUMTREE_USERNAME,
+      password: process.env.GUMTREE_PASSWORD,
+    } : undefined,
+  },
+  {
+    platform: 'facebook',
+    enabled: !!process.env.FACEBOOK_ACCESS_TOKEN,
+    credentials: process.env.FACEBOOK_ACCESS_TOKEN ? {
+      accessToken: process.env.FACEBOOK_ACCESS_TOKEN,
+    } : undefined,
+    settings: {
+      pageId: process.env.FACEBOOK_PAGE_ID,
+    },
+  },
+  {
+    platform: 'olx',
+    enabled: true,
+  },
+  {
+    platform: 'bidorbuy',
+    enabled: !!process.env.BIDORBUY_API_KEY,
+    credentials: process.env.BIDORBUY_API_KEY ? {
+      apiKey: process.env.BIDORBUY_API_KEY,
+    } : undefined,
+  },
+  {
+    platform: 'autotrader',
+    enabled: !!process.env.AUTOTRADER_DEALER_ID,
+    credentials: process.env.AUTOTRADER_API_KEY ? {
+      apiKey: process.env.AUTOTRADER_API_KEY,
+    } : undefined,
+    settings: {
+      dealerId: process.env.AUTOTRADER_DEALER_ID,
+    },
+  },
+]
+
+const marketplaceService = new MarketplaceService(marketplaceConfigs)
+
+// Marketplace platforms (for UI display)
 const MARKETPLACE_PLATFORMS = {
   gumtree: {
     name: 'Gumtree',
@@ -8,6 +54,7 @@ const MARKETPLACE_PLATFORMS = {
     postUrl: 'https://www.gumtree.co.za/post',
     icon: '🟢',
     categories: ['vehicles', 'electronics', 'furniture', 'tools'],
+    hasApi: false,
   },
   facebook: {
     name: 'Facebook Marketplace',
@@ -15,6 +62,8 @@ const MARKETPLACE_PLATFORMS = {
     postUrl: 'https://www.facebook.com/marketplace/create',
     icon: '🔵',
     categories: ['all'],
+    hasApi: true,
+    configured: !!process.env.FACEBOOK_ACCESS_TOKEN,
   },
   olx: {
     name: 'OLX',
@@ -22,6 +71,7 @@ const MARKETPLACE_PLATFORMS = {
     postUrl: 'https://www.olx.co.za/post',
     icon: '🟡',
     categories: ['vehicles', 'electronics', 'furniture'],
+    hasApi: false,
   },
   bidorbuy: {
     name: 'BidOrBuy',
@@ -30,6 +80,8 @@ const MARKETPLACE_PLATFORMS = {
     icon: '🔴',
     categories: ['all'],
     supportsAuction: true,
+    hasApi: true,
+    configured: !!process.env.BIDORBUY_API_KEY,
   },
   autotrader: {
     name: 'AutoTrader',
@@ -37,6 +89,8 @@ const MARKETPLACE_PLATFORMS = {
     postUrl: 'https://www.autotrader.co.za/sell',
     icon: '🚗',
     categories: ['vehicles'],
+    hasApi: true,
+    configured: !!process.env.AUTOTRADER_DEALER_ID,
   },
 }
 
