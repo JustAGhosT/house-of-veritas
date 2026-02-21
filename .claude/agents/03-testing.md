@@ -4,7 +4,7 @@
 Specialized agent for evaluating test coverage, test quality, and testing infrastructure. Identifies untested code paths and recommends test strategies.
 
 ## Scope
-```
+```text
 tests/**/*
 vitest.config.ts
 playwright.config.ts
@@ -51,7 +51,7 @@ components/**/*.tsx (components)
 - [ ] Login flow for each user persona
 - [ ] Dashboard access control (non-admin can't see other dashboards)
 - [ ] API authentication enforcement
-- [ ] Rate limiting behavior
+- [ ] Rate-limiting behavior
 
 ### Test Quality
 - [ ] Tests are independent (no shared mutable state)

@@ -7,13 +7,13 @@ Focused security scan of the entire codebase.
 Read `.claude/rules/security.md` for the security standards, then:
 
 1. **Secrets scan**: Search for hardcoded API keys, passwords, tokens, connection strings
-   - Scan `lib/`, `app/`, `config/`, `terraform/` for patterns like `password =`, `secret =`, `token =`, `apiKey =`
+   - Scan `lib/`, `app/`, `config/`, `terraform/`, `.env*` for patterns like `password =`, `secret =`, `token =`, `apiKey =`, `PASSWORD=`, `SECRET_KEY=`, `API_TOKEN=`
    - Check `.env.example` documents all required secrets
    - Verify no `.env.local` or `.tfvars` files are committed
 
 2. **Auth coverage**: Verify every non-public API route has auth checks
    - List all routes in `app/api/`
-   - Cross-reference with `PUBLIC_PATHS` in `middleware.ts`
+   - Check `middleware.ts` (or `proxy.ts` if migrated to Next.js 16) for public path definitions
    - Flag any route missing `withAuth()`, `withRole()`, or `getAuthContext()` check
 
 3. **Input validation**: Check all POST/PUT/PATCH routes validate request bodies

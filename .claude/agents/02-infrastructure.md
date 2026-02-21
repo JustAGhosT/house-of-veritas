@@ -4,7 +4,7 @@
 Specialized agent for auditing Terraform IaC, Azure resource configuration, network security, and infrastructure best practices.
 
 ## Scope
-```
+```text
 terraform/modules/*/
 terraform/environments/production/
 docs/02-architecture/03-infrastructure.md

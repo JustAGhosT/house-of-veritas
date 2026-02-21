@@ -29,17 +29,17 @@ npx tsc --noEmit          # Type check
 
 ## Architecture
 
-```
+```text
 app/                      # Next.js pages and API routes
-  api/                    # 44 API endpoints
-  dashboard/              # Per-user dashboards (hans, charl, lucky, irma)
+  api/                    # API endpoints
+  dashboard/              # Per-user dashboards (admin, operator-1, operator-2, resident)
   login/, kiosk/          # Public pages
 lib/                      # Shared libraries
   auth/                   # JWT, RBAC, rate limiting
   services/               # Baserow, DocuSeal, notifications, marketplace
-components/               # React components (89 files)
-config/azure-functions/   # 8 Python Azure Functions
-terraform/                # IaC (11 modules)
+components/               # React components
+config/azure-functions/   # Python Azure Functions
+terraform/                # IaC modules
 tests/                    # Unit (Vitest) + E2E (Playwright)
 .claude/                  # Agent system, hooks, rules, state
 ```

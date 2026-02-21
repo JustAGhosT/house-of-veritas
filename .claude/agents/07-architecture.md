@@ -4,7 +4,7 @@
 Specialized agent for evaluating the overall system architecture, dependency graph, integration patterns, and scalability posture.
 
 ## Scope
-```
+```text
 (entire codebase - top-level view)
 app/
 lib/

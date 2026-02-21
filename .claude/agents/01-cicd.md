@@ -4,10 +4,10 @@
 Specialized agent for auditing and improving the CI/CD pipeline. Evaluates GitHub Actions workflows, deployment reliability, secret management, and pipeline efficiency.
 
 ## Scope
-```
+```text
 .github/workflows/*.yml
-.env.example
-.env.local (gitignored)
+.env.example (verify it covers all required secrets)
+
 terraform/environments/production/backend.hcl
 docs/03-deployment/03-ci-cd-workflows.md
 ```

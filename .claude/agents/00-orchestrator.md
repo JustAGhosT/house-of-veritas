@@ -77,6 +77,6 @@ Write the master report to `.claude/reports/orchestrator-summary.md` with:
 
 ## Execution Command
 To run the full assessment:
-```
+```text
 Read each agent definition -> Execute assessment -> Collect reports -> Synthesize
 ```

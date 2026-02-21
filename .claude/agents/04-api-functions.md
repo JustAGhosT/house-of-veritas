@@ -4,7 +4,7 @@
 Specialized agent for auditing Next.js API routes and Azure Functions. Evaluates endpoint design, error handling, input validation, and function completeness.
 
 ## Scope
-```
+```text
 app/api/**/route.ts
 config/azure-functions/*/
 config/azure-functions/shared/

@@ -4,14 +4,14 @@
 Specialized agent that traces each business feature vertically through the entire stack (UI -> API -> Service -> Database -> Infrastructure -> CI/CD -> Tests) to identify gaps where a feature is implemented in one layer but missing in another.
 
 ## Scope
-```
+```text
 (entire codebase, cross-cutting)
 ```
 
 ## Method
 For each feature, verify presence at EVERY layer:
 
-```
+```text
 ┌─────────────────┐
 │   UI Component   │  - Page, form, button, display
 ├─────────────────┤
@@ -34,6 +34,7 @@ For each feature, verify presence at EVERY layer:
 ## Features to Trace
 
 ### 1. User Authentication
+
 | Layer | Expected | Status |
 |-------|----------|--------|
 | UI | Login page, logout button, session indicator | |
@@ -44,6 +45,7 @@ For each feature, verify presence at EVERY layer:
 | Tests | Unit (jwt, users, rbac), E2E (login flow) | |
 
 ### 2. Kiosk Request Submission
+
 | Layer | Expected | Status |
 |-------|----------|--------|
 | UI | Kiosk page with request form | |
@@ -54,6 +56,7 @@ For each feature, verify presence at EVERY layer:
 | Tests | Unit + E2E | |
 
 ### 3. Task Management
+
 | Layer | Expected | Status |
 |-------|----------|--------|
 | UI | Task list, create/edit/complete | |
@@ -63,6 +66,7 @@ For each feature, verify presence at EVERY layer:
 | Tests | Unit + E2E | |
 
 ### 4. Document Management
+
 | Layer | Expected | Status |
 |-------|----------|--------|
 | UI | Document list, upload, sign | |
@@ -75,6 +79,7 @@ For each feature, verify presence at EVERY layer:
 | Tests | Unit + E2E | |
 
 ### 5. Time & Attendance
+
 | Layer | Expected | Status |
 |-------|----------|--------|
 | UI | Clock in/out, timesheet view | |
@@ -84,6 +89,7 @@ For each feature, verify presence at EVERY layer:
 | Tests | Unit + E2E | |
 
 ### 6. Expense Management
+
 | Layer | Expected | Status |
 |-------|----------|--------|
 | UI | Expense list, submit, approve | |
@@ -94,6 +100,7 @@ For each feature, verify presence at EVERY layer:
 | Tests | Unit + E2E | |
 
 ### 7. Payroll
+
 | Layer | Expected | Status |
 |-------|----------|--------|
 | UI | Payroll dashboard, pay stubs | |
@@ -103,6 +110,7 @@ For each feature, verify presence at EVERY layer:
 | Tests | Unit + E2E | |
 
 ### 8. Reporting
+
 | Layer | Expected | Status |
 |-------|----------|--------|
 | UI | Report selection, view, export | |
@@ -112,6 +120,7 @@ For each feature, verify presence at EVERY layer:
 | Tests | Unit + E2E | |
 
 ### 9. Notifications (SMS/Email)
+
 | Layer | Expected | Status |
 |-------|----------|--------|
 | UI | Notification preferences, history | |
@@ -122,6 +131,7 @@ For each feature, verify presence at EVERY layer:
 | Tests | Unit (mocked) | |
 
 ### 10. Audit Trail
+
 | Layer | Expected | Status |
 |-------|----------|--------|
 | UI | Audit log viewer (admin) | |
@@ -132,6 +142,7 @@ For each feature, verify presence at EVERY layer:
 | Tests | Unit + E2E | |
 
 ### 11. Health & Monitoring
+
 | Layer | Expected | Status |
 |-------|----------|--------|
 | UI | Connection status banner | |

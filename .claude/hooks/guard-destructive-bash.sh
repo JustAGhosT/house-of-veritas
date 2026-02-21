@@ -22,10 +22,11 @@ if [ -z "$COMMAND" ]; then
 fi
 
 # Strip heredoc content to avoid false positives in commit messages
-COMMAND_STRIPPED=$(echo "$COMMAND" | sed '/<<.*EOF/,/^EOF[[:space:]]*$/d; /<<.*HEREDOC/,/^HEREDOC[[:space:]]*$/d')
+COMMAND_STRIPPED=$(echo "$COMMAND" | sed '/<<[-]*['"'"'"]*[A-Za-z_]*['"'"'"]*$/,/^[A-Za-z_]*[[:space:]]*$/d')
 
 BLOCKED_PATTERNS=(
     "git push --force"
+    "git push --force-with-lease"
     "git push -f"
     "git reset --hard"
     "git clean -f"
@@ -49,8 +50,8 @@ for pattern in "${BLOCKED_PATTERNS[@]}"; do
     fi
 done
 
-if [[ "$COMMAND_STRIPPED" == *"rm -rf /"* ]] || [[ "$COMMAND_STRIPPED" == *"rm -rf ~"* ]]; then
-    echo "BLOCKED: Cannot rm -rf outside the project directory." >&2
+if [[ "$COMMAND_STRIPPED" =~ rm[[:space:]]+-[rRfF]{2,}[[:space:]]+[/~] ]]; then
+    echo "BLOCKED: Cannot rm -rf (or equivalent) outside the project directory." >&2
     exit 2
 fi
 

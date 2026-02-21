@@ -5,28 +5,33 @@ Multi-agent assessment framework with lifecycle hooks, persistent state, and dom
 ## Quick Start
 
 ### Run a Single Assessment
-```
+
+```text
 Read .claude/commands/assess-cicd.md and follow the instructions
 ```
 
 ### Run Full Team Assessment
-```
+
+```text
 Read .claude/commands/assess-all.md and follow the instructions
 ```
 
 ### Quick Health Check
-```
+
+```text
 Read .claude/commands/healthcheck.md and follow the instructions
 ```
 
 ### Fix Top Issues
-```
+
+```text
 Read .claude/commands/fix.md and follow the instructions
 ```
 
 ## Available Commands
 
 ### Assessment Commands
+
 | Command | Description |
 |---------|-------------|
 | `assess-all` | Run all 10 agents, synthesize into prioritized report |
@@ -42,6 +47,7 @@ Read .claude/commands/fix.md and follow the instructions
 | `assess-vertical` | Trace features across the full stack |
 
 ### Operational Commands
+
 | Command | Description |
 |---------|-------------|
 | `healthcheck` | Quick project health snapshot (types, lint, tests, git) |
@@ -53,7 +59,7 @@ Read .claude/commands/fix.md and follow the instructions
 
 ## Directory Structure
 
-```
+```text
 .claude/
 ├── agents/               # Agent definitions (role, scope, checklist)
 │   ├── 00-orchestrator.md

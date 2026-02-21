@@ -2,7 +2,7 @@
 # PostToolUse hook: After file edits, warn about uncommitted changes.
 # Non-blocking — informational only (always exits 0).
 
-cd "$CLAUDE_PROJECT_DIR" 2>/dev/null || exit 0
+[ -n "${CLAUDE_PROJECT_DIR:-}" ] && cd "$CLAUDE_PROJECT_DIR" 2>/dev/null || exit 0
 
 if ! command -v git &>/dev/null; then
     exit 0

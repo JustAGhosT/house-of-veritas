@@ -36,4 +36,4 @@ Review a pull request against project standards.
 - [ ] `terraform fmt` clean
 
 5. Write a review comment with findings using `gh pr comment`
-6. Suggest approval or request changes
+6. Use `gh pr review --approve` to approve or `gh pr review --request-changes` to request changes

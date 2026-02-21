@@ -4,7 +4,7 @@
 Specialized agent for auditing the frontend: React components, pages, layouts, styling, accessibility, and UX patterns.
 
 ## Scope
-```
+```text
 app/**/page.tsx
 app/**/layout.tsx
 components/**/*.tsx

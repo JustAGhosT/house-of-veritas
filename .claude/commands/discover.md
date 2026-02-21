@@ -10,10 +10,10 @@ Scan the codebase to build a comprehensive snapshot of the current project state
    - TypeScript errors: `npx tsc --noEmit 2>&1 | grep -c "error TS"`
    - Lint errors: `npm run lint 2>&1 | grep -c "error"`
    - Test results: `npm test -- --run 2>&1` (extract pass/fail counts)
-   - TODO count: `grep -r "TODO" --include="*.ts" --include="*.tsx" -l | wc -l`
-   - FIXME count: `grep -r "FIXME" --include="*.ts" --include="*.tsx" -l | wc -l`
-   - Console.log count: `grep -r "console\." --include="*.ts" --include="*.tsx" -c`
-   - `any` type count: `grep -r ": any" --include="*.ts" --include="*.tsx" -c`
+   - TODO count: `grep -r -c "TODO" --include="*.ts" --include="*.tsx" | awk -F: '{s+=$NF}END{print s}'`
+   - FIXME count: `grep -r -c "FIXME" --include="*.ts" --include="*.tsx" | awk -F: '{s+=$NF}END{print s}'`
+   - Console.log count: `grep -r "console\." --include="*.ts" --include="*.tsx" | wc -l`
+   - `any` type count: `grep -r ": any" --include="*.ts" --include="*.tsx" | wc -l`
    - API routes: count directories in `app/api/`
    - Components: count `.tsx` files in `components/`
    - Test files: count files in `tests/`

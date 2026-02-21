@@ -78,6 +78,9 @@
       "Bash(rm -rf /)",
       "Bash(rm -rf ~*)",
       "Bash(rm -rf *)",
+      "Bash(rm -r -f *)",
+      "Bash(rm -fr *)",
+      "Bash(rm --recursive --force *)",
       "Bash(git push --force*)",
       "Bash(git push -f *)",
       "Bash(git reset --hard*)",
@@ -163,7 +166,6 @@
   },
 
   "env": {
-    "NODE_ENV": "development",
     "NEXT_TELEMETRY_DISABLED": "1"
   }
 }

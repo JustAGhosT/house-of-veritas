@@ -23,6 +23,6 @@ Rules for TypeScript code in HouseOfVeritas.
 
 ## Patterns
 - Use the structured logger (`lib/logger.ts`) — never `console.log/error/warn`
-- Use `toDateString()` utility for date formatting instead of inline `.toISOString().split("T")[0]`
+- Use `toISODateString()` utility for date formatting instead of inline `.toISOString().split("T")[0]`
 - Use integer cents for monetary values, not floating-point numbers
 - External service calls must include `AbortSignal.timeout()` for timeout protection

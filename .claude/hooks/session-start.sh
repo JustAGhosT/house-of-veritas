@@ -34,31 +34,33 @@ if [ ! -d "node_modules" ]; then
     npm ci --silent 2>&1 || echo "WARNING: npm ci failed. Run 'npm install' manually."
 fi
 
-# Quick build check
-echo "Type-checking..."
-BUILD_OUTPUT=$(npx tsc --noEmit 2>&1 || true)
-ERROR_COUNT=$(echo "$BUILD_OUTPUT" | grep -c "error TS" || true)
-if [ "$ERROR_COUNT" = "0" ]; then
-    echo "TypeScript: PASSED"
-else
-    echo "TypeScript: $ERROR_COUNT errors (check with npx tsc --noEmit)"
-fi
+# Heavy checks are opt-in via CLAUDE_FULL_CHECK=1
+if [ "${CLAUDE_FULL_CHECK:-0}" = "1" ]; then
+    echo "Type-checking..."
+    BUILD_OUTPUT=$(npx tsc --noEmit 2>&1 || true)
+    ERROR_COUNT=$(echo "$BUILD_OUTPUT" | grep -c "error TS" || true)
+    if [ "$ERROR_COUNT" = "0" ]; then
+        echo "TypeScript: PASSED"
+    else
+        echo "TypeScript: $ERROR_COUNT errors (check with npx tsc --noEmit)"
+    fi
 
-# Lint check
-LINT_OUTPUT=$(npm run lint 2>&1 || true)
-if echo "$LINT_OUTPUT" | grep -q "error"; then
-    echo "Lint: HAS ERRORS"
-else
-    echo "Lint: PASSED"
-fi
+    LINT_OUTPUT=$(npm run lint 2>&1 || true)
+    if echo "$LINT_OUTPUT" | grep -q "error"; then
+        echo "Lint: HAS ERRORS"
+    else
+        echo "Lint: PASSED"
+    fi
 
-# Test status
-TEST_OUTPUT=$(npm test -- --run 2>&1 || true)
-if echo "$TEST_OUTPUT" | grep -q "Tests.*passed"; then
-    PASS_COUNT=$(echo "$TEST_OUTPUT" | grep -oE '[0-9]+ passed' | head -1 || echo "?")
-    echo "Tests: $PASS_COUNT"
+    TEST_OUTPUT=$(npm test -- --run 2>&1 || true)
+    if echo "$TEST_OUTPUT" | grep -q "Tests.*passed"; then
+        PASS_COUNT=$(echo "$TEST_OUTPUT" | grep -oE '[0-9]+ passed' | head -1 || echo "?")
+        echo "Tests: $PASS_COUNT"
+    else
+        echo "Tests: CHECK NEEDED"
+    fi
 else
-    echo "Tests: CHECK NEEDED"
+    echo "Skipping heavy checks (set CLAUDE_FULL_CHECK=1 to enable)"
 fi
 
 # Git status summary
@@ -68,8 +70,16 @@ echo "Git: branch=$BRANCH, uncommitted=$CHANGED"
 
 # Load orchestrator state if it exists
 if [ -f ".claude/state/orchestrator.json" ]; then
-    LAST_PHASE=$(cat .claude/state/orchestrator.json | grep -oP '"last_phase_completed":\s*\K[0-9]+' 2>/dev/null || echo "?")
-    NEXT_ACTION=$(cat .claude/state/orchestrator.json | grep -oP '"next_action":\s*"\K[^"]+' 2>/dev/null || echo "none")
+    if command -v jq &>/dev/null; then
+        LAST_PHASE=$(jq -r '.last_phase_completed // "?"' .claude/state/orchestrator.json 2>/dev/null || echo "?")
+        NEXT_ACTION=$(jq -r '.next_action // "none"' .claude/state/orchestrator.json 2>/dev/null || echo "none")
+    elif command -v python3 &>/dev/null; then
+        LAST_PHASE=$(python3 -c "import json; d=json.load(open('.claude/state/orchestrator.json')); print(d.get('last_phase_completed','?'))" 2>/dev/null || echo "?")
+        NEXT_ACTION=$(python3 -c "import json; d=json.load(open('.claude/state/orchestrator.json')); print(d.get('next_action','none'))" 2>/dev/null || echo "none")
+    else
+        LAST_PHASE="?"
+        NEXT_ACTION="none"
+    fi
     echo "Orchestrator: phase=$LAST_PHASE, next=$NEXT_ACTION"
 fi
 

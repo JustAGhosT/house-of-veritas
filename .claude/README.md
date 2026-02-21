@@ -4,7 +4,7 @@ Multi-agent assessment framework with lifecycle hooks, persistent state, and dom
 
 ## Architecture
 
-```
+```text
 ┌──────────────────────────────────────────────────────────┐
 │                    LIFECYCLE HOOKS                        │
 │  SessionStart → PreToolUse → PostToolUse → Stop          │

@@ -39,6 +39,7 @@ Agents responsible for system-wide concerns.
 | 10 - Vertical Features | Cross-stack feature completeness | `assess-vertical` |
 
 ### Orchestrator
+
 | Agent | Focus | Command |
 |-------|-------|---------|
 | 00 - Orchestrator | Dispatches all agents, synthesizes | `assess-all` |

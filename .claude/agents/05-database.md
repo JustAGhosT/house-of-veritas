@@ -1,10 +1,10 @@
 # Database Layer Agent
 
 ## Role
-Specialized agent for auditing the data layer including Baserow integration, Azure Storage, PostgreSQL configuration, and data modeling.
+Specialized agent for auditing the data layer including Baserow integration, DocuSeal integration, Azure Storage, PostgreSQL configuration, and data modeling.
 
 ## Scope
-```
+```text
 lib/services/baserow.ts
 lib/services/docuseal.ts
 lib/users.ts

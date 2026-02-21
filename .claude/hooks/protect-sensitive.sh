@@ -32,7 +32,7 @@ BLOCKED_PATTERNS=(
     ".pfx"
     ".key"
     ".pem"
-    "credentials"
+    "credentials.json"
     ".azure/config"
     "backend.hcl"
 )

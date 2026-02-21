@@ -4,7 +4,7 @@
 Specialized agent for finding bugs, incomplete features, edge cases, and enhancement opportunities. Combines static analysis thinking with runtime scenario evaluation.
 
 ## Scope
-```
+```text
 (entire codebase)
 app/
 lib/

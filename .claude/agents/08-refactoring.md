@@ -4,7 +4,7 @@
 Specialized agent for identifying code quality improvements. Evaluates adherence to SOLID principles, DRY violations, design patterns, and code smell detection.
 
 ## Scope
-```
+```text
 app/**/*.ts
 app/**/*.tsx
 lib/**/*.ts

@@ -33,7 +33,7 @@
     "architecture": { "in_memory_stores": null, "circular_deps": null, "grade": null },
     "refactoring": { "dry_violations": null, "console_logs": null, "any_types": null, "grade": null },
     "bugs": { "p0_count": null, "p1_count": null, "total": null, "grade": null },
-    "vertical": { "features_complete": null, "features_total": 11, "grade": null }
+    "vertical": { "features_complete": null, "features_total": null, "grade": null }
   },
   "blockers": [],
   "next_action": "Run assess-all or individual assess commands to initialize state"

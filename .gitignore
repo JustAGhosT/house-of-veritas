@@ -38,8 +38,8 @@ azure-credentials.json
 *.tfstate.*
 .terraform/
 tfplan
-crash.log
+terraform/crash.log
 
 # Claude agent reports and state (generated)
 .claude/reports/
-.claude/state/orchestrator.json
+.claude/state/*.json
