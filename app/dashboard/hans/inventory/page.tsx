@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ScannerButton } from "@/components/barcode-scanner"
 import {
   Boxes,
   Plus,
@@ -35,6 +36,7 @@ import {
   ArrowUp,
   ExternalLink,
   RefreshCw,
+  ScanLine,
 } from "lucide-react"
 
 const CATEGORIES = [
