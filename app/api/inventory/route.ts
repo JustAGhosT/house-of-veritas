@@ -124,6 +124,7 @@ let inventory: InventoryItem[] = [
     location: 'Fuel Store',
     unitCost: 23.50,
     totalValue: 1057.50,
+    barcode: '6001234567892',
     consumptionHistory: [
       { date: '2026-02-19', quantity: 35, usedBy: 'charl', purpose: 'Generator & Tractor' },
     ],
@@ -143,6 +144,7 @@ let inventory: InventoryItem[] = [
     supplier: 'Stodels',
     unitCost: 195.00,
     totalValue: 780.00,
+    barcode: '6001234567893',
     consumptionHistory: [],
   },
   {
@@ -160,6 +162,7 @@ let inventory: InventoryItem[] = [
     supplier: 'Makro',
     unitCost: 125.00,
     totalValue: 375.00,
+    barcode: '6001234567894',
     consumptionHistory: [
       { date: '2026-02-17', quantity: 1, usedBy: 'irma', purpose: 'Weekly cleaning' },
     ],
@@ -168,6 +171,7 @@ let inventory: InventoryItem[] = [
     id: 'inv_006',
     name: 'Paint - White 20L',
     category: 'building_materials',
+    barcode: '6001234567895',
     unit: 'buckets',
     currentStock: 1,
     minStock: 2,
