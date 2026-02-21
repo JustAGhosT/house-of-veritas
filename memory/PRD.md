@@ -322,6 +322,17 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Restock functionality with cost updates
 - Shopping list generation with store links
 - Import from OCR feature
+- **Barcode/QR code scanning** for quick item lookup
+
+#### Barcode Scanner
+- `/app/components/barcode-scanner.tsx` - Barcode/QR scanner component
+- Support for: QR Code, EAN-13, EAN-8, UPC-A, UPC-E, Code 128, Code 39
+- Camera-based scanning with torch support
+- Scan modes: Lookup, Consume, Restock
+- Real-time item lookup by barcode
+- Haptic feedback on successful scan
+- Barcode displayed in inventory table rows
+- Uses `html5-qrcode` library
 
 #### OCR Document Scanner
 - `/app/app/api/ocr/route.ts` - OCR processing API
