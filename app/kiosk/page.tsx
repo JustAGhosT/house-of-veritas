@@ -587,11 +587,21 @@ export default function KioskPage() {
         {/* Report Issue */}
         <Button
           data-testid="kiosk-report-issue-btn"
-          className="h-32 sm:h-36 flex flex-col gap-2 text-base sm:text-lg bg-rose-600 hover:bg-rose-700 col-span-2 sm:col-span-1"
+          className="h-32 sm:h-36 flex flex-col gap-2 text-base sm:text-lg bg-rose-600 hover:bg-rose-700"
           onClick={() => setShowIssueReport(true)}
         >
           <Wrench className="h-10 w-10" />
           Report Issue
+        </Button>
+
+        {/* My Requests History */}
+        <Button
+          data-testid="kiosk-history-btn"
+          className="h-32 sm:h-36 flex flex-col gap-2 text-base sm:text-lg bg-indigo-600 hover:bg-indigo-700 col-span-2 sm:col-span-1"
+          onClick={openHistory}
+        >
+          <History className="h-10 w-10" />
+          My Requests
         </Button>
       </div>
 
