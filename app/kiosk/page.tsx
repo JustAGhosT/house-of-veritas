@@ -125,6 +125,7 @@ export default function KioskPage() {
   const [showAdvanceRequest, setShowAdvanceRequest] = useState(false)
   const [showIssueReport, setShowIssueReport] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
+  const [showNotificationPrefs, setShowNotificationPrefs] = useState(false)
   const [scannedItem, setScannedItem] = useState<ScannedItem | null>(null)
   const [actionType, setActionType] = useState<"consume" | "restock">("consume")
   const [quantity, setQuantity] = useState("1")
@@ -132,6 +133,7 @@ export default function KioskPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [actionSuccess, setActionSuccess] = useState(false)
   const [requestHistory, setRequestHistory] = useState<RequestHistory[]>([])
+  const [notificationPref, setNotificationPref] = useState<"sms" | "whatsapp" | "email">("sms")
   
   // Form states
   const [stockRequest, setStockRequest] = useState<StockRequest>({
