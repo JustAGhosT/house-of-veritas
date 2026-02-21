@@ -29,16 +29,34 @@ variable "database_server_id" {
   default     = ""
 }
 
+variable "enable_database_alerts" {
+  description = "Whether to create database metric alerts"
+  type        = bool
+  default     = false
+}
+
 variable "function_app_id" {
   description = "Function App resource ID for monitoring"
   type        = string
   default     = ""
 }
 
+variable "enable_function_alerts" {
+  description = "Whether to create function app metric alerts"
+  type        = bool
+  default     = false
+}
+
 variable "web_app_id" {
   description = "Web App resource ID for monitoring"
   type        = string
   default     = ""
+}
+
+variable "enable_webapp_alerts" {
+  description = "Whether to create web app metric alerts"
+  type        = bool
+  default     = false
 }
 
 variable "monthly_budget" {

@@ -22,7 +22,7 @@ resource "azurerm_monitor_action_group" "alerts" {
 }
 
 resource "azurerm_monitor_metric_alert" "db_cpu" {
-  count               = var.database_server_id != "" ? 1 : 0
+  count               = var.enable_database_alerts ? 1 : 0
   name                = "db-cpu-high"
   resource_group_name = var.resource_group_name
   scopes              = [var.database_server_id]
@@ -46,7 +46,7 @@ resource "azurerm_monitor_metric_alert" "db_cpu" {
 }
 
 resource "azurerm_monitor_metric_alert" "function_failures" {
-  count               = var.function_app_id != "" ? 1 : 0
+  count               = var.enable_function_alerts ? 1 : 0
   name                = "func-failures"
   resource_group_name = var.resource_group_name
   scopes              = [var.function_app_id]
@@ -70,7 +70,7 @@ resource "azurerm_monitor_metric_alert" "function_failures" {
 }
 
 resource "azurerm_monitor_metric_alert" "webapp_response_time" {
-  count               = var.web_app_id != "" ? 1 : 0
+  count               = var.enable_webapp_alerts ? 1 : 0
   name                = "webapp-slow-response"
   resource_group_name = var.resource_group_name
   scopes              = [var.web_app_id]
