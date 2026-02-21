@@ -1074,6 +1074,102 @@ export default function KioskPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Request History Dialog */}
+      <Dialog open={showHistory} onOpenChange={setShowHistory}>
+        <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <History className="h-5 w-5 text-indigo-400" />
+              My Requests
+            </DialogTitle>
+            <DialogDescription className="text-white/60">
+              Track the status of your submitted requests
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+            {requestHistory.length === 0 ? (
+              <div className="py-8 text-center text-white/40">
+                <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No requests submitted yet</p>
+                <p className="text-sm mt-1">Your stock orders, advance requests, and issue reports will appear here</p>
+              </div>
+            ) : (
+              requestHistory.map((request) => (
+                <Card key={request.id} className="bg-white/5 border-white/10">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div className={`p-2 rounded-lg ${
+                          request.type === "stock_order" ? "bg-blue-500/20" :
+                          request.type === "salary_advance" ? "bg-yellow-500/20" : "bg-rose-500/20"
+                        }`}>
+                          {request.type === "stock_order" ? (
+                            <ShoppingCart className="h-5 w-5 text-blue-400" />
+                          ) : request.type === "salary_advance" ? (
+                            <Banknote className="h-5 w-5 text-yellow-400" />
+                          ) : (
+                            <Wrench className="h-5 w-5 text-rose-400" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-white font-medium text-sm">
+                              {request.type === "stock_order" ? "Stock Order" :
+                               request.type === "salary_advance" ? "Salary Advance" : "Issue Report"}
+                            </span>
+                            <Badge className={`text-xs ${
+                              request.status === "pending" ? "bg-yellow-500" :
+                              request.status === "approved" ? "bg-green-500" :
+                              request.status === "rejected" ? "bg-red-500" : "bg-blue-500"
+                            }`}>
+                              {request.status === "pending" ? "Pending" :
+                               request.status === "approved" ? "Approved" :
+                               request.status === "rejected" ? "Rejected" : "Completed"}
+                            </Badge>
+                          </div>
+                          <p className="text-white/60 text-sm mt-1 line-clamp-1">
+                            {request.type === "stock_order" && `${request.data.quantity}x ${request.data.itemName}`}
+                            {request.type === "salary_advance" && `R ${request.data.amount?.toLocaleString()}`}
+                            {request.type === "issue_report" && `${request.data.assetName} - ${request.data.issueType}`}
+                          </p>
+                          <p className="text-white/40 text-xs mt-1">
+                            {new Date(request.timestamp).toLocaleDateString("en-ZA", {
+                              day: "numeric",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit"
+                            })}
+                          </p>
+                          {request.notes && request.status !== "pending" && (
+                            <div className={`mt-2 p-2 rounded text-xs ${
+                              request.status === "approved" ? "bg-green-500/10 text-green-300" : "bg-red-500/10 text-red-300"
+                            }`}>
+                              <span className="font-medium">
+                                {request.status === "approved" ? <CheckCircle className="h-3 w-3 inline mr-1" /> : <XCircle className="h-3 w-3 inline mr-1" />}
+                              </span>
+                              {request.notes}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowHistory(false)}
+              className="w-full border-white/10"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
