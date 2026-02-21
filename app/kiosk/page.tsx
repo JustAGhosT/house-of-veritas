@@ -6,13 +6,23 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Clock,
   Package,
@@ -26,6 +36,12 @@ import {
   ArrowUp,
   Loader2,
   Home,
+  ShoppingCart,
+  Banknote,
+  Wrench,
+  Check,
+  X,
+  ChevronLeft,
 } from "lucide-react"
 
 interface KioskUser {
@@ -51,6 +67,27 @@ interface Task {
   priority: string
   status: string
   dueDate?: string
+  description?: string
+}
+
+interface StockRequest {
+  itemName: string
+  quantity: number
+  urgency: "normal" | "urgent"
+  notes: string
+}
+
+interface AdvanceRequest {
+  amount: number
+  reason: string
+  repaymentPlan: string
+}
+
+interface IssueReport {
+  assetName: string
+  issueType: "broken" | "maintenance" | "safety" | "other"
+  description: string
+  location: string
 }
 
 export default function KioskPage() {
