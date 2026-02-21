@@ -97,17 +97,40 @@ export default function KioskPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [successMessage, setSuccessMessage] = useState("")
   
   // Modal states
   const [showScanner, setShowScanner] = useState(false)
   const [showTasks, setShowTasks] = useState(false)
   const [showItemAction, setShowItemAction] = useState(false)
+  const [showStockRequest, setShowStockRequest] = useState(false)
+  const [showAdvanceRequest, setShowAdvanceRequest] = useState(false)
+  const [showIssueReport, setShowIssueReport] = useState(false)
   const [scannedItem, setScannedItem] = useState<ScannedItem | null>(null)
   const [actionType, setActionType] = useState<"consume" | "restock">("consume")
   const [quantity, setQuantity] = useState("1")
   const [purpose, setPurpose] = useState("")
   const [tasks, setTasks] = useState<Task[]>([])
   const [actionSuccess, setActionSuccess] = useState(false)
+  
+  // Form states
+  const [stockRequest, setStockRequest] = useState<StockRequest>({
+    itemName: "",
+    quantity: 1,
+    urgency: "normal",
+    notes: "",
+  })
+  const [advanceRequest, setAdvanceRequest] = useState<AdvanceRequest>({
+    amount: 0,
+    reason: "",
+    repaymentPlan: "1month",
+  })
+  const [issueReport, setIssueReport] = useState<IssueReport>({
+    assetName: "",
+    issueType: "maintenance",
+    description: "",
+    location: "",
+  })
 
   // Update clock every second
   useEffect(() => {
