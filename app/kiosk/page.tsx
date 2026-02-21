@@ -258,6 +258,108 @@ export default function KioskPage() {
     setShowTasks(true)
   }
 
+  // Mark task as complete
+  const completeTask = async (taskId: string) => {
+    try {
+      await fetch("/api/tasks", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          taskId,
+          updates: { status: "completed" },
+        }),
+      })
+      fetchTasks() // Refresh tasks
+      showSuccess("Task marked as complete!")
+    } catch (err) {
+      console.error("Failed to complete task:", err)
+    }
+  }
+
+  // Submit stock request
+  const submitStockRequest = async () => {
+    if (!currentUser || !stockRequest.itemName) return
+    setLoading(true)
+    try {
+      await fetch("/api/kiosk/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "stock_order",
+          employeeId: currentUser.id,
+          employeeName: currentUser.name,
+          data: stockRequest,
+          timestamp: new Date().toISOString(),
+        }),
+      })
+      setShowStockRequest(false)
+      setStockRequest({ itemName: "", quantity: 1, urgency: "normal", notes: "" })
+      showSuccess("Stock request submitted!")
+    } catch (err) {
+      console.error("Failed to submit stock request:", err)
+      setError("Failed to submit request")
+    }
+    setLoading(false)
+  }
+
+  // Submit salary advance request
+  const submitAdvanceRequest = async () => {
+    if (!currentUser || advanceRequest.amount <= 0) return
+    setLoading(true)
+    try {
+      await fetch("/api/kiosk/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "salary_advance",
+          employeeId: currentUser.id,
+          employeeName: currentUser.name,
+          data: advanceRequest,
+          timestamp: new Date().toISOString(),
+        }),
+      })
+      setShowAdvanceRequest(false)
+      setAdvanceRequest({ amount: 0, reason: "", repaymentPlan: "1month" })
+      showSuccess("Advance request submitted for approval!")
+    } catch (err) {
+      console.error("Failed to submit advance request:", err)
+      setError("Failed to submit request")
+    }
+    setLoading(false)
+  }
+
+  // Submit issue report
+  const submitIssueReport = async () => {
+    if (!currentUser || !issueReport.assetName || !issueReport.description) return
+    setLoading(true)
+    try {
+      await fetch("/api/kiosk/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "issue_report",
+          employeeId: currentUser.id,
+          employeeName: currentUser.name,
+          data: issueReport,
+          timestamp: new Date().toISOString(),
+        }),
+      })
+      setShowIssueReport(false)
+      setIssueReport({ assetName: "", issueType: "maintenance", description: "", location: "" })
+      showSuccess("Issue reported successfully!")
+    } catch (err) {
+      console.error("Failed to submit issue report:", err)
+      setError("Failed to submit report")
+    }
+    setLoading(false)
+  }
+
+  // Show success message
+  const showSuccess = (message: string) => {
+    setSuccessMessage(message)
+    setTimeout(() => setSuccessMessage(""), 3000)
+  }
+
   // PIN Entry Screen
   if (!currentUser) {
     return (
