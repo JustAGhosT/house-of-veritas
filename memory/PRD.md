@@ -421,12 +421,12 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Scan Item** - Barcode scanning for inventory lookup
 - **Use Stock** - Quick consumption recording
 - **My Tasks** - View and complete assigned tasks
-- **Order Stock** - Submit stock order requests (NEW)
+- **Order Stock** - Submit stock order requests
   - Item name, quantity, urgency level, notes
-- **Ask Advance** - Request salary advance (NEW)
+- **Ask Advance** - Request salary advance
   - Amount, reason, repayment plan selection
   - Warning about management approval requirement
-- **Report Issue** - Report maintenance/broken items (NEW)
+- **Report Issue** - Report maintenance/broken items
   - Asset name, issue type (broken/maintenance/safety/other)
   - Location, detailed description
   - Safety hazard priority flagging
@@ -438,6 +438,30 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **PATCH** - Update request status (approve/reject)
 - Summary counts by type and status
 - **Mode:** MOCK (in-memory storage)
+
+### ✅ Phase 13: Manager Approval Workflow (COMPLETE - Feb 21, 2026)
+
+#### Approval Center Dashboard
+- `/app/app/dashboard/hans/approvals/page.tsx` - Manager approvals UI
+- Summary cards: Pending count, Stock Orders, Advances, Issues
+- Real-time "X pending" badge in header
+
+#### Approval Features
+- **Request List** - All pending requests with employee info, timestamps
+- **Filters** - By type (stock/advance/issue) and status (pending/approved/rejected)
+- **Search** - By employee name, item, or description
+- **View Details** - Full request information dialog
+- **Approve Workflow** - Confirmation dialog with optional notes
+- **Reject Workflow** - Confirmation dialog with required reason
+- **Visual Indicators**
+  - Yellow left border for pending requests
+  - Red "Safety" badge for safety hazards
+  - Red "Urgent" badge for urgent stock orders
+- **Auto-update** - List refreshes after approve/reject
+
+#### Navigation Update
+- Added "Approvals" to Hans's dashboard navigation (priority placement)
+- CheckSquare icon for approval center
 
 ---
 
