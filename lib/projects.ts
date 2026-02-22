@@ -62,9 +62,9 @@ export const DEFAULT_SUBPROJECTS: Record<string, { name: string; parentId: strin
     { name: "Paint House Internal", parentId: "house-revamp" },
     { name: "Paint House External", parentId: "house-revamp" },
   ],
-  "zeerust-farming": [
-    { name: "Perimeter Fencing", parentId: "zeerust-farming" },
-    { name: "Alarm System", parentId: "zeerust-farming" },
-    { name: "CCTV", parentId: "zeerust-farming" },
+  "zeerust-arming": [
+    { name: "Perimeter Fencing", parentId: "zeerust-arming" },
+    { name: "Alarm System", parentId: "zeerust-arming" },
+    { name: "CCTV", parentId: "zeerust-arming" },
   ],
 }

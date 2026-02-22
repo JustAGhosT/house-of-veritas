@@ -21,9 +21,17 @@ export function getAuthContext(request: Request): {
 
   if (!userId || !role || !email) return null
 
-  const responsibilities = responsibilitiesHeader
-    ? (JSON.parse(responsibilitiesHeader) as string[])
-    : getDefaultResponsibilities(role)
+  let responsibilities: string[]
+  if (responsibilitiesHeader) {
+    try {
+      const parsed = JSON.parse(responsibilitiesHeader)
+      responsibilities = Array.isArray(parsed) ? (parsed as string[]) : getDefaultResponsibilities(role)
+    } catch {
+      responsibilities = getDefaultResponsibilities(role)
+    }
+  } else {
+    responsibilities = getDefaultResponsibilities(role)
+  }
 
   return { userId, role, email, responsibilities }
 }

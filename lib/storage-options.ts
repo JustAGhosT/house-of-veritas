@@ -1,6 +1,5 @@
 import { readFile, writeFile, mkdir } from "fs/promises"
 import { join } from "path"
-import { logger } from "@/lib/logger"
 
 const STORAGE_OPTIONS_PATH = join(process.cwd(), "data", "storage-options.json")
 

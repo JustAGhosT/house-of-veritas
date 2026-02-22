@@ -11,12 +11,9 @@ const ONBOARDING_TEMPLATES_BY_ROLE: Record<string, string[]> = {
   resident: ["tpl_house_rules", "tpl_popia_consent"],
 }
 
-export async function GET(request: Request) {
-  const auth = request.headers.get("x-user-id")
-  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
+export const GET = withAuth(async (request, context) => {
   try {
-    const user = await getUserWithManagement(auth)
+    const user = await getUserWithManagement(context.userId)
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 })
 
     const templateIds = ONBOARDING_TEMPLATES_BY_ROLE[user.role] || ONBOARDING_TEMPLATES_BY_ROLE.resident
@@ -30,7 +27,7 @@ export async function GET(request: Request) {
   } catch (err) {
     return NextResponse.json({ error: "Failed to load documents" }, { status: 500 })
   }
-}
+})
 
 export const POST = withAuth(async (request, context) => {
   try {

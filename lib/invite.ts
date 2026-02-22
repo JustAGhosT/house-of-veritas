@@ -4,10 +4,19 @@ import { sendNotification } from "@/lib/services/notification-service"
 import { logger } from "@/lib/logger"
 
 const INVITE_EXPIRY_HOURS = 72
-const INVITE_SECRET = process.env.JWT_SECRET || "hov-dev-secret"
 
 function getSecret() {
-  return new TextEncoder().encode(INVITE_SECRET)
+  const secret = process.env.INVITE_JWT_SECRET || process.env.JWT_SECRET
+
+  if (!secret || !secret.trim()) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("Invite JWT secret is not configured. Set INVITE_JWT_SECRET or JWT_SECRET.")
+    }
+    // Development/test fallback
+    return new TextEncoder().encode("hov-dev-secret")
+  }
+
+  return new TextEncoder().encode(secret)
 }
 
 export async function createInviteToken(userId: string): Promise<string> {

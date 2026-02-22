@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { withAuth } from "@/lib/auth/rbac"
 import { updateUserProfileAsync } from "@/lib/users"
-import { readFile, mkdir, writeFile } from "fs/promises"
+import { mkdir, writeFile } from "fs/promises"
 import path from "path"
 import crypto from "crypto"
 import { existsSync } from "fs"
@@ -9,6 +9,12 @@ import { existsSync } from "fs"
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "profiles")
 const MAX_SIZE = 5 * 1024 * 1024
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+const MIME_TO_EXT: Record<string, string> = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+  "image/gif": ".gif",
+}
 
 function generateFilename(ext: string): string {
   return `profile-${Date.now()}-${crypto.randomBytes(8).toString("hex")}${ext}`
@@ -31,7 +37,7 @@ export const POST = withAuth(async (request, context) => {
       return NextResponse.json({ error: "File too large. Max 5MB." }, { status: 400 })
     }
 
-    const ext = path.extname(file.name) || ".jpg"
+    const ext = MIME_TO_EXT[file.type] ?? ".jpg"
     const filename = generateFilename(ext)
 
     if (!existsSync(UPLOAD_DIR)) {
