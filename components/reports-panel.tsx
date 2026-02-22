@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { 
   FileText, 
   Download, 
@@ -31,7 +31,7 @@ export function ReportsPanel() {
   const [loading, setLoading] = useState(false)
   const [dateRange, setDateRange] = useState({ start: '', end: '' })
 
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({ type: reportType })
@@ -46,7 +46,7 @@ export function ReportsPanel() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [reportType, dateRange])
 
   const downloadCSV = async () => {
     const params = new URLSearchParams({ type: reportType, format: 'csv' })
@@ -86,7 +86,7 @@ export function ReportsPanel() {
 
   useEffect(() => {
     fetchReport()
-  }, [reportType])
+  }, [fetchReport])
 
   const reportTypes = [
     { id: 'expenses', label: 'Expenses', icon: DollarSign, color: 'text-purple-400' },

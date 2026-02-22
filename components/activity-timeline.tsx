@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Clock,
   CheckCircle,
@@ -77,11 +77,7 @@ export function ActivityTimeline({
   const [filter, setFilter] = useState<AuditAction | ''>('')
   const [summary, setSummary] = useState<Record<string, number>>({})
 
-  useEffect(() => {
-    fetchLogs()
-  }, [userId, filter])
-
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({ limit: limit.toString() })
@@ -97,7 +93,11 @@ export function ActivityTimeline({
     } finally {
       setLoading(false)
     }
-  }
+  }, [limit, userId, filter])
+
+  useEffect(() => {
+    fetchLogs()
+  }, [fetchLogs])
 
   const downloadAuditLog = async () => {
     const params = new URLSearchParams({ format: 'csv' })

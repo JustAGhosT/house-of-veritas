@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, useInView } from "framer-motion"
-import { useRef, useEffect, useState } from "react"
+import { useRef, useEffect, useState, startTransition } from "react"
 import {
   FileSignature,
   DollarSign,
@@ -68,7 +68,7 @@ function BudgetChart() {
   const isInView = useInView(ref, { once: true })
 
   useEffect(() => {
-    if (isInView) setAnimated(true)
+    if (isInView) startTransition(() => setAnimated(true))
   }, [isInView])
 
   return (

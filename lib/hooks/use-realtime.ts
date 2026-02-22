@@ -118,7 +118,7 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
 
   useEffect(() => {
     connectRef.current = connect
-  })
+  }, [connect])
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
@@ -144,16 +144,24 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
 
   // Connect on mount, disconnect on unmount
   useEffect(() => {
-    connect()
+    connectRef.current()
     return () => {
-      disconnect()
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+      }
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close()
+        eventSourceRef.current = null
+      }
     }
   }, []) // Only run on mount/unmount
 
   // Reconnect if userId changes
   useEffect(() => {
     if (eventSourceRef.current) {
-      reconnect()
+      eventSourceRef.current.close()
+      eventSourceRef.current = null
+      connectRef.current()
     }
   }, [userId])
 

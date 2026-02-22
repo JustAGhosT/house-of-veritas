@@ -50,6 +50,7 @@ import {
 } from "lucide-react"
 import { AiSuggestIcon } from "@/components/ui/ai-suggest-icon"
 import { logger } from "@/lib/logger"
+import Image from "next/image"
 
 // Asset Categories
 const ASSET_CATEGORIES = {
@@ -684,9 +685,9 @@ export default function AssetsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Photo placeholder */}
-                  <div className="aspect-video bg-white/5 rounded-lg flex items-center justify-center border border-white/10">
+                  <div className="aspect-video bg-white/5 rounded-lg flex items-center justify-center border border-white/10 relative">
                     {asset.photos.length > 0 ? (
-                      <img src={asset.photos[0]} alt={asset.name} className="w-full h-full object-cover rounded-lg" />
+                      <Image src={asset.photos[0]} alt={asset.name} fill className="object-cover rounded-lg" unoptimized />
                     ) : (
                       <div className="text-center">
                         <ImageIcon className="h-8 w-8 text-white/20 mx-auto mb-2" />

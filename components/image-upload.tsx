@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Upload, X, Loader2, ImageIcon, CheckCircle } from "lucide-react"
+import Image from "next/image"
 
 interface ImageUploadProps {
   onUpload: (files: UploadedFile[]) => void
@@ -125,10 +126,12 @@ export function ImageUpload({
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
           {preview.map((src, idx) => (
             <div key={idx} className="relative aspect-square group">
-              <img 
+              <Image 
                 src={src} 
                 alt={`Upload ${idx + 1}`}
-                className="w-full h-full object-cover rounded-lg border border-white/10"
+                fill
+                className="object-cover rounded-lg border border-white/10"
+                unoptimized
               />
               <button
                 onClick={() => removeImage(idx)}
