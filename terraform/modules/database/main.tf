@@ -26,8 +26,9 @@ resource "azurerm_postgresql_flexible_server" "main" {
 }
 
 # Private DNS Zone for PostgreSQL
+# Zone name must NOT be server name + suffix (Azure rejects that). Use private.postgres.database.azure.com.
 resource "azurerm_private_dns_zone" "postgres" {
-  name                = "${var.server_name}.postgres.database.azure.com"
+  name                = "private.postgres.database.azure.com"
   resource_group_name = var.resource_group_name
 
   tags = var.tags

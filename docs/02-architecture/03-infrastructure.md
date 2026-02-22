@@ -29,7 +29,7 @@ Resource Groups
     │   ├── nl-prod-hov-pg-san         PostgreSQL Flexible (B_Standard_B1ms)
     │   │   ├── docuseal_production    Database
     │   │   └── baserow_production     Database
-    │   └── Private DNS Zone           *.postgres.database.azure.com
+    │   └── Private DNS Zone           private.postgres.database.azure.com
     │
     ├── Storage
     │   └── nlprodhovstsan             Storage Account (GRS)
