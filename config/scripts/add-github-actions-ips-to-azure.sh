@@ -15,8 +15,9 @@ DRY_RUN=false
 
 [[ "${1:-}" == "--dry-run" ]] && DRY_RUN=true
 
-echo "Fetching GitHub Actions IP ranges from api.github.com/meta..."
-IPS=$(curl -sS https://api.github.com/meta | jq -r '.actions[]' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | grep -vE '/3[12]$' || true)
+echo "Fetching and compressing GitHub Actions IP ranges..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+IPS=$(python3 "$SCRIPT_DIR/fetch-github-actions-ips.py" | jq -r '.[]')
 COUNT=$(echo "$IPS" | grep -c . || echo 0)
 
 if [[ "$COUNT" -eq 0 ]]; then
