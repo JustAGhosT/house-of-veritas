@@ -78,7 +78,7 @@ module "security" {
   location              = azurerm_resource_group.main.location
   key_vault_name        = var.key_vault_name
   container_subnet_id   = module.network.container_subnet_id
-  deployer_ip_addresses = local.ci_ip_rules
+  deployer_ip_addresses = local.ci_ip_rules_keyvault
   db_admin_password     = var.db_admin_password
   docuseal_secret_key   = random_password.docuseal_secret.result
   baserow_secret_key    = random_password.baserow_secret.result
@@ -269,6 +269,14 @@ locals {
       var.deployer_ip != "" ? [var.deployer_ip] : [],
       coalesce(var.ci_allowed_ip_ranges, [])
     )),
+    0,
+    1000
+  )
+
+  azure_internal_cidrs = ["172.128.0.0/9"]
+
+  ci_ip_rules_keyvault = slice(
+    distinct(concat(local.ci_ip_rules, local.azure_internal_cidrs)),
     0,
     1000
   )
