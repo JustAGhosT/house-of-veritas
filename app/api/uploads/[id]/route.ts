@@ -55,7 +55,7 @@ export async function GET(
 
     if (!storedName && existsSync(UPLOAD_DIR)) {
       const files = await readdir(UPLOAD_DIR)
-      const match = files.find((f) => f.startsWith(id) || f === `${id}`)
+      const match = files.find((f) => path.basename(f, path.extname(f)) === id)
       if (match) {
         storedName = match
         mimeType = MIME_BY_EXT[path.extname(match).toLowerCase()] || mimeType

@@ -36,11 +36,15 @@ export async function GET(request: Request) {
       tasks = await getTasks({ status: status || undefined })
       const myAssignedId = PERSONA_TO_ASSIGNED_ID[userId.toLowerCase()]
       const projectNames = await getProjectNamesForMember(userId)
-      tasks = tasks.filter(
-        (t) =>
-          t.assignedTo === myAssignedId ||
-          (t.project && projectNames.includes(t.project))
-      )
+      if (myAssignedId === undefined && projectNames.length === 0) {
+        tasks = []
+      } else {
+        tasks = tasks.filter(
+          (t) =>
+            (myAssignedId !== undefined && t.assignedTo === myAssignedId) ||
+            (t.project && projectNames.includes(t.project))
+        )
+      }
     } else {
       tasks = await getTasks({
         assignedTo,
