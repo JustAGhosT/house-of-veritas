@@ -42,6 +42,14 @@ resource "azurerm_subnet" "database" {
   address_prefixes     = [var.database_subnet_prefix]
 
   service_endpoints = ["Microsoft.Storage", "Microsoft.Sql"]
+
+  delegation {
+    name = "postgresql-delegation"
+    service_delegation {
+      name    = "Microsoft.DBforPostgreSQL/flexibleServers"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+    }
+  }
 }
 
 # Network Security Groups

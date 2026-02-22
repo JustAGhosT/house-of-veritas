@@ -37,8 +37,10 @@ The workflows now **automatically fetch GitHub Actions IP ranges** from `api.git
 1. In Azure Portal: Key Vault `nl-prod-hov-kv-san` → Networking → **Allow access from all networks**
 2. Storage Account `nlprodhovstsan` → Networking → **Allow access from all networks**
 3. Run the Terraform workflow (push to main, or manually trigger terraform-apply)
-4. Terraform will update the firewalls to use the GitHub Actions IP ranges and set `default_action = Deny`
+4. Terraform will update the firewalls to use the GitHub Actions IP ranges, Azure internal range (172.128.0.0/9), and set `default_action = Deny`
 5. Future runs work automatically—no more manual steps
+
+**Note:** If you see `Client address: 172.184.x.x` (or similar 172.128–172.255), the runner is using Azure internal IPs. Terraform already adds 172.128.0.0/9 for Key Vault—but you must run the one-time bootstrap above first so Terraform can apply that change.
 
 ## Alternative Options
 

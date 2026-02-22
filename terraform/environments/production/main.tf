@@ -65,7 +65,7 @@ module "storage" {
   storage_account_name  = var.storage_account_name
   container_subnet_id   = module.network.container_subnet_id
   database_subnet_id    = module.network.database_subnet_id
-  deployer_ip_addresses = local.ci_ip_rules
+  deployer_ip_addresses = local.ci_ip_rules_storage
 
   tags = local.common_tags
 }
@@ -277,6 +277,17 @@ locals {
 
   ci_ip_rules_keyvault = slice(
     distinct(concat(local.ci_ip_rules, local.azure_internal_cidrs)),
+    0,
+    1000
+  )
+
+  deployer_ip_public = var.deployer_ip != "" && !can(regex("^(10\\.|172\\.|192\\.168\\.)", var.deployer_ip)) ? [var.deployer_ip] : []
+
+  ci_ip_rules_storage = slice(
+    distinct(concat(
+      local.deployer_ip_public,
+      [for cidr in coalesce(var.ci_allowed_ip_ranges, []) : cidr if !can(regex("^(10\\.|172\\.|192\\.168\\.)", cidr))]
+    )),
     0,
     1000
   )
