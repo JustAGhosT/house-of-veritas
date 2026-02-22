@@ -39,6 +39,7 @@ import { AiSuggestIcon } from "@/components/ui/ai-suggest-icon"
 import type { Project } from "@/lib/projects"
 import type { ProjectSuggestion } from "@/app/api/projects/suggestions/route"
 import { logger } from "@/lib/logger"
+import Image from "next/image"
 
 const PERSONA_INFO: Record<string, string> = {
   hans: "Hans",
@@ -320,7 +321,7 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
         </div>
         {photoPreview && (
           <div className="mt-2 relative w-24 h-24 rounded overflow-hidden bg-white/5">
-            <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+            <Image src={photoPreview} alt="Preview" fill className="object-cover" unoptimized />
           </div>
         )}
       </div>

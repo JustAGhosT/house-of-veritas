@@ -29,6 +29,7 @@ import {
   ChevronDown,
   Settings,
 } from "lucide-react"
+import Image from "next/image"
 
 const colorClasses: Record<string, string> = {
   blue: "from-blue-500 to-blue-700",
@@ -138,9 +139,9 @@ export function UserProfileDropdown({
             `}
             data-testid="user-profile-trigger"
           >
-            <div className={`w-10 h-10 rounded-full overflow-hidden shrink-0 flex items-center justify-center ${user.photoUrl ? "bg-transparent" : `bg-linear-to-br ${colorClasses[color] || colorClasses.blue}`}`}>
+            <div className={`w-10 h-10 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative ${user.photoUrl ? "bg-transparent" : `bg-linear-to-br ${colorClasses[color] || colorClasses.blue}`}`}>
               {user.photoUrl ? (
-                <img src={user.photoUrl} alt="" className="w-full h-full object-cover" />
+                <Image src={user.photoUrl} alt="" fill className="object-cover" unoptimized />
               ) : (
                 <span className="text-lg">{icon}</span>
               )}

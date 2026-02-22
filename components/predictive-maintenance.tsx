@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { logger } from '@/lib/logger'
 import {
   AlertTriangle,
@@ -43,7 +43,7 @@ export function PredictiveMaintenancePanel() {
   const [scheduling, setScheduling] = useState(false)
   const [filter, setFilter] = useState<'all' | 'vehicle' | 'equipment'>('all')
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     try {
       const params = filter !== 'all' ? `?type=${filter}` : ''
@@ -55,7 +55,7 @@ export function PredictiveMaintenancePanel() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter])
 
   const autoScheduleMaintenance = async () => {
     setScheduling(true)
@@ -78,7 +78,7 @@ export function PredictiveMaintenancePanel() {
 
   useEffect(() => {
     fetchData()
-  }, [filter])
+  }, [fetchData])
 
   const urgencyColors = {
     high: 'bg-red-500/20 text-red-400 border-red-500/30',

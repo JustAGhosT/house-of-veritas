@@ -173,7 +173,7 @@ export function DashboardPreview() {
             className="text-3xl sm:text-4xl font-bold text-white mb-4"
             style={{ fontFamily: "var(--font-inter)" }}
           >
-            Hans' Admin Dashboard
+            Hans&apos; Admin Dashboard
           </h2>
           <p className="text-zinc-400 max-w-2xl mx-auto">
             Real-time visibility into all operations, compliance status, and financial tracking.

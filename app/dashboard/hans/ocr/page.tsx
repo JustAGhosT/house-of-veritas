@@ -39,6 +39,7 @@ import {
   Eye,
   Boxes,
 } from "lucide-react"
+import Image from "next/image"
 
 const DOCUMENT_TYPES = [
   { value: "handwritten_request", label: "Handwritten Request", icon: PenTool, color: "text-purple-400" },
@@ -303,10 +304,13 @@ export default function OCRPage() {
                 {selectedFile ? (
                   <div className="p-6 text-center">
                     {preview ? (
-                      <img
+                      <Image
                         src={preview}
                         alt="Preview"
-                        className="max-h-48 mx-auto rounded-lg mb-4"
+                        width={400}
+                        height={192}
+                        className="max-h-48 w-auto mx-auto rounded-lg mb-4"
+                        unoptimized
                       />
                     ) : (
                       <FileText className="h-16 w-16 mx-auto text-blue-400 mb-4" />

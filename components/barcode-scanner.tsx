@@ -110,7 +110,7 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
       setError(err instanceof Error ? err.message : "Failed to start camera")
       setIsScanning(false)
     }
-  }, [])
+  }, [lookupItem])
 
   const stopScanner = useCallback(async () => {
     if (scannerRef.current) {
@@ -124,7 +124,7 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
     setIsScanning(false)
   }, [])
 
-  const lookupItem = async (code: string) => {
+  const lookupItem = useCallback(async (code: string) => {
     setLoading(true)
     try {
       const res = await fetch(`/api/inventory?barcode=${encodeURIComponent(code)}`)
@@ -143,7 +143,7 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
     } finally {
       setLoading(false)
     }
-  }
+  }, [onScanComplete])
 
   const resetScanner = useCallback(() => {
     setScanResult(null)

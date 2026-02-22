@@ -4,6 +4,7 @@ import { useState, useRef } from "react"
 import { motion } from "framer-motion"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 const navItems = [
   { label: "Documents", href: "#documents" },
@@ -30,7 +31,7 @@ export function Navbar() {
       >
         {/* Logo */}
         <a href="#" className="flex items-center gap-3">
-          <img src="/hv-logo-small.svg" alt="House of Veritas" className="w-10 h-10" />
+          <Image src="/hv-logo-small.svg" alt="House of Veritas" width={40} height={40} />
           <span className="font-semibold text-white hidden sm:block">House of Veritas</span>
         </a>
 

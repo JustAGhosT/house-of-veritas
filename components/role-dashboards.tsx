@@ -105,7 +105,7 @@ export function RoleDashboards() {
             Role-Based Access Control
           </h2>
           <p className="text-zinc-400 max-w-2xl mx-auto">
-            Each user sees only what's relevant to their role. Granular permissions ensure
+            Each user sees only what&apos;s relevant to their role. Granular permissions ensure
             security while maintaining ease of use.
           </p>
         </motion.div>

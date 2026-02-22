@@ -239,7 +239,7 @@ export default function LoginPage() {
                   <Lock className="w-8 h-8 text-amber-400" />
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-2">Reset Password</h2>
-                <p className="text-white/60">We'll send a new password to your phone or email</p>
+                <p className="text-white/60">We&apos;ll send a new password to your phone or email</p>
               </div>
 
               {/* Email Input */}

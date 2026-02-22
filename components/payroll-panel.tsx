@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { logger } from '@/lib/logger'
 import {
   DollarSign,
@@ -53,7 +53,7 @@ export function PayrollPanel() {
   const [processing, setProcessing] = useState(false)
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7))
 
-  const fetchPayroll = async () => {
+  const fetchPayroll = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch(`/api/payroll?month=${selectedMonth}`)
@@ -64,11 +64,11 @@ export function PayrollPanel() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedMonth])
 
   useEffect(() => {
     fetchPayroll()
-  }, [selectedMonth])
+  }, [fetchPayroll])
 
   const runPayroll = async () => {
     setProcessing(true)

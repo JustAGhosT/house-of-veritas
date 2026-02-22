@@ -198,7 +198,7 @@ export default function IrmaDashboard() {
           </div>
           <div>
             <h2 className="text-2xl font-bold text-purple-100">{getGreeting()}, Irma</h2>
-            <p className="text-purple-200/60">Here's your household overview for today</p>
+            <p className="text-purple-200/60">Here&apos;s your household overview for today</p>
           </div>
         </div>
       </div>
@@ -221,7 +221,7 @@ export default function IrmaDashboard() {
         <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/20 backdrop-blur-sm" data-testid="stat-tasks-today">
           <div className="flex items-center gap-3 mb-2">
             <ClipboardList className="w-5 h-5 text-purple-400" />
-            <p className="text-purple-200/60 text-sm">Today's Tasks</p>
+            <p className="text-purple-200/60 text-sm">Today&apos;s Tasks</p>
           </div>
           <p className="text-2xl font-bold text-purple-100">{loading ? "—" : tasksToday.length}</p>
           <p className="text-purple-400 text-sm">{loading ? "…" : `${completedToday} completed`}</p>
@@ -325,7 +325,7 @@ export default function IrmaDashboard() {
               <Home className="w-5 h-5 text-purple-400" />
               <div>
                 <h3 className="text-purple-100 font-semibold">Household Tasks</h3>
-                <p className="text-purple-200/50 text-sm">Today's roster</p>
+                <p className="text-purple-200/50 text-sm">Today&apos;s roster</p>
               </div>
             </div>
           </div>
@@ -455,7 +455,7 @@ export default function IrmaDashboard() {
             <div className="flex items-center gap-3">
               <Calendar className="w-5 h-5 text-purple-400" />
               <div>
-                <h3 className="text-purple-100 font-semibold">This Week's Schedule</h3>
+                <h3 className="text-purple-100 font-semibold">This Week&apos;s Schedule</h3>
                 <p className="text-purple-200/50 text-sm">Household task roster</p>
               </div>
             </div>

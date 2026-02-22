@@ -246,7 +246,7 @@ export default function CharlDashboard() {
               <Clock className="w-8 h-8 text-amber-400" />
             </div>
             <div>
-              <p className="text-amber-200/60 text-sm">Today's Work Time</p>
+              <p className="text-amber-200/60 text-sm">Today&apos;s Work Time</p>
               <p className="text-4xl font-bold text-amber-100 font-mono" data-testid="clock-time">{clockTime}</p>
             </div>
           </div>
@@ -401,7 +401,7 @@ export default function CharlDashboard() {
               <ClipboardList className="w-5 h-5 text-amber-400" />
               <div>
                 <h3 className="text-amber-100 font-semibold">My Tasks</h3>
-                <p className="text-amber-200/50 text-sm">Today's assignments</p>
+                <p className="text-amber-200/50 text-sm">Today&apos;s assignments</p>
               </div>
             </div>
             <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-sm border border-amber-500/30">

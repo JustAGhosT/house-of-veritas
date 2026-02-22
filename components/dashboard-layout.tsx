@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, startTransition } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
@@ -74,7 +74,7 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
     if (typeof window === "undefined" || !user) return
     const params = new URLSearchParams(window.location.search)
     if (params.get("tutorial") === "1" && user.onboardingStatus !== "completed") {
-      setShowTutorial(true)
+      startTransition(() => setShowTutorial(true))
     }
   }, [user, pathname])
 

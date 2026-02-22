@@ -4,17 +4,17 @@ import { useEffect, useState } from 'react'
 import { logger } from '@/lib/logger'
 
 export function usePWA() {
-  const [isInstalled, setIsInstalled] = useState(false)
-  const [isOnline, setIsOnline] = useState(true)
+  const [isInstalled, setIsInstalled] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(display-mode: standalone)').matches : false
+  )
+  const [isOnline, setIsOnline] = useState(() =>
+    typeof window !== 'undefined' ? navigator.onLine : true
+  )
   const [canInstall, setCanInstall] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null)
 
   useEffect(() => {
-    // Check if running as PWA
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-    setIsInstalled(isStandalone)
-
     // Register service worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
@@ -42,9 +42,6 @@ export function usePWA() {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
-
-    // Set initial online status
-    setIsOnline(navigator.onLine)
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
@@ -160,7 +157,7 @@ export function OfflineStatusBanner() {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-amber-950 px-4 py-2 text-center text-sm font-medium">
-      You're offline. Some features may be limited.
+      You&apos;re offline. Some features may be limited.
     </div>
   )
 }
