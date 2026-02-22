@@ -75,9 +75,9 @@ jobs:
           DEPLOYER_IP: ${{ steps.ip.outputs.ip }}
         run: |
           if [ -n "$CI_IP_RANGES" ] && [ "$CI_IP_RANGES" != "[]" ] && [ "$CI_IP_RANGES" != "null" ]; then
-            VAR_CI="-var=ci_allowed_ip_ranges=$CI_IP_RANGES"
+            echo "ci_allowed_ip_ranges = $CI_IP_RANGES" > ci_ranges.auto.tfvars
           else
-            VAR_CI="-var=deployer_ip=$DEPLOYER_IP"
+            echo "deployer_ip = \"$DEPLOYER_IP\"" > ci_ranges.auto.tfvars
           fi
           terraform destroy \
             -var="domain_name=${{ vars.DOMAIN_NAME || 'nexamesh.ai' }}" \
@@ -86,7 +86,7 @@ jobs:
             -var="smtp_password=${{ secrets.SMTP_PASSWORD }}" \
             -var="ssl_certificate_data=${{ secrets.SSL_CERTIFICATE_DATA }}" \
             -var="ssl_certificate_password=${{ secrets.SSL_CERTIFICATE_PASSWORD }}" \
-            $VAR_CI \
+            -var-file=ci_ranges.auto.tfvars \
             -auto-approve
       
       - name: Send Notification

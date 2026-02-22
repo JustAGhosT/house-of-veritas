@@ -94,9 +94,9 @@ jobs:
           DEPLOYER_IP: ${{ steps.ip.outputs.ip }}
         run: |
           if [ -n "$CI_IP_RANGES" ] && [ "$CI_IP_RANGES" != "[]" ] && [ "$CI_IP_RANGES" != "null" ]; then
-            VAR_CI="-var=ci_allowed_ip_ranges=$CI_IP_RANGES"
+            echo "ci_allowed_ip_ranges = $CI_IP_RANGES" > ci_ranges.auto.tfvars
           else
-            VAR_CI="-var=deployer_ip=$DEPLOYER_IP"
+            echo "deployer_ip = \"$DEPLOYER_IP\"" > ci_ranges.auto.tfvars
           fi
           terraform plan \
             -var="domain_name=$DOMAIN_NAME" \
@@ -105,7 +105,7 @@ jobs:
             -var="smtp_password=$SMTP_PASSWORD" \
             -var="ssl_certificate_data=$SSL_CERTIFICATE_DATA" \
             -var="ssl_certificate_password=$SSL_CERTIFICATE_PASSWORD" \
-            $VAR_CI \
+            -var-file=ci_ranges.auto.tfvars \
             -out=tfplan \
             -no-color
         continue-on-error: true
