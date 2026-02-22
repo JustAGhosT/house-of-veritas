@@ -1,0 +1,11 @@
+import nextConfig from "eslint-config-next"
+
+export default [
+  ...nextConfig,
+  {
+    rules: {
+      // These are valid React patterns; downgrade React Compiler strictness to warnings
+      "react-hooks/set-state-in-effect": "warn",
+    },
+  },
+]

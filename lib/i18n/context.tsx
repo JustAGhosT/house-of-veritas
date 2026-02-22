@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import React, { createContext, useContext, useState, ReactNode } from 'react'
 import { Language, translations, TranslationKey, LANGUAGES } from './translations'
 
 interface I18nContextType {
@@ -15,15 +15,11 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined)
 const STORAGE_KEY = 'hov_language'
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('en')
-
-  // Load saved language preference
-  useEffect(() => {
+  const [language, setLanguageState] = useState<Language>(() => {
+    if (typeof window === 'undefined') return 'en'
     const saved = localStorage.getItem(STORAGE_KEY) as Language | null
-    if (saved && saved in translations) {
-      setLanguageState(saved)
-    }
-  }, [])
+    return saved && saved in translations ? saved : 'en'
+  })
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang)

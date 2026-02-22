@@ -96,8 +96,8 @@ function GardenPattern() {
       {/* Grass blades */}
       <div className="absolute bottom-0 left-0 right-0 h-32 opacity-10">
         <svg className="w-full h-full" viewBox="0 0 1200 100" preserveAspectRatio="none">
-          {Array.from({length: 60}).map((_, i) => (
-            <path key={i} d={`M${i*20} 100 Q${i*20+5} ${70-Math.random()*30} ${i*20+10} 100`} stroke="#10b981" strokeWidth="2" fill="none"/>
+          {grassPaths.map((d, i) => (
+            <path key={i} d={d} stroke="#10b981" strokeWidth="2" fill="none"/>
           ))}
         </svg>
       </div>
@@ -145,6 +145,10 @@ export default function LuckyDashboard() {
     return () => clearInterval(interval)
   }, [isClockRunning])
 
+  const [grassPaths] = useState(
+    () => Array.from({length: 60}).map((_, i) => `M${i*20} 100 Q${i*20+5} ${70-Math.random()*30} ${i*20+10} 100`)
+  )
+
   return (
     <DashboardLayout persona="lucky">
       {/* Persona-specific background */}
@@ -160,7 +164,7 @@ export default function LuckyDashboard() {
               <Clock className="w-8 h-8 text-green-400" />
             </div>
             <div>
-              <p className="text-green-200/60 text-sm">Today's Work Time</p>
+              <p className="text-green-200/60 text-sm">Today&apos;s Work Time</p>
               <p className="text-4xl font-bold text-green-100 font-mono" data-testid="clock-time">{clockTime}</p>
             </div>
           </div>
@@ -280,7 +284,7 @@ export default function LuckyDashboard() {
         {/* Task Type Distribution */}
         <div className="bg-green-950/40 border border-green-500/20 rounded-2xl p-6 backdrop-blur-sm" data-testid="task-type-chart">
           <h3 className="text-green-100 font-semibold mb-2">Task Types</h3>
-          <p className="text-green-200/50 text-sm mb-4">This month's work</p>
+          <p className="text-green-200/50 text-sm mb-4">This month&apos;s work</p>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -322,7 +326,7 @@ export default function LuckyDashboard() {
               <ClipboardList className="w-5 h-5 text-green-400" />
               <div>
                 <h3 className="text-green-100 font-semibold">My Tasks</h3>
-                <p className="text-green-200/50 text-sm">Today's garden work</p>
+                <p className="text-green-200/50 text-sm">Today&apos;s garden work</p>
               </div>
             </div>
           </div>

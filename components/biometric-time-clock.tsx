@@ -292,7 +292,7 @@ export function BiometricTimeClockPanel() {
       {/* Recent Records */}
       <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
         <div className="p-4 border-b border-white/10">
-          <h3 className="text-white font-semibold">Today's Records</h3>
+          <h3 className="text-white font-semibold">Today&apos;s Records</h3>
         </div>
         <div className="divide-y divide-white/5">
           {data?.records.slice(0, 10).map((record) => (

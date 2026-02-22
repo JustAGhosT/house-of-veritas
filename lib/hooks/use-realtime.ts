@@ -42,6 +42,7 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
 
   const eventSourceRef = useRef<EventSource | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const connectRef = useRef<() => void>(() => {})
 
   const connect = useCallback(() => {
     // Clean up existing connection
@@ -105,7 +106,7 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
         if (autoReconnect) {
           reconnectTimeoutRef.current = setTimeout(() => {
             logger.info('Attempting to reconnect')
-            connect()
+            connectRef.current()
           }, reconnectDelay)
         }
       }
@@ -114,6 +115,10 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
       onError?.(err as Error)
     }
   }, [userId, onEvent, onConnect, onDisconnect, onError, autoReconnect, reconnectDelay])
+
+  useEffect(() => {
+    connectRef.current = connect
+  })
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
