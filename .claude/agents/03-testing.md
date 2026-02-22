@@ -54,12 +54,27 @@ components/**/*.tsx (components)
 - [ ] `connection-status.tsx` - status display
 - [ ] `notification-panel.tsx` - display, interactions
 
-### E2E Test Coverage
+### E2E Test Coverage (Playwright)
 
 - [ ] Login flow for each user persona
 - [ ] Dashboard access control (non-admin can't see other dashboards)
 - [ ] API authentication enforcement
 - [ ] Rate-limiting behavior
+
+### Playwright Testing
+
+- [ ] `playwright.config.ts` has correct baseURL, webServer, and projects
+- [ ] E2E tests use `data-testid` for stable selectors (avoid brittle text/class)
+- [ ] Tests use `page.getByRole()` or `getByTestId()` over raw locators
+- [ ] `npm run test:e2e` and `npm run test:e2e:install` scripts work
+- [ ] CI runs E2E with `workers: 1` or controlled parallelism to avoid rate limits
+- [ ] Trace/screenshot on failure enabled for debugging
+
+### Playwright Coverage
+
+- [ ] E2E flow coverage: auth, dashboard, API routes, critical user journeys
+- [ ] Optional: `page.coverage` API or `playwright-test-coverage` for JS/CSS coverage
+- [ ] Coverage target: critical paths (login, dashboards, protected routes) covered by E2E
 
 ### Test Quality
 
@@ -70,4 +85,9 @@ components/**/*.tsx (components)
 
 ## Output Format
 
-Write findings to `.claude/reports/testing-report.md` with coverage gaps and recommended test cases.
+Write findings to `.claude/reports/testing-report.md` with:
+
+- Unit coverage gaps (Vitest)
+- E2E/Playwright coverage gaps and flow coverage
+- Recommended test cases
+- Playwright-specific issues (flaky tests, selector stability, rate limits)

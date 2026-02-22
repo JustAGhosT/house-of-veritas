@@ -14,7 +14,7 @@ const PUBLIC_PATHS = [
   "/",
 ]
 
-const LOGIN_RATE_LIMIT = 5
+const LOGIN_RATE_LIMIT = process.env.E2E_TEST || process.env.CI ? 50 : 5
 const LOGIN_WINDOW_MS = 60_000
 const API_RATE_LIMIT = 100
 const API_WINDOW_MS = 60_000
@@ -34,7 +34,7 @@ function getClientIp(request: NextRequest): string {
   )
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (

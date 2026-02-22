@@ -15,15 +15,16 @@ const inter = Inter({
   variable: "--font-inter",
 })
 
+export const viewport = {
+  themeColor: "#1E40AF",
+  width: "device-width",
+  initialScale: 1,
+}
+
 export const metadata: Metadata = {
   title: "House of Veritas - Digital Governance & Estate Management",
   description: "Secure platform for estate management, document compliance, and operational accountability. BCEA-compliant with full audit trails.",
   manifest: '/manifest.json',
-  themeColor: '#1E40AF',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

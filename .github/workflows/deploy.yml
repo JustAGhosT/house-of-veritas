@@ -176,10 +176,6 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nextjs-build
       - name: Run E2E Tests
         run: npm run test:e2e
         env:

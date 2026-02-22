@@ -29,6 +29,7 @@ Rules for writing and maintaining tests in HouseOfVeritas.
 - All security-critical code MUST have tests (auth, RBAC, rate limiting, middleware)
 - New API routes must include at least basic unit tests
 - Coverage thresholds should be enforced in CI (target: 60% statements)
+- E2E (Playwright): critical flows (login, dashboards, protected routes) must have E2E coverage
 
 ## CI Integration
 

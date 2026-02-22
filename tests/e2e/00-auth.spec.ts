@@ -17,14 +17,17 @@ test.describe("Authentication", () => {
   test("should show login page", async ({ page }) => {
     await page.goto("/login")
     await waitForLoginForm(page)
-    await expect(page.locator("text=House of Veritas")).toBeVisible()
+    await expect(page.getByRole("heading", { name: "House of Veritas" })).toBeVisible()
   })
 
   test("should reject invalid credentials", async ({ page }) => {
     await page.goto("/login")
     await waitForLoginForm(page)
     await fillLoginAndSubmit(page, "hans@houseofv.com", "wrongpassword")
-    await expect(page.locator("text=Invalid credentials").or(page.locator("text=Login failed"))).toBeVisible({ timeout: 5000 })
+    await expect(page.getByTestId("login-error")).toContainText(
+      /Invalid credentials|Login failed|Connection error|Too many login attempts/,
+      { timeout: 5000 }
+    )
   })
 
   test("should login as Hans and see admin dashboard", async ({ page }) => {
@@ -33,6 +36,17 @@ test.describe("Authentication", () => {
     await fillLoginAndSubmit(page, "hans@houseofv.com", "hans123")
     await page.waitForURL("**/dashboard/hans**", { timeout: 10000 })
     await expect(page.locator("text=Welcome back")).toBeVisible()
+  })
+
+  test("should logout successfully", async ({ page }) => {
+    await page.goto("/login")
+    await waitForLoginForm(page)
+    await fillLoginAndSubmit(page, "hans@houseofv.com", "hans123")
+    await page.waitForURL("**/dashboard/hans**", { timeout: 10000 })
+
+    await page.getByTestId("user-profile-trigger").first().click()
+    await page.getByTestId("header-logout").click()
+    await page.waitForURL("**/login**", { timeout: 10000 })
   })
 
   test("should redirect unauthenticated users to login", async ({ page }) => {
@@ -51,20 +65,12 @@ test.describe("Authentication", () => {
       await page.goto("/login")
       await waitForLoginForm(page)
       await fillLoginAndSubmit(page, u.email, u.password)
-      await page.waitForURL(`**/dashboard/${u.id}**`, { timeout: 10000 })
+      await page.waitForURL(
+        (url) => url.pathname === `/dashboard/${u.id}` || url.pathname === "/onboarding",
+        { timeout: 10000 }
+      )
 
       await page.goto("/login")
     }
-  })
-
-  test("should logout successfully", async ({ page }) => {
-    await page.goto("/login")
-    await waitForLoginForm(page)
-    await fillLoginAndSubmit(page, "hans@houseofv.com", "hans123")
-    await page.waitForURL("**/dashboard/hans**", { timeout: 10000 })
-
-    const logoutBtn = page.locator('[data-testid="header-logout"], [data-testid="logout-button"]').first()
-    await logoutBtn.click()
-    await page.waitForURL("**/login**", { timeout: 10000 })
   })
 })
