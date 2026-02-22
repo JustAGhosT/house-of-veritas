@@ -43,3 +43,9 @@ terraform/crash.log
 # Claude agent reports and state (generated)
 .claude/reports/
 .claude/state/*.json
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+blob-report/
