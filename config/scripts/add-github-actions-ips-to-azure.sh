@@ -16,7 +16,7 @@ DRY_RUN=false
 [[ "${1:-}" == "--dry-run" ]] && DRY_RUN=true
 
 echo "Fetching GitHub Actions IP ranges from api.github.com/meta..."
-IPS=$(curl -sS https://api.github.com/meta | jq -r '.actions[]' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' || true)
+IPS=$(curl -sS https://api.github.com/meta | jq -r '.actions[]' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | grep -vE '/3[12]$' || true)
 COUNT=$(echo "$IPS" | grep -c . || echo 0)
 
 if [[ "$COUNT" -eq 0 ]]; then

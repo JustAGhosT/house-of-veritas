@@ -28,7 +28,7 @@ Key Vault and Storage Account use `default_action = "Deny"` with `ip_rules` and 
 
 ## Automated Solution (Current Setup)
 
-The workflows now **automatically fetch GitHub Actions IP ranges** from `api.github.com/meta` and pass them to Terraform as `ci_allowed_ip_ranges`. Terraform applies these to Key Vault and Storage firewalls.
+The workflows now **automatically fetch GitHub Actions IP ranges** from `api.github.com/meta` and pass them to Terraform as `ci_allowed_ip_ranges`. Terraform applies these to Key Vault and Storage firewalls. Ranges with `/31` or `/32` prefix are filtered out because Azure Storage only accepts prefix lengths 0–30.
 
 **Greenfield (new deployment):** Works automatically. Terraform creates resources with the GitHub Actions IP ranges in the firewall from the start.
 

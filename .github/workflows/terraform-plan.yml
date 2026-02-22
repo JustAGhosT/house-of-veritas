@@ -70,7 +70,7 @@ jobs:
       - name: Fetch GitHub Actions IP ranges
         id: gh-ips
         run: |
-          IPS=$(curl -fsS https://api.github.com/meta | jq -r '.actions[]' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' || true)
+          IPS=$(curl -fsS https://api.github.com/meta | jq -r '.actions[]' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | grep -vE '/3[12]$' || true)
           CI_IP_RANGES=$(echo "$IPS" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "ranges=$CI_IP_RANGES" >> $GITHUB_OUTPUT
           echo "Fetched $(echo "$IPS" | grep -c . || echo 0) GitHub Actions IPv4 ranges"
