@@ -36,7 +36,8 @@ import {
   Line,
 } from "recharts"
 
-// Task distribution for Irma
+import { type Task } from "@/lib/services/baserow"
+
 const taskTypeData = [
   { name: "Cleaning", value: 35, color: "#a855f7" },
   { name: "Cooking", value: 30, color: "#f59e0b" },
@@ -116,24 +117,20 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null
 }
 
-interface Task {
-  id: number | string
-  title: string
-  status: string
-  assignee?: string
-  dueDate?: string
-  completedAt?: string
-  completedDate?: string
-}
-
 interface DocumentItem {
   id: number | string
   name?: string
   title?: string
+  type?: string
   status?: string
   signedAt?: string
   lastReview?: string
+  nextReview?: string
+  expiryDays?: number
+  responsible?: string
+  signatories?: string[]
   signedBy?: string[]
+  urgency?: string
 }
 
 export default function IrmaDashboard() {
@@ -355,7 +352,7 @@ export default function IrmaDashboard() {
                     <div className="flex-1">
                       <p className={done ? "text-purple-200/50 line-through" : "text-purple-100 font-medium"}>{task.title}</p>
                       <p className="text-purple-200/40 text-sm">
-                        {done ? `Completed ${(task.completedAt ?? (task as { completedDate?: string }).completedDate) ? new Date((task.completedAt ?? (task as { completedDate?: string }).completedDate)!).toLocaleTimeString() : ""}` : task.dueDate ? `Due ${new Date(task.dueDate).toLocaleDateString()}` : ""}
+                        {done ? `Completed ${task.completedDate ? new Date(task.completedDate).toLocaleTimeString() : ""}` : task.dueDate ? `Due ${new Date(task.dueDate).toLocaleDateString()}` : ""}
                       </p>
                     </div>
                     <ChevronRight className="w-4 h-4 text-purple-400/40 group-hover:text-purple-400/60" />

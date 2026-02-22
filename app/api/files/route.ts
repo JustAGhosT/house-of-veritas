@@ -229,15 +229,40 @@ export const DELETE = withAuth(async (request) => {
   
   try {
     if (storage === 'azure' && blobName && isAzureConfigured()) {
-      // Delete from Azure
-      const { BlobServiceClient } = await import('@azure/storage-blob')
-      const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_CONFIG.connectionString!)
+      // Delete from Azure - mirrors upload auth logic for both connection string and shared key
+      const { BlobServiceClient, StorageSharedKeyCredential } = await import('@azure/storage-blob')
+      let blobServiceClient: InstanceType<typeof BlobServiceClient>
+      if (AZURE_CONFIG.connectionString) {
+        blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_CONFIG.connectionString)
+      } else {
+        const cred = new StorageSharedKeyCredential(AZURE_CONFIG.accountName!, AZURE_CONFIG.accountKey!)
+        blobServiceClient = new BlobServiceClient(
+          `https://${AZURE_CONFIG.accountName}.blob.core.windows.net`,
+          cred
+        )
+      }
       const containerClient = blobServiceClient.getContainerClient(AZURE_CONFIG.containerName)
       const blobClient = containerClient.getBlobClient(blobName)
       await blobClient.deleteIfExists()
-    } else if (storage === 'local' && localPath) {
-      // Delete from local
-      await unlink(localPath)
+    } else if (storage === 'local') {
+      // Reconstruct path server-side to prevent path traversal
+      const category = searchParams.get('category')
+      const filename = searchParams.get('filename')
+      if (!category || !filename) {
+        return NextResponse.json(
+          { success: false, error: 'category and filename required for local delete' },
+          { status: 400 }
+        )
+      }
+      const baseDir = path.resolve(UPLOAD_CONFIG.uploadDir, category)
+      const filePath = path.resolve(baseDir, filename)
+      if (!filePath.startsWith(baseDir + path.sep)) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid path' },
+          { status: 400 }
+        )
+      }
+      await unlink(filePath)
     }
     
     return NextResponse.json({ success: true, deleted: fileId })

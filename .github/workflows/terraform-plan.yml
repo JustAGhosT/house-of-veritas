@@ -108,7 +108,7 @@ jobs:
         id: show-plan
         working-directory: ${{ env.WORKING_DIR }}
         run: |
-          plan=$(terraform show -no-color tfplan 2>/dev/null || echo "Plan failed or file not found")
+          plan="Terraform plan generated. Download the 'tfplan' artifact for full details."
           echo "plan<<EOF" >> $GITHUB_OUTPUT
           echo "$plan" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT

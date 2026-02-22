@@ -93,11 +93,14 @@ func start
 
 ```bash
 # Test DocuSeal webhook
+# Note: If authLevel != anonymous, append ?code=<function-key> to the URL.
+# Obtain the function key from Azure Portal → Function App → Functions → DocuSealWebhook → Function Keys.
 curl -X POST http://localhost:7071/api/webhook/docuseal \
   -H "Content-Type: application/json" \
   -d '{"event_type": "submission.completed", "data": {...}}'
 
 # Manually trigger timer functions (via admin endpoint)
+# Note: Host/admin key required for admin endpoints. Retrieve from Azure Portal → Function App → App Keys.
 curl -X POST http://localhost:7071/admin/functions/DocumentExpiryAlert
 ```
 
@@ -132,7 +135,7 @@ Set these in Azure Portal → Function App → Configuration:
 
 ```text
 # Baserow
-BASEROW_URL=https://ops.nexamesh.ai
+BASEROW_URL=https://baserow.example.com
 BASEROW_TOKEN=<api-token>
 
 # Table IDs (update after Baserow setup)
@@ -146,17 +149,17 @@ TABLE_EXPENSES=7
 TABLE_DOCUMENT_EXPIRY=8
 
 # DocuSeal
-DOCUSEAL_URL=https://docs.nexamesh.ai
+DOCUSEAL_URL=https://docuseal.example.com
 DOCUSEAL_API_KEY=<api-key>
 DOCUSEAL_WEBHOOK_SECRET=<secret>
 
 # Email
 SENDGRID_API_KEY=<api-key>
-EMAIL_FROM=alerts@nexamesh.ai
+EMAIL_FROM=alerts@example.com
 
 # Admin
-ADMIN_EMAIL=hans@nexamesh.ai
-ADMIN_PHONE=+27...
+ADMIN_EMAIL=admin@example.com
+ADMIN_PHONE=+00000000000
 
 # Storage (for backups)
 AZURE_STORAGE_CONNECTION_STRING=<connection-string>

@@ -24,6 +24,9 @@ export function TimePage({ personaId, title = "Time Clock", showAll = false }: T
       const params = new URLSearchParams()
       if (!showAll) params.set("personaId", personaId)
       const res = await fetch(`/api/time?${params}`)
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`)
+      }
       const data = await res.json()
       setEntries(data.entries || [])
       setSummary(data.summary || null)

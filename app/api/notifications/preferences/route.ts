@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { getCollection, sanitizeDocument } from "@/lib/db/mongodb"
 import { ObjectId } from "mongodb"
 import { logger } from "@/lib/logger"
+import { withRole, getAuthContext } from "@/lib/auth/rbac"
 
 // User notification preferences
 interface NotificationPreference {
@@ -19,7 +20,7 @@ interface NotificationPreference {
 const DEFAULT_FALLBACK_ORDER: ("sms" | "whatsapp" | "email")[] = ["sms", "whatsapp", "email"]
 
 // GET: Get user's notification preferences
-export async function GET(request: NextRequest) {
+export const GET = withRole("admin", "operator", "employee", "resident")(async (request, context) => {
   try {
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get("userId")
@@ -29,6 +30,11 @@ export async function GET(request: NextRequest) {
         { success: false, error: "userId is required" },
         { status: 400 }
       )
+    }
+
+    // Non-admin users can only access their own preferences
+    if (context.role !== "admin" && userId !== context.userId) {
+      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 })
     }
 
     const collection = await getCollection<NotificationPreference>("notification_preferences")
@@ -58,10 +64,10 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
 
 // POST: Create or update notification preferences
-export async function POST(request: NextRequest) {
+export const POST = withRole("admin", "operator", "employee", "resident")(async (request, context) => {
   try {
     const body = await request.json()
     const { userId, preferredChannel, phoneNumber, email, whatsappNumber, fallbackOrder } = body
@@ -71,6 +77,11 @@ export async function POST(request: NextRequest) {
         { success: false, error: "userId and preferredChannel are required" },
         { status: 400 }
       )
+    }
+
+    // Non-admin users can only update their own preferences
+    if (context.role !== "admin" && userId !== context.userId) {
+      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 })
     }
 
     // Validate channel
@@ -116,10 +127,10 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
 
 // PATCH: Update specific fields
-export async function PATCH(request: NextRequest) {
+export const PATCH = withRole("admin", "operator", "employee", "resident")(async (request, context) => {
   try {
     const body = await request.json()
     const { userId, ...updates } = body
@@ -129,6 +140,11 @@ export async function PATCH(request: NextRequest) {
         { success: false, error: "userId is required" },
         { status: 400 }
       )
+    }
+
+    // Non-admin users can only update their own preferences
+    if (context.role !== "admin" && userId !== context.userId) {
+      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 })
     }
 
     const collection = await getCollection<NotificationPreference>("notification_preferences")
@@ -158,4 +174,4 @@ export async function PATCH(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

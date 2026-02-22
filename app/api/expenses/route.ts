@@ -5,7 +5,7 @@ import { withRole } from '@/lib/auth/rbac'
 import { toISODateString } from '@/lib/utils'
 import { logger } from '@/lib/logger'
 
-export async function GET(request: Request) {
+export const GET = withRole("admin", "operator", "employee", "resident")(async (request) => {
   const { searchParams } = new URL(request.url)
   const requesterParam = searchParams.get('requester')
   const personaId = searchParams.get('personaId')
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
       { status: 500 }
     )
   }
-}
+})
 
 export const POST = withRole("admin", "operator", "employee", "resident")(async (request) => {
   try {

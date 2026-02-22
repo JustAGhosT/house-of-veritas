@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createSubmission, getSubmissionStatus, isDocuSealConfigured } from '@/lib/services/docuseal'
 import { logger } from '@/lib/logger'
+import { withAuth } from '@/lib/auth/rbac'
 
 // GET - Get submission status
-export async function GET(request: Request) {
+export const GET = withAuth(async (request) => {
   const { searchParams } = new URL(request.url)
   const submissionId = searchParams.get('id')
 
@@ -35,10 +36,10 @@ export async function GET(request: Request) {
       { status: 500 }
     )
   }
-}
+})
 
 // POST - Create new submission
-export async function POST(request: Request) {
+export const POST = withAuth(async (request) => {
   try {
     const body = await request.json()
     const { templateId, recipients, metadata } = body
@@ -77,4 +78,4 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-}
+})

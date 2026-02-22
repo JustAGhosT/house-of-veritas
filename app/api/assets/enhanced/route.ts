@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { withAuth } from '@/lib/auth/rbac'
 
 // Azure AI Configuration (with mock fallback)
 const AZURE_AI_CONFIG = {
@@ -199,7 +200,7 @@ let assets: Asset[] = [
 ]
 
 // GET - List assets with filters
-export async function GET(request: Request) {
+export const GET = withAuth(async (request) => {
   const { searchParams } = new URL(request.url)
   const category = searchParams.get('category') as AssetCategory | null
   const condition = searchParams.get('condition') as AssetCondition | null
@@ -254,10 +255,10 @@ export async function GET(request: Request) {
     categories: ASSET_CATEGORIES,
     storageOptions,
   })
-}
+})
 
 // POST - Create new asset
-export async function POST(request: Request) {
+export const POST = withAuth(async (request) => {
   try {
     const body = await request.json()
     const {
@@ -331,10 +332,10 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-}
+})
 
 // PUT - Update asset
-export async function PUT(request: Request) {
+export const PUT = withAuth(async (request) => {
   try {
     const body = await request.json()
     const { id, ...updates } = body
@@ -369,10 +370,10 @@ export async function PUT(request: Request) {
       { status: 500 }
     )
   }
-}
+})
 
 // DELETE - Remove asset
-export async function DELETE(request: Request) {
+export const DELETE = withAuth(async (request) => {
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
 
@@ -391,4 +392,4 @@ export async function DELETE(request: Request) {
     success: true,
     deleted: deleted.id,
   })
-}
+})

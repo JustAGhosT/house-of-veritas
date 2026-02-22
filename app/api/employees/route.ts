@@ -9,7 +9,14 @@ export async function GET(request: Request) {
 
   try {
     if (id) {
-      const employee = await getEmployee(parseInt(id))
+      const parsedId = parseInt(id, 10)
+      if (isNaN(parsedId)) {
+        return NextResponse.json(
+          { error: 'Invalid employee ID' },
+          { status: 400 }
+        )
+      }
+      const employee = await getEmployee(parsedId)
       if (!employee) {
         return NextResponse.json(
           { error: 'Employee not found' },

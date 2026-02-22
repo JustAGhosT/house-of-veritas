@@ -93,11 +93,12 @@ export function withResponsibility(required: Responsibility) {
 }
 
 export function withAuth(handler: RouteHandler) {
-  return async function (request: Request, routeContext?: unknown) {
+  return async function (request: Request, routeContext?: { params?: Promise<Record<string, string>> }) {
     const auth = getAuthContext(request)
     if (!auth) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
-    return handler(request, auth)
+    const context: RouteContext = { ...auth, params: routeContext?.params }
+    return handler(request, context)
   }
 }
