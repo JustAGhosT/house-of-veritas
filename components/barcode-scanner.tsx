@@ -61,6 +61,27 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
   const scannerRef = useRef<any>(null)
   const videoRef = useRef<HTMLDivElement>(null)
 
+  const lookupItem = useCallback(async (code: string) => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/inventory?barcode=${encodeURIComponent(code)}`)
+      const data = await res.json()
+      
+      if (data.items && data.items.length > 0) {
+        setFoundItem(data.items[0])
+        onScanComplete?.(data.items[0], code)
+      } else {
+        setFoundItem(null)
+        onScanComplete?.(null, code)
+      }
+    } catch (err) {
+      logger.error("Lookup error", { error: err instanceof Error ? err.message : String(err) })
+      setFoundItem(null)
+    } finally {
+      setLoading(false)
+    }
+  }, [onScanComplete])
+
   const startScanner = useCallback(async () => {
     if (!videoRef.current) return
 
@@ -123,27 +144,6 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
     }
     setIsScanning(false)
   }, [])
-
-  const lookupItem = useCallback(async (code: string) => {
-    setLoading(true)
-    try {
-      const res = await fetch(`/api/inventory?barcode=${encodeURIComponent(code)}`)
-      const data = await res.json()
-      
-      if (data.items && data.items.length > 0) {
-        setFoundItem(data.items[0])
-        onScanComplete?.(data.items[0], code)
-      } else {
-        setFoundItem(null)
-        onScanComplete?.(null, code)
-      }
-    } catch (err) {
-      logger.error("Lookup error", { error: err instanceof Error ? err.message : String(err) })
-      setFoundItem(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [onScanComplete])
 
   const resetScanner = useCallback(() => {
     setScanResult(null)

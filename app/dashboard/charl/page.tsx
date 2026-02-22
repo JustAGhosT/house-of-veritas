@@ -86,7 +86,7 @@ function WorkshopPattern() {
         <path d="M15 30 Q15 15 30 15 L40 15 L35 30 L65 60 L70 55 L40 25 L45 15 L70 15 Q85 15 85 30 Q85 45 70 45 L60 45 L65 30 L35 60 L30 65 L60 95 L55 100 L25 70 L20 75 L25 100 L15 100 L15 70 Q15 55 30 55 L25 45 Q15 45 15 30 Z" fill="currentColor"/>
       </svg>
       {/* Grid overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.03)_1px,transparent_1px)] bg-size-[40px_40px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
     </div>
   )
 }

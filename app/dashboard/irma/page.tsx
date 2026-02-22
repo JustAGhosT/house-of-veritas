@@ -95,7 +95,7 @@ function HomePattern() {
         <rect x="45" y="15" width="10" height="15" fill="currentColor"/>
       </svg>
       {/* Decorative dots pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(rgba(168,85,247,0.03)_1px,transparent_1px)] bg-size-[30px_30px]" />
+      <div className="absolute inset-0 bg-[radial-gradient(rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:30px_30px]" />
     </div>
   )
 }

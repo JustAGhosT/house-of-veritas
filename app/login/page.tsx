@@ -79,7 +79,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#0a0a0f] flex flex-col">
       {/* Background Pattern */}
       <div className="fixed inset-0 -z-10 bg-linear-to-br from-blue-950/30 via-[#0a0a0f] to-purple-950/20" />
-      <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(59,130,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-size-[50px_50px]" />
+      <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(59,130,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-[size:50px_50px]" />
 
       {/* Header */}
       <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl">
