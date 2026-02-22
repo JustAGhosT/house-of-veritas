@@ -17,7 +17,7 @@ This directory contains all Azure Functions for automation and integration.
 
 ## Directory Structure
 
-```
+```text
 azure-functions/
 ├── shared/
 │   └── utils.py              # Shared utilities (clients, config)
@@ -93,11 +93,14 @@ func start
 
 ```bash
 # Test DocuSeal webhook
+# Note: If authLevel != anonymous, append ?code=<function-key> to the URL.
+# Obtain the function key from Azure Portal → Function App → Functions → DocuSealWebhook → Function Keys.
 curl -X POST http://localhost:7071/api/webhook/docuseal \
   -H "Content-Type: application/json" \
   -d '{"event_type": "submission.completed", "data": {...}}'
 
 # Manually trigger timer functions (via admin endpoint)
+# Note: Host/admin key required for admin endpoints. Retrieve from Azure Portal → Function App → App Keys.
 curl -X POST http://localhost:7071/admin/functions/DocumentExpiryAlert
 ```
 
@@ -130,9 +133,9 @@ func azure functionapp publish func-houseofveritas
 
 Set these in Azure Portal → Function App → Configuration:
 
-```
+```text
 # Baserow
-BASEROW_URL=https://ops.nexamesh.ai
+BASEROW_URL=https://baserow.example.com
 BASEROW_TOKEN=<api-token>
 
 # Table IDs (update after Baserow setup)
@@ -146,17 +149,17 @@ TABLE_EXPENSES=7
 TABLE_DOCUMENT_EXPIRY=8
 
 # DocuSeal
-DOCUSEAL_URL=https://docs.nexamesh.ai
+DOCUSEAL_URL=https://docuseal.example.com
 DOCUSEAL_API_KEY=<api-key>
 DOCUSEAL_WEBHOOK_SECRET=<secret>
 
 # Email
 SENDGRID_API_KEY=<api-key>
-EMAIL_FROM=alerts@nexamesh.ai
+EMAIL_FROM=alerts@example.com
 
 # Admin
-ADMIN_EMAIL=hans@nexamesh.ai
-ADMIN_PHONE=+27...
+ADMIN_EMAIL=admin@example.com
+ADMIN_PHONE=+00000000000
 
 # Storage (for backups)
 AZURE_STORAGE_CONNECTION_STRING=<connection-string>
@@ -170,6 +173,7 @@ BACKUP_CONTAINER=backups
 Receives webhooks when documents are signed in DocuSeal.
 
 **Events Handled:**
+
 - `submission.completed` - Updates employee contract status, document expiry
 - `submission.viewed` - Logs view event
 - `submission.created` - Logs creation
@@ -181,11 +185,13 @@ Receives webhooks when documents are signed in DocuSeal.
 Daily check for documents approaching expiry.
 
 **Alert Levels:**
+
 - 🔴 URGENT: ≤7 days
 - 🟡 WARNING: ≤30 days
 - 🟢 NOTICE: ≤60 days
 
 **Actions:**
+
 - Email to responsible party
 - SMS for urgent items
 - Daily summary to admin
@@ -195,6 +201,7 @@ Daily check for documents approaching expiry.
 Creates task instances from recurring templates.
 
 **Recurrence Types:**
+
 - Daily: 7 instances per week
 - Weekly: 1 instance per week
 - Monthly: 1st week only
@@ -205,6 +212,7 @@ Creates task instances from recurring templates.
 Calculates weekly overtime per BCEA.
 
 **Rules:**
+
 - Standard week: 45 hours
 - Weekday overtime: 1.5x rate
 - Sunday: 2x rate
@@ -215,6 +223,7 @@ Calculates weekly overtime per BCEA.
 Monthly leave accrual per BCEA.
 
 **Leave Types:**
+
 - Annual: 1.25 days/month (15/year)
 - Sick: 30 days/3-year cycle
 - Family: 3 days/year
@@ -224,6 +233,7 @@ Monthly leave accrual per BCEA.
 Notifies admin of pending expenses.
 
 **Triggers:**
+
 - HTTP webhook from Baserow
 - Hourly check (optional)
 
@@ -232,6 +242,7 @@ Notifies admin of pending expenses.
 Monthly financial summary.
 
 **Includes:**
+
 - Category breakdown
 - Budget vs actual
 - Employee spending
@@ -242,6 +253,7 @@ Monthly financial summary.
 Weekly data export to blob storage.
 
 **Exports:**
+
 - All 8 tables as CSV
 - Timestamped folders
 - 90-day retention
@@ -253,6 +265,7 @@ Weekly data export to blob storage.
 Functions automatically log to Application Insights when configured.
 
 View logs:
+
 1. Azure Portal → Function App → Monitor
 2. Application Insights → Logs
 

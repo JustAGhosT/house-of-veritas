@@ -20,6 +20,7 @@ jobs:
   terraform-apply:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     environment: production
     
     steps:
@@ -94,9 +95,7 @@ jobs:
       - name: Terraform Output
         id: output
         working-directory: ${{ env.WORKING_DIR }}
-        run: |
-          terraform output -json > outputs.json
-          cat outputs.json
+        run: terraform output -json > outputs.json
       
       - name: Create Deployment Tag
         run: |

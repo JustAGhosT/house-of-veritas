@@ -10,7 +10,8 @@ resource "azurerm_cognitive_account" "document_intelligence" {
   custom_subdomain_name = var.account_name
 
   network_acls {
-    default_action = "Allow"
+    default_action = var.restrict_network_access ? "Deny" : "Allow"
+    ip_rules       = var.restrict_network_access ? var.allowed_ip_ranges : []
   }
 
   tags = var.tags

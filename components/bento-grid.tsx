@@ -20,7 +20,7 @@ const itemVariants = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: [0.22, 1, 0.36, 1],
+      ease: [0.22, 1, 0.36, 1] as const,
     },
   },
 }
@@ -118,6 +118,13 @@ export function BentoGrid() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
+  const [metricValues] = useState(
+    () => ["CPU", "Memory", "Network", "Storage"].map((name) => ({
+      name,
+      value: Math.floor(Math.random() * 40 + 60),
+    }))
+  )
+
   return (
     <section id="features" className="py-24 px-4">
       <div className="max-w-6xl mx-auto">
@@ -163,10 +170,10 @@ export function BentoGrid() {
               <SystemStatus />
             </div>
             <div className="grid grid-cols-4 gap-4">
-              {["CPU", "Memory", "Network", "Storage"].map((metric) => (
-                <div key={metric} className="text-center">
-                  <div className="text-2xl font-bold text-white mb-1">{Math.floor(Math.random() * 40 + 60)}%</div>
-                  <div className="text-xs text-zinc-500">{metric}</div>
+              {metricValues.map(({ name, value }) => (
+                <div key={name} className="text-center">
+                  <div className="text-2xl font-bold text-white mb-1">{value}%</div>
+                  <div className="text-xs text-zinc-500">{name}</div>
                 </div>
               ))}
             </div>

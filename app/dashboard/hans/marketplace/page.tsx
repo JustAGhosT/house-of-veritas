@@ -38,6 +38,7 @@ import {
   Clock,
   AlertCircle,
 } from "lucide-react"
+import { logger } from "@/lib/logger"
 
 interface MarketplaceListing {
   id: string
@@ -135,7 +136,7 @@ export default function MarketplacePage() {
       setPlatforms(platformsData.platforms || {})
       setAssetsForSale(assetsData.assets || [])
     } catch (error) {
-      console.error("Failed to fetch data:", error)
+      logger.error("Failed to fetch data", { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
@@ -175,7 +176,7 @@ export default function MarketplacePage() {
         setIsPublishDialogOpen(true)
       }
     } catch (error) {
-      console.error("Failed to generate listing:", error)
+      logger.error("Failed to generate listing", { error: error instanceof Error ? error.message : String(error) })
     }
   }
 
@@ -206,7 +207,7 @@ export default function MarketplacePage() {
         resetForm()
       }
     } catch (error) {
-      console.error("Failed to publish:", error)
+      logger.error("Failed to publish", { error: error instanceof Error ? error.message : String(error) })
     }
   }
 
@@ -324,7 +325,7 @@ export default function MarketplacePage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {listings.map((listing) => (
-              <Card key={listing.id} className="bg-white/5 border-white/10 hover:bg-white/[0.07] transition-colors" data-testid={`listing-${listing.id}`}>
+              <Card key={listing.id} className="bg-white/5 border-white/10 hover:bg-white/7 transition-colors" data-testid={`listing-${listing.id}`}>
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">

@@ -15,18 +15,18 @@ on:
       skip_checklist:
         description: 'Skip deployment checklist'
         required: false
-        default: false
         type: boolean
+        default: false
       deploy_infrastructure:
         description: 'Deploy infrastructure changes'
         required: false
-        default: true
         type: boolean
+        default: true
       seed_data:
         description: 'Seed initial data'
         required: false
-        default: false
         type: boolean
+        default: false
   release:
     types: [published]
 
@@ -47,6 +47,7 @@ jobs:
   pre-deploy-validation:
     name: 'Pre-Deployment Validation'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: ${{ !inputs.skip_checklist }}
     outputs:
       ready: ${{ steps.validate.outputs.ready }}
@@ -71,7 +72,7 @@ jobs:
       - name: Run Deployment Checklist
         id: validate
         env:
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS).subscriptionId }}
           AZURE_RESOURCE_GROUP: ${{ env.AZURE_RESOURCE_GROUP }}
         run: |
           python3 config/scripts/deployment-checklist.py --json > checklist.json
@@ -94,9 +95,21 @@ jobs:
   build:
     name: 'Build Application'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: [pre-deploy-validation]
     if: always() && (needs.pre-deploy-validation.result == 'success' || needs.pre-deploy-validation.result == 'skipped')
-    
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      MONGODB_URI: mongodb://localhost:27017/house_of_veritas_test
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -128,8 +141,46 @@ jobs:
             public/
             package.json
             package-lock.json
-            next.config.ts
+            next.config.mjs
           retention-days: 7
+
+  # ============================================
+  # Job 2b: E2E Tests
+  # ============================================
+  e2e:
+    name: 'E2E Tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [build]
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      MONGODB_URI: mongodb://localhost:27017/house_of_veritas_test
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install Dependencies
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run E2E Tests
+        run: npm run test:e2e
+        env:
+          CI: true
+          JWT_SECRET: e2e-test-secret-do-not-use-in-production
 
   # ============================================
   # Job 3: Deploy Infrastructure
@@ -137,6 +188,7 @@ jobs:
   deploy-infrastructure:
     name: 'Deploy Infrastructure'
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [build]
     if: ${{ inputs.deploy_infrastructure }}
     environment: ${{ inputs.environment || 'production' }}
@@ -214,11 +266,17 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
         run: |
           echo "## Infrastructure Outputs" >> $GITHUB_STEP_SUMMARY
+          SENSITIVE_KEYS="document_intelligence_key|storage_connection_string|connection_string|primary_access_key|_password|_secret"
           terraform output -json | python3 -c "
-          import json, sys
+          import json, re, sys
           outputs = json.load(sys.stdin)
+          sensitive = re.compile(r'$SENSITIVE_KEYS', re.I)
           for k, v in outputs.items():
-              print(f'- **{k}**: {v.get(\"value\", \"N/A\")}')
+              if not sensitive.search(k):
+                  val = v.get('value', 'N/A')
+                  print(f'- **{k}**: {val}')
+              else:
+                  print(f'- **{k}**: [REDACTED]')
           " >> $GITHUB_STEP_SUMMARY
 
   # ============================================
@@ -227,6 +285,7 @@ jobs:
   deploy-webapp:
     name: 'Deploy Web App'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [build, deploy-infrastructure]
     if: always() && needs.build.result == 'success' && (needs.deploy-infrastructure.result == 'success' || needs.deploy-infrastructure.result == 'skipped')
     environment: ${{ inputs.environment || 'production' }}
@@ -267,6 +326,7 @@ jobs:
   deploy-docuseal:
     name: 'Deploy DocuSeal'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: [deploy-infrastructure]
     environment: ${{ inputs.environment || 'production' }}
     
@@ -320,6 +380,7 @@ jobs:
   deploy-baserow:
     name: 'Deploy Baserow'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: [deploy-infrastructure]
     environment: ${{ inputs.environment || 'production' }}
     
@@ -372,6 +433,7 @@ jobs:
   seed-data:
     name: 'Seed Initial Data'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [deploy-baserow]
     if: ${{ inputs.seed_data }}
     environment: ${{ inputs.environment || 'production' }}
@@ -407,6 +469,7 @@ jobs:
   post-deploy-verification:
     name: 'Post-Deployment Verification'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [deploy-webapp, deploy-docuseal, deploy-baserow]
     if: always()
     
@@ -429,7 +492,7 @@ jobs:
       
       - name: Run Final Deployment Checklist
         env:
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS).subscriptionId }}
           AZURE_RESOURCE_GROUP: ${{ env.AZURE_RESOURCE_GROUP }}
         run: |
           echo "## 🔍 Post-Deployment Verification" >> $GITHUB_STEP_SUMMARY
@@ -458,6 +521,7 @@ jobs:
   deployment-summary:
     name: 'Deployment Summary'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs: [build, deploy-infrastructure, deploy-webapp, deploy-docuseal, deploy-baserow, post-deploy-verification]
     if: always()
     

@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server"
-import { findUserByEmail, findUserById, getPasswordHash, verifyPassword, safeUser } from "@/lib/users"
+import { findUserByEmailAsync, findUserByIdAsync, getPasswordHashAsync, verifyPassword, safeUser } from "@/lib/users"
 import { signToken, getSessionCookieConfig } from "@/lib/auth/jwt"
+import { logger } from "@/lib/logger"
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
     const { email, password, userId } = body
 
-    const user = email ? findUserByEmail(email) : findUserById(userId)
+    const user = email ? await findUserByEmailAsync(email) : await findUserByIdAsync(userId)
 
     if (!user) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
 
-    const hash = getPasswordHash(user.id)
+    const hash = await getPasswordHashAsync(user.id)
     if (!verifyPassword(password, hash)) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
 
     return response
   } catch (error) {
-    console.error("Login error:", error)
+    logger.error("Login error", { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: "Login failed" }, { status: 500 })
   }
 }

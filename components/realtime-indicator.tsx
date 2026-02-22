@@ -5,6 +5,7 @@ import { useRealTime, useEmitEvent } from "@/lib/hooks/use-realtime"
 import { useAuth } from "@/lib/auth-context"
 import { useNotifications } from "@/lib/notification-context"
 import { RealTimeEvent } from "@/lib/realtime/event-store"
+import { logger } from "@/lib/logger"
 import {
   Wifi,
   WifiOff,
@@ -68,8 +69,8 @@ export function RealTimeIndicator() {
   const { isConnected, lastEvent, events } = useRealTime({
     userId: user?.id || "hans",
     onEvent: handleEvent,
-    onConnect: () => console.log("Real-time connected"),
-    onDisconnect: () => console.log("Real-time disconnected"),
+    onConnect: () => logger.info("Real-time connected"),
+    onDisconnect: () => logger.info("Real-time disconnected"),
   })
 
   const config = toastEvent ? eventConfig[toastEvent.type] : null

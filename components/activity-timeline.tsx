@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Clock,
   CheckCircle,
@@ -18,6 +18,7 @@ import {
   Download,
 } from 'lucide-react'
 import type { AuditLogEntry, AuditAction } from '@/lib/audit-log'
+import { logger } from '@/lib/logger'
 
 const ACTION_CONFIG: Record<AuditAction, { icon: any; color: string; label: string }> = {
   login: { icon: LogIn, color: 'text-green-400', label: 'Logged in' },
@@ -76,11 +77,7 @@ export function ActivityTimeline({
   const [filter, setFilter] = useState<AuditAction | ''>('')
   const [summary, setSummary] = useState<Record<string, number>>({})
 
-  useEffect(() => {
-    fetchLogs()
-  }, [userId, filter])
-
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({ limit: limit.toString() })
@@ -92,11 +89,15 @@ export function ActivityTimeline({
       setLogs(data.logs || [])
       setSummary(data.summary || {})
     } catch (error) {
-      console.error('Failed to fetch audit logs:', error)
+      logger.error('Failed to fetch audit logs', { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
-  }
+  }, [limit, userId, filter])
+
+  useEffect(() => {
+    fetchLogs()
+  }, [fetchLogs])
 
   const downloadAuditLog = async () => {
     const params = new URLSearchParams({ format: 'csv' })
@@ -134,6 +135,7 @@ export function ActivityTimeline({
               value={filter}
               onChange={(e) => setFilter(e.target.value as AuditAction | '')}
               className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm"
+              aria-label="Filter by activity type"
             >
               <option value="">All Activities</option>
               {Object.entries(ACTION_CONFIG).map(([key, { label }]) => (

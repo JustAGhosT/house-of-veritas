@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import React, { createContext, useContext, useState, ReactNode } from 'react'
 import { Language, translations, TranslationKey, LANGUAGES } from './translations'
 
 interface I18nContextType {
@@ -15,15 +15,11 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined)
 const STORAGE_KEY = 'hov_language'
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('en')
-
-  // Load saved language preference
-  useEffect(() => {
+  const [language, setLanguageState] = useState<Language>(() => {
+    if (typeof window === 'undefined') return 'en'
     const saved = localStorage.getItem(STORAGE_KEY) as Language | null
-    if (saved && saved in translations) {
-      setLanguageState(saved)
-    }
-  }, [])
+    return saved && saved in translations ? saved : 'en'
+  })
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang)
@@ -61,6 +57,7 @@ export function LanguageSelector() {
         value={language}
         onChange={(e) => setLanguage(e.target.value as Language)}
         className="appearance-none bg-white/5 border border-white/10 rounded-lg px-3 py-2 pr-8 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer"
+        aria-label="Display language"
       >
         {Object.entries(languages).map(([code, { name, flag }]) => (
           <option key={code} value={code} className="bg-[#0d0d12] text-white">

@@ -19,7 +19,7 @@ cp .env.template .env
 Edit `.env` and set:
 
 | Variable | Description |
-|----------|-------------|
+| -------- | ----------- |
 | `POSTGRES_PASSWORD` | Database password |
 | `DOCUSEAL_SECRET_KEY` | Generate with `openssl rand -hex 64` |
 | `BASEROW_SECRET_KEY` | Generate with `openssl rand -hex 32` |
@@ -36,7 +36,7 @@ chmod +x config/scripts/generate-ssl-certs.sh
 
 Add to your hosts file (`/etc/hosts` or `C:\Windows\System32\drivers\etc\hosts`):
 
-```
+```text
 127.0.0.1 docs.houseofveritas.local
 127.0.0.1 ops.houseofveritas.local
 ```
@@ -51,9 +51,9 @@ docker-compose up -d
 ### 5. Access Applications
 
 | Service | URL | Direct Port |
-|---------|-----|-------------|
-| DocuSeal | https://docs.houseofveritas.local | http://localhost:3001 |
-| Baserow | https://ops.houseofveritas.local | http://localhost:3002 |
+| ------- | --- | ----------- |
+| DocuSeal | <https://docs.houseofveritas.local> | <http://localhost:3001> |
+| Baserow | <https://ops.houseofveritas.local> | <http://localhost:3002> |
 
 ### 6. Seed Data (Optional)
 
@@ -68,7 +68,7 @@ python config/scripts/seed-baserow.py
 The `config/docker-compose.yml` orchestrates:
 
 | Service | Image | Port | Purpose |
-|---------|-------|------|---------|
+| ------- | ----- | ---- | ------- |
 | PostgreSQL | postgres:14 | 5432 | Shared database (docuseal + baserow) |
 | Redis | redis:7 | 6379 | Baserow caching |
 | DocuSeal | docuseal/docuseal | 3001 | Document signing |
@@ -78,7 +78,7 @@ The `config/docker-compose.yml` orchestrates:
 ## Local vs Production
 
 | Component | Local | Production |
-|-----------|-------|------------|
+| --------- | ----- | ---------- |
 | SSL | Self-signed certificates | Let's Encrypt via Key Vault |
 | Proxy | Nginx container | Azure Application Gateway (WAF v2) |
 | Database | PostgreSQL Docker container | Azure PostgreSQL Flexible Server |
@@ -110,7 +110,7 @@ supervisorctl status nextjs
 ## Scripts Reference
 
 | Script | Purpose |
-|--------|---------|
+| ------ | ------- |
 | `config/scripts/generate-ssl-certs.sh` | Generate self-signed SSL certs for local dev |
 | `config/scripts/init-multi-db.sh` | PostgreSQL multi-database initialization |
 | `config/scripts/seed-baserow.py` | Populate Baserow with sample data |

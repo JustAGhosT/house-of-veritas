@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { logger } from "@/lib/logger"
 import {
   ScanLine,
   Camera,
@@ -154,7 +155,7 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
             
             setScannedItems(prev => [newItem, ...prev])
           } catch (err) {
-            console.error("Lookup error:", err)
+            logger.error("Lookup error", { error: err instanceof Error ? err.message : String(err) })
           }
         },
         () => {}
@@ -222,7 +223,7 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
             }),
           })
         } catch (err) {
-          console.error(`Failed to ${mode} ${item.name}:`, err)
+          logger.error(`Failed to ${mode} ${item.name}`, { error: err instanceof Error ? err.message : String(err) })
         }
       }
     }
@@ -406,9 +407,9 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       {item.found ? (
-                        <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
+                        <CheckCircle className="h-4 w-4 text-green-400 shrink-0" />
                       ) : (
-                        <AlertTriangle className="h-4 w-4 text-yellow-400 flex-shrink-0" />
+                        <AlertTriangle className="h-4 w-4 text-yellow-400 shrink-0" />
                       )}
                       <span className="text-white font-medium truncate">{item.name}</span>
                     </div>

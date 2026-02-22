@@ -66,6 +66,41 @@ const expensesTrendData = [
   { week: "W4", approved: 280, pending: 320 },
 ]
 
+// Grass blade SVG paths for garden background
+const grassPaths = [
+  "M0 100 Q5 60 10 40 Q15 60 20 100",
+  "M30 100 Q35 50 40 25 Q45 50 50 100",
+  "M60 100 Q65 65 70 45 Q75 65 80 100",
+  "M100 100 Q105 55 110 30 Q115 55 120 100",
+  "M140 100 Q145 70 150 50 Q155 70 160 100",
+  "M180 100 Q185 60 190 35 Q195 60 200 100",
+  "M220 100 Q225 65 230 45 Q235 65 240 100",
+  "M260 100 Q265 55 270 30 Q275 55 280 100",
+  "M300 100 Q305 70 310 50 Q315 70 320 100",
+  "M340 100 Q345 60 350 40 Q355 60 360 100",
+  "M380 100 Q385 55 390 25 Q395 55 400 100",
+  "M420 100 Q425 65 430 45 Q435 65 440 100",
+  "M460 100 Q465 70 470 50 Q475 70 480 100",
+  "M500 100 Q505 60 510 35 Q515 60 520 100",
+  "M540 100 Q545 55 550 30 Q555 55 560 100",
+  "M580 100 Q585 65 590 45 Q595 65 600 100",
+  "M620 100 Q625 70 630 50 Q635 70 640 100",
+  "M660 100 Q665 60 670 40 Q675 60 680 100",
+  "M700 100 Q705 55 710 25 Q715 55 720 100",
+  "M740 100 Q745 65 750 45 Q755 65 760 100",
+  "M780 100 Q785 70 790 50 Q795 70 800 100",
+  "M820 100 Q825 60 830 35 Q835 60 840 100",
+  "M860 100 Q865 55 870 30 Q875 55 880 100",
+  "M900 100 Q905 65 910 45 Q915 65 920 100",
+  "M940 100 Q945 70 950 50 Q955 70 960 100",
+  "M980 100 Q985 60 990 40 Q995 60 1000 100",
+  "M1020 100 Q1025 55 1030 25 Q1035 55 1040 100",
+  "M1060 100 Q1065 65 1070 45 Q1075 65 1080 100",
+  "M1100 100 Q1105 70 1110 50 Q1115 70 1120 100",
+  "M1140 100 Q1145 60 1150 35 Q1155 60 1160 100",
+  "M1180 100 Q1185 55 1190 30 Q1195 55 1200 100",
+]
+
 // Garden/Nature-themed background pattern
 function GardenPattern() {
   return (
@@ -96,8 +131,8 @@ function GardenPattern() {
       {/* Grass blades */}
       <div className="absolute bottom-0 left-0 right-0 h-32 opacity-10">
         <svg className="w-full h-full" viewBox="0 0 1200 100" preserveAspectRatio="none">
-          {Array.from({length: 60}).map((_, i) => (
-            <path key={i} d={`M${i*20} 100 Q${i*20+5} ${70-Math.random()*30} ${i*20+10} 100`} stroke="#10b981" strokeWidth="2" fill="none"/>
+          {grassPaths.map((d, i) => (
+            <path key={i} d={d} stroke="#10b981" strokeWidth="2" fill="none"/>
           ))}
         </svg>
       </div>
@@ -145,22 +180,26 @@ export default function LuckyDashboard() {
     return () => clearInterval(interval)
   }, [isClockRunning])
 
+  const [grassPaths] = useState(
+    () => Array.from({length: 60}).map((_, i) => `M${i*20} 100 Q${i*20+5} ${70-Math.random()*30} ${i*20+10} 100`)
+  )
+
   return (
     <DashboardLayout persona="lucky">
       {/* Persona-specific background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-green-950/40 via-[#0a0a0f] to-emerald-950/30" />
+      <div className="fixed inset-0 -z-10 bg-linear-to-br from-green-950/40 via-[#0a0a0f] to-emerald-950/30" />
       <GardenPattern />
 
       {/* Time Clock Banner */}
-      <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-green-600/30 to-emerald-700/20 border border-green-500/30 backdrop-blur-sm relative overflow-hidden" data-testid="time-clock-banner">
+      <div className="mb-8 p-6 rounded-2xl bg-linear-to-r from-green-600/30 to-emerald-700/20 border border-green-500/30 backdrop-blur-sm relative overflow-hidden" data-testid="time-clock-banner">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgNSBRMzAgMTUgMjUgMjUgUTIwIDM1IDIwIDM1IFEyMCAzNSAxNSAyNSBRMTAgMTUgMjAgNSBaIiBmaWxsPSJyZ2JhKDE2LDE4NSwxMjksMC4wNSkiLz48L3N2Zz4=')] opacity-50" />
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-green-500/30 to-emerald-600/30 border border-green-500/30 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-xl bg-linear-to-br from-green-500/30 to-emerald-600/30 border border-green-500/30 flex items-center justify-center">
               <Clock className="w-8 h-8 text-green-400" />
             </div>
             <div>
-              <p className="text-green-200/60 text-sm">Today's Work Time</p>
+              <p className="text-green-200/60 text-sm">Today&apos;s Work Time</p>
               <p className="text-4xl font-bold text-green-100 font-mono" data-testid="clock-time">{clockTime}</p>
             </div>
           </div>
@@ -280,7 +319,7 @@ export default function LuckyDashboard() {
         {/* Task Type Distribution */}
         <div className="bg-green-950/40 border border-green-500/20 rounded-2xl p-6 backdrop-blur-sm" data-testid="task-type-chart">
           <h3 className="text-green-100 font-semibold mb-2">Task Types</h3>
-          <p className="text-green-200/50 text-sm mb-4">This month's work</p>
+          <p className="text-green-200/50 text-sm mb-4">This month&apos;s work</p>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -322,7 +361,7 @@ export default function LuckyDashboard() {
               <ClipboardList className="w-5 h-5 text-green-400" />
               <div>
                 <h3 className="text-green-100 font-semibold">My Tasks</h3>
-                <p className="text-green-200/50 text-sm">Today's garden work</p>
+                <p className="text-green-200/50 text-sm">Today&apos;s garden work</p>
               </div>
             </div>
           </div>

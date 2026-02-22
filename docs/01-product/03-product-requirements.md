@@ -1,14 +1,19 @@
 # House of Veritas - Product Requirements Document
 
 ## Overview
-House of Veritas is a comprehensive digital governance platform for estate management, combining legally enforceable e-signatures, operational tracking, and compliance automation.
+
+House of Veritas is a comprehensive digital governance platform for estate management, combining
+legally enforceable e-signatures, operational tracking, and compliance automation.
 
 ## Original Problem Statement
-Transform an existing work management platform codebase into a professional, dashboard-centric governance and estate management platform for an entity called "House of Veritas".
+
+Transform an existing work management platform codebase into a professional, dashboard-centric
+governance and estate management platform for an entity called "House of Veritas".
 
 ## Core Requirements
 
 ### Aesthetic & Design
+
 - Professional, trustworthy, dark theme with clean typography
 - Primary blue (#1E40AF) for trust, secondary green (#059669) for operations
 - Accent orange for alerts, dark charcoal background with subtle grid pattern
@@ -19,23 +24,25 @@ Transform an existing work management platform codebase into a professional, das
   - Irma (Purple/Pink): Home/domestic patterns, hearts, houses, sparkles vectors
 
 ### User Personas (4 Users)
+
 1. **Hans** - Owner/Administrator - Tech Lead, Electronics, Leadership
-   - Email: hans@houseofv.com | Phone: +27692381255
+   - Email: <hans@houseofv.com> | Phone: +27692381255
    - Full platform access, approvals, oversight, can view all dashboards
-   
+
 2. **Charl** - Workshop Operator - Electrician, Plumber, Tinkerer, Magicman
-   - Email: charl@houseofv.com | Phone: +27711488390
+   - Email: <charl@houseofv.com> | Phone: +27711488390
    - Tasks, assets, time tracking, vehicle logs
-   
+
 3. **Lucky** - Gardener & Handyman - Gardening, Painting, Manual Labour
-   - Email: lucky@houseofv.com | Phone: +27794142410
+   - Email: <lucky@houseofv.com> | Phone: +27794142410
    - Tasks, expenses, vehicle logs, time tracking
-   
+
 4. **Irma** - Resident - Babysitting, Cleaning, Food/Cooking
-   - Email: irma@houseofv.com | Phone: +27711488390
+   - Email: <irma@houseofv.com> | Phone: +27711488390
    - Household tasks, documents, meal planning
 
 ### Technology Stack
+
 - **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS, Recharts
 - **Backend:** Next.js API Routes with integration services
 - **External Services:** DocuSeal (e-signatures), Baserow (operational DB)
@@ -47,27 +54,32 @@ Transform an existing work management platform codebase into a professional, das
 ## Implementation Status
 
 ### ✅ Phase 1: MVP Landing Page (COMPLETE)
+
 - Landing page with HV branding
 - 8 feature module showcases
 - Stats section with live data from APIs
 - Role-based dashboard previews
 
 ### ✅ Phase 2: Infrastructure (COMPLETE)
+
 - Terraform IaC for Azure
 - CI/CD GitHub Actions workflows
 - Supervisor management for Next.js
 
 ### ✅ Phase 3: Core Platform Setup (COMPLETE)
+
 - DocuSeal/Baserow configuration files
 - Docker Compose templates
 - Environment variable templates
 
 ### ✅ Phase 4: Integration & Automation (COMPLETE)
+
 - Azure Functions placeholders
 - Webhook handlers
 - Document expiry alerts
 
 ### ✅ Phase 5: User Experience & Polish (COMPLETE - Feb 20, 2026)
+
 - **Authentication System:**
   - Single login form (email/password)
   - Route protection - authenticated users only
@@ -88,6 +100,7 @@ Transform an existing work management platform codebase into a professional, das
   - Role-specific widgets and data
 
 ### ✅ Phase 6: Frontend Integration (COMPLETE - Feb 20, 2026)
+
 - **Integration Services Created:**
   - `/app/lib/services/docuseal.ts` - DocuSeal API integration
   - `/app/lib/services/baserow.ts` - Baserow API integration
@@ -113,19 +126,23 @@ Transform an existing work management platform codebase into a professional, das
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/login` - User authentication
 - `POST /api/auth/reset-password` - Password reset (SMS/Email)
 - `GET /api/auth/users` - Get all users
 
 ### Integration
+
 - `GET /api/integration/status` - Service connection status
 
 ### Documents (DocuSeal)
+
 - `GET /api/documents/templates` - List document templates
 - `GET /api/documents/sign?id=` - Get signature status
 - `POST /api/documents/sign` - Create signature request
 
 ### Operations (Baserow)
+
 - `GET/POST/PATCH /api/tasks` - Task management
 - `GET/POST/PATCH /api/expenses` - Expense tracking
 - `GET /api/assets` - Asset registry
@@ -162,6 +179,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 ---
 
 ### ✅ Phase 7: Testing & UAT (COMPLETE - Feb 20, 2026)
+
 - **Automated Tests:** 24/24 passed (100% success rate)
 - **E2E Testing:** All user flows verified
 - **Security Audit:** Passed all checks
@@ -173,6 +191,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Test Report:** `/app/docs/05-project/03-test-report.md`
 
 ### ✅ Phase 7.5: Real-Time Updates (COMPLETE - Feb 20, 2026)
+
 - **Server-Sent Events (SSE) Implementation:**
   - `/app/app/api/realtime/events/route.ts` - SSE connection endpoint
   - `/app/app/api/realtime/emit/route.ts` - Event broadcast endpoint
@@ -201,6 +220,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 ### ✅ Phase 8: Enhanced Features (COMPLETE - Feb 20, 2026)
 
 #### PWA + Mobile Optimization
+
 - `/app/public/manifest.json` - PWA manifest with app metadata
 - `/app/public/sw.js` - Service worker for offline support
 - `/app/lib/hooks/use-pwa.tsx` - PWA installation and offline detection hooks
@@ -209,18 +229,21 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Offline status indicator in header
 
 #### Multi-Language Support (i18n)
+
 - `/app/lib/i18n/translations.ts` - Translation keys for EN, Afrikaans, Zulu
 - `/app/lib/i18n/context.tsx` - i18n React context and hooks
 - Language selector component in settings
 - Full translations for common UI elements
 
 #### Notification Service
+
 - `/app/lib/services/notification-service.ts` - SMS (Twilio), Email, Push support
 - `/app/app/api/notifications/route.ts` - Notification API endpoint
 - Templated notifications for approvals, expiry alerts, etc.
 - **Note:** SMS/Email currently SIMULATED - configure Twilio for production
 
 #### Advanced Reporting
+
 - `/app/components/reports-panel.tsx` - Interactive report generation
 - `/app/app/api/reports/route.ts` - Reports API (expenses, tasks, time)
 - CSV export functionality
@@ -229,12 +252,14 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Date range filtering
 
 #### Activity Timeline & Audit Log
+
 - `/app/lib/audit-log.ts` - Audit logging system
 - `/app/app/api/audit/route.ts` - Audit log API with CSV export
 - `/app/components/activity-timeline.tsx` - Visual activity timeline
 - Tracks logins, task changes, expenses, documents, etc.
 
 #### File Upload System
+
 - `/app/app/api/uploads/route.ts` - File upload API
 - Support for images, documents, receipts
 - File type validation and size limits
@@ -243,6 +268,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 ### ✅ Phase 9: Advanced Features (COMPLETE - Feb 20, 2026)
 
 #### Google Calendar Integration
+
 - `/app/app/api/calendar/route.ts` - Calendar API with CRUD operations
 - `/app/components/calendar-panel.tsx` - Interactive calendar UI
 - Event creation, viewing, deletion
@@ -250,6 +276,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Mode:** MOCK (configure GOOGLE_CLIENT_ID/SECRET for live sync)
 
 #### Predictive Maintenance AI
+
 - `/app/app/api/ai/maintenance/route.ts` - AI-powered predictions
 - `/app/components/predictive-maintenance.tsx` - Maintenance dashboard
 - Asset health analysis and predictions
@@ -258,6 +285,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Powered by:** Emergent LLM Key + GPT-5.2
 
 #### PDF Report Generation
+
 - `/app/lib/utils/pdf-generator.ts` - Professional PDF reports
 - Branded headers with HV logo
 - Expense, task, time, and audit reports
@@ -267,6 +295,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 ### ✅ Phase 10: Payroll & Biometric (COMPLETE - Feb 20, 2026)
 
 #### Payroll Integration (QuickBooks-Ready)
+
 - `/app/app/api/payroll/route.ts` - Payroll API with mock data
 - `/app/components/payroll-panel.tsx` - Payroll management UI
 - Employee payroll calculations (gross, deductions, net)
@@ -275,6 +304,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Mode:** MOCK (configure QUICKBOOKS_CLIENT_ID/SECRET for live sync)
 
 #### Biometric Time Clock
+
 - `/app/app/api/biometric/route.ts` - Biometric attendance API
 - `/app/components/biometric-time-clock.tsx` - Time clock UI
 - Fingerprint and face recognition support
@@ -284,6 +314,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Mode:** MOCK (configure BIOMETRIC_API_KEY for hardware integration)
 
 #### Automated Maintenance Scheduling
+
 - `/app/app/api/maintenance/schedule/route.ts` - Maintenance scheduling API
 - Auto-schedule from AI predictions to calendar
 - Creates calendar events for upcoming maintenance
@@ -291,6 +322,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Cost estimation and urgent item alerts
 
 #### New Pages
+
 - `/app/app/dashboard/hans/settings/page.tsx` - Language, notifications, PWA
 - `/app/app/dashboard/hans/reports/page.tsx` - Reports & activity logs
 - `/app/app/dashboard/hans/calendar/page.tsx` - Calendar view
@@ -300,6 +332,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 ### ✅ Phase 11: Asset Management, OCR & Marketplace (COMPLETE - Feb 20, 2026)
 
 #### Asset Management System
+
 - `/app/app/api/assets/enhanced/route.ts` - Enhanced asset CRUD API
 - `/app/app/dashboard/hans/assets/page.tsx` - Asset management UI
 - Full CRUD operations with photos, conditions, sale status
@@ -313,6 +346,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Tag-based organization
 
 #### Inventory Tracking System
+
 - `/app/app/api/inventory/route.ts` - Inventory management API
 - `/app/app/dashboard/hans/inventory/page.tsx` - Inventory UI for Hans
 - `/app/app/dashboard/lucky/inventory/page.tsx` - Garden inventory for Lucky
@@ -325,6 +359,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Barcode/QR code scanning** for quick item lookup
 
 #### Barcode Scanner
+
 - `/app/components/barcode-scanner.tsx` - Barcode/QR scanner component
 - Support for: QR Code, EAN-13, EAN-8, UPC-A, UPC-E, Code 128, Code 39
 - Camera-based scanning with torch support
@@ -335,6 +370,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Uses `html5-qrcode` library
 
 #### Barcode Label Printing
+
 - `/app/components/barcode-label-generator.tsx` - Label generation component
 - Configurable label sizes: Small (180×80), Medium (240×100), Large (300×150)
 - Code types: Code 128, QR Code
@@ -346,6 +382,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Generates proper Code 128 barcodes with checksums
 
 #### Batch Scanning Operations
+
 - `/app/components/batch-scanner.tsx` - Batch scanning component
 - **Stock Count Mode** - Scan multiple items for inventory verification
 - **Batch Consume Mode** - Record consumption for multiple items at once
@@ -357,6 +394,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Bulk submit to inventory API
 
 #### OCR Document Scanner
+
 - `/app/app/api/ocr/route.ts` - OCR processing API
 - `/app/app/dashboard/hans/ocr/page.tsx` - OCR Scanner UI
 - Document type selection: invoices, receipts, handwritten requests
@@ -368,6 +406,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Mode:** MOCK (configure AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT for live OCR)
 
 #### Marketplace Integration
+
 - `/app/app/api/marketplace/route.ts` - Marketplace management API
 - `/app/app/dashboard/hans/marketplace/page.tsx` - Marketplace UI
 - Platform support: Gumtree, Facebook Marketplace, OLX, BidOrBuy, AutoTrader
@@ -377,7 +416,8 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Potential revenue calculation
 - **Mode:** MOCK (creates draft listings, doesn't post to external platforms)
 
-#### File Upload System
+#### File Upload Implementation
+
 - `/app/app/api/files/route.ts` - File upload API with Azure Blob support
 - `/app/components/image-upload.tsx` - Image upload component
 - Support for images and PDFs (10MB max)
@@ -386,16 +426,19 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Mode:** MOCK (uses local /tmp/uploads when Azure not configured)
 
 #### Visual Enhancements
+
 - `/app/app/globals.css` - Grid/3D room background CSS
 - `/app/components/grid-room-background.tsx` - Grid background component
 - Subtle perspective grid effect on dashboard pages
 - Dark theme with grid floor effect
 
 #### Updated Navigation
+
 - Assets, Inventory, OCR Scanner, Marketplace added to Hans navigation
 - Inventory added to Lucky navigation (garden supplies only)
 
 #### Documentation Updates (Feb 21, 2026)
+
 - `/app/docs/03-deployment/01-deployment-guide.md` - Complete deployment guide with:
   - PowerShell commands for Windows users
   - Bash commands for Linux/macOS users
@@ -410,11 +453,13 @@ TWILIO_PHONE_NUMBER=+1234567890
 ### ✅ Phase 12: Employee Kiosk Mode (COMPLETE - Feb 21, 2026)
 
 #### Mobile Kiosk Interface
+
 - `/app/app/kiosk/page.tsx` - Complete kiosk UI with PIN-based authentication
 - Mobile-first responsive design (optimized for tablets/phones)
 - Real-time clock display with date
 
 #### Kiosk Features
+
 - **PIN-Based Login** - Simple 4-digit PIN entry with number pad
   - Charl (1234), Lucky (5678), Irma (9012), Hans (0000)
 - **Clock In/Out** - Time tracking with status badge
@@ -432,6 +477,7 @@ TWILIO_PHONE_NUMBER=+1234567890
   - Safety hazard priority flagging
 
 #### Kiosk API
+
 - `/app/app/api/kiosk/requests/route.ts` - Request management API
 - **GET** - List requests with filters (employeeId, type, status)
 - **POST** - Create new requests (stock_order, salary_advance, issue_report)
@@ -442,11 +488,13 @@ TWILIO_PHONE_NUMBER=+1234567890
 ### ✅ Phase 13: Manager Approval Workflow (COMPLETE - Feb 21, 2026)
 
 #### Approval Center Dashboard
+
 - `/app/app/dashboard/hans/approvals/page.tsx` - Manager approvals UI
 - Summary cards: Pending count, Stock Orders, Advances, Issues
 - Real-time "X pending" badge in header
 
 #### Approval Features
+
 - **Request List** - All pending requests with employee info, timestamps
 - **Filters** - By type (stock/advance/issue) and status (pending/approved/rejected)
 - **Search** - By employee name, item, or description
@@ -460,12 +508,14 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Auto-update** - List refreshes after approve/reject
 
 #### Navigation Update
+
 - Added "Approvals" to Hans's dashboard navigation (priority placement)
 - CheckSquare icon for approval center
 
 ### ✅ Phase 14: MongoDB Persistence & Notifications (COMPLETE - Feb 21, 2026)
 
 #### MongoDB Integration
+
 - `/app/lib/db/mongodb.ts` - MongoDB connection utility
 - Database: `house_of_veritas`
 - Collection: `kiosk_requests`
@@ -474,6 +524,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - Full CRUD operations with persistent storage
 
 #### Employee Request History
+
 - **My Requests Button** - Added to kiosk main menu (indigo color)
 - **Request History Dialog** - Shows employee's submitted requests
 - **Status Badges** - Pending (yellow), Approved (green), Rejected (red)
@@ -481,6 +532,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Filter by Employee** - API supports `?employeeId=X` parameter
 
 #### Notification System Integration
+
 - **Approval Notifications** - SMS/WhatsApp/Email sent when request approved
 - **Rejection Notifications** - SMS/WhatsApp/Email sent when request rejected
 - **Manager Alerts** - In-app notification for new requests
@@ -489,18 +541,21 @@ TWILIO_PHONE_NUMBER=+1234567890
 ### ✅ Phase 15: Notification Preferences System (COMPLETE - Feb 21, 2026)
 
 #### User Preference Selection
+
 - `/app/app/api/notifications/preferences/route.ts` - Preferences API
 - MongoDB collection: `notification_preferences`
 - Three channel options: SMS, WhatsApp, Email
 - Persistent preference storage per user
 
 #### Kiosk Notification Settings
+
 - **Bell Icon** - Added to kiosk header for quick access
 - **Preference Dialog** - Visual selection of preferred channel
 - **Fallback Order Display** - Shows automatic fallback sequence
 - **Auto-Fallback** - If primary fails, tries next option automatically
 
 #### Twilio Integration
+
 - Twilio SDK installed and configured
 - SMS sending via `twilio.messages.create()`
 - WhatsApp support via `whatsapp:` prefix
@@ -512,16 +567,19 @@ TWILIO_PHONE_NUMBER=+1234567890
 ## Upcoming Tasks
 
 ### P1: Real Marketplace API Integrations
+
 - **Gumtree API** - Requires API credentials from user
 - **eBay API** - Requires developer account setup
 - **Facebook Marketplace** - Requires Facebook App credentials
 - Service layer ready at `/app/lib/services/marketplace-service.ts`
 
 ### P2: Configure External Services
+
 - **Azure Document Intelligence** - Provide AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT and KEY for live OCR
 - **Azure Blob Storage** - Provide connection string for image uploads
 
 ### P3: Production Deployment
+
 - Deploy to Azure (requires Azure credentials)
 - Configure production environment
 - Set up Twilio for real SMS notifications
@@ -546,6 +604,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 ## Files Reference
 
 ### Core Application
+
 - `/app/lib/auth-context.tsx` - Auth provider with route protection
 - `/app/lib/notification-context.tsx` - Notification system
 - `/app/lib/services/docuseal.ts` - DocuSeal API integration
@@ -578,7 +637,8 @@ TWILIO_PHONE_NUMBER=+1234567890
 - `/app/app/dashboard/hans/reports/page.tsx` - Reports page
 - `/app/app/dashboard/lucky/inventory/page.tsx` - Lucky's garden inventory
 
-### API Endpoints
+### Implementation API Endpoints
+
 - `/app/app/api/kiosk/requests/route.ts` - Kiosk request API (MongoDB)
 - `/app/app/api/realtime/events/route.ts` - SSE endpoint
 - `/app/app/api/realtime/emit/route.ts` - Event emit API
@@ -593,6 +653,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 - `/app/app/api/uploads/route.ts` - File uploads API
 
 ### PWA Assets
+
 - `/app/public/manifest.json` - PWA manifest
 - `/app/public/sw.js` - Service worker
 - `/app/public/icons/` - App icons

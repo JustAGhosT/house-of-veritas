@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { logger } from "@/lib/logger"
 import {
   ScanLine,
   Camera,
@@ -60,6 +61,27 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
   const scannerRef = useRef<any>(null)
   const videoRef = useRef<HTMLDivElement>(null)
 
+  const lookupItem = useCallback(async (code: string) => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/inventory?barcode=${encodeURIComponent(code)}`)
+      const data = await res.json()
+      
+      if (data.items && data.items.length > 0) {
+        setFoundItem(data.items[0])
+        onScanComplete?.(data.items[0], code)
+      } else {
+        setFoundItem(null)
+        onScanComplete?.(null, code)
+      }
+    } catch (err) {
+      logger.error("Lookup error", { error: err instanceof Error ? err.message : String(err) })
+      setFoundItem(null)
+    } finally {
+      setLoading(false)
+    }
+  }, [onScanComplete])
+
   const startScanner = useCallback(async () => {
     if (!videoRef.current) return
 
@@ -104,12 +126,12 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
 
       setIsScanning(true)
       setError(null)
-    } catch (err: any) {
-      console.error("Scanner error:", err)
-      setError(err.message || "Failed to start camera")
+    } catch (err: unknown) {
+      logger.error("Scanner error", { error: err instanceof Error ? err.message : String(err) })
+      setError(err instanceof Error ? err.message : "Failed to start camera")
       setIsScanning(false)
     }
-  }, [])
+  }, [lookupItem])
 
   const stopScanner = useCallback(async () => {
     if (scannerRef.current) {
@@ -122,27 +144,6 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
     }
     setIsScanning(false)
   }, [])
-
-  const lookupItem = async (code: string) => {
-    setLoading(true)
-    try {
-      const res = await fetch(`/api/inventory?barcode=${encodeURIComponent(code)}`)
-      const data = await res.json()
-      
-      if (data.items && data.items.length > 0) {
-        setFoundItem(data.items[0])
-        onScanComplete?.(data.items[0], code)
-      } else {
-        setFoundItem(null)
-        onScanComplete?.(null, code)
-      }
-    } catch (err) {
-      console.error("Lookup error:", err)
-      setFoundItem(null)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const resetScanner = useCallback(() => {
     setScanResult(null)
@@ -162,7 +163,7 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
           setTorchOn(!torchOn)
         }
       } catch (e) {
-        console.error("Torch error:", e)
+        logger.error("Torch error", { error: e instanceof Error ? e.message : String(e) })
       }
     }
   }

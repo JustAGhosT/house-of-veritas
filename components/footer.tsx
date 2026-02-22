@@ -2,6 +2,7 @@
 
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
+import Image from "next/image"
 
 const footerLinks = {
   Platform: ["Documents", "Operations", "Reports", "Dashboards", "Compliance"],
@@ -26,7 +27,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <a href="#" className="flex items-center gap-3 mb-4">
-              <img src="/hv-logo-small.svg" alt="House of Veritas" className="w-10 h-10" />
+              <Image src="/hv-logo-small.svg" alt="House of Veritas" width={40} height={40} />
               <span className="font-semibold text-white">House of Veritas</span>
             </a>
             <p className="text-sm text-zinc-500 mb-4">Secure estate management and digital governance platform.</p>

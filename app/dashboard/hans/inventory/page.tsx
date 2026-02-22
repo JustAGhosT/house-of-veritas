@@ -50,6 +50,7 @@ import {
   ClipboardList,
   ChevronDown,
 } from "lucide-react"
+import { logger } from "@/lib/logger"
 
 const CATEGORIES = [
   { value: "building_materials", label: "Building Materials" },
@@ -146,7 +147,7 @@ export default function InventoryPage() {
       setAlerts(data.alerts || [])
       setSummary(data.summary || null)
     } catch (error) {
-      console.error("Failed to fetch inventory:", error)
+      logger.error("Failed to fetch inventory", { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
@@ -177,7 +178,7 @@ export default function InventoryPage() {
         setConsumePurpose("")
       }
     } catch (error) {
-      console.error("Failed to consume:", error)
+      logger.error("Failed to consume", { error: error instanceof Error ? error.message : String(error) })
     }
   }
 
@@ -201,7 +202,7 @@ export default function InventoryPage() {
         setRestockCost("")
       }
     } catch (error) {
-      console.error("Failed to restock:", error)
+      logger.error("Failed to restock", { error: error instanceof Error ? error.message : String(error) })
     }
   }
 
@@ -221,7 +222,7 @@ export default function InventoryPage() {
         setIsShoppingListOpen(true)
       }
     } catch (error) {
-      console.error("Failed to generate shopping list:", error)
+      logger.error("Failed to generate shopping list", { error: error instanceof Error ? error.message : String(error) })
     }
   }
 
@@ -311,7 +312,7 @@ export default function InventoryPage() {
           <Card className="bg-red-500/10 border-red-500/30">
             <CardContent className="pt-6">
               <div className="flex items-start gap-4">
-                <AlertTriangle className="h-6 w-6 text-red-400 flex-shrink-0" />
+                <AlertTriangle className="h-6 w-6 text-red-400 shrink-0" />
                 <div className="flex-1">
                   <p className="text-red-300 font-semibold">Low Stock Alerts</p>
                   <div className="flex flex-wrap gap-2 mt-2">
@@ -446,7 +447,7 @@ export default function InventoryPage() {
                     const stockLevel = getStockLevel(item)
                     const percentage = Math.min((item.currentStock / item.maxStock) * 100, 100)
                     return (
-                      <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.03]" data-testid={`inventory-row-${item.id}`}>
+                      <tr key={item.id} className="border-b border-white/5 hover:bg-white/3" data-testid={`inventory-row-${item.id}`}>
                         <td className="px-6 py-4">
                           <div>
                             <p className="text-white font-medium">{item.name}</p>

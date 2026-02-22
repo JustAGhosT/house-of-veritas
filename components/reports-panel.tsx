@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { 
   FileText, 
   Download, 
@@ -15,6 +15,7 @@ import {
   FileDown,
 } from 'lucide-react'
 import { generatePDFReport } from '@/lib/utils/pdf-generator'
+import { logger } from '@/lib/logger'
 
 type ReportType = 'expenses' | 'tasks' | 'time' | 'all'
 
@@ -30,7 +31,7 @@ export function ReportsPanel() {
   const [loading, setLoading] = useState(false)
   const [dateRange, setDateRange] = useState({ start: '', end: '' })
 
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({ type: reportType })
@@ -41,11 +42,11 @@ export function ReportsPanel() {
       const data = await response.json()
       setReportData(data)
     } catch (error) {
-      console.error('Failed to fetch report:', error)
+      logger.error('Failed to fetch report', { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
-  }
+  }, [reportType, dateRange])
 
   const downloadCSV = async () => {
     const params = new URLSearchParams({ type: reportType, format: 'csv' })
@@ -85,7 +86,7 @@ export function ReportsPanel() {
 
   useEffect(() => {
     fetchReport()
-  }, [reportType])
+  }, [fetchReport])
 
   const reportTypes = [
     { id: 'expenses', label: 'Expenses', icon: DollarSign, color: 'text-purple-400' },
@@ -225,7 +226,7 @@ function SummaryCard({ title, value, icon: Icon, color }: {
   }
 
   return (
-    <div className={`p-4 rounded-xl bg-gradient-to-br ${colors[color]} border`}>
+    <div className={`p-4 rounded-xl bg-linear-to-br ${colors[color]} border`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-white/60 text-sm">{title}</p>

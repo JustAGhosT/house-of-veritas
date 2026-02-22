@@ -148,27 +148,19 @@ const initialNotifications: Notification[] = [
 ]
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const [notifications, setNotifications] = useState<Notification[]>([])
-
-  // Load notifications from localStorage on mount
-  useEffect(() => {
+  const [notifications, setNotifications] = useState<Notification[]>(() => {
+    if (typeof window === 'undefined') return initialNotifications
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       try {
         const parsed = JSON.parse(stored)
-        // Convert timestamp strings back to Date objects
-        const withDates = parsed.map((n: any) => ({
-          ...n,
-          timestamp: new Date(n.timestamp),
-        }))
-        setNotifications(withDates)
-      } catch (e) {
-        setNotifications(initialNotifications)
+        return parsed.map((n: any) => ({ ...n, timestamp: new Date(n.timestamp) }))
+      } catch {
+        return initialNotifications
       }
-    } else {
-      setNotifications(initialNotifications)
     }
-  }, [])
+    return initialNotifications
+  })
 
   // Save to localStorage when notifications change
   useEffect(() => {

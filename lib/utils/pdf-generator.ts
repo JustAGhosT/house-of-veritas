@@ -11,13 +11,13 @@ interface ReportData {
   type: 'expenses' | 'tasks' | 'time' | 'audit'
 }
 
-// House of Veritas brand colors
+// House of Veritas brand colors (RGB)
 const BRAND_COLORS = {
-  primary: [30, 64, 175], // #1E40AF
-  secondary: [5, 150, 105], // #059669
-  dark: [10, 10, 15], // #0a0a0f
-  text: [255, 255, 255],
-  muted: [156, 163, 175],
+  primary: [30, 64, 175] as [number, number, number], // #1E40AF
+  secondary: [5, 150, 105] as [number, number, number], // #059669
+  dark: [10, 10, 15] as [number, number, number], // #0a0a0f
+  text: [255, 255, 255] as [number, number, number],
+  muted: [156, 163, 175] as [number, number, number],
 }
 
 export function generatePDFReport(reportData: ReportData): void {

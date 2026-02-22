@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 // Mock asset/vehicle data for maintenance analysis
 const ASSET_DATA = [
@@ -86,10 +87,10 @@ async function getPredictiveAnalysis(assets: typeof ASSET_DATA): Promise<{
     // Use fetch to call the LLM API
     // In production this would use the emergentintegrations library
     // For now, return mock data with the key present
-    console.log('[AI Maintenance] API key present, returning enhanced mock predictions')
+    logger.info('AI Maintenance: API key present, returning enhanced mock predictions')
     return getMockPredictions(assets)
   } catch (error) {
-    console.error('[AI Maintenance] Error:', error)
+    logger.error('AI Maintenance error', { error: error instanceof Error ? error.message : String(error) })
     return getMockPredictions(assets)
   }
 }
@@ -191,9 +192,9 @@ export async function POST(request: Request) {
       aiPowered: !!process.env.EMERGENT_LLM_KEY,
       ...analysis,
     })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Analysis failed', details: error.message },
+      { error: 'Analysis failed' },
       { status: 500 }
     )
   }

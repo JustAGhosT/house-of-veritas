@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, useInView } from "framer-motion"
-import { useRef, useEffect, useState } from "react"
+import { useRef, useEffect, useState, startTransition } from "react"
 import {
   FileSignature,
   DollarSign,
@@ -29,7 +29,7 @@ const itemVariants = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: [0.22, 1, 0.36, 1],
+      ease: [0.22, 1, 0.36, 1] as const,
     },
   },
 }
@@ -68,7 +68,7 @@ function BudgetChart() {
   const isInView = useInView(ref, { once: true })
 
   useEffect(() => {
-    if (isInView) setAnimated(true)
+    if (isInView) startTransition(() => setAnimated(true))
   }, [isInView])
 
   return (
@@ -115,8 +115,7 @@ export function FeatureModules() {
           className="text-center mb-16"
         >
           <h2
-            className="text-3xl sm:text-4xl font-bold text-white mb-4"
-            style={{ fontFamily: "var(--font-inter)" }}
+            className="text-3xl sm:text-4xl font-bold text-white mb-4 [font-family:var(--font-inter)]"
           >
             Complete Governance Platform
           </h2>
@@ -136,7 +135,7 @@ export function FeatureModules() {
           {/* Large card - Document Management */}
           <motion.div
             variants={itemVariants}
-            className="md:col-span-2 group relative p-6 rounded-2xl bg-gradient-to-br from-blue-950/50 to-zinc-900 border border-blue-800/50 hover:border-blue-600/50 hover:scale-[1.02] transition-all duration-300"
+            className="md:col-span-2 group relative p-6 rounded-2xl bg-linear-to-br from-blue-950/50 to-zinc-900 border border-blue-800/50 hover:border-blue-600/50 hover:scale-[1.02] transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-6">
               <div>
@@ -165,7 +164,7 @@ export function FeatureModules() {
           {/* Financial Tracking */}
           <motion.div
             variants={itemVariants}
-            className="group relative p-6 rounded-2xl bg-gradient-to-br from-green-950/50 to-zinc-900 border border-green-800/50 hover:border-green-600/50 hover:scale-[1.02] transition-all duration-300"
+            className="group relative p-6 rounded-2xl bg-linear-to-br from-green-950/50 to-zinc-900 border border-green-800/50 hover:border-green-600/50 hover:scale-[1.02] transition-all duration-300"
           >
             <div className="p-2 rounded-lg bg-green-900/50 w-fit mb-4">
               <DollarSign className="w-5 h-5 text-green-400" strokeWidth={1.5} />
@@ -180,7 +179,7 @@ export function FeatureModules() {
           {/* Compliance Alerts */}
           <motion.div
             variants={itemVariants}
-            className="group relative p-6 rounded-2xl bg-gradient-to-br from-orange-950/50 to-zinc-900 border border-orange-800/50 hover:border-orange-600/50 hover:scale-[1.02] transition-all duration-300"
+            className="group relative p-6 rounded-2xl bg-linear-to-br from-orange-950/50 to-zinc-900 border border-orange-800/50 hover:border-orange-600/50 hover:scale-[1.02] transition-all duration-300"
           >
             <div className="p-2 rounded-lg bg-orange-900/50 w-fit mb-4">
               <Bell className="w-5 h-5 text-orange-400" strokeWidth={1.5} />

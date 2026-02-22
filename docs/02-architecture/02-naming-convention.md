@@ -2,14 +2,14 @@
 
 ## Naming Pattern
 
-```
+```text
 nl-{env}-hov-{resourcetype}-{location}
 ```
 
 ### Components
 
 | Component | Description | Values |
-|-----------|-------------|--------|
+| --------- | ----------- | ------ |
 | `nl` | Namespace/Prefix | Always `nl` |
 | `{env}` | Environment | `prod`, `dev`, `staging` |
 | `hov` | Project Code | House of Veritas |
@@ -19,7 +19,7 @@ nl-{env}-hov-{resourcetype}-{location}
 ### Resource Type Abbreviations
 
 | Resource | Abbreviation | Example |
-|----------|--------------|---------|
+| -------- | ------------ | ------- |
 | Resource Group | `rg` | `nl-prod-hov-rg-san` |
 | Virtual Network | `vnet` | `nl-prod-hov-vnet-san` |
 | Subnet | `snet` | `nl-prod-hov-snet-containers-san` |
@@ -38,13 +38,14 @@ nl-{env}-hov-{resourcetype}-{location}
 ### Special Cases
 
 Some Azure resources don't allow hyphens in names:
+
 - **Storage Accounts**: `nlprodhovstsan` (concatenated)
 - **Container Registry**: `nlprodhovcr` (concatenated)
 
 ### Location Codes
 
 | Azure Region | Short Code |
-|--------------|------------|
+| ------------ | ---------- |
 | South Africa North | `san` |
 | West Europe | `weu` |
 | North Europe | `neu` |
@@ -56,7 +57,7 @@ Some Azure resources don't allow hyphens in names:
 ### Production Environment (`prod`)
 
 | Resource | Name | Purpose |
-|----------|------|---------|
+| -------- | ---- | ------- |
 | Resource Group | `nl-prod-hov-rg-san` | All production resources |
 | Virtual Network | `nl-prod-hov-vnet-san` | Network isolation |
 | PostgreSQL | `nl-prod-hov-pg-san` | Database server |
@@ -70,7 +71,7 @@ Some Azure resources don't allow hyphens in names:
 ### Development Environment (`dev`)
 
 | Resource | Name | Purpose |
-|----------|------|---------|
+| -------- | ---- | ------- |
 | Resource Group | `nl-dev-hov-rg-san` | Development resources |
 | Virtual Network | `nl-dev-hov-vnet-san` | Network isolation |
 | PostgreSQL | `nl-dev-hov-pg-san` | Database server |

@@ -1,9 +1,11 @@
 # UI Layer Agent
 
 ## Role
+
 Specialized agent for auditing the frontend: React components, pages, layouts, styling, accessibility, and UX patterns.
 
 ## Scope
+
 ```text
 app/**/page.tsx
 app/**/layout.tsx
@@ -17,6 +19,7 @@ next.config.*
 ## Checklist
 
 ### Component Architecture
+
 - [ ] Components are single-responsibility
 - [ ] Props interfaces defined with TypeScript
 - [ ] Reusable components extracted (buttons, cards, forms)
@@ -24,6 +27,7 @@ next.config.*
 - [ ] No prop drilling beyond 2 levels (use context or composition)
 
 ### Page Completeness
+
 - [ ] Login page renders and handles form submission
 - [ ] Kiosk page functional for public requests
 - [ ] Each user dashboard (admin, operator-1, operator-2, resident) has unique content
@@ -32,6 +36,7 @@ next.config.*
 - [ ] 404 / error pages styled
 
 ### Styling & Design
+
 - [ ] Tailwind classes consistent (no mixing utility CSS with custom CSS)
 - [ ] Dark mode support via CSS variables or Tailwind dark: prefix
 - [ ] Responsive breakpoints (mobile, tablet, desktop)
@@ -41,6 +46,7 @@ next.config.*
 - [ ] Empty states (no data messages)
 
 ### Accessibility
+
 - [ ] Semantic HTML elements (nav, main, section, article)
 - [ ] Form labels associated with inputs
 - [ ] ARIA labels on interactive elements
@@ -50,12 +56,14 @@ next.config.*
 - [ ] Alt text on images
 
 ### Performance
+
 - [ ] Images use next/image for optimization
 - [ ] Dynamic imports for heavy components
 - [ ] No unnecessary re-renders (memoization where needed)
 - [ ] Bundle size reasonable (check for large dependencies)
 
 ### State Management
+
 - [ ] Form state handled consistently (controlled components)
 - [ ] Server state fetched via API routes
 - [ ] Optimistic updates where appropriate
@@ -63,10 +71,12 @@ next.config.*
 - [ ] Loading states during data fetches
 
 ### PWA
+
 - [ ] Service worker registered
 - [ ] Manifest configured
 - [ ] Offline fallback page
 - [ ] Cache strategy appropriate
 
 ## Output Format
+
 Write findings to `.claude/reports/ui-report.md` with screenshots/references and UX improvement recommendations.

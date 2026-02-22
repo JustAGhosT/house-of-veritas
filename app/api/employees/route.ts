@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import { getEmployees, getEmployee, isBaserowConfigured } from '@/lib/services/baserow'
+import { getEmployees, getEmployee } from '@/lib/services/baserow'
+import { withDataSource } from '@/lib/api/response'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -7,31 +9,27 @@ export async function GET(request: Request) {
 
   try {
     if (id) {
-      const employee = await getEmployee(parseInt(id))
+      const parsedId = parseInt(id, 10)
+      if (isNaN(parsedId)) {
+        return NextResponse.json(
+          { error: 'Invalid employee ID' },
+          { status: 400 }
+        )
+      }
+      const employee = await getEmployee(parsedId)
       if (!employee) {
         return NextResponse.json(
           { error: 'Employee not found' },
           { status: 404 }
         )
       }
-      return NextResponse.json({
-        employee,
-        configured: isBaserowConfigured(),
-      })
+      return withDataSource({ employee })
     }
 
     const employees = await getEmployees()
-    
-    return NextResponse.json({
-      employees,
-      total: employees.length,
-      configured: isBaserowConfigured(),
-      message: isBaserowConfigured()
-        ? "Connected to Baserow"
-        : "Using mock data - Baserow not configured",
-    })
+    return withDataSource({ employees, total: employees.length })
   } catch (error) {
-    console.error('Error fetching employees:', error)
+    logger.error('Error fetching employees', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to fetch employees' },
       { status: 500 }

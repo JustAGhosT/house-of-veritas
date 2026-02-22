@@ -1,141 +1,13 @@
-import { NextRequest, NextResponse } from "next/server"
-import { getCollection, sanitizeDocument, sanitizeDocuments } from "@/lib/db/mongodb"
+import { NextResponse } from "next/server"
+import { getKioskStore, sanitizeKioskDoc, sanitizeKioskDocs, type KioskRequestDoc } from "@/lib/db/kiosk-store"
 import { sendNotification, NotificationChannel } from "@/lib/services/notification-service"
+import { withRole, withAuth } from "@/lib/auth/rbac"
 import { ObjectId } from "mongodb"
+import { logger } from "@/lib/logger"
 
-// Kiosk Request Interface
-interface KioskRequestDoc {
-  _id?: ObjectId
-  type: "stock_order" | "salary_advance" | "issue_report"
-  employeeId: string
-  employeeName: string
-  data: Record<string, any>
-  timestamp: string
-  status: "pending" | "approved" | "rejected" | "completed"
-  reviewedBy?: string
-  reviewedAt?: string
-  notes?: string
-}
+// Re-export for tests that may reference SEED_DATA
+export { KIOSK_SEED_DATA as SEED_DATA } from "@/lib/db/kiosk-store"
 
-// Seed data for initial setup
-const SEED_DATA: Omit<KioskRequestDoc, "_id">[] = [
-  {
-    type: "stock_order",
-    employeeId: "lucky",
-    employeeName: "Lucky",
-    data: {
-      itemName: "Fertilizer bags",
-      quantity: 5,
-      urgency: "normal",
-      notes: "For the front garden beds",
-    },
-    timestamp: new Date(Date.now() - 86400000).toISOString(),
-    status: "approved",
-    reviewedBy: "hans",
-    reviewedAt: new Date(Date.now() - 43200000).toISOString(),
-    notes: "Approved. Please order from Stodels.",
-  },
-  {
-    type: "issue_report",
-    employeeId: "charl",
-    employeeName: "Charl",
-    data: {
-      assetName: "Workshop drill press",
-      issueType: "maintenance",
-      description: "Belt needs replacement, making squeaking noise",
-      location: "Workshop",
-    },
-    timestamp: new Date(Date.now() - 172800000).toISOString(),
-    status: "pending",
-  },
-  {
-    type: "salary_advance",
-    employeeId: "lucky",
-    employeeName: "Lucky",
-    data: {
-      amount: 1500,
-      reason: "School fees for my daughter due this week",
-      repaymentPlan: "2months",
-    },
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-    status: "pending",
-  },
-  {
-    type: "stock_order",
-    employeeId: "charl",
-    employeeName: "Charl",
-    data: {
-      itemName: "WD-40 lubricant spray",
-      quantity: 3,
-      urgency: "urgent",
-      notes: "Gate motor making grinding noises, need to lubricate urgently",
-    },
-    timestamp: new Date(Date.now() - 7200000).toISOString(),
-    status: "pending",
-  },
-  {
-    type: "issue_report",
-    employeeId: "irma",
-    employeeName: "Irma",
-    data: {
-      assetName: "Kitchen dishwasher",
-      issueType: "broken",
-      description: "Not draining water properly, leaves puddles inside after cycle",
-      location: "Main Kitchen",
-    },
-    timestamp: new Date(Date.now() - 14400000).toISOString(),
-    status: "pending",
-  },
-  {
-    type: "issue_report",
-    employeeId: "lucky",
-    employeeName: "Lucky",
-    data: {
-      assetName: "Pool pump room door",
-      issueType: "safety",
-      description: "Door lock is broken, pool chemicals accessible to anyone",
-      location: "Pool area",
-    },
-    timestamp: new Date(Date.now() - 1800000).toISOString(),
-    status: "pending",
-  },
-  {
-    type: "salary_advance",
-    employeeId: "charl",
-    employeeName: "Charl",
-    data: {
-      amount: 800,
-      reason: "Car repairs needed for commute",
-      repaymentPlan: "1month",
-    },
-    timestamp: new Date(Date.now() - 259200000).toISOString(),
-    status: "rejected",
-    reviewedBy: "hans",
-    reviewedAt: new Date(Date.now() - 172800000).toISOString(),
-    notes: "Please resubmit with vehicle repair quote attached.",
-  },
-]
-
-// Initialize collection with seed data if empty
-async function initializeCollection() {
-  try {
-    const collection = await getCollection<KioskRequestDoc>("kiosk_requests")
-    const count = await collection.countDocuments()
-    
-    if (count === 0) {
-      console.log("[KioskRequests] Seeding initial data...")
-      await collection.insertMany(SEED_DATA)
-      console.log(`[KioskRequests] Seeded ${SEED_DATA.length} requests`)
-    }
-    
-    return collection
-  } catch (error) {
-    console.error("[KioskRequests] Init error:", error)
-    throw error
-  }
-}
-
-// Send notification to employee about request status
 async function notifyEmployee(
   request: KioskRequestDoc,
   status: "approved" | "rejected",
@@ -151,20 +23,18 @@ async function notifyEmployee(
   let message = `Your ${typeLabels[request.type]} request has been ${status}.`
 
   if (request.type === "stock_order") {
-    message += ` Item: ${request.data.itemName}`
+    message += ` Item: ${(request.data as { itemName?: string }).itemName}`
   } else if (request.type === "salary_advance") {
-    message += ` Amount: R${request.data.amount}`
+    message += ` Amount: R${(request.data as { amount?: number }).amount}`
   } else if (request.type === "issue_report") {
-    message += ` Asset: ${request.data.assetName}`
+    message += ` Asset: ${(request.data as { assetName?: string }).assetName}`
   }
 
   if (notes) {
     message += ` Note: ${notes}`
   }
 
-  // Send via SMS and in-app
   const channels: NotificationChannel[] = ["sms", "in_app"]
-  
   try {
     const results = await sendNotification({
       type: status === "approved" ? "expense_approved" : "expense_rejected",
@@ -179,16 +49,14 @@ async function notifyEmployee(
       },
       priority: "high",
     })
-    
-    console.log(`[Notification] Sent to ${request.employeeName}:`, results)
+    logger.info("Notification sent", { employeeName: request.employeeName, results })
     return results
   } catch (error) {
-    console.error("[Notification] Error:", error)
+    logger.error("Notification error", { error: error instanceof Error ? error.message : String(error) })
     return []
   }
 }
 
-// Notify manager of new request
 async function notifyManager(request: KioskRequestDoc) {
   const typeLabels: Record<string, string> = {
     stock_order: "Stock Order",
@@ -197,17 +65,17 @@ async function notifyManager(request: KioskRequestDoc) {
   }
 
   let description = ""
+  const d = request.data as Record<string, unknown>
   if (request.type === "stock_order") {
-    description = `${request.data.quantity}x ${request.data.itemName}`
+    description = `${d.quantity}x ${d.itemName}`
   } else if (request.type === "salary_advance") {
-    description = `R${request.data.amount} - ${request.data.reason}`
+    description = `R${d.amount} - ${d.reason}`
   } else if (request.type === "issue_report") {
-    description = `${request.data.assetName} - ${request.data.issueType}`
+    description = `${d.assetName} - ${d.issueType}`
   }
 
   const channels: NotificationChannel[] = ["in_app"]
-  // Add SMS for urgent/safety items
-  if (request.data.urgency === "urgent" || request.data.issueType === "safety") {
+  if (d.urgency === "urgent" || d.issueType === "safety") {
     channels.push("sms")
   }
 
@@ -223,36 +91,28 @@ async function notifyManager(request: KioskRequestDoc) {
         submittedBy: request.employeeName,
         description,
       },
-      priority: request.data.urgency === "urgent" || request.data.issueType === "safety" ? "urgent" : "medium",
+      priority: d.urgency === "urgent" || d.issueType === "safety" ? "urgent" : "medium",
     })
   } catch (error) {
-    console.error("[Notification] Manager notification error:", error)
+    logger.error("Manager notification error", { error: error instanceof Error ? error.message : String(error) })
   }
 }
 
-// GET: Retrieve requests with optional filters
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request) => {
   try {
-    const collection = await initializeCollection()
+    const { store, mode } = await getKioskStore()
     const { searchParams } = new URL(request.url)
     const employeeId = searchParams.get("employeeId")
     const type = searchParams.get("type")
     const status = searchParams.get("status")
 
-    // Build query
-    const query: Record<string, any> = {}
+    const query: Record<string, unknown> = {}
     if (employeeId) query.employeeId = employeeId
     if (type) query.type = type
     if (status) query.status = status
 
-    // Fetch requests
-    const requests = await collection
-      .find(query)
-      .sort({ timestamp: -1 })
-      .toArray()
-
-    // Get summary (from all data, not filtered)
-    const allRequests = await collection.find({}).toArray()
+    const requests = await store.find(query)
+    const allRequests = await store.find({})
     const summary = {
       total: allRequests.length,
       pending: allRequests.filter((r) => r.status === "pending").length,
@@ -267,23 +127,22 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      requests: sanitizeDocuments(requests),
+      requests: sanitizeKioskDocs(requests),
       summary,
-      storage: "mongodb",
+      storage: mode,
     })
   } catch (error) {
-    console.error("GET kiosk requests error:", error)
+    logger.error("GET kiosk requests error", { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { success: false, error: "Failed to fetch requests" },
       { status: 500 }
     )
   }
-}
+})
 
-// POST: Create a new request
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request) => {
   try {
-    const collection = await initializeCollection()
+    const { store, mode } = await getKioskStore()
     const body = await request.json()
     const { type, employeeId, employeeName, data, timestamp } = body
 
@@ -303,39 +162,35 @@ export async function POST(request: NextRequest) {
       status: "pending",
     }
 
-    const result = await collection.insertOne(newRequest as KioskRequestDoc)
-    
-    const insertedRequest = {
+    const result = await store.insertOne(newRequest)
+    const insertedRequest: KioskRequestDoc = {
       ...newRequest,
       _id: result.insertedId,
     }
 
-    // Notify manager of new request
     await notifyManager(insertedRequest)
-
-    console.log(`[Kiosk] New ${type} request from ${employeeName}:`, data)
+    logger.info("Kiosk: New request", { type, employeeName: employeeName || employeeId, data })
 
     return NextResponse.json({
       success: true,
-      request: sanitizeDocument(insertedRequest),
+      request: sanitizeKioskDoc(insertedRequest),
       message: getSuccessMessage(type),
-      storage: "mongodb",
+      storage: mode,
     })
   } catch (error) {
-    console.error("POST kiosk request error:", error)
+    logger.error("POST kiosk request error", { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { success: false, error: "Failed to create request" },
       { status: 500 }
     )
   }
-}
+})
 
-// PATCH: Update request status (approve/reject)
-export async function PATCH(request: NextRequest) {
+export const PATCH = withRole("admin")(async (request, context) => {
   try {
-    const collection = await initializeCollection()
+    const { store, mode } = await getKioskStore()
     const body = await request.json()
-    const { requestId, status, reviewedBy, notes } = body
+    const { requestId, status, notes } = body
 
     if (!requestId || !status) {
       return NextResponse.json(
@@ -344,7 +199,14 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Find the request
+    const VALID_STATUSES = ["approved", "rejected", "pending"] as const
+    if (!VALID_STATUSES.includes(status)) {
+      return NextResponse.json(
+        { success: false, error: `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}` },
+        { status: 400 }
+      )
+    }
+
     let objectId: ObjectId
     try {
       objectId = new ObjectId(requestId)
@@ -355,7 +217,7 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    const existingRequest = await collection.findOne({ _id: objectId })
+    const existingRequest = await store.findOne({ _id: objectId })
     if (!existingRequest) {
       return NextResponse.json(
         { success: false, error: "Request not found" },
@@ -363,39 +225,33 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Update the request
     const updateData = {
       status,
-      reviewedBy,
+      reviewedBy: context.userId,
       reviewedAt: new Date().toISOString(),
       notes,
     }
 
-    await collection.updateOne(
-      { _id: objectId },
-      { $set: updateData }
-    )
-
+    await store.updateOne({ _id: objectId }, { $set: updateData })
     const updatedRequest = { ...existingRequest, ...updateData }
 
-    // Send notification to employee
     if (status === "approved" || status === "rejected") {
       await notifyEmployee(updatedRequest, status, notes)
     }
 
     return NextResponse.json({
       success: true,
-      request: sanitizeDocument(updatedRequest),
-      storage: "mongodb",
+      request: sanitizeKioskDoc(updatedRequest),
+      storage: mode,
     })
   } catch (error) {
-    console.error("PATCH kiosk request error:", error)
+    logger.error("PATCH kiosk request error", { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { success: false, error: "Failed to update request" },
       { status: 500 }
     )
   }
-}
+})
 
 function getSuccessMessage(type: string): string {
   switch (type) {

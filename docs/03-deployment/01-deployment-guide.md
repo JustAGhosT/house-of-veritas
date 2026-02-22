@@ -19,7 +19,7 @@ This guide covers end-to-end deployment of the House of Veritas platform on Azur
 
 ### Architecture
 
-```
+```text
 Internet → Application Gateway (WAF + SSL) → Container Instances → PostgreSQL
                                                     ↓
                                               Blob Storage
@@ -434,7 +434,7 @@ container.upload_blob(name=filename, data=file_data, overwrite=True)
 
 ### Pipeline Flow
 
-```
+```text
 PR Created → terraform-plan (validate + plan + PR comment)
      ↓
 Merge to main → terraform-apply (plan + apply + tag)
@@ -522,10 +522,10 @@ Invoke-RestMethod -Uri "$DOCUSEAL_URL/api/webhooks" `
 
 | User | Email | Role | Access |
 |------|-------|------|--------|
-| Hans | hans@nexamesh.ai | Administrator | Full access |
-| Charl | charl@nexamesh.ai | Workshop Operator | Tasks, Assets, Time |
-| Lucky | lucky@nexamesh.ai | Gardener | Tasks, Expenses, Vehicles |
-| Irma | irma@nexamesh.ai | Household | Tasks, Documents |
+| Hans | <hans@nexamesh.ai> | Administrator | Full access |
+| Charl | <charl@nexamesh.ai> | Workshop Operator | Tasks, Assets, Time |
+| Lucky | <lucky@nexamesh.ai> | Gardener | Tasks, Expenses, Vehicles |
+| Irma | <irma@nexamesh.ai> | Household | Tasks, Documents |
 
 ### Go-Live Checklist
 

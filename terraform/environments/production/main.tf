@@ -113,7 +113,7 @@ module "compute" {
   environment           = var.environment
   container_subnet_id   = module.network.container_subnet_id
   storage_account_name  = module.storage.storage_account_name
-  storage_account_key   = module.storage.storage_account_primary_connection_string
+  storage_account_key   = module.storage.primary_access_key
   key_vault_id          = module.security.key_vault_id
   domain_name           = var.domain_name
   docuseal_database_url = module.database.connection_string_docuseal

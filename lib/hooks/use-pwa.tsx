@@ -1,29 +1,30 @@
 "use client"
 
 import { useEffect, useState } from 'react'
+import { logger } from '@/lib/logger'
 
 export function usePWA() {
-  const [isInstalled, setIsInstalled] = useState(false)
-  const [isOnline, setIsOnline] = useState(true)
+  const [isInstalled, setIsInstalled] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(display-mode: standalone)').matches : false
+  )
+  const [isOnline, setIsOnline] = useState(() =>
+    typeof window !== 'undefined' ? navigator.onLine : true
+  )
   const [canInstall, setCanInstall] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null)
 
   useEffect(() => {
-    // Check if running as PWA
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-    setIsInstalled(isStandalone)
-
     // Register service worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
-          console.log('[PWA] Service Worker registered:', registration.scope)
+          logger.info('[PWA] Service Worker registered', { scope: registration.scope })
           setSwRegistration(registration)
         })
         .catch((error) => {
-          console.error('[PWA] Service Worker registration failed:', error)
+          logger.error('[PWA] Service Worker registration failed', { error: error instanceof Error ? error.message : String(error) })
         })
     }
 
@@ -41,9 +42,6 @@ export function usePWA() {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
-
-    // Set initial online status
-    setIsOnline(navigator.onLine)
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
@@ -69,7 +67,7 @@ export function usePWA() {
 
   const requestNotificationPermission = async () => {
     if (!('Notification' in window)) {
-      console.log('[PWA] Notifications not supported')
+      logger.info('[PWA] Notifications not supported')
       return false
     }
 
@@ -95,7 +93,7 @@ export function usePWA() {
 
       return subscription
     } catch (error) {
-      console.error('[PWA] Push subscription failed:', error)
+      logger.error('[PWA] Push subscription failed', { error: error instanceof Error ? error.message : String(error) })
       return null
     }
   }
@@ -120,9 +118,9 @@ export function PWAInstallBanner() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-4 shadow-2xl border border-blue-500/30">
+      <div className="bg-linear-to-r from-blue-600 to-blue-700 rounded-xl p-4 shadow-2xl border border-blue-500/30">
         <div className="flex items-start gap-3">
-          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
             <span className="text-white font-bold text-lg">HV</span>
           </div>
           <div className="flex-1">
@@ -159,7 +157,7 @@ export function OfflineStatusBanner() {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-amber-950 px-4 py-2 text-center text-sm font-medium">
-      You're offline. Some features may be limited.
+      You&apos;re offline. Some features may be limited.
     </div>
   )
 }

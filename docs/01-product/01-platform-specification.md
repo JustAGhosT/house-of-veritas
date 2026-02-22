@@ -81,6 +81,7 @@ Volume and complexity of governance have outpaced manual approaches. Legally bin
 #### 1. Post-Hoc Expense Logging
 
 Users may log actual incurred expenses against configured categories:
+
 - Materials
 - Labor/Contractors
 - Utilities
@@ -97,6 +98,7 @@ Each expense log includes: date, payee, amount, category, related document/proje
 #### 2. In-System Expense Approval Workflow with Contractor Payment Milestones
 
 **Submit Expense Request:** Any authorized user (e.g., Lucky) completes a request form in Baserow specifying:
+
 - Item/requested purchase/service
 - Budget line or project (Doc 2, Doc 7, etc.)
 - Category (see list above)
@@ -107,6 +109,7 @@ Each expense log includes: date, payee, amount, category, related document/proje
 - Attachments (quotes, invoices)
 
 **Approval Workflow:**
+
 1. Request submitted – Baserow record created
 2. Hans receives task in dashboard and notification
 3. Hans reviews, approves/edits/rejects (optional comments)
@@ -114,6 +117,7 @@ Each expense log includes: date, payee, amount, category, related document/proje
 5. User logs actual expense/payout on completion (receipted), closing the loop
 
 **Contractor Payment Milestone Tracking:**
+
 - Fields: Contractor Name, Total Contract Amount, Deposit %/Amount, Milestone Stage (description), Stage %/Amount, Stage Actual Date, Completion %, Final Payment Trigger (conditions: e.g. inspection passed), Status.
 - Milestones outlined per project (e.g., Doc 7 — Renovation Project Plan), supporting multiple milestones per contract.
 - Payments tracked against original contract value, automatically highlighting overrun/remaining amounts.
@@ -123,15 +127,17 @@ Each expense log includes: date, payee, amount, category, related document/proje
 #### 1. Simple Task-Level Time Logging
 
 For each assigned task/daily to-do:
+
 - Field for "Time Spent" (to be completed upon completion)
 - Optionally, "Task Comments" for notes on complexity/delays
 - Allows summary views of hours expended per project, person, period
 
 #### 2. Full Clock-In / Clock-Out Tracking with Overtime Calculation
 
-**New Baserow table: Time Clock Entries**
+##### New Baserow table: Time Clock Entries
 
 Fields:
+
 - Employee
 - Date
 - Clock-in Time
@@ -160,6 +166,7 @@ Each employee records daily attendance, either directly from dashboard or via mo
 | Succession Protocol (Doc 18) | 3 years (legal/beneficiary update) | 60d, 30d, 7d prior |
 
 **Multi-Stage Alerting System:**
+
 - Storage: Baserow table tracks each document's last update, next expiry/review, assigned responsible, status.
 - Alerting:
   - First alert: 60 days out (notification banner/email, color = green)

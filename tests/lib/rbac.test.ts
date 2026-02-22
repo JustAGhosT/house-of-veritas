@@ -18,11 +18,12 @@ describe("RBAC", () => {
         "x-user-email": "hans@houseofv.com",
       })
       const ctx = getAuthContext(req)
-      expect(ctx).toEqual({
+      expect(ctx).toMatchObject({
         userId: "hans",
         role: "admin",
         email: "hans@houseofv.com",
       })
+      expect(Array.isArray(ctx?.responsibilities)).toBe(true)
     })
 
     it("should return null when headers are missing", () => {

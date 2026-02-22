@@ -1,6 +1,9 @@
 // Baserow API Integration Service
 // This service handles all interactions with the Baserow operational database
 
+import { toISODateString } from "@/lib/utils"
+import { logger } from "@/lib/logger"
+
 interface BaserowConfig {
   apiUrl: string
   apiToken: string
@@ -23,6 +26,22 @@ interface TableIds {
 interface BaserowRow {
   id: number
   [key: string]: any
+}
+
+export interface PaginatedResult<T> {
+  items: T[]
+  count: number
+}
+
+const DEFAULT_PAGE_SIZE = 100
+
+function appendPagination(endpoint: string, page?: number, size?: number): string {
+  if (page == null && size == null) return endpoint
+  const params = new URLSearchParams()
+  if (page != null) params.set("page", String(page))
+  if (size != null) params.set("size", String(size))
+  const sep = endpoint.includes("?") ? "&" : "?"
+  return `${endpoint}${sep}${params.toString()}`
 }
 
 // Employee type
@@ -161,9 +180,11 @@ async function baserowFetch<T>(
     return null
   }
 
+  const FETCH_TIMEOUT_MS = 10000
   try {
     const response = await fetch(`${config.apiUrl}${endpoint}`, {
       ...options,
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         Authorization: `Token ${config.apiToken}`,
         "Content-Type": "application/json",
@@ -177,7 +198,7 @@ async function baserowFetch<T>(
 
     return await response.json()
   } catch (error) {
-    console.error("Baserow API error:", error)
+    logger.error("Baserow API error", { error: error instanceof Error ? error.message : String(error) })
     return null
   }
 }
@@ -202,6 +223,35 @@ export async function getEmployees(): Promise<Employee[]> {
   return result.results.map(mapRowToEmployee)
 }
 
+export async function getEmployeesPaginated(
+  page: number = 1,
+  size: number = DEFAULT_PAGE_SIZE
+): Promise<PaginatedResult<Employee>> {
+  const tableIds = getTableIds()
+
+  if (!isBaserowConfigured() || !tableIds.employees) {
+    const items = getMockEmployees()
+    return { items, count: items.length }
+  }
+
+  const endpoint = appendPagination(
+    `/database/rows/table/${tableIds.employees}/?user_field_names=true`,
+    page,
+    size
+  )
+  const result = await baserowFetch<{ results: BaserowRow[]; count?: number }>(endpoint)
+
+  if (!result) {
+    const items = getMockEmployees()
+    return { items, count: items.length }
+  }
+
+  return {
+    items: result.results.map(mapRowToEmployee),
+    count: result.count ?? result.results.length,
+  }
+}
+
 export async function getEmployee(id: number): Promise<Employee | null> {
   const tableIds = getTableIds()
 
@@ -220,6 +270,7 @@ export async function getEmployee(id: number): Promise<Employee | null> {
 
 export async function getTasks(filters?: {
   assignedTo?: number
+  assignedToName?: string
   status?: string
 }): Promise<Task[]> {
   const tableIds = getTableIds()
@@ -228,6 +279,9 @@ export async function getTasks(filters?: {
     let tasks = getMockTasks()
     if (filters?.assignedTo) {
       tasks = tasks.filter((t) => t.assignedTo === filters.assignedTo)
+    } else if (filters?.assignedToName) {
+      const name = filters.assignedToName.toLowerCase()
+      tasks = tasks.filter((t) => (t.assignedToName ?? "").toLowerCase() === name)
     }
     if (filters?.status) {
       tasks = tasks.filter((t) => t.status === filters.status)
@@ -236,7 +290,6 @@ export async function getTasks(filters?: {
   }
 
   let endpoint = `/database/rows/table/${tableIds.tasks}/?user_field_names=true`
-  // Add filters if provided
   if (filters?.assignedTo) {
     endpoint += `&filter__field_assigned_to__link_row_has=${filters.assignedTo}`
   }
@@ -251,6 +304,38 @@ export async function getTasks(filters?: {
   }
 
   return result.results.map(mapRowToTask)
+}
+
+export async function getTasksPaginated(
+  page: number = 1,
+  size: number = DEFAULT_PAGE_SIZE,
+  filters?: { assignedTo?: number; status?: string }
+): Promise<PaginatedResult<Task>> {
+  const tableIds = getTableIds()
+
+  if (!isBaserowConfigured() || !tableIds.tasks) {
+    let items = getMockTasks()
+    if (filters?.assignedTo) items = items.filter((t) => t.assignedTo === filters.assignedTo)
+    if (filters?.status) items = items.filter((t) => t.status === filters.status)
+    return { items, count: items.length }
+  }
+
+  let endpoint = `/database/rows/table/${tableIds.tasks}/?user_field_names=true`
+  if (filters?.assignedTo) endpoint += `&filter__field_assigned_to__link_row_has=${filters.assignedTo}`
+  if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
+  endpoint = appendPagination(endpoint, page, size)
+
+  const result = await baserowFetch<{ results: BaserowRow[]; count?: number }>(endpoint)
+
+  if (!result) {
+    const items = getMockTasks()
+    return { items, count: items.length }
+  }
+
+  return {
+    items: result.results.map(mapRowToTask),
+    count: result.count ?? result.results.length,
+  }
 }
 
 export async function createTask(task: Omit<Task, "id">): Promise<Task | null> {
@@ -323,6 +408,36 @@ export async function getExpenses(filters?: {
   return result.results.map(mapRowToExpense)
 }
 
+export async function getExpensesPaginated(
+  page: number = 1,
+  size: number = DEFAULT_PAGE_SIZE,
+  filters?: { requester?: number; status?: string }
+): Promise<PaginatedResult<Expense>> {
+  const tableIds = getTableIds()
+
+  if (!isBaserowConfigured() || !tableIds.expenses) {
+    let items = getMockExpenses()
+    if (filters?.requester) items = items.filter((e) => e.requester === filters.requester)
+    if (filters?.status) items = items.filter((e) => e.approvalStatus === filters.status)
+    return { items, count: items.length }
+  }
+
+  let endpoint = `/database/rows/table/${tableIds.expenses}/?user_field_names=true`
+  endpoint = appendPagination(endpoint, page, size)
+
+  const result = await baserowFetch<{ results: BaserowRow[]; count?: number }>(endpoint)
+
+  if (!result) {
+    const items = getMockExpenses()
+    return { items, count: items.length }
+  }
+
+  return {
+    items: result.results.map(mapRowToExpense),
+    count: result.count ?? result.results.length,
+  }
+}
+
 export async function createExpense(expense: Omit<Expense, "id">): Promise<Expense | null> {
   const tableIds = getTableIds()
 
@@ -386,6 +501,35 @@ export async function getAssets(filters?: {
   return result.results.map(mapRowToAsset)
 }
 
+export async function getAssetsPaginated(
+  page: number = 1,
+  size: number = DEFAULT_PAGE_SIZE
+): Promise<PaginatedResult<Asset>> {
+  const tableIds = getTableIds()
+
+  if (!isBaserowConfigured() || !tableIds.assets) {
+    const items = getMockAssets()
+    return { items, count: items.length }
+  }
+
+  const endpoint = appendPagination(
+    `/database/rows/table/${tableIds.assets}/?user_field_names=true`,
+    page,
+    size
+  )
+  const result = await baserowFetch<{ results: BaserowRow[]; count?: number }>(endpoint)
+
+  if (!result) {
+    const items = getMockAssets()
+    return { items, count: items.length }
+  }
+
+  return {
+    items: result.results.map(mapRowToAsset),
+    count: result.count ?? result.results.length,
+  }
+}
+
 // ==================== TIME CLOCK ====================
 
 export async function getTimeClockEntries(filters?: {
@@ -409,19 +553,56 @@ export async function getTimeClockEntries(filters?: {
   return result.results.map(mapRowToTimeClockEntry)
 }
 
+export async function getTimeClockEntriesPaginated(
+  page: number = 1,
+  size: number = DEFAULT_PAGE_SIZE,
+  filters?: { employee?: number; date?: string }
+): Promise<PaginatedResult<TimeClockEntry>> {
+  const tableIds = getTableIds()
+
+  if (!isBaserowConfigured() || !tableIds.timeClock) {
+    const items = getMockTimeClockEntries()
+    return { items, count: items.length }
+  }
+
+  let endpoint = `/database/rows/table/${tableIds.timeClock}/?user_field_names=true`
+  if (filters?.employee) endpoint += `&filter__field_employee__link_row_has=${filters.employee}`
+  if (filters?.date) endpoint += `&filter__field_date__date_equal=${filters.date}`
+  endpoint = appendPagination(endpoint, page, size)
+
+  const result = await baserowFetch<{ results: BaserowRow[]; count?: number }>(endpoint)
+
+  if (!result) {
+    const items = getMockTimeClockEntries()
+    return { items, count: items.length }
+  }
+
+  return {
+    items: result.results.map(mapRowToTimeClockEntry),
+    count: result.count ?? result.results.length,
+  }
+}
+
 export async function clockIn(employeeId: number): Promise<TimeClockEntry | null> {
   const tableIds = getTableIds()
   const now = new Date()
 
-  const entry: Omit<TimeClockEntry, "id"> = {
-    employee: employeeId,
-    date: now.toISOString().split("T")[0],
-    clockIn: now.toTimeString().slice(0, 5),
-    approvalStatus: "Pending",
+  const clockTime = now.toTimeString().slice(0, 5)
+  const entry: Record<string, unknown> = {
+    Employee: [employeeId],
+    Date: toISODateString(now),
+    "Clock In": clockTime,
+    "Approval Status": "Pending",
   }
 
   if (!isBaserowConfigured() || !tableIds.timeClock) {
-    return { ...entry, id: Date.now() }
+    return {
+      employee: employeeId,
+      date: toISODateString(now),
+      clockIn: clockTime,
+      approvalStatus: "Pending",
+      id: Date.now(),
+    } as TimeClockEntry
   }
 
   const row = await baserowFetch<BaserowRow>(
@@ -432,7 +613,7 @@ export async function clockIn(employeeId: number): Promise<TimeClockEntry | null
     }
   )
 
-  return row ? mapRowToTimeClockEntry(row) : { ...entry, id: Date.now() }
+  return row ? mapRowToTimeClockEntry(row) : { employee: employeeId, date: toISODateString(now), clockIn: clockTime, approvalStatus: "Pending", id: Date.now() } as TimeClockEntry
 }
 
 export async function clockOut(entryId: number): Promise<TimeClockEntry | null> {
@@ -447,11 +628,60 @@ export async function clockOut(entryId: number): Promise<TimeClockEntry | null> 
     `/database/rows/table/${tableIds.timeClock}/${entryId}/?user_field_names=true`,
     {
       method: "PATCH",
-      body: JSON.stringify({ clockOut: now.toTimeString().slice(0, 5) }),
+      body: JSON.stringify({ "Clock Out": now.toTimeString().slice(0, 5) }),
     }
   )
 
   return row ? mapRowToTimeClockEntry(row) : null
+}
+
+const APP_ID_TO_NAME: Record<string, string> = {
+  hans: "Hans",
+  charl: "Charl",
+  lucky: "Lucky",
+  irma: "Irma",
+}
+
+export async function getBaserowEmployeeIdByAppId(
+  appId: string
+): Promise<number | null> {
+  const employees = await getEmployees()
+  const name = APP_ID_TO_NAME[appId.toLowerCase()] || appId
+  const emp = employees.find(
+    (e) =>
+      e.fullName?.toLowerCase().startsWith(name.toLowerCase()) ||
+      e.fullName?.toLowerCase().includes(name.toLowerCase())
+  )
+  return emp ? emp.id : null
+}
+
+export async function clockInByAppId(
+  appId: string
+): Promise<TimeClockEntry | null> {
+  const baserowEmployeeId = await getBaserowEmployeeIdByAppId(appId)
+  if (baserowEmployeeId === null) return null
+  return clockIn(baserowEmployeeId)
+}
+
+export async function clockOutByAppId(appId: string): Promise<TimeClockEntry | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.timeClock) return null
+
+  const baserowEmployeeId = await getBaserowEmployeeIdByAppId(appId)
+  if (baserowEmployeeId === null) return null
+
+  const today = toISODateString()
+  const result = await baserowFetch<{ results: BaserowRow[] }>(
+    `/database/rows/table/${tableIds.timeClock}/?user_field_names=true&filter__field_employee__link_row_has=${baserowEmployeeId}&filter__field_date__date_equal=${today}`
+  )
+  if (!result?.results?.length) return null
+
+  const openEntry = result.results.find(
+    (r) => !r["Clock Out"] && !r.clock_out
+  )
+  if (!openEntry) return null
+
+  return clockOut(openEntry.id)
 }
 
 // ==================== VEHICLE LOGS ====================
@@ -474,6 +704,35 @@ export async function getVehicleLogs(filters?: {
   }
 
   return result.results.map(mapRowToVehicleLog)
+}
+
+export async function getVehicleLogsPaginated(
+  page: number = 1,
+  size: number = DEFAULT_PAGE_SIZE,
+  filters?: { driver?: number }
+): Promise<PaginatedResult<VehicleLog>> {
+  const tableIds = getTableIds()
+
+  if (!isBaserowConfigured() || !tableIds.vehicleLogs) {
+    const items = getMockVehicleLogs()
+    return { items, count: items.length }
+  }
+
+  let endpoint = `/database/rows/table/${tableIds.vehicleLogs}/?user_field_names=true`
+  if (filters?.driver) endpoint += `&filter__field_driver__link_row_has=${filters.driver}`
+  endpoint = appendPagination(endpoint, page, size)
+
+  const result = await baserowFetch<{ results: BaserowRow[]; count?: number }>(endpoint)
+
+  if (!result) {
+    const items = getMockVehicleLogs()
+    return { items, count: items.length }
+  }
+
+  return {
+    items: result.results.map(mapRowToVehicleLog),
+    count: result.count ?? result.results.length,
+  }
 }
 
 // ==================== MAPPING FUNCTIONS ====================
@@ -655,22 +914,22 @@ function getMockEmployees(): Employee[] {
 
 function getMockTasks(): Task[] {
   return [
-    { id: 1, title: "Fix electrical outlet - Kitchen", assignedTo: 2, assignedToName: "Charl", priority: "High", status: "In Progress", dueDate: new Date().toISOString().split("T")[0], project: "Electrical Work" },
-    { id: 2, title: "Repair leaking pipe - Bathroom", assignedTo: 2, assignedToName: "Charl", priority: "High", status: "Completed", dueDate: new Date().toISOString().split("T")[0], project: "Plumbing" },
-    { id: 3, title: "Weekly lawn mowing", assignedTo: 3, assignedToName: "Lucky", priority: "Medium", status: "Completed", dueDate: new Date().toISOString().split("T")[0], project: "Garden Maintenance" },
-    { id: 4, title: "Trim hedges - front", assignedTo: 3, assignedToName: "Lucky", priority: "Medium", status: "Completed", dueDate: new Date().toISOString().split("T")[0], project: "Garden Maintenance" },
-    { id: 5, title: "Fix irrigation zone 3", assignedTo: 3, assignedToName: "Lucky", priority: "High", status: "In Progress", dueDate: new Date().toISOString().split("T")[0], project: "Garden Maintenance" },
-    { id: 6, title: "Morning kitchen clean", assignedTo: 4, assignedToName: "Irma", priority: "Medium", status: "Completed", dueDate: new Date().toISOString().split("T")[0], project: "Household" },
-    { id: 7, title: "Meal preparation - dinner", assignedTo: 4, assignedToName: "Irma", priority: "High", status: "In Progress", dueDate: new Date().toISOString().split("T")[0], project: "Household" },
+    { id: 1, title: "Fix electrical outlet - Kitchen", assignedTo: 2, assignedToName: "Charl", priority: "High", status: "In Progress", dueDate: toISODateString(), project: "Electrical Work" },
+    { id: 2, title: "Repair leaking pipe - Bathroom", assignedTo: 2, assignedToName: "Charl", priority: "High", status: "Completed", dueDate: toISODateString(), project: "Plumbing" },
+    { id: 3, title: "Weekly lawn mowing", assignedTo: 3, assignedToName: "Lucky", priority: "Medium", status: "Completed", dueDate: toISODateString(), project: "Garden Maintenance" },
+    { id: 4, title: "Trim hedges - front", assignedTo: 3, assignedToName: "Lucky", priority: "Medium", status: "Completed", dueDate: toISODateString(), project: "Garden Maintenance" },
+    { id: 5, title: "Fix irrigation zone 3", assignedTo: 3, assignedToName: "Lucky", priority: "High", status: "In Progress", dueDate: toISODateString(), project: "Garden Maintenance" },
+    { id: 6, title: "Morning kitchen clean", assignedTo: 4, assignedToName: "Irma", priority: "Medium", status: "Completed", dueDate: toISODateString(), project: "Household" },
+    { id: 7, title: "Meal preparation - dinner", assignedTo: 4, assignedToName: "Irma", priority: "High", status: "In Progress", dueDate: toISODateString(), project: "Household" },
   ]
 }
 
 function getMockExpenses(): Expense[] {
   return [
-    { id: 1, requester: 2, requesterName: "Charl", type: "Request", category: "Materials", amount: 850, date: new Date().toISOString().split("T")[0], approvalStatus: "Pending", project: "Workshop" },
-    { id: 2, requester: 3, requesterName: "Lucky", type: "Request", category: "Supplies", amount: 320, date: new Date().toISOString().split("T")[0], approvalStatus: "Pending", project: "Garden" },
-    { id: 3, requester: 3, requesterName: "Lucky", type: "Post-Hoc", category: "Fuel", amount: 280, date: new Date(Date.now() - 86400000).toISOString().split("T")[0], approvalStatus: "Approved" },
-    { id: 4, requester: 2, requesterName: "Charl", type: "Post-Hoc", category: "Fuel", amount: 450, date: new Date(Date.now() - 172800000).toISOString().split("T")[0], approvalStatus: "Approved" },
+    { id: 1, requester: 2, requesterName: "Charl", type: "Request", category: "Materials", amount: 850, date: toISODateString(), approvalStatus: "Pending", project: "Workshop" },
+    { id: 2, requester: 3, requesterName: "Lucky", type: "Request", category: "Supplies", amount: 320, date: toISODateString(), approvalStatus: "Pending", project: "Garden" },
+    { id: 3, requester: 3, requesterName: "Lucky", type: "Post-Hoc", category: "Fuel", amount: 280, date: toISODateString(new Date(Date.now() - 86400000)), approvalStatus: "Approved" },
+    { id: 4, requester: 2, requesterName: "Charl", type: "Post-Hoc", category: "Fuel", amount: 450, date: toISODateString(new Date(Date.now() - 172800000)), approvalStatus: "Approved" },
   ]
 }
 
@@ -685,7 +944,7 @@ function getMockAssets(): Asset[] {
 }
 
 function getMockTimeClockEntries(): TimeClockEntry[] {
-  const today = new Date().toISOString().split("T")[0]
+  const today = toISODateString()
   return [
     { id: 1, employee: 2, employeeName: "Charl", date: today, clockIn: "07:15", approvalStatus: "Pending" },
     { id: 2, employee: 3, employeeName: "Lucky", date: today, clockIn: "06:30", approvalStatus: "Pending" },
@@ -694,7 +953,7 @@ function getMockTimeClockEntries(): TimeClockEntry[] {
 
 function getMockVehicleLogs(): VehicleLog[] {
   return [
-    { id: 1, driver: 3, driverName: "Lucky", vehicle: 4, vehicleName: "Toyota Hilux", dateOut: new Date().toISOString().split("T")[0], odometerStart: 124532 },
-    { id: 2, driver: 2, driverName: "Charl", vehicle: 4, vehicleName: "Toyota Hilux", dateOut: new Date(Date.now() - 86400000).toISOString().split("T")[0], dateIn: new Date(Date.now() - 86400000).toISOString().split("T")[0], odometerStart: 124500, odometerEnd: 124532, distance: 32 },
+    { id: 1, driver: 3, driverName: "Lucky", vehicle: 4, vehicleName: "Toyota Hilux", dateOut: toISODateString(), odometerStart: 124532 },
+    { id: 2, driver: 2, driverName: "Charl", vehicle: 4, vehicleName: "Toyota Hilux", dateOut: toISODateString(new Date(Date.now() - 86400000)), dateIn: toISODateString(new Date(Date.now() - 86400000)), odometerStart: 124500, odometerEnd: 124532, distance: 32 },
   ]
 }

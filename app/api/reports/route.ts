@@ -1,22 +1,31 @@
 import { NextResponse } from "next/server"
-import { getAuthContext } from "@/lib/auth/rbac"
+import { z } from "zod"
+import { withRole } from "@/lib/auth/rbac"
 import {
   getExpenses,
   getTasks,
   getTimeClockEntries,
   isBaserowConfigured,
 } from "@/lib/services/baserow"
+import { toISODateString } from "@/lib/utils"
 
-export async function GET(request: Request) {
-  const auth = getAuthContext(request)
-  if (!auth || auth.role !== "admin") {
-    return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
-  }
+const reportsQuerySchema = z.object({
+  type: z.enum(["expenses", "tasks", "time", "all"]).default("expenses"),
+  userId: z.string().optional(),
+  format: z.enum(["json", "csv"]).default("json"),
+})
 
+export const GET = withRole("admin")(async (request) => {
   const { searchParams } = new URL(request.url)
-  const reportType = searchParams.get("type") || "expenses"
-  const userId = searchParams.get("userId")
-  const format = searchParams.get("format") || "json"
+  const parsed = reportsQuerySchema.safeParse({
+    type: searchParams.get("type") || "expenses",
+    userId: searchParams.get("userId") || undefined,
+    format: searchParams.get("format") || "json",
+  })
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid query parameters", details: parsed.error.flatten() }, { status: 400 })
+  }
+  const { type: reportType, userId, format } = parsed.data
 
   let data: Record<string, unknown>
 
@@ -49,10 +58,10 @@ export async function GET(request: Request) {
       )
     }
     const csv = generateCsv(reportType, data)
-    return new Response(csv, {
+    return new NextResponse(csv, {
       headers: {
         "Content-Type": "text/csv",
-        "Content-Disposition": `attachment; filename="${reportType}-report-${new Date().toISOString().split("T")[0]}.csv"`,
+        "Content-Disposition": `attachment; filename="${reportType}-report-${toISODateString()}.csv"`,
       },
     })
   }
@@ -64,7 +73,7 @@ export async function GET(request: Request) {
     filters: { userId },
     data,
   })
-}
+})
 
 async function buildExpenseReport(userId?: string) {
   const expenses = await getExpenses()

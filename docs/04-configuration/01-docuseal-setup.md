@@ -10,7 +10,7 @@ DocuSeal is the document signing platform for House of Veritas, accessible at `d
 
 After deployment, access DocuSeal at your configured URL and create the admin account:
 
-- **Email:** hans@nexamesh.ai
+- **Email:** <hans@nexamesh.ai>
 - **Name:** Hans (Owner)
 - **Role:** Admin
 
@@ -18,7 +18,7 @@ After deployment, access DocuSeal at your configured URL and create the admin ac
 
 Navigate to Settings → Email and configure:
 
-```
+```text
 SMTP Server: smtp.sendgrid.net
 Port: 587
 Username: apikey
@@ -45,7 +45,7 @@ Upload the 18 governance documents as templates. See `/config/templates/` for th
 ### Template Categories
 
 | # | Document | Type | Signers |
-|---|----------|------|---------|
+| - | -------- | ---- | ------- |
 | 1 | Property Charter | Governance | Hans |
 | 2 | House Rules | Governance | All |
 | 3 | Workshop Safety Manual | Safety | Charl, Lucky |
@@ -70,11 +70,11 @@ Upload the 18 governance documents as templates. See `/config/templates/` for th
 Create the following user accounts:
 
 | User | Email | Role |
-|------|-------|------|
-| Hans | hans@nexamesh.ai | Admin |
-| Charl | charl@nexamesh.ai | Employee |
-| Lucky | lucky@nexamesh.ai | Employee |
-| Irma | irma@nexamesh.ai | Resident |
+| ---- | ----- | ---- |
+| Hans | <hans@nexamesh.ai> | Admin |
+| Charl | <charl@nexamesh.ai> | Employee |
+| Lucky | <lucky@nexamesh.ai> | Employee |
+| Irma | <irma@nexamesh.ai> | Resident |
 
 ## Webhook Configuration
 
@@ -89,7 +89,7 @@ Register webhook for integration with Baserow:
 Base URL: `https://docs.nexamesh.ai/api`
 
 | Endpoint | Method | Description |
-|----------|--------|-------------|
+| -------- | ------ | ----------- |
 | `/api/templates` | GET | List all templates |
 | `/api/templates` | POST | Create template |
 | `/api/submissions` | POST | Create signature request |

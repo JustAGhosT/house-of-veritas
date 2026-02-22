@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import DashboardLayout from "@/components/dashboard-layout"
+import { logger } from "@/lib/logger"
 import {
   ClipboardList,
   Clock,
@@ -120,7 +121,7 @@ function TaskItem({
 
   return (
     <div className="flex items-center gap-4 p-4 rounded-xl bg-amber-950/30 border border-amber-500/10 hover:bg-amber-950/50 hover:border-amber-500/20 transition-colors cursor-pointer group" data-testid={`task-${title.toLowerCase().replace(/\s+/g, '-')}`}>
-      <button className="shrink-0">
+      <button className="shrink-0" aria-label={`Task status: ${status}`}>
         {statusIcons[status]}
       </button>
       {Icon && (
@@ -210,7 +211,7 @@ export default function CharlDashboard() {
     fetch("/api/stats")
       .then((res) => res.json())
       .then((data) => setStats(data))
-      .catch(console.error)
+      .catch((err) => logger.error("Failed to fetch stats", { error: err instanceof Error ? err.message : String(err) }))
   }, [])
 
   // Simulate clock
@@ -233,19 +234,19 @@ export default function CharlDashboard() {
   return (
     <DashboardLayout persona="charl">
       {/* Persona-specific background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-amber-950/40 via-[#0a0a0f] to-orange-950/30" />
+      <div className="fixed inset-0 -z-10 bg-linear-to-br from-amber-950/40 via-[#0a0a0f] to-orange-950/30" />
       <WorkshopPattern />
 
       {/* Time Clock Banner */}
-      <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-amber-600/30 to-orange-700/20 border border-amber-500/30 backdrop-blur-sm relative overflow-hidden" data-testid="time-clock-banner">
+      <div className="mb-8 p-6 rounded-2xl bg-linear-to-r from-amber-600/30 to-orange-700/20 border border-amber-500/30 backdrop-blur-sm relative overflow-hidden" data-testid="time-clock-banner">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgMTBMMjIgMTVIMjhMMjMgMTlMMjUgMjVMMjAgMjFMMTUgMjVMMTcgMTlMMTIgMTVIMThMMjAgMTBaIiBmaWxsPSJyZ2JhKDI0NSwxNTgsMTEsMC4wNSkiLz48L3N2Zz4=')] opacity-50" />
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-500/30 to-orange-600/30 border border-amber-500/30 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-xl bg-linear-to-br from-amber-500/30 to-orange-600/30 border border-amber-500/30 flex items-center justify-center">
               <Clock className="w-8 h-8 text-amber-400" />
             </div>
             <div>
-              <p className="text-amber-200/60 text-sm">Today's Work Time</p>
+              <p className="text-amber-200/60 text-sm">Today&apos;s Work Time</p>
               <p className="text-4xl font-bold text-amber-100 font-mono" data-testid="clock-time">{clockTime}</p>
             </div>
           </div>
@@ -400,7 +401,7 @@ export default function CharlDashboard() {
               <ClipboardList className="w-5 h-5 text-amber-400" />
               <div>
                 <h3 className="text-amber-100 font-semibold">My Tasks</h3>
-                <p className="text-amber-200/50 text-sm">Today's assignments</p>
+                <p className="text-amber-200/50 text-sm">Today&apos;s assignments</p>
               </div>
             </div>
             <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-sm border border-amber-500/30">

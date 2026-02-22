@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { findUserByEmail, findUserByPhone, generateRandomPassword, setPassword } from "@/lib/users"
+import { logger } from "@/lib/logger"
 
 // Twilio credentials from environment
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID
@@ -9,9 +10,7 @@ const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER
 // Send SMS using Twilio REST API
 async function sendSMS(to: string, message: string): Promise<{ success: boolean; error?: string }> {
   if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
-    // For development/demo: log the message instead of sending
-    console.log(`[SMS SIMULATION] To: ${to}`)
-    console.log(`[SMS SIMULATION] Message: ${message}`)
+    logger.info("SMS simulation (service not configured)", { to, messageLength: message.length })
     return { 
       success: true, 
       error: 'SMS service not configured - password reset simulated' 
@@ -40,9 +39,10 @@ async function sendSMS(to: string, message: string): Promise<{ success: boolean;
     }
 
     return { success: true }
-  } catch (error: any) {
-    console.error('SMS sending error:', error)
-    return { success: false, error: error.message }
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Unknown error"
+    logger.error("SMS sending error", { error: msg })
+    return { success: false, error: msg }
   }
 }
 
@@ -61,52 +61,59 @@ export async function POST(request: Request) {
       )
     }
 
-    // Generate new password
-    const newPassword = generateRandomPassword()
-    
-    // Update password in memory
-    setPassword(user.id, newPassword)
-
-    // Prepare message
-    const message = `House of Veritas: Your new password is: ${newPassword}. Please login and change it as soon as possible.`
-
-    if (method === 'sms') {
-      // Send SMS
-      const result = await sendSMS(user.phone, message)
-      
-      if (!result.success && !result.error?.includes('not configured')) {
-        return NextResponse.json(
-          { error: result.error || 'Failed to send SMS' },
-          { status: 500 }
-        )
-      }
-
-      return NextResponse.json({
-        success: true,
-        message: `New password sent to ${user.phone.substring(0, 6)}****${user.phone.slice(-2)}`,
-        // Include password in response for demo purposes when SMS is not configured
-        ...(result.error?.includes('not configured') && { 
-          demoPassword: newPassword,
-          note: 'SMS service not configured. In production, password would be sent via SMS.'
-        })
-      })
-    } else if (method === 'email') {
-      // Email sending would go here
-      // For now, return the password for demo purposes
-      return NextResponse.json({
-        success: true,
-        message: `New password sent to ${user.email}`,
-        demoPassword: newPassword,
-        note: 'Email service not configured. In production, password would be sent via email.'
-      })
+    if (!user.phone) {
+      return NextResponse.json(
+        { error: 'No phone number on file. Please contact your administrator to reset your password.' },
+        { status: 400 }
+      )
     }
 
-    return NextResponse.json(
-      { error: 'Invalid reset method' },
-      { status: 400 }
-    )
+    if (method !== 'sms') {
+      return NextResponse.json(
+        { error: method === 'email' 
+          ? 'Password reset via email is not yet configured. Use SMS or contact your administrator.' 
+          : 'Invalid reset method. Use sms.' },
+        { status: method === 'email' ? 503 : 400 }
+      )
+    }
+
+    const isSmsConfigured = !!(TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER)
+    if (!isSmsConfigured) {
+      return NextResponse.json(
+        { error: 'Password reset is not available. SMS service is not configured. Contact your administrator.' },
+        { status: 503 }
+      )
+    }
+
+    const newPassword = generateRandomPassword()
+
+    const message = `House of Veritas: Your new password is: ${newPassword}. Please login and change it as soon as possible.`
+
+    const result = await sendSMS(user.phone, message)
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error || 'Failed to send SMS' },
+        { status: 500 }
+      )
+    }
+
+    try {
+      setPassword(user.id, newPassword)
+    } catch (err) {
+      logger.error("Failed to set password after SMS sent", { userId: user.id, error: err instanceof Error ? err.message : String(err) })
+      return NextResponse.json(
+        { error: 'Password was sent but could not be saved. Please contact your administrator.' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `New password sent to ${user.phone.substring(0, 6)}****${user.phone.slice(-2)}`,
+    })
   } catch (error) {
-    console.error('Password reset error:', error)
+    logger.error("Password reset error", { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Password reset failed' },
       { status: 500 }

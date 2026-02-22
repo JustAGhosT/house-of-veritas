@@ -365,9 +365,9 @@ export async function POST(request: Request) {
       success: true,
       item: newItem,
     })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Operation failed', details: error.message },
+      { error: 'Operation failed' },
       { status: 500 }
     )
   }
@@ -486,9 +486,9 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Operation failed', details: error.message },
+      { error: 'Operation failed' },
       { status: 500 }
     )
   }

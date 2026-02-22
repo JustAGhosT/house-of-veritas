@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createSubmission, getSubmissionStatus, isDocuSealConfigured } from '@/lib/services/docuseal'
+import { logger } from '@/lib/logger'
+import { withAuth } from '@/lib/auth/rbac'
 
 // GET - Get submission status
-export async function GET(request: Request) {
+export const GET = withAuth(async (request) => {
   const { searchParams } = new URL(request.url)
   const submissionId = searchParams.get('id')
 
@@ -28,16 +30,16 @@ export async function GET(request: Request) {
       configured: isDocuSealConfigured(),
     })
   } catch (error) {
-    console.error('Error fetching submission:', error)
+    logger.error('Error fetching submission', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to fetch submission' },
       { status: 500 }
     )
   }
-}
+})
 
 // POST - Create new submission
-export async function POST(request: Request) {
+export const POST = withAuth(async (request) => {
   try {
     const body = await request.json()
     const { templateId, recipients, metadata } = body
@@ -70,10 +72,10 @@ export async function POST(request: Request) {
         : "Mock submission created - DocuSeal not configured",
     })
   } catch (error) {
-    console.error('Error creating submission:', error)
+    logger.error('Error creating submission', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to create submission' },
       { status: 500 }
     )
   }
-}
+})

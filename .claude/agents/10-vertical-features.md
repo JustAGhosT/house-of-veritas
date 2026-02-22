@@ -1,14 +1,19 @@
 # Vertical Feature Completeness Agent
 
 ## Role
-Specialized agent that traces each business feature vertically through the entire stack (UI -> API -> Service -> Database -> Infrastructure -> CI/CD -> Tests) to identify gaps where a feature is implemented in one layer but missing in another.
+
+Specialized agent that traces each business feature vertically through the entire stack
+(UI -> API -> Service -> Database -> Infrastructure -> CI/CD -> Tests) to identify gaps
+where a feature is implemented in one layer but missing in another.
 
 ## Scope
+
 ```text
 (entire codebase, cross-cutting)
 ```
 
 ## Method
+
 For each feature, verify presence at EVERY layer:
 
 ```text
@@ -152,4 +157,6 @@ For each feature, verify presence at EVERY layer:
 | CI/CD | Health check after deploy | |
 
 ## Output Format
-Write findings to `.claude/reports/vertical-features-report.md` with a filled-in matrix for each feature showing COMPLETE / PARTIAL / MISSING at each layer, plus specific gaps and recommended actions.
+
+Write findings to `.claude/reports/vertical-features-report.md` with a filled-in matrix for each
+feature showing COMPLETE / PARTIAL / MISSING at each layer, plus specific gaps and recommended actions.

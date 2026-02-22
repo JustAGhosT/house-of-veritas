@@ -17,6 +17,7 @@ Environment Variables Required:
 """
 
 import json
+import os
 import hmac
 import hashlib
 import logging
@@ -32,19 +33,35 @@ from shared.utils import (
 logger = setup_logging("docuseal-webhook")
 
 
-def validate_signature(payload: bytes, signature: str) -> bool:
-    """Validate DocuSeal webhook signature."""
+def validate_signature(req) -> bool:
+    """
+    Validate DocuSeal webhook authenticity.
+    DocuSeal sends the secret as a header key-value pair (user-configured).
+    Supports: X-DocuSeal-Signature (secret value) or HMAC-SHA256 in header.
+    """
     if not config.docuseal_webhook_secret:
         logger.warning("No webhook secret configured - skipping validation")
         return True
-    
-    expected = hmac.new(
-        config.docuseal_webhook_secret.encode(),
-        payload,
-        hashlib.sha256
-    ).hexdigest()
-    
-    return hmac.compare_digest(signature, expected)
+
+    header_name = os.environ.get("DOCUSEAL_WEBHOOK_HEADER", "X-DocuSeal-Signature")
+    signature = req.headers.get(header_name, "") or req.headers.get("X-DocuSeal-Signature", "")
+
+    if not signature:
+        return False
+
+    if hmac.compare_digest(signature, config.docuseal_webhook_secret):
+        return True
+
+    body = req.get_body()
+    if body:
+        expected = hmac.new(
+            config.docuseal_webhook_secret.encode(),
+            body,
+            hashlib.sha256
+        ).hexdigest()
+        return hmac.compare_digest(signature, expected)
+
+    return False
 
 
 def handle_submission_completed(data: dict) -> dict:
@@ -160,10 +177,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logger.info("DocuSeal webhook received")
     
     # Validate signature
-    signature = req.headers.get("X-DocuSeal-Signature", "")
-    body = req.get_body()
-    
-    if not validate_signature(body, signature):
+    if not validate_signature(req):
         logger.warning("Invalid webhook signature")
         return func.HttpResponse(
             json.dumps({"error": "Invalid signature"}),

@@ -3,7 +3,7 @@
 ## Branch Strategy
 
 | Branch | Purpose | Protection |
-|--------|---------|------------|
+| ------ | ------- | ---------- |
 | `main` | Production-ready code | Protected, requires PR |
 | `develop` | Integration branch | Default PR target |
 | `feature/*` | New features | Branch from `develop` |
@@ -23,7 +23,7 @@
 
 Use conventional commits:
 
-```
+```text
 feat: add asset photo upload to blob storage
 fix: correct DNS zone resource group reference
 docs: update deployment guide with SSL steps

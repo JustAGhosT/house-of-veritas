@@ -50,6 +50,7 @@ import {
   Smartphone,
   Settings,
 } from "lucide-react"
+import { logger } from "@/lib/logger"
 
 interface KioskUser {
   id: string
@@ -206,7 +207,7 @@ export default function KioskPage() {
         lastClockTime: new Date().toISOString(),
       })
     } catch (err) {
-      console.error("Clock error:", err)
+      logger.error("Clock error", { error: err instanceof Error ? err.message : String(err) })
     }
     setLoading(false)
   }
@@ -271,7 +272,7 @@ export default function KioskPage() {
       const data = await res.json()
       setTasks(data.tasks || [])
     } catch (err) {
-      console.error("Failed to fetch tasks:", err)
+      logger.error("Failed to fetch tasks", { error: err instanceof Error ? err.message : String(err) })
     }
   }
 
@@ -288,7 +289,7 @@ export default function KioskPage() {
       const data = await res.json()
       setRequestHistory(data.requests || [])
     } catch (err) {
-      console.error("Failed to fetch request history:", err)
+      logger.error("Failed to fetch request history", { error: err instanceof Error ? err.message : String(err) })
     }
   }
 
@@ -307,7 +308,7 @@ export default function KioskPage() {
         setNotificationPref(data.preference.preferredChannel)
       }
     } catch (err) {
-      console.error("Failed to fetch notification pref:", err)
+      logger.error("Failed to fetch notification pref", { error: err instanceof Error ? err.message : String(err) })
     }
   }
 
@@ -333,7 +334,7 @@ export default function KioskPage() {
       setShowNotificationPrefs(false)
       showSuccess(`Notifications will be sent via ${channel.toUpperCase()}`)
     } catch (err) {
-      console.error("Failed to save notification pref:", err)
+      logger.error("Failed to save notification pref", { error: err instanceof Error ? err.message : String(err) })
       setError("Failed to save preference")
     }
     setLoading(false)
@@ -358,7 +359,7 @@ export default function KioskPage() {
       fetchTasks() // Refresh tasks
       showSuccess("Task marked as complete!")
     } catch (err) {
-      console.error("Failed to complete task:", err)
+      logger.error("Failed to complete task", { error: err instanceof Error ? err.message : String(err) })
     }
   }
 
@@ -382,7 +383,7 @@ export default function KioskPage() {
       setStockRequest({ itemName: "", quantity: 1, urgency: "normal", notes: "" })
       showSuccess("Stock request submitted!")
     } catch (err) {
-      console.error("Failed to submit stock request:", err)
+      logger.error("Failed to submit stock request", { error: err instanceof Error ? err.message : String(err) })
       setError("Failed to submit request")
     }
     setLoading(false)
@@ -408,7 +409,7 @@ export default function KioskPage() {
       setAdvanceRequest({ amount: 0, reason: "", repaymentPlan: "1month" })
       showSuccess("Advance request submitted for approval!")
     } catch (err) {
-      console.error("Failed to submit advance request:", err)
+      logger.error("Failed to submit advance request", { error: err instanceof Error ? err.message : String(err) })
       setError("Failed to submit request")
     }
     setLoading(false)
@@ -434,7 +435,7 @@ export default function KioskPage() {
       setIssueReport({ assetName: "", issueType: "maintenance", description: "", location: "" })
       showSuccess("Issue reported successfully!")
     } catch (err) {
-      console.error("Failed to submit issue report:", err)
+      logger.error("Failed to submit issue report", { error: err instanceof Error ? err.message : String(err) })
       setError("Failed to submit report")
     }
     setLoading(false)
@@ -453,7 +454,7 @@ export default function KioskPage() {
         <div className="w-full max-w-sm space-y-6">
           {/* Header */}
           <div className="text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-20 h-20 bg-linear-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <span className="text-white text-3xl font-bold">HV</span>
             </div>
             <h1 className="text-2xl font-bold text-white">House of Veritas</h1>
@@ -542,7 +543,7 @@ export default function KioskPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
             <User className="h-6 w-6 text-white" />
           </div>
           <div>
@@ -879,7 +880,7 @@ export default function KioskPage() {
                           <p className="text-white/40 text-sm mt-1">Due: {task.dueDate}</p>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                         <Badge className={
                           task.priority === "high" ? "bg-red-500" :
                           task.priority === "medium" ? "bg-yellow-500" : "bg-gray-500"

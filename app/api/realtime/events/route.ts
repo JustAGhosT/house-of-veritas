@@ -1,4 +1,5 @@
 import { eventStore, RealTimeEvent } from '@/lib/realtime/event-store'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,7 +42,7 @@ export async function GET(request: Request) {
             const message = `data: ${JSON.stringify(event)}\n\n`
             controller.enqueue(encoder.encode(message))
           } catch (error) {
-            console.error('Error sending SSE event:', error)
+            logger.error('Error sending SSE event', { error: error instanceof Error ? error.message : String(error) })
           }
         }
       })

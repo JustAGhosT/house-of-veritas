@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { clockInByAppId, clockOutByAppId, getTimeClockEntries, isBaserowConfigured } from '@/lib/services/baserow'
+import { withAuth } from '@/lib/auth/rbac'
 
 // Biometric device configuration
 const BIOMETRIC_CONFIG = {
@@ -98,7 +100,7 @@ let clockRecords: ClockRecord[] = [
 ]
 
 // GET - Get biometric status, enrolled employees, or clock records
-export async function GET(request: Request) {
+export const GET = withAuth(async (request) => {
   const { searchParams } = new URL(request.url)
   const action = searchParams.get('action')
   const employeeId = searchParams.get('employeeId')
@@ -130,20 +132,54 @@ export async function GET(request: Request) {
     })
   }
 
-  // Get clock records
+  const today = new Date().toISOString().split('T')[0]
   let records = [...clockRecords]
-  
-  if (employeeId) {
-    records = records.filter(r => r.employeeId === employeeId)
-  }
-  
-  if (date) {
-    records = records.filter(r => r.timestamp.startsWith(date))
+
+  if (isBaserowConfigured()) {
+    const baserowEntries = await getTimeClockEntries({
+      date: date || today,
+    })
+    const baserowRecords: ClockRecord[] = []
+    for (const e of baserowEntries) {
+      const empId = e.employeeName?.toLowerCase().split(' ')[0] || String(e.employee)
+      const empName = e.employeeName || ''
+      if (e.clockIn) {
+        baserowRecords.push({
+          id: `clk_baserow_${e.id}_in`,
+          employeeId: empId,
+          employeeName: empName,
+          type: 'clock_in',
+          method: 'manual',
+          timestamp: `${e.date}T${e.clockIn}:00.000Z`,
+          location: 'Baserow',
+          verified: true,
+        })
+      }
+      if (e.clockOut) {
+        baserowRecords.push({
+          id: `clk_baserow_${e.id}_out`,
+          employeeId: empId,
+          employeeName: empName,
+          type: 'clock_out',
+          method: 'manual',
+          timestamp: `${e.date}T${e.clockOut}:00.000Z`,
+          location: 'Baserow',
+          verified: true,
+        })
+      }
+    }
+    records = [...baserowRecords, ...clockRecords]
   }
 
-  // Calculate hours worked today for each employee
-  const today = new Date().toISOString().split('T')[0]
-  const todayRecords = clockRecords.filter(r => r.timestamp.startsWith(today))
+  if (employeeId) {
+    records = records.filter((r) => r.employeeId === employeeId)
+  }
+
+  if (date) {
+    records = records.filter((r) => r.timestamp.startsWith(date))
+  }
+
+  const todayRecords = records.filter((r) => r.timestamp.startsWith(today))
   
   const employeeStatus = ENROLLED_EMPLOYEES.map(emp => {
     const empRecords = todayRecords.filter(r => r.employeeId === emp.id)
@@ -182,10 +218,10 @@ export async function GET(request: Request) {
       clockOuts: records.filter(r => r.type === 'clock_out').length,
     },
   })
-}
+})
 
 // POST - Clock in/out or enroll employee
-export async function POST(request: Request) {
+export const POST = withAuth(async (request) => {
   try {
     const body = await request.json()
     const { action, employeeId, method = 'fingerprint', location, biometricData } = body
@@ -201,8 +237,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Employee not enrolled' }, { status: 404 })
       }
 
-      // In production: verify biometric data against stored template
-      const verified = true // Mock verification
+      const verified = true
 
       const record: ClockRecord = {
         id: `clk_${Date.now()}`,
@@ -218,10 +253,19 @@ export async function POST(request: Request) {
 
       clockRecords.push(record)
 
+      if (isBaserowConfigured()) {
+        if (action === 'clock_in') {
+          await clockInByAppId(employeeId)
+        } else {
+          await clockOutByAppId(employeeId)
+        }
+      }
+
       return NextResponse.json({
         success: true,
         mode: isBiometricConfigured() ? 'live' : 'mock',
         record,
+        persisted: isBaserowConfigured(),
         message: `${employee.name} ${action === 'clock_in' ? 'clocked in' : 'clocked out'} successfully`,
       })
     }
@@ -268,10 +312,10 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Biometric operation failed', details: error.message },
+      { error: 'Biometric operation failed' },
       { status: 500 }
     )
   }
-}
+})

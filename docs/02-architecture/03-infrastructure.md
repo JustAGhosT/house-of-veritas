@@ -2,7 +2,7 @@
 
 ## Azure Resource Map
 
-```
+```text
 Subscription: 22f9eb18-6553-4b7d-9451-47d0195085fe
 Region: South Africa North
 
@@ -57,7 +57,7 @@ Resource Groups
 
 ## Terraform Module Structure
 
-```
+```text
 terraform/
 ├── environments/
 │   └── production/
@@ -80,7 +80,7 @@ terraform/
 
 ## Module Dependencies
 
-```
+```text
 network ─────────────┬──────────────────────────────────┐
                      │                                  │
               ┌──────▼──────┐                    ┌──────▼──────┐
@@ -107,14 +107,14 @@ network ─────────────┬──────────
 ## DNS Configuration
 
 | Record | Type | Target | Zone |
-|--------|------|--------|------|
+| ------ | ---- | ------ | ---- |
 | `docs.nexamesh.ai` | A | Application Gateway IP | `nl-prod-nexamesh-rg-san` |
 | `ops.nexamesh.ai` | A | Application Gateway IP | `nl-prod-nexamesh-rg-san` |
 | `nexamesh.ai` | A | Application Gateway IP | `nl-prod-nexamesh-rg-san` |
 
 ## Traffic Flow
 
-```
+```text
 User Browser
   │
   ▼
@@ -136,7 +136,7 @@ Document Intelligence (nl-prod-hov-di-san)
 ## Cost Estimate (Monthly)
 
 | Service | SKU | Est. Cost (ZAR) |
-|---------|-----|-----------------|
+| ------- | --- | --------------- |
 | PostgreSQL Flexible | B_Standard_B1ms | R400 |
 | Container Instances (x2) | 2 CPU / 4 GB each | R300 |
 | Application Gateway | WAF_v2 (1 unit) | R150 |

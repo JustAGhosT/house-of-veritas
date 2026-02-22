@@ -12,7 +12,7 @@ resource "azurerm_container_group" "docuseal" {
 
   container {
     name   = "docuseal"
-    image  = "docuseal/docuseal:latest"
+    image  = "docuseal/docuseal:2.3.0"
     cpu    = "2"
     memory = "4"
 
@@ -63,7 +63,7 @@ resource "azurerm_container_group" "baserow" {
 
   container {
     name   = "baserow"
-    image  = "baserow/baserow:latest"
+    image  = "baserow/baserow:1.25.2"
     cpu    = "2"
     memory = "4"
 

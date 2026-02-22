@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { logger } from "@/lib/logger"
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -52,7 +53,7 @@ export function CalendarPanel() {
       setEvents(data.items || [])
       setMode(data.mode || 'mock')
     } catch (error) {
-      console.error('Failed to fetch calendar events:', error)
+      logger.error('Failed to fetch calendar events', { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
@@ -123,7 +124,7 @@ export function CalendarPanel() {
       {/* Mode Alert */}
       {mode === 'mock' && (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <AlertCircle className="w-4 h-4 shrink-0" />
           <span>Using demo data. Configure Google Calendar API for live sync.</span>
         </div>
       )}
@@ -139,15 +140,19 @@ export function CalendarPanel() {
             {/* Month Navigation */}
             <div className="flex items-center justify-between mb-4">
               <button
+                type="button"
                 onClick={() => navigateMonth('prev')}
                 className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+                aria-label="Previous month"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <h3 className="text-white font-semibold text-lg">{monthName}</h3>
               <button
+                type="button"
                 onClick={() => navigateMonth('next')}
                 className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+                aria-label="Next month"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -330,7 +335,7 @@ function CreateEventModal({
 
       onCreated()
     } catch (error) {
-      console.error('Failed to create event:', error)
+      logger.error('Failed to create event', { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
@@ -344,6 +349,7 @@ function CreateEventModal({
           <button
             onClick={onClose}
             className="p-1 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+            aria-label="Close event form"
           >
             <X className="w-5 h-5" />
           </button>
@@ -351,8 +357,9 @@ function CreateEventModal({
 
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           <div>
-            <label className="block text-white/60 text-sm mb-2">Event Title</label>
+            <label htmlFor="calendar-event-title" className="block text-white/60 text-sm mb-2">Event Title</label>
             <input
+              id="calendar-event-title"
               type="text"
               value={form.summary}
               onChange={(e) => setForm(prev => ({ ...prev, summary: e.target.value }))}
@@ -363,8 +370,9 @@ function CreateEventModal({
           </div>
 
           <div>
-            <label className="block text-white/60 text-sm mb-2">Description</label>
+            <label htmlFor="calendar-event-description" className="block text-white/60 text-sm mb-2">Description</label>
             <textarea
+              id="calendar-event-description"
               value={form.description}
               onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))}
               rows={3}
@@ -374,8 +382,9 @@ function CreateEventModal({
           </div>
 
           <div>
-            <label className="block text-white/60 text-sm mb-2">Date</label>
+            <label htmlFor="calendar-event-date" className="block text-white/60 text-sm mb-2">Date</label>
             <input
+              id="calendar-event-date"
               type="date"
               value={form.date}
               onChange={(e) => setForm(prev => ({ ...prev, date: e.target.value }))}
@@ -398,8 +407,9 @@ function CreateEventModal({
           {!form.allDay && (
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-white/60 text-sm mb-2">Start Time</label>
+                <label htmlFor="calendar-event-start" className="block text-white/60 text-sm mb-2">Start Time</label>
                 <input
+                  id="calendar-event-start"
                   type="time"
                   value={form.startTime}
                   onChange={(e) => setForm(prev => ({ ...prev, startTime: e.target.value }))}
@@ -407,8 +417,9 @@ function CreateEventModal({
                 />
               </div>
               <div>
-                <label className="block text-white/60 text-sm mb-2">End Time</label>
+                <label htmlFor="calendar-event-end" className="block text-white/60 text-sm mb-2">End Time</label>
                 <input
+                  id="calendar-event-end"
                   type="time"
                   value={form.endTime}
                   onChange={(e) => setForm(prev => ({ ...prev, endTime: e.target.value }))}

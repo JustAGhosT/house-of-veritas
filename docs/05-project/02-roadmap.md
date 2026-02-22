@@ -31,6 +31,7 @@
 **Priority:** High
 
 #### Features
+
 - **Offline-First Architecture**
   - Work without internet connection
   - Sync when connectivity restored
@@ -59,12 +60,14 @@
   - Secure and fast access
 
 #### Technical Approach
+
 - **Framework:** React Native or Flutter
 - **Backend:** Same APIs (Baserow, DocuSeal)
 - **Storage:** SQLite for offline data
 - **Sync:** Background sync service
 
 #### Success Metrics
+>
 - >80% mobile usage for field workers
 - <5s average task completion time
 - >95% offline success rate
@@ -81,6 +84,7 @@
 **Priority:** High
 
 #### Features
+
 - **Real-Time Dashboards**
   - Executive summary for Hans
   - Department performance (workshop, grounds)
@@ -107,6 +111,7 @@
   - Data export (CSV, Excel)
 
 #### Technical Approach
+
 - **Tool Options:**
   - Power BI (integrate with Baserow)
   - Metabase (open-source)
@@ -115,6 +120,7 @@
 - **Refresh:** Real-time or scheduled
 
 #### Report Types
+
 1. **Monthly Financial Report**
    - Budget vs Actual by category
    - Contractor spend analysis
@@ -151,6 +157,7 @@
 **Priority:** Medium
 
 #### Integration Options
+
 1. **QuickBooks / Xero**
    - Auto-sync expenses from Baserow
    - Import contractor payments
@@ -170,6 +177,7 @@
    - IRP5/IT3a generation
 
 #### Sync Strategy
+
 - **Frequency:** Daily (overnight batch)
 - **Direction:** Bi-directional
 - **Conflict Resolution:** Manual review for mismatches
@@ -185,6 +193,7 @@
 **Priority:** Medium
 
 #### Features
+
 - **Automated Bank Feeds**
   - Import transactions daily
   - Auto-match to expenses
@@ -198,6 +207,7 @@
   - Payment confirmation tracking
 
 #### Supported Banks
+
 - FNB (API available)
 - Standard Bank (API available)
 - Nedbank
@@ -213,6 +223,7 @@
 **Priority:** Low
 
 #### Slack / Microsoft Teams Integration
+
 - Task assignments → Slack messages
 - Incident alerts → Teams channel
 - Approval requests → Interactive cards
@@ -220,6 +231,7 @@
 - Bot commands ("@HoV show my tasks")
 
 #### WhatsApp Business Integration
+
 - Task reminders via WhatsApp
 - Incident photo submission
 - Quick status updates
@@ -237,6 +249,7 @@
 **Priority:** Medium
 
 #### Features
+
 - **Asset Failure Prediction**
   - Analyze historical incident data
   - Predict maintenance needs
@@ -249,11 +262,13 @@
   - Optimize resource allocation
 
 #### ML Models
+
 - **Time Series Forecasting:** Budget and expenses
 - **Classification:** Incident severity prediction
 - **Regression:** Asset lifecycle modeling
 
 #### Technical Approach
+
 - **Platform:** Azure ML Studio
 - **Data:** Historical Baserow data
 - **Model Training:** Monthly retraining
@@ -269,6 +284,7 @@
 **Priority:** Low
 
 #### Features
+
 - **Voice-to-Text Incident Reporting**
   - Speak incident description
   - Auto-categorize by severity
@@ -297,6 +313,7 @@
 **Priority:** Low
 
 #### Features
+
 - **Expense Auto-Categorization**
   - Analyze receipt text (OCR)
   - Categorize expense automatically
@@ -321,6 +338,7 @@
 **Priority:** Low (unless expansion planned)
 
 #### Features
+
 - **Property Dimension**
   - Add property field to all tables
   - Multi-property views and reports
@@ -338,6 +356,7 @@
   - Property-specific budgets
 
 #### Technical Changes
+
 - Database schema updates (add property_id)
 - API filtering by property
 - UI for property selection
@@ -353,12 +372,14 @@
 **Priority:** Low (only if >50 users)
 
 #### Benefits
+
 - **High Availability:** Multiple replicas
 - **Auto-Scaling:** Scale based on load
 - **Zero-Downtime Deployments:** Rolling updates
 - **Better Resource Management:** Container orchestration
 
 #### Migration Path
+
 1. Containerize all services (already done)
 2. Create Kubernetes manifests
 3. Set up AKS cluster
@@ -376,6 +397,7 @@
 **Priority:** Low
 
 #### Use Cases
+
 - Cache frequently accessed data (employees, assets)
 - Session storage
 - Rate limiting
@@ -393,6 +415,7 @@
 **Priority:** Medium
 
 #### Features
+
 - **Azure AD Integration**
   - One login for all systems
   - Automatic user provisioning
@@ -414,6 +437,7 @@
 **Priority:** Medium
 
 #### Features
+
 - **Enhanced Audit Logs**
   - Every action logged with context
   - IP address tracking
@@ -441,6 +465,7 @@
 **Priority:** Medium
 
 #### Features
+
 - **Fingerprint Scanner**
   - Physical device at entrance
   - Wireless connectivity
@@ -454,6 +479,7 @@
   - Offline mode with batch sync
 
 #### Device Options
+
 - ZKTeco devices (popular in South Africa)
 - Custom Raspberry Pi solution
 - Tablet-based solution
@@ -470,6 +496,7 @@
 **Priority:** Medium
 
 #### Features
+
 - **Real-Time Tracking**
   - Live vehicle location
   - Route history
@@ -483,6 +510,7 @@
   - Fuel efficiency analysis
 
 #### Technical Approach
+
 - **Hardware:** OBD-II GPS tracker
 - **Platform:** Traccar (open-source) or commercial
 - **Integration:** API → Azure Function → Baserow
@@ -497,6 +525,7 @@
 **Priority:** Low
 
 #### Features
+
 - **Visual Workflow Builder**
   - Drag-and-drop interface
   - If-then-else logic
@@ -510,6 +539,7 @@
   - If vehicle mileage >100,000km, schedule service
 
 #### Technical Approach
+
 - **Engine:** n8n (open-source) or custom
 - **UI:** React Flow or similar
 - **Storage:** Workflow definitions in PostgreSQL
@@ -524,6 +554,7 @@
 **Priority:** Low
 
 #### Features
+
 - **Self-Service Portal**
   - View assigned projects
   - Submit progress updates
@@ -546,6 +577,7 @@
 **Priority:** Medium
 
 #### Features
+
 - **QR Code Generation**
   - Unique QR per asset
   - Print labels
@@ -567,6 +599,7 @@
 **Priority:** Low
 
 #### Features
+
 - **Template Library**
   - Common documents (contracts, agreements)
   - Fill-in-the-blank fields
@@ -587,14 +620,16 @@
 **Investment:** Medium (R50,000-100,000)  
 **Priority:** Low
 
-#### Languages
+### Languages
+
 - English (default)
 - Afrikaans
 - Zulu
 - Xhosa
 - Other South African languages
 
-#### Implementation
+### Implementation
+
 - **i18n Framework:** i18next
 - **Translation Management:** Crowdin or similar
 - **UI Changes:** Language selector, RTL support
@@ -612,6 +647,7 @@
 **Priority:** Low
 
 #### Features
+
 - **Interactive Tutorials**
   - Step-by-step walkthroughs
   - In-app guidance (tooltips, highlights)
@@ -642,6 +678,7 @@
 **Priority:** Medium
 
 #### Features
+
 - **Annual Budget Creation**
   - Template-based budgets
   - Category-level detail
@@ -664,6 +701,7 @@
 **Priority:** Low
 
 #### Features
+
 - **PO Creation**
   - Create PO from expense request
   - Approval workflow
@@ -687,6 +725,7 @@
 **Priority:** Low
 
 #### Features
+
 - **Notification Preferences**
   - Per-user configuration
   - Channel preferences (email, SMS, push)
@@ -717,6 +756,7 @@
 **Priority:** Very Low
 
 #### Features
+
 - **Blockchain-Based Audit Log**
   - Every action hashed and stored on blockchain
   - Tamper-proof records
@@ -733,6 +773,7 @@
 **Priority:** Very Low
 
 #### Use Cases
+
 - **Temperature Sensors** (workshop, storage)
   - Alert on extreme temps
   - Auto-log readings
@@ -753,6 +794,7 @@
 ## 💡 Innovation Ideas (Brainstorming)
 
 ### Future-Looking Concepts
+
 1. **AI-Powered Personal Assistant**
    - "Siri/Alexa for House of Veritas"
    - Voice commands for common tasks
@@ -796,22 +838,26 @@
 ### Prioritization Matrix
 
 **High Value, Low Effort (Do First):**
+
 - Mobile app (core features)
 - Advanced reporting
 - QR code asset tracking
 - Biometric time clock
 
 **High Value, High Effort (Plan Carefully):**
+
 - Accounting integration
 - Predictive maintenance
 - Multi-property support
 
 **Low Value, Low Effort (Quick Wins):**
+
 - WhatsApp integration
 - Enhanced notifications
 - Document templates
 
 **Low Value, High Effort (Reconsider):**
+
 - Blockchain audit trail
 - IoT sensors
 - AR features
@@ -851,38 +897,47 @@
 ## 📅 Suggested Roadmap
 
 ### Year 1 (Months 7-18 post go-live)
+
 **Q3:**
+
 - Mobile app MVP (iOS/Android)
 - Advanced reporting
 - QR code system
 
 **Q4:**
+
 - Biometric time clock
 - Enhanced notifications
 - SSO with Azure AD
 
 ### Year 2 (Months 19-30)
+
 **Q1:**
+
 - Accounting integration (QuickBooks/Xero)
 - GPS vehicle tracking
 - Document templates
 
 **Q2:**
+
 - Predictive maintenance (Phase 1)
 - Contractor portal
 - Banking integration
 
 **Q3:**
+
 - NLP features (voice-to-text)
 - Workflow automation builder
 - Advanced compliance reporting
 
 **Q4:**
+
 - Budget planning & forecasting
 - Purchase order system
 - Multi-language support
 
 ### Year 3+ (Months 31+)
+
 - Multi-property support (if needed)
 - Migration to AKS (if >50 users)
 - Advanced AI features
@@ -893,6 +948,7 @@
 ## 💰 Investment Summary
 
 ### Short-Term (0-12 months): R250,000-400,000
+
 - Mobile apps
 - Advanced reporting
 - Biometric time clock
@@ -900,6 +956,7 @@
 - Minor integrations
 
 ### Medium-Term (12-24 months): R500,000-800,000
+
 - Accounting integration
 - GPS tracking
 - Contractor portal
@@ -907,6 +964,7 @@
 - Workflow builder
 
 ### Long-Term (24-36 months): R750,000-1,500,000
+
 - Multi-property support
 - Kubernetes migration
 - Advanced AI
@@ -921,12 +979,14 @@
 This document outlines a comprehensive vision for the evolution of the House of Veritas platform over 3+ years. The enhancements range from high-priority mobile apps to experimental blockchain features, providing a balanced roadmap for continuous improvement.
 
 **Key Principles:**
+
 - **User-Driven:** Prioritize based on user feedback
 - **Value-Focused:** ROI and business impact guide decisions
 - **Incremental:** Build iteratively, release frequently
 - **Sustainable:** Keep costs manageable, avoid technical debt
 
 **Review & Update:**
+
 - Quarterly review of roadmap
 - Annual strategic planning
 - Continuous user feedback collection

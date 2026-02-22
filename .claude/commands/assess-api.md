@@ -1,8 +1,10 @@
 # Assess API & Functions
 
-Read the agent definition at `.claude/agents/04-api-functions.md` and execute a thorough assessment of API routes and Azure Functions.
+Read the agent definition at `.claude/agents/04-api-functions.md` and execute a thorough
+assessment of API routes and Azure Functions.
 
 ## Instructions
+
 1. Read `.claude/agents/04-api-functions.md` for the full checklist
 2. Scan all files in `app/api/` for Next.js routes
 3. Scan all directories in `config/azure-functions/` for Azure Functions

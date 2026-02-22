@@ -5,8 +5,9 @@ import {
   getEmployees,
   isBaserowConfigured,
 } from "@/lib/services/baserow"
+import { withAuth } from "@/lib/auth/rbac"
 
-export async function GET() {
+export const GET = withAuth(async (_request) => {
   const [tasks, expenses, employees] = await Promise.all([
     getTasks(),
     getExpenses(),
@@ -56,4 +57,4 @@ export async function GET() {
   )
 
   return NextResponse.json(stats)
-}
+})

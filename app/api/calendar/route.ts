@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { withAuth } from '@/lib/auth/rbac'
 
 // Google Calendar OAuth configuration
 const GOOGLE_CONFIG = {
@@ -67,7 +68,7 @@ const MOCK_EVENTS = [
 let mockEvents = [...MOCK_EVENTS]
 
 // GET - List calendar events or initiate OAuth
-export async function GET(request: Request) {
+export const GET = withAuth(async (request) => {
   const { searchParams } = new URL(request.url)
   const action = searchParams.get('action')
 
@@ -132,10 +133,10 @@ export async function GET(request: Request) {
     items: [],
     message: 'Google Calendar integration ready - implement token flow',
   })
-}
+})
 
 // POST - Create calendar event
-export async function POST(request: Request) {
+export const POST = withAuth(async (request) => {
   try {
     const body = await request.json()
     const { summary, description, start, end, allDay, attendees } = body
@@ -185,16 +186,16 @@ export async function POST(request: Request) {
       success: true,
       event: newEvent,
     })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to create event', details: error.message },
+      { error: 'Failed to create event' },
       { status: 500 }
     )
   }
-}
+})
 
 // DELETE - Delete calendar event
-export async function DELETE(request: Request) {
+export const DELETE = withAuth(async (request) => {
   const { searchParams } = new URL(request.url)
   const eventId = searchParams.get('eventId')
 
@@ -213,4 +214,4 @@ export async function DELETE(request: Request) {
 
   // In production: Delete via Google Calendar API
   return NextResponse.json({ mode: 'live', success: true, deletedId: eventId })
-}
+})

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, startTransition } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
@@ -9,74 +9,18 @@ import { RealTimeIndicator } from "@/components/realtime-indicator"
 import { ConnectionStatus } from "@/components/connection-status"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { SimpleGridBackground } from "@/components/grid-room-background"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { OnboardingTutorial } from "@/components/onboarding-tutorial"
 import {
-  Home,
-  FileText,
-  Users,
-  Package,
-  ClipboardList,
-  Clock,
-  Car,
-  AlertTriangle,
-  DollarSign,
-  Settings,
   LogOut,
   Menu,
   X,
   ChevronDown,
-  BarChart3,
-  Calendar,
-  Wrench,
-  Boxes,
-  ScanLine,
-  Store,
-  CheckSquare,
+  ChevronRight,
 } from "lucide-react"
-
-// Navigation items per role
-const NAV_ITEMS = {
-  hans: [
-    { name: "Overview", href: "/dashboard/hans", icon: Home },
-    { name: "Approvals", href: "/dashboard/hans/approvals", icon: CheckSquare },
-    { name: "Calendar", href: "/dashboard/hans/calendar", icon: Calendar },
-    { name: "Documents", href: "/dashboard/hans/documents", icon: FileText },
-    { name: "Employees", href: "/dashboard/hans/employees", icon: Users },
-    { name: "Tasks", href: "/dashboard/hans/tasks", icon: ClipboardList },
-    { name: "Payroll", href: "/dashboard/hans/payroll", icon: DollarSign },
-    { name: "Assets", href: "/dashboard/hans/assets", icon: Package },
-    { name: "Inventory", href: "/dashboard/hans/inventory", icon: Boxes },
-    { name: "OCR Scanner", href: "/dashboard/hans/ocr", icon: ScanLine },
-    { name: "Marketplace", href: "/dashboard/hans/marketplace", icon: Store },
-    { name: "Maintenance", href: "/dashboard/hans/maintenance", icon: Wrench },
-    { name: "Time & Attendance", href: "/dashboard/hans/time", icon: Clock },
-    { name: "Expenses", href: "/dashboard/hans/expenses", icon: DollarSign },
-    { name: "Vehicles", href: "/dashboard/hans/vehicles", icon: Car },
-    { name: "Reports", href: "/dashboard/hans/reports", icon: BarChart3 },
-    { name: "Settings", href: "/dashboard/hans/settings", icon: Settings },
-  ],
-  charl: [
-    { name: "My Dashboard", href: "/dashboard/charl", icon: Home },
-    { name: "My Tasks", href: "/dashboard/charl/tasks", icon: ClipboardList },
-    { name: "Time Clock", href: "/dashboard/charl/time", icon: Clock },
-    { name: "Assets", href: "/dashboard/charl/assets", icon: Package },
-    { name: "Vehicle Log", href: "/dashboard/charl/vehicles", icon: Car },
-    { name: "My Documents", href: "/dashboard/charl/documents", icon: FileText },
-  ],
-  lucky: [
-    { name: "My Dashboard", href: "/dashboard/lucky", icon: Home },
-    { name: "My Tasks", href: "/dashboard/lucky/tasks", icon: ClipboardList },
-    { name: "Time Clock", href: "/dashboard/lucky/time", icon: Clock },
-    { name: "Inventory", href: "/dashboard/lucky/inventory", icon: Boxes },
-    { name: "Expenses", href: "/dashboard/lucky/expenses", icon: DollarSign },
-    { name: "Vehicle Log", href: "/dashboard/lucky/vehicles", icon: Car },
-    { name: "My Documents", href: "/dashboard/lucky/documents", icon: FileText },
-  ],
-  irma: [
-    { name: "My Dashboard", href: "/dashboard/irma", icon: Home },
-    { name: "Household Tasks", href: "/dashboard/irma/tasks", icon: ClipboardList },
-    { name: "My Documents", href: "/dashboard/irma/documents", icon: FileText },
-  ],
-}
+import { UserProfileDropdown } from "@/components/user-profile-dropdown"
+import { getNavForPersona, isCategory } from "@/lib/nav-config"
+import type { NavEntry } from "@/lib/nav-config"
 
 const PERSONA_INFO = {
   hans: { name: "Hans", role: "Owner & Administrator", color: "blue", icon: "👔" },
@@ -87,7 +31,20 @@ const PERSONA_INFO = {
 
 interface DashboardLayoutProps {
   children: React.ReactNode
+  /** Dashboard owner (user id from URL). Nav is driven by this user's role. */
   persona: "hans" | "charl" | "lucky" | "irma"
+}
+
+function getFlatNavItems(entries: NavEntry[]): { name: string; href: string }[] {
+  const items: { name: string; href: string }[] = []
+  for (const e of entries) {
+    if (isCategory(e)) {
+      items.push(...e.items.map((i) => ({ name: i.name, href: i.href })))
+    } else {
+      items.push({ name: e.name, href: e.href })
+    }
+  }
+  return items
 }
 
 export default function DashboardLayout({ children, persona }: DashboardLayoutProps) {
@@ -95,6 +52,7 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
   const router = useRouter()
   const { user, logout, isLoading, isAuthenticated } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(false)
 
   // Auth protection
   useEffect(() => {
@@ -103,7 +61,6 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
     }
   }, [isLoading, isAuthenticated, router])
 
-  // Permission check - only Hans can access other dashboards
   useEffect(() => {
     if (!isLoading && user) {
       const dashboardOwner = pathname?.split("/")[2]
@@ -112,6 +69,14 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
       }
     }
   }, [isLoading, user, pathname, router])
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !user) return
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("tutorial") === "1" && user.onboardingStatus !== "completed") {
+      startTransition(() => setShowTutorial(true))
+    }
+  }, [user, pathname])
 
   // Show loading while checking auth
   if (isLoading || !isAuthenticated) {
@@ -122,7 +87,12 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
     )
   }
 
-  const navItems = NAV_ITEMS[persona]
+  const isViewingOwnDashboard = user?.id === persona
+  const navEntries = getNavForPersona(
+    persona,
+    isViewingOwnDashboard ? (user?.role as "admin" | "operator" | "employee" | "resident") : undefined,
+    isViewingOwnDashboard ? user?.responsibilities : undefined
+  )
   const personaInfo = PERSONA_INFO[persona]
 
   const colorClasses = {
@@ -160,7 +130,7 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
         {/* Logo */}
         <div className="p-6 border-b border-white/10">
           <Link href="/" className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colorClasses[personaInfo.color as keyof typeof colorClasses]} flex items-center justify-center`}>
+            <div className={`w-10 h-10 rounded-xl bg-linear-to-br ${colorClasses[personaInfo.color as keyof typeof colorClasses]} flex items-center justify-center`}>
               <span className="text-white font-bold text-lg">HV</span>
             </div>
             <div>
@@ -172,24 +142,60 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
 
         {/* Navigation */}
         <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100%-180px)]">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href
-            const Icon = item.icon
+          {navEntries.map((entry, idx) => {
+            if (isCategory(entry)) {
+              const hasActive = entry.items.some((i) => pathname === i.href)
+              return (
+                <Collapsible key={entry.category} defaultOpen={hasActive}>
+                  <CollapsibleTrigger className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-all group">
+                    <ChevronRight className="w-5 h-5 transition-transform group-data-[state=open]:rotate-90" />
+                    <span className="text-sm font-medium uppercase tracking-wider">{entry.category}</span>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="ml-4 mt-1 space-y-1 border-l border-white/10 pl-3">
+                      {entry.items.map((item) => {
+                        const isActive = pathname === item.href
+                        const Icon = item.icon
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setSidebarOpen(false)}
+                            className={`
+                              flex items-center gap-3 px-3 py-2 rounded-lg transition-all
+                              ${isActive
+                                ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
+                                : "text-white/60 hover:text-white hover:bg-white/5"
+                              }
+                            `}
+                          >
+                            <Icon className="w-4 h-4" />
+                            <span className="text-sm">{item.name}</span>
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              )
+            }
+            const isActive = pathname === entry.href
+            const Icon = entry.icon
             return (
               <Link
-                key={item.href}
-                href={item.href}
+                key={entry.href}
+                href={entry.href}
                 onClick={() => setSidebarOpen(false)}
                 className={`
                   flex items-center gap-3 px-4 py-3 rounded-xl transition-all
                   ${isActive
-                    ? `bg-gradient-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
+                    ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
                     : "text-white/60 hover:text-white hover:bg-white/5"
                   }
                 `}
               >
                 <Icon className="w-5 h-5" />
-                <span className="text-sm font-medium">{item.name}</span>
+                <span className="text-sm font-medium">{entry.name}</span>
               </Link>
             )
           })}
@@ -215,23 +221,16 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
           )}
         </nav>
 
-        {/* User Info */}
+        {/* User Profile */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
-            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${colorClasses[personaInfo.color as keyof typeof colorClasses]} flex items-center justify-center text-lg`}>
-              {personaInfo.icon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-medium truncate">{user?.name || personaInfo.name}</p>
-              <p className="text-white/50 text-xs truncate">{user?.role || personaInfo.role}</p>
-            </div>
-            <button 
-              onClick={handleLogout}
-              className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
-              data-testid="logout-button"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+          <div className="rounded-xl bg-white/5 p-2">
+            <UserProfileDropdown
+              user={{ id: user?.id ?? persona, name: user?.name ?? "", email: user?.email ?? "", phone: user?.phone, role: user?.role ?? "", color: (user as { color?: string })?.color, icon: (user as { icon?: string })?.icon, photoUrl: (user as { photoUrl?: string })?.photoUrl }}
+              personaInfo={personaInfo}
+              onLogout={handleLogout}
+              onRepeatTutorial={() => setShowTutorial(true)}
+              compact
+            />
           </div>
         </div>
       </aside>
@@ -272,15 +271,15 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
               {/* Notifications */}
               <NotificationPanel />
 
-              {/* Logout Button */}
-              <button
-                onClick={handleLogout}
-                className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors text-sm"
-                data-testid="header-logout"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
+              {/* User Profile Dropdown */}
+              <div className="hidden md:block">
+                <UserProfileDropdown
+                  user={{ id: user?.id ?? persona, name: user?.name ?? "", email: user?.email ?? "", phone: user?.phone, role: user?.role ?? "", color: (user as { color?: string })?.color, icon: (user as { icon?: string })?.icon, photoUrl: (user as { photoUrl?: string })?.photoUrl }}
+                  personaInfo={personaInfo}
+                  onLogout={handleLogout}
+                  onRepeatTutorial={() => setShowTutorial(true)}
+                />
+              </div>
             </div>
           </div>
         </header>
@@ -290,6 +289,25 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
             {children}
           </ErrorBoundary>
         </main>
+
+        {showTutorial && user && (
+          <OnboardingTutorial
+            steps={[
+              { title: "Welcome to your dashboard", body: "This is your personal workspace. Use the sidebar to navigate." },
+              ...getFlatNavItems(navEntries).slice(0, 5).map((i) => ({
+                title: i.name,
+                body: `Use this to access ${i.name.toLowerCase()}.`,
+              })),
+              { title: "You're all set!", body: "Explore the platform at your own pace." },
+            ]}
+            onComplete={async () => {
+              setShowTutorial(false)
+              router.replace(pathname || `/dashboard/${user.id}`)
+              await fetch("/api/users/me/onboard", { method: "POST" })
+              router.refresh()
+            }}
+          />
+        )}
       </div>
     </div>
   )

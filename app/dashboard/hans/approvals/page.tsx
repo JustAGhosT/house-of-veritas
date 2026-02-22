@@ -43,6 +43,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react"
+import { logger } from "@/lib/logger"
 
 interface KioskRequest {
   id: string
@@ -93,7 +94,7 @@ export default function ApprovalsPage() {
       setRequests(data.requests || [])
       setSummary(data.summary || null)
     } catch (error) {
-      console.error("Failed to fetch requests:", error)
+      logger.error("Failed to fetch requests", { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
@@ -127,7 +128,7 @@ export default function ApprovalsPage() {
         setSelectedRequest(null)
       }
     } catch (error) {
-      console.error("Failed to update request:", error)
+      logger.error("Failed to update request", { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setProcessing(false)
     }
@@ -411,7 +412,7 @@ export default function ApprovalsPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 lg:flex-shrink-0">
+                    <div className="flex items-center gap-2 lg:shrink-0">
                       <Button
                         variant="outline"
                         size="sm"

@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
+import { withRole } from '@/lib/auth/rbac'
 import { 
   sendNotification, 
   sendTemplatedNotification,
@@ -37,7 +39,7 @@ export async function GET() {
 }
 
 // POST - Send notification
-export async function POST(request: Request) {
+export const POST = withRole("admin", "operator", "employee", "resident")(async (request) => {
   try {
     const body = await request.json()
     const { 
@@ -94,11 +96,11 @@ export async function POST(request: Request) {
         failed: results.filter(r => !r.success).length,
       },
     })
-  } catch (error: any) {
-    console.error('Notification error:', error)
+  } catch (error) {
+    logger.error('Notification error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
-      { error: 'Failed to send notification', details: error.message },
+      { error: 'Failed to send notification' },
       { status: 500 }
     )
   }
-}
+})

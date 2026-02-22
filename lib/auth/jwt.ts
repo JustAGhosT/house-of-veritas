@@ -12,10 +12,14 @@ let _jwtSecret: Uint8Array | null = null
 function getJwtSecret(): Uint8Array {
   if (!_jwtSecret) {
     const secret = process.env.JWT_SECRET
-    if (!secret && process.env.NODE_ENV === "production") {
-      throw new Error("JWT_SECRET environment variable is required in production")
+    if (!secret || secret.trim() === "") {
+      if (process.env.NODE_ENV === "production") {
+        throw new Error("JWT_SECRET environment variable is required in production")
+      }
+      _jwtSecret = new TextEncoder().encode("hov-dev-secret-change-in-production")
+    } else {
+      _jwtSecret = new TextEncoder().encode(secret)
     }
-    _jwtSecret = new TextEncoder().encode(secret || "hov-dev-secret-change-in-production")
   }
   return _jwtSecret
 }

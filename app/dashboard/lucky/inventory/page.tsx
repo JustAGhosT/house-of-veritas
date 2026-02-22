@@ -24,6 +24,7 @@ import {
   ArrowDown,
   Leaf,
 } from "lucide-react"
+import { logger } from "@/lib/logger"
 
 interface InventoryItem {
   id: string
@@ -56,7 +57,7 @@ export default function LuckyInventoryPage() {
       const data = await res.json()
       setItems(data.items || [])
     } catch (error) {
-      console.error("Failed to fetch inventory:", error)
+      logger.error("Failed to fetch inventory", { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
@@ -87,7 +88,7 @@ export default function LuckyInventoryPage() {
         setConsumePurpose("")
       }
     } catch (error) {
-      console.error("Failed to consume:", error)
+      logger.error("Failed to consume", { error: error instanceof Error ? error.message : String(error) })
     }
   }
 

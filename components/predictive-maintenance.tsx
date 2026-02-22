@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { logger } from '@/lib/logger'
 import {
   AlertTriangle,
   Car,
@@ -42,7 +43,7 @@ export function PredictiveMaintenancePanel() {
   const [scheduling, setScheduling] = useState(false)
   const [filter, setFilter] = useState<'all' | 'vehicle' | 'equipment'>('all')
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     try {
       const params = filter !== 'all' ? `?type=${filter}` : ''
@@ -50,11 +51,11 @@ export function PredictiveMaintenancePanel() {
       const result = await response.json()
       setData(result)
     } catch (error) {
-      console.error('Failed to fetch maintenance predictions:', error)
+      logger.error('Failed to fetch maintenance predictions', { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter])
 
   const autoScheduleMaintenance = async () => {
     setScheduling(true)
@@ -69,7 +70,7 @@ export function PredictiveMaintenancePanel() {
         alert(`Scheduled ${result.scheduledCount} maintenance items and created ${result.calendarEventsCreated} calendar events!`)
       }
     } catch (error) {
-      console.error('Failed to auto-schedule:', error)
+      logger.error('Failed to auto-schedule', { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setScheduling(false)
     }
@@ -77,7 +78,7 @@ export function PredictiveMaintenancePanel() {
 
   useEffect(() => {
     fetchData()
-  }, [filter])
+  }, [fetchData])
 
   const urgencyColors = {
     high: 'bg-red-500/20 text-red-400 border-red-500/30',
@@ -124,6 +125,7 @@ export function PredictiveMaintenancePanel() {
             value={filter}
             onChange={(e) => setFilter(e.target.value as any)}
             className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm"
+            aria-label="Filter by asset type"
           >
             <option value="all">All Assets</option>
             <option value="vehicle">Vehicles</option>
@@ -142,6 +144,7 @@ export function PredictiveMaintenancePanel() {
           <button
             onClick={fetchData}
             className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+            aria-label="Refresh maintenance data"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -205,7 +208,7 @@ export function PredictiveMaintenancePanel() {
         <ul className="space-y-2">
           {data.insights.map((insight, index) => (
             <li key={index} className="flex items-start gap-2 text-sm text-white/70">
-              <ChevronRight className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+              <ChevronRight className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
               {insight}
             </li>
           ))}
@@ -240,7 +243,7 @@ export function PredictiveMaintenancePanel() {
                     </p>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0">
+                <div className="text-right shrink-0">
                   <span className={`inline-block px-2 py-1 rounded-full text-xs border ${urgencyColors[prediction.urgency]}`}>
                     {prediction.urgency}
                   </span>
@@ -262,8 +265,8 @@ export function PredictiveMaintenancePanel() {
             const height = (forecast.estimated / maxCost) * 100
             return (
               <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                <div 
-                  className="w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-lg transition-all hover:from-blue-500 hover:to-blue-300"
+                <div
+                  className="w-full bg-linear-to-t from-blue-600 to-blue-400 rounded-t-lg transition-all hover:from-blue-500 hover:to-blue-300"
                   style={{ height: `${height}%` }}
                 />
                 <span className="text-xs text-white/40">{forecast.month.split(' ')[0]}</span>
@@ -296,7 +299,7 @@ function SummaryCard({ title, value, icon: Icon, color }: {
   }
 
   return (
-    <div className={`p-4 rounded-xl bg-gradient-to-br ${colors[color]} border`}>
+    <div className={`p-4 rounded-xl bg-linear-to-br ${colors[color]} border`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-white/60 text-sm">{title}</p>

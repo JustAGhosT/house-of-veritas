@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { RealTimeEvent, EventType } from '@/lib/realtime/event-store'
+import { logger } from '@/lib/logger'
 
 interface UseRealTimeOptions {
   userId: string
@@ -41,6 +42,7 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
 
   const eventSourceRef = useRef<EventSource | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const connectRef = useRef<() => void>(() => {})
 
   const connect = useCallback(() => {
     // Clean up existing connection
@@ -64,7 +66,7 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
 
           // Handle different message types
           if (data.type === 'connected') {
-            console.log('Real-time connected:', data.listenerId)
+            logger.info('Real-time connected', { listenerId: data.listenerId })
             return
           }
 
@@ -89,12 +91,12 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
           setEvents((prev) => [realTimeEvent, ...prev].slice(0, 50))
           onEvent?.(realTimeEvent)
         } catch (err) {
-          console.error('Error parsing SSE message:', err)
+          logger.error('Error parsing SSE message', { error: err instanceof Error ? err.message : String(err) })
         }
       }
 
       eventSource.onerror = (err) => {
-        console.error('SSE error:', err)
+        logger.error('SSE error', { error: err })
         setIsConnected(false)
         setError(new Error('Connection lost'))
         onError?.(new Error('Connection lost'))
@@ -103,8 +105,8 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
         // Auto reconnect
         if (autoReconnect) {
           reconnectTimeoutRef.current = setTimeout(() => {
-            console.log('Attempting to reconnect...')
-            connect()
+            logger.info('Attempting to reconnect')
+            connectRef.current()
           }, reconnectDelay)
         }
       }
@@ -113,6 +115,10 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
       onError?.(err as Error)
     }
   }, [userId, onEvent, onConnect, onDisconnect, onError, autoReconnect, reconnectDelay])
+
+  useEffect(() => {
+    connectRef.current = connect
+  }, [connect])
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
@@ -138,16 +144,24 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
 
   // Connect on mount, disconnect on unmount
   useEffect(() => {
-    connect()
+    connectRef.current()
     return () => {
-      disconnect()
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+      }
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close()
+        eventSourceRef.current = null
+      }
     }
   }, []) // Only run on mount/unmount
 
   // Reconnect if userId changes
   useEffect(() => {
     if (eventSourceRef.current) {
-      reconnect()
+      eventSourceRef.current.close()
+      eventSourceRef.current = null
+      connectRef.current()
     }
   }, [userId])
 
@@ -190,7 +204,7 @@ export function useEmitEvent() {
 
       return await response.json()
     } catch (error) {
-      console.error('Error emitting event:', error)
+      logger.error('Error emitting event', { error: error instanceof Error ? error.message : String(error) })
       throw error
     }
   }, [])
