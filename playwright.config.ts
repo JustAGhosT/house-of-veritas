@@ -20,7 +20,8 @@ export default defineConfig({
   ],
   webServer: process.env.CI
     ? {
-        command: "node .next/standalone/server.js",
+        command: "node server.js",
+        cwd: ".next/standalone",
         url: "http://localhost:3000",
         reuseExistingServer: false,
         timeout: 120_000,
