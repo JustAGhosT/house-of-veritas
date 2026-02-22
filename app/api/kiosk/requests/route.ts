@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { getKioskStore, sanitizeKioskDoc, sanitizeKioskDocs, type KioskRequestDoc } from "@/lib/db/kiosk-store"
 import { sendNotification, NotificationChannel } from "@/lib/services/notification-service"
-import { withRole } from "@/lib/auth/rbac"
+import { withRole, withAuth } from "@/lib/auth/rbac"
 import { ObjectId } from "mongodb"
 import { logger } from "@/lib/logger"
 
@@ -98,7 +98,7 @@ async function notifyManager(request: KioskRequestDoc) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request) => {
   try {
     const { store, mode } = await getKioskStore()
     const { searchParams } = new URL(request.url)
@@ -138,9 +138,9 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request) => {
   try {
     const { store, mode } = await getKioskStore()
     const body = await request.json()
@@ -184,13 +184,13 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
 
-export const PATCH = withRole("admin")(async (request) => {
+export const PATCH = withRole("admin")(async (request, context) => {
   try {
     const { store, mode } = await getKioskStore()
     const body = await request.json()
-    const { requestId, status, reviewedBy, notes } = body
+    const { requestId, status, notes } = body
 
     if (!requestId || !status) {
       return NextResponse.json(
@@ -219,7 +219,7 @@ export const PATCH = withRole("admin")(async (request) => {
 
     const updateData = {
       status,
-      reviewedBy,
+      reviewedBy: context.userId,
       reviewedAt: new Date().toISOString(),
       notes,
     }

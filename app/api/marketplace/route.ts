@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { MarketplaceService, MarketplaceListing as ServiceListing } from '@/lib/services/marketplace-service'
+import { withAuth, withRole } from '@/lib/auth/rbac'
 
 // Initialize marketplace service with environment configs
 const marketplaceConfigs = [
@@ -170,7 +171,7 @@ let listings: MarketplaceListing[] = [
 ]
 
 // GET - List marketplace listings or get platforms
-export async function GET(request: Request) {
+export const GET = withAuth(async (request) => {
   const { searchParams } = new URL(request.url)
   const action = searchParams.get('action')
   const platform = searchParams.get('platform')
@@ -212,10 +213,10 @@ export async function GET(request: Request) {
     listings: filteredListings,
     summary,
   })
-}
+})
 
 // POST - Create listing or auto-publish
-export async function POST(request: Request) {
+export const POST = withRole("admin")(async (request) => {
   try {
     const body = await request.json()
     const { action } = body
@@ -418,10 +419,10 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-}
+})
 
 // PUT - Update listing status
-export async function PUT(request: Request) {
+export const PUT = withRole("admin")(async (request) => {
   try {
     const body = await request.json()
     const { id, status, views, inquiries, listingUrl } = body
@@ -450,4 +451,4 @@ export async function PUT(request: Request) {
       { status: 500 }
     )
   }
-}
+})

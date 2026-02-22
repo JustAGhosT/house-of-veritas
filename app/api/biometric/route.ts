@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { clockInByAppId, clockOutByAppId, getTimeClockEntries, isBaserowConfigured } from '@/lib/services/baserow'
+import { withAuth } from '@/lib/auth/rbac'
 
 // Biometric device configuration
 const BIOMETRIC_CONFIG = {
@@ -99,7 +100,7 @@ let clockRecords: ClockRecord[] = [
 ]
 
 // GET - Get biometric status, enrolled employees, or clock records
-export async function GET(request: Request) {
+export const GET = withAuth(async (request) => {
   const { searchParams } = new URL(request.url)
   const action = searchParams.get('action')
   const employeeId = searchParams.get('employeeId')
@@ -217,10 +218,10 @@ export async function GET(request: Request) {
       clockOuts: records.filter(r => r.type === 'clock_out').length,
     },
   })
-}
+})
 
 // POST - Clock in/out or enroll employee
-export async function POST(request: Request) {
+export const POST = withAuth(async (request) => {
   try {
     const body = await request.json()
     const { action, employeeId, method = 'fingerprint', location, biometricData } = body
@@ -317,4 +318,4 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-}
+})

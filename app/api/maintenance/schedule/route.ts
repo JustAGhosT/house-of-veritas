@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
+import { withRole } from '@/lib/auth/rbac'
 
 // Scheduled maintenance items (synced with calendar)
 interface ScheduledMaintenance {
@@ -67,7 +68,7 @@ let scheduledMaintenance: ScheduledMaintenance[] = [
 ]
 
 // GET - List scheduled maintenance
-export async function GET(request: Request) {
+export const GET = withRole("admin", "operator")(async (request) => {
   const { searchParams } = new URL(request.url)
   const status = searchParams.get('status')
   const assetId = searchParams.get('assetId')
@@ -111,10 +112,10 @@ export async function GET(request: Request) {
     summary,
     generatedAt: new Date().toISOString(),
   })
-}
+})
 
 // POST - Create maintenance schedule or auto-schedule from AI predictions
-export async function POST(request: Request) {
+export const POST = withRole("admin", "operator")(async (request) => {
   try {
     const body = await request.json()
     const { action } = body
@@ -271,10 +272,10 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-}
+})
 
 // PUT - Update maintenance status
-export async function PUT(request: Request) {
+export const PUT = withRole("admin", "operator")(async (request) => {
   try {
     const body = await request.json()
     const { id, status, notes, actualCost } = body
@@ -308,10 +309,10 @@ export async function PUT(request: Request) {
       { status: 500 }
     )
   }
-}
+})
 
 // DELETE - Cancel scheduled maintenance
-export async function DELETE(request: Request) {
+export const DELETE = withRole("admin", "operator")(async (request) => {
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
 
@@ -331,4 +332,4 @@ export async function DELETE(request: Request) {
     message: 'Maintenance cancelled',
     id,
   })
-}
+})

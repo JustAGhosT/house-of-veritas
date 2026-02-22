@@ -61,6 +61,13 @@ export async function POST(request: Request) {
       )
     }
 
+    if (!user.phone) {
+      return NextResponse.json(
+        { error: 'No phone number on file. Please contact your administrator to reset your password.' },
+        { status: 400 }
+      )
+    }
+
     if (method !== 'sms') {
       return NextResponse.json(
         { error: method === 'email' 
