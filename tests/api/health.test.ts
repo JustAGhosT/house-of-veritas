@@ -3,8 +3,7 @@ import { GET } from "@/app/api/health/route"
 
 describe("GET /api/health", () => {
   it("returns 200 with health status", async () => {
-    const request = new Request("http://localhost/api/health")
-    const response = await GET(request, {})
+    const response = await GET()
     expect(response.status).toBe(200)
     const data = await response.json()
     expect(data).toHaveProperty("status")

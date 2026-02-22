@@ -79,7 +79,6 @@ export async function POST(request: Request) {
     }
 
     const newPassword = generateRandomPassword()
-    setPassword(user.id, newPassword)
 
     const message = `House of Veritas: Your new password is: ${newPassword}. Please login and change it as soon as possible.`
 
@@ -88,6 +87,16 @@ export async function POST(request: Request) {
     if (!result.success) {
       return NextResponse.json(
         { error: result.error || 'Failed to send SMS' },
+        { status: 500 }
+      )
+    }
+
+    try {
+      setPassword(user.id, newPassword)
+    } catch (err) {
+      logger.error("Failed to set password after SMS sent", { userId: user.id, error: err instanceof Error ? err.message : String(err) })
+      return NextResponse.json(
+        { error: 'Password was sent but could not be saved. Please contact your administrator.' },
         { status: 500 }
       )
     }
