@@ -65,7 +65,7 @@ module "storage" {
   storage_account_name  = var.storage_account_name
   container_subnet_id   = module.network.container_subnet_id
   database_subnet_id    = module.network.database_subnet_id
-  deployer_ip_addresses = var.deployer_ip != "" ? [var.deployer_ip] : []
+  deployer_ip_addresses = local.ci_ip_rules
 
   tags = local.common_tags
 }
@@ -78,7 +78,7 @@ module "security" {
   location              = azurerm_resource_group.main.location
   key_vault_name        = var.key_vault_name
   container_subnet_id   = module.network.container_subnet_id
-  deployer_ip_addresses = var.deployer_ip != "" ? [var.deployer_ip] : []
+  deployer_ip_addresses = local.ci_ip_rules
   db_admin_password     = var.db_admin_password
   docuseal_secret_key   = random_password.docuseal_secret.result
   baserow_secret_key    = random_password.baserow_secret.result
@@ -263,4 +263,6 @@ locals {
     ManagedBy   = "Terraform"
     Owner       = "Hans Jurgens Smit"
   }
+
+  ci_ip_rules = length(var.ci_allowed_ip_ranges) > 0 ? var.ci_allowed_ip_ranges : (var.deployer_ip != "" ? [var.deployer_ip] : [])
 }

@@ -245,3 +245,9 @@ variable "deployer_ip" {
   default     = ""
 }
 
+variable "ci_allowed_ip_ranges" {
+  description = "CIDR blocks for CI runners (e.g. GitHub Actions IPs from api.github.com/meta). When set, used instead of deployer_ip for persistent firewall rules."
+  type        = list(string)
+  default     = []
+}
+
