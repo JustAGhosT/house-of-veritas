@@ -264,5 +264,12 @@ locals {
     Owner       = "Hans Jurgens Smit"
   }
 
-  ci_ip_rules = length(var.ci_allowed_ip_ranges) > 0 ? var.ci_allowed_ip_ranges : (var.deployer_ip != "" ? [var.deployer_ip] : [])
+  ci_ip_rules = slice(
+    distinct(concat(
+      var.deployer_ip != "" ? [var.deployer_ip] : [],
+      coalesce(var.ci_allowed_ip_ranges, [])
+    )),
+    0,
+    1000
+  )
 }

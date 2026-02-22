@@ -74,11 +74,14 @@ jobs:
           CI_IP_RANGES: ${{ steps.gh-ips.outputs.ranges }}
           DEPLOYER_IP: ${{ steps.ip.outputs.ip }}
         run: |
-          if [ -n "$CI_IP_RANGES" ] && [ "$CI_IP_RANGES" != "[]" ] && [ "$CI_IP_RANGES" != "null" ]; then
-            echo "ci_allowed_ip_ranges = $CI_IP_RANGES" > ci_ranges.auto.tfvars
-          else
-            echo "deployer_ip = \"$DEPLOYER_IP\"" > ci_ranges.auto.tfvars
-          fi
+          {
+            if [ -n "$CI_IP_RANGES" ] && [ "$CI_IP_RANGES" != "[]" ] && [ "$CI_IP_RANGES" != "null" ]; then
+              echo "ci_allowed_ip_ranges = $CI_IP_RANGES"
+            fi
+            if [ -n "$DEPLOYER_IP" ]; then
+              echo "deployer_ip = \"$DEPLOYER_IP\""
+            fi
+          } > ci_ranges.auto.tfvars
           terraform destroy \
             -var="domain_name=${{ vars.DOMAIN_NAME || 'nexamesh.ai' }}" \
             -var="db_admin_password=${{ secrets.DB_ADMIN_PASSWORD }}" \
