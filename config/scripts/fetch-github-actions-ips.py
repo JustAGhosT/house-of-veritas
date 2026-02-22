@@ -36,13 +36,13 @@ def main() -> None:
             continue
         try:
             net = ipaddress.ip_network(cidr)
-            if net.version == 4 and net.prefixlen <= 30:
+            if net.version == 4 and net.prefixlen <= 30 and not net.is_private:
                 networks.append(net)
         except ValueError:
             continue
 
     collapsed = list(ipaddress.collapse_addresses(networks))
-    result = [str(n) for n in collapsed]
+    result = [str(n) for n in collapsed if n.prefixlen <= 30]
     if len(result) > 1000:
         result = result[:1000]
         print("Warning: truncated to 1000 (Azure limit)", file=sys.stderr)
