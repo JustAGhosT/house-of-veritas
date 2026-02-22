@@ -57,12 +57,11 @@ export async function POST(request: Request) {
       } else if (employeeId != null) {
         const id = typeof employeeId === 'number' ? employeeId : parseInt(String(employeeId), 10)
         if (Number.isNaN(id)) {
-          return NextResponse.json(
-            { error: 'Valid employee ID or personaId required for clock in' },
-            { status: 400 }
-          )
+          // Treat non-numeric string employeeId as a persona/app ID
+          entry = await clockInByAppId(String(employeeId))
+        } else {
+          entry = await clockIn(id)
         }
-        entry = await clockIn(id)
       } else {
         return NextResponse.json(
           { error: 'Employee ID or personaId is required for clock in' },
