@@ -333,6 +333,7 @@ jobs:
         env:
           CI: true
           BASE_URL: http://localhost:3000
+          JWT_SECRET: e2e-test-secret-do-not-use-in-production
 
   # ============================================
   # Job 5: Summary Report

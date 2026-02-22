@@ -141,7 +141,7 @@ jobs:
             public/
             package.json
             package-lock.json
-            next.config.ts
+            next.config.mjs
           retention-days: 7
 
   # ============================================
@@ -184,6 +184,7 @@ jobs:
         run: npm run test:e2e
         env:
           CI: true
+          JWT_SECRET: e2e-test-secret-do-not-use-in-production
 
   # ============================================
   # Job 3: Deploy Infrastructure

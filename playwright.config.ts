@@ -20,10 +20,15 @@ export default defineConfig({
   ],
   webServer: process.env.CI
     ? {
-        command: "npm run start",
+        command: "node .next/standalone/server.js",
         url: "http://localhost:3000",
         reuseExistingServer: false,
         timeout: 120_000,
+        env: {
+          ...process.env,
+          PORT: "3000",
+          HOSTNAME: "0.0.0.0",
+        },
       }
     : {
         command: "npm run dev",

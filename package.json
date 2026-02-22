@@ -10,6 +10,7 @@
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start",
+    "start:standalone": "node .next/standalone/server.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
