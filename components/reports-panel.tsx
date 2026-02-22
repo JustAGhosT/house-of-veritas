@@ -15,6 +15,7 @@ import {
   FileDown,
 } from 'lucide-react'
 import { generatePDFReport } from '@/lib/utils/pdf-generator'
+import { logger } from '@/lib/logger'
 
 type ReportType = 'expenses' | 'tasks' | 'time' | 'all'
 
@@ -41,7 +42,7 @@ export function ReportsPanel() {
       const data = await response.json()
       setReportData(data)
     } catch (error) {
-      console.error('Failed to fetch report:', error)
+      logger.error('Failed to fetch report', { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
@@ -225,7 +226,7 @@ function SummaryCard({ title, value, icon: Icon, color }: {
   }
 
   return (
-    <div className={`p-4 rounded-xl bg-gradient-to-br ${colors[color]} border`}>
+    <div className={`p-4 rounded-xl bg-linear-to-br ${colors[color]} border`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-white/60 text-sm">{title}</p>

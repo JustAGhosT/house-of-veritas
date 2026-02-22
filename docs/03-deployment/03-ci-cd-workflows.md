@@ -5,7 +5,7 @@ This document describes the GitHub Actions workflows for continuous integration 
 ## Workflows Overview
 
 | Workflow | Trigger | Purpose |
-|----------|---------|---------|
+| -------- | ------- | ------- |
 | `deployment-checklist.yml` | PR, Push, Schedule (daily), Manual | Infrastructure verification |
 | `deploy.yml` | Manual, Release | Full deployment pipeline |
 | `deploy-functions.yml` | Push to main (scripts), Manual | Azure Functions deployment |
@@ -19,24 +19,28 @@ This document describes the GitHub Actions workflows for continuous integration 
 **File:** `.github/workflows/deployment-checklist.yml`
 
 ### Triggers
+
 - **Pull Request**: Runs on every PR to `main`
 - **Push**: Runs on every push to `main`
 - **Schedule**: Daily at 6am UTC (catches infrastructure drift)
 - **Manual**: Can be triggered via Actions tab
 
 ### Jobs
+
 1. **deployment-checklist**: Runs the Python checklist script
 2. **validate-config**: Validates configuration files (docker-compose, Python, shell scripts)
 3. **build-test**: Builds Next.js app and runs tests
 4. **summary**: Generates pipeline summary
 
 ### Features
+
 - Comments PR with checklist results
 - Creates GitHub Issue on infrastructure drift (scheduled runs)
 - Fails PR if critical issues detected
 - Uploads checklist report as artifact
 
 ### Manual Trigger Options
+
 - `verbose`: Enable detailed output (default: true)
 
 ---
@@ -46,10 +50,12 @@ This document describes the GitHub Actions workflows for continuous integration 
 **File:** `.github/workflows/deploy.yml`
 
 ### Triggers
+
 - **Manual**: Via Actions tab with options
 - **Release**: On published releases
 
 ### Jobs
+
 1. **pre-deploy-validation**: Runs checklist before deployment
 2. **build**: Builds Next.js application
 3. **deploy-infrastructure**: Applies Terraform changes
@@ -60,8 +66,9 @@ This document describes the GitHub Actions workflows for continuous integration 
 8. **deployment-summary**: Generates deployment report
 
 ### Manual Trigger Options
+
 | Option | Description | Default |
-|--------|-------------|---------|
+| ------ | ----------- | ------- |
 | `environment` | Target environment | `production` |
 | `skip_checklist` | Skip pre-deployment validation | `false` |
 | `deploy_infrastructure` | Deploy Terraform changes | `true` |
@@ -74,12 +81,14 @@ This document describes the GitHub Actions workflows for continuous integration 
 **File:** `.github/workflows/deploy-functions.yml`
 
 ### Triggers
+
 - **Push**: When Azure Function scripts change
 - **Manual**: Via Actions tab
 
 ### Deployed Functions
+
 | Function | Type | Schedule |
-|----------|------|----------|
+| -------- | ---- | -------- |
 | DocuSealWebhook | HTTP Trigger | On demand |
 | DocumentExpiryAlert | Timer Trigger | Daily 6am UTC |
 
@@ -90,13 +99,14 @@ This document describes the GitHub Actions workflows for continuous integration 
 Add these secrets in **Settings → Secrets and variables → Actions**:
 
 ### Azure Authentication
-```
-AZURE_CREDENTIALS          # Service principal JSON
-AZURE_SUBSCRIPTION_ID      # Azure subscription ID
+
+```text
+AZURE_CREDENTIALS          # Service principal JSON (includes subscriptionId)
 ```
 
 ### Terraform State
-```
+
+```text
 TF_STATE_RESOURCE_GROUP    # Resource group for state storage
 TF_STATE_STORAGE_ACCOUNT   # Storage account name
 TF_STATE_CONTAINER         # Container name (e.g., "tfstate")
@@ -104,7 +114,8 @@ TF_STATE_KEY               # State file key (e.g., "houseofveritas.tfstate")
 ```
 
 ### Application Secrets
-```
+
+```text
 DB_ADMIN_PASSWORD          # PostgreSQL admin password
 SMTP_USERNAME              # SMTP username (e.g., "apikey" for SendGrid)
 SMTP_PASSWORD              # SMTP password/API key
@@ -113,14 +124,16 @@ SSL_CERTIFICATE_PASSWORD   # SSL certificate password
 ```
 
 ### Service URLs
-```
+
+```text
 DOCUSEAL_URL               # DocuSeal base URL
 BASEROW_URL                # Baserow base URL
 BASEROW_TOKEN              # Baserow API token
 ```
 
 ### Azure Functions
-```
+
+```text
 AZURE_FUNCTIONAPP_PUBLISH_PROFILE  # Function app publish profile
 DOCUSEAL_WEBHOOK_SECRET            # Webhook signature secret
 SENDGRID_API_KEY                   # SendGrid API key
@@ -174,6 +187,7 @@ Add these to your README.md:
 ## Running Workflows Manually
 
 ### Via GitHub UI
+
 1. Go to **Actions** tab
 2. Select the workflow
 3. Click **Run workflow**
@@ -181,6 +195,7 @@ Add these to your README.md:
 5. Click **Run workflow**
 
 ### Via GitHub CLI
+
 ```bash
 # Run deployment checklist
 gh workflow run deployment-checklist.yml
@@ -197,19 +212,23 @@ gh workflow run deploy-functions.yml -f function=all
 ## Troubleshooting
 
 ### Workflow Fails: "Resource group does not exist"
+
 - Infrastructure not deployed yet
 - Run `terraform apply` first or use the deploy workflow
 
 ### Workflow Fails: "Permission denied"
+
 - Check `AZURE_CREDENTIALS` secret is correct
 - Verify service principal has required permissions
 
 ### Checklist Shows All Failed
+
 - Azure CLI not authenticated (check `AZURE_CREDENTIALS`)
 - Running in environment without Azure access
 - This is expected in the preview environment
 
 ### Functions Not Deploying
+
 - Function App doesn't exist yet
 - Deploy infrastructure first via Terraform
 

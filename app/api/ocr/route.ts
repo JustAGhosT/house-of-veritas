@@ -214,9 +214,9 @@ export async function POST(request: Request) {
         ? 'Processed with Azure Document Intelligence'
         : 'Demo mode - configure AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT for live OCR',
     })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'OCR processing failed', details: error.message },
+      { error: 'OCR processing failed' },
       { status: 500 }
     )
   }

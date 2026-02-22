@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getCollection, sanitizeDocument } from "@/lib/db/mongodb"
 import { ObjectId } from "mongodb"
+import { logger } from "@/lib/logger"
 
 // User notification preferences
 interface NotificationPreference {
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
       preference: sanitizeDocument(preference),
     })
   } catch (error) {
-    console.error("GET notification preferences error:", error)
+    logger.error("GET notification preferences error", { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { success: false, error: "Failed to fetch preferences" },
       { status: 500 }
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
 
     const savedPreference = await collection.findOne({ userId })
 
-    console.log(`[NotificationPrefs] Updated preference for ${userId}: ${preferredChannel}`)
+    logger.info('Notification preference updated', { userId, preferredChannel })
 
     return NextResponse.json({
       success: true,
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
       message: `Notification preference set to ${preferredChannel}`,
     })
   } catch (error) {
-    console.error("POST notification preferences error:", error)
+    logger.error("POST notification preferences error", { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { success: false, error: "Failed to save preferences" },
       { status: 500 }
@@ -151,7 +152,7 @@ export async function PATCH(request: NextRequest) {
       preference: updatedPreference ? sanitizeDocument(updatedPreference) : null,
     })
   } catch (error) {
-    console.error("PATCH notification preferences error:", error)
+    logger.error("PATCH notification preferences error", { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { success: false, error: "Failed to update preferences" },
       { status: 500 }

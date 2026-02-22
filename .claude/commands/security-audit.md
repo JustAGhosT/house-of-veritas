@@ -7,7 +7,8 @@ Focused security scan of the entire codebase.
 Read `.claude/rules/security.md` for the security standards, then:
 
 1. **Secrets scan**: Search for hardcoded API keys, passwords, tokens, connection strings
-   - Scan `lib/`, `app/`, `config/`, `terraform/`, `.env*` for patterns like `password =`, `secret =`, `token =`, `apiKey =`, `PASSWORD=`, `SECRET_KEY=`, `API_TOKEN=`
+   - Scan `lib/`, `app/`, `config/`, `terraform/`, `.env*` for patterns like `password =`,
+     `secret =`, `token =`, `apiKey =`, `PASSWORD=`, `SECRET_KEY=`, `API_TOKEN=`
    - Check `.env.example` documents all required secrets
    - Verify no `.env.local` or `.tfvars` files are committed
 

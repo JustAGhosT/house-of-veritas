@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import DashboardLayout from "@/components/dashboard-layout"
+import { logger } from "@/lib/logger"
 import {
   ClipboardList,
   Clock,
@@ -85,7 +86,7 @@ function WorkshopPattern() {
         <path d="M15 30 Q15 15 30 15 L40 15 L35 30 L65 60 L70 55 L40 25 L45 15 L70 15 Q85 15 85 30 Q85 45 70 45 L60 45 L65 30 L35 60 L30 65 L60 95 L55 100 L25 70 L20 75 L25 100 L15 100 L15 70 Q15 55 30 55 L25 45 Q15 45 15 30 Z" fill="currentColor"/>
       </svg>
       {/* Grid overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.03)_1px,transparent_1px)] bg-size-[40px_40px]" />
     </div>
   )
 }
@@ -120,7 +121,7 @@ function TaskItem({
 
   return (
     <div className="flex items-center gap-4 p-4 rounded-xl bg-amber-950/30 border border-amber-500/10 hover:bg-amber-950/50 hover:border-amber-500/20 transition-colors cursor-pointer group" data-testid={`task-${title.toLowerCase().replace(/\s+/g, '-')}`}>
-      <button className="shrink-0">
+      <button className="shrink-0" aria-label={`Task status: ${status}`}>
         {statusIcons[status]}
       </button>
       {Icon && (
@@ -210,7 +211,7 @@ export default function CharlDashboard() {
     fetch("/api/stats")
       .then((res) => res.json())
       .then((data) => setStats(data))
-      .catch(console.error)
+      .catch((err) => logger.error("Failed to fetch stats", { error: err instanceof Error ? err.message : String(err) }))
   }, [])
 
   // Simulate clock
@@ -233,15 +234,15 @@ export default function CharlDashboard() {
   return (
     <DashboardLayout persona="charl">
       {/* Persona-specific background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-amber-950/40 via-[#0a0a0f] to-orange-950/30" />
+      <div className="fixed inset-0 -z-10 bg-linear-to-br from-amber-950/40 via-[#0a0a0f] to-orange-950/30" />
       <WorkshopPattern />
 
       {/* Time Clock Banner */}
-      <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-amber-600/30 to-orange-700/20 border border-amber-500/30 backdrop-blur-sm relative overflow-hidden" data-testid="time-clock-banner">
+      <div className="mb-8 p-6 rounded-2xl bg-linear-to-r from-amber-600/30 to-orange-700/20 border border-amber-500/30 backdrop-blur-sm relative overflow-hidden" data-testid="time-clock-banner">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgMTBMMjIgMTVIMjhMMjMgMTlMMjUgMjVMMjAgMjFMMTUgMjVMMTcgMTlMMTIgMTVIMThMMjAgMTBaIiBmaWxsPSJyZ2JhKDI0NSwxNTgsMTEsMC4wNSkiLz48L3N2Zz4=')] opacity-50" />
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-500/30 to-orange-600/30 border border-amber-500/30 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-xl bg-linear-to-br from-amber-500/30 to-orange-600/30 border border-amber-500/30 flex items-center justify-center">
               <Clock className="w-8 h-8 text-amber-400" />
             </div>
             <div>

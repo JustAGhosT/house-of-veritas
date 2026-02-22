@@ -5,6 +5,7 @@ This file lists all 18 governance documents that need to be created as templates
 ## Template Creation Guide
 
 For each document:
+
 1. Create the document content in your preferred editor (Word, Google Docs)
 2. Export as PDF
 3. Upload to DocuSeal
@@ -18,6 +19,7 @@ For each document:
 ### Governance Documents (4)
 
 #### 1. Property Charter
+
 - **Purpose:** Establishes the vision, values, and governance principles for House of Veritas
 - **Signers:** Hans (Owner)
 - **Review Cycle:** Annual
@@ -29,6 +31,7 @@ For each document:
   - Amendment Procedures
 
 #### 2. House Rules
+
 - **Purpose:** Defines daily operational rules and expectations for all residents/staff
 - **Signers:** All (Hans, Charl, Lucky, Irma)
 - **Review Cycle:** Annual
@@ -41,6 +44,7 @@ For each document:
   - Security Protocols
 
 #### 3. Succession Protocol
+
 - **Purpose:** Outlines succession planning and business continuity
 - **Signers:** Hans (Owner)
 - **Review Cycle:** 3-Year
@@ -53,6 +57,7 @@ For each document:
   - Legal Framework
 
 #### 4. Resident Agreement (Irma)
+
 - **Purpose:** Formal agreement for resident status and responsibilities
 - **Signers:** Hans, Irma
 - **Review Cycle:** 2-Year
@@ -68,6 +73,7 @@ For each document:
 ### HR Documents (4)
 
 #### 5. Employment Contract - Charl
+
 - **Purpose:** Formal employment agreement (BCEA compliant)
 - **Signers:** Hans, Charl
 - **Review Cycle:** 3-Year
@@ -81,12 +87,14 @@ For each document:
   - POPIA Acknowledgement
 
 #### 6. Employment Contract - Lucky
+
 - **Purpose:** Formal employment agreement (BCEA compliant)
 - **Signers:** Hans, Lucky
 - **Review Cycle:** 3-Year
 - **Key Sections:** Same as above
 
 #### 7. Leave Policy
+
 - **Purpose:** Defines leave types, accrual, and request procedures
 - **Signers:** All employees
 - **Review Cycle:** Annual
@@ -99,6 +107,7 @@ For each document:
   - Public Holidays
 
 #### 8. Overtime Policy
+
 - **Purpose:** Defines overtime rules per BCEA
 - **Signers:** Charl, Lucky
 - **Review Cycle:** Annual
@@ -114,6 +123,7 @@ For each document:
 ### Safety Documents (3)
 
 #### 9. Workshop Safety Manual
+
 - **Purpose:** Safety procedures for workshop operations
 - **Signers:** Charl, Lucky
 - **Review Cycle:** Annual
@@ -126,6 +136,7 @@ For each document:
   - Incident Reporting
 
 #### 10. Incident Reporting Procedure
+
 - **Purpose:** Standard procedure for reporting all incidents
 - **Signers:** All
 - **Review Cycle:** Annual
@@ -138,6 +149,7 @@ For each document:
   - Documentation Requirements
 
 #### 11. Emergency Contact List
+
 - **Purpose:** Quick reference for emergency situations
 - **Signers:** All
 - **Review Cycle:** Quarterly
@@ -154,6 +166,7 @@ For each document:
 ### Operations Documents (5)
 
 #### 12. Vehicle Usage Policy
+
 - **Purpose:** Rules for using estate vehicles
 - **Signers:** Charl, Lucky
 - **Review Cycle:** Annual
@@ -167,6 +180,7 @@ For each document:
   - Personal Use Restrictions
 
 #### 13. Tool Checkout Policy
+
 - **Purpose:** Rules for borrowing tools and equipment
 - **Signers:** Charl, Lucky
 - **Review Cycle:** Annual
@@ -179,6 +193,7 @@ For each document:
   - Inventory Audits
 
 #### 14. Asset Maintenance Schedule
+
 - **Purpose:** Planned maintenance for all major assets
 - **Signers:** Charl (Responsible Party)
 - **Review Cycle:** Annual
@@ -190,6 +205,7 @@ For each document:
   - Recording Requirements
 
 #### 15. Garden Maintenance Plan
+
 - **Purpose:** Seasonal garden care schedule
 - **Signers:** Lucky (Responsible Party)
 - **Review Cycle:** Annual
@@ -202,6 +218,7 @@ For each document:
   - Equipment Care
 
 #### 16. Household Task Roster
+
 - **Purpose:** Division of household responsibilities
 - **Signers:** Irma (Responsible Party)
 - **Review Cycle:** Quarterly
@@ -217,6 +234,7 @@ For each document:
 ### Finance Documents (2)
 
 #### 17. Expense Reimbursement Policy
+
 - **Purpose:** Rules for expense claims and reimbursements
 - **Signers:** All
 - **Review Cycle:** Annual
@@ -229,6 +247,7 @@ For each document:
   - Disputed Claims
 
 #### 18. Financial Approval Matrix
+
 - **Purpose:** Defines approval thresholds and authorities
 - **Signers:** Hans (Owner)
 - **Review Cycle:** Annual
@@ -245,6 +264,7 @@ For each document:
 ### Compliance Documents (1)
 
 #### 19. POPIA Consent Form
+
 - **Purpose:** Data protection consent per POPIA
 - **Signers:** All
 - **Review Cycle:** 3-Year

@@ -4,7 +4,7 @@ import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 
 const logos = [
-  { name: "Vercel", width: 100 },
+  { name: "Azure", width: 100 },
   { name: "Stripe", width: 80 },
   { name: "Linear", width: 90 },
   { name: "Notion", width: 100 },
@@ -31,8 +31,8 @@ export function LogoMarquee() {
 
       <div className="relative">
         {/* Fade masks */}
-        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-zinc-950 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-zinc-950 to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-zinc-950 to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-zinc-950 to-transparent z-10 pointer-events-none" />
 
         {/* Marquee container */}
         <div className="flex animate-marquee">
@@ -45,7 +45,7 @@ export function LogoMarquee() {
                 <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
                   <span className="text-xs font-bold">{logo.name[0]}</span>
                 </div>
-                <span className="font-medium" style={{ fontFamily: "var(--font-inter)" }}>
+                <span className="font-medium [font-family:var(--font-inter)]">
                   {logo.name}
                 </span>
               </div>

@@ -10,7 +10,7 @@ Baserow is the operational data management platform for House of Veritas, access
 
 After deployment, access Baserow at your configured URL and create the admin account:
 
-- **Email:** hans@nexamesh.ai
+- **Email:** <hans@nexamesh.ai>
 - **Name:** Hans (Owner)
 - **Role:** Admin
 
@@ -175,6 +175,7 @@ Create a new database within the workspace with the 8 core tables as defined bel
 ## Views Configuration
 
 ### Hans (Admin) Views
+
 - **All Employees** - Full access to all fields
 - **All Tasks** - Full access, sorted by priority/due date
 - **Pending Approvals** - Filtered: Approval Status = Pending
@@ -182,17 +183,20 @@ Create a new database within the workspace with the 8 core tables as defined bel
 - **Document Compliance** - All documents with expiry status
 
 ### Charl (Employee) Views
+
 - **My Tasks** - Filtered: Assigned To = Charl
 - **My Time Entries** - Filtered: Employee = Charl
 - **Asset Checkout** - Limited fields for check-in/out
 
 ### Lucky (Employee) Views
+
 - **My Tasks** - Filtered: Assigned To = Lucky
 - **My Time Entries** - Filtered: Employee = Lucky
 - **My Expenses** - Filtered: Requester = Lucky
 - **Vehicle Logs** - Filtered: Driver = Lucky
 
 ### Irma (Resident) Views
+
 - **Household Tasks** - Filtered: Project = Household
 - **My Documents** - Filtered: Party Responsible = Irma
 

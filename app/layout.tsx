@@ -1,8 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Manrope, Inter } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 import { Providers } from "@/components/providers"
+import { ErrorBoundary } from "@/components/error-boundary"
 import "./globals.css"
 
 const manrope = Manrope({
@@ -18,14 +18,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "House of Veritas - Digital Governance & Estate Management",
   description: "Secure platform for estate management, document compliance, and operational accountability. BCEA-compliant with full audit trails.",
-  generator: 'v0.app',
   manifest: '/manifest.json',
   themeColor: '#1E40AF',
   viewport: {
     width: 'device-width',
     initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
   },
   appleWebApp: {
     capable: true,
@@ -51,9 +48,10 @@ export default function RootLayout({
       <body className={`${manrope.variable} ${inter.variable} font-sans antialiased`}>
         <div className="noise-overlay" aria-hidden="true" />
         <Providers>
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </Providers>
-        <Analytics />
       </body>
     </html>
   )

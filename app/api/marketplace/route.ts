@@ -113,6 +113,8 @@ interface MarketplaceListing {
   contactEmail: string
   status: 'draft' | 'pending' | 'active' | 'sold' | 'expired' | 'cancelled'
   listingUrl?: string
+  externalListingId?: string
+  manualInstructions?: string
   views?: number
   inquiries?: number
   createdAt: string
@@ -410,9 +412,9 @@ export async function POST(request: Request) {
       listing: newListing,
       postUrl: MARKETPLACE_PLATFORMS[platform as keyof typeof MARKETPLACE_PLATFORMS]?.postUrl,
     })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Operation failed', details: error.message },
+      { error: 'Operation failed' },
       { status: 500 }
     )
   }
@@ -442,9 +444,9 @@ export async function PUT(request: Request) {
       success: true,
       listing: listings[index],
     })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Update failed', details: error.message },
+      { error: 'Update failed' },
       { status: 500 }
     )
   }

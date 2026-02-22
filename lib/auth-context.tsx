@@ -13,6 +13,9 @@ interface User {
   color: string
   icon: string
   specialty: string[]
+  photoUrl?: string
+  onboardingStatus?: string
+  responsibilities?: string[]
 }
 
 interface AuthContextType {
@@ -56,11 +59,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const isAuthPage = pathname === "/login"
     const isDashboardPage = pathname?.startsWith("/dashboard")
+    const isOnboardingPage = pathname === "/onboarding"
 
     if (!user && isDashboardPage) {
       router.push("/login")
     } else if (user && isAuthPage) {
       router.push(`/dashboard/${user.id}`)
+    } else if (user && isOnboardingPage && user.onboardingStatus === "completed") {
+      router.push(`/dashboard/${user.id}`)
+    } else if (user && isDashboardPage && user.role !== "admin" && user.onboardingStatus !== "completed") {
+      router.push("/onboarding")
     } else if (user && isDashboardPage) {
       const dashboardUser = pathname?.split("/")[2]
       if (dashboardUser && dashboardUser !== user.id) {

@@ -14,6 +14,7 @@ Run a quick health check of the entire project. This is a fast, non-invasive sca
 ## Output
 
 Write a brief health summary to stdout:
+
 ```text
 TypeScript:    PASS / FAIL (N errors)
 Lint:          PASS / FAIL (N errors)

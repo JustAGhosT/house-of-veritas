@@ -1,7 +1,8 @@
 import { MongoClient, Db, Collection, ObjectId } from "mongodb"
+import { logger } from "@/lib/logger"
 
 // MongoDB connection
-const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017"
+const MONGO_URL = process.env.MONGODB_URI || process.env.MONGO_URL || "mongodb://localhost:27017"
 const DB_NAME = process.env.DB_NAME || "house_of_veritas"
 
 let client: MongoClient | null = null
@@ -14,15 +15,15 @@ export async function getDatabase(): Promise<Db> {
     client = new MongoClient(MONGO_URL)
     await client.connect()
     db = client.db(DB_NAME)
-    console.log(`[MongoDB] Connected to ${DB_NAME}`)
+    logger.info(`MongoDB connected to ${DB_NAME}`)
     return db
   } catch (error) {
-    console.error("[MongoDB] Connection error:", error)
+    logger.error("MongoDB connection error", { error: error instanceof Error ? error.message : String(error) })
     throw error
   }
 }
 
-export async function getCollection<T extends Document>(name: string): Promise<Collection<T>> {
+export async function getCollection<T extends { _id?: ObjectId }>(name: string): Promise<Collection<T>> {
   const database = await getDatabase()
   return database.collection<T>(name)
 }

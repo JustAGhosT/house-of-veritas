@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { verifyToken, COOKIE_NAME } from "@/lib/auth/jwt"
-import { rateLimit } from "@/lib/auth/rate-limit"
+import { rateLimitAsync } from "@/lib/auth/rate-limit"
 
 const PUBLIC_PATHS = [
   "/api/auth/login",
@@ -48,7 +48,7 @@ export async function middleware(request: NextRequest) {
   const ip = getClientIp(request)
 
   if (pathname === "/api/auth/login" && request.method === "POST") {
-    const rl = rateLimit(`login:${ip}`, LOGIN_RATE_LIMIT, LOGIN_WINDOW_MS)
+    const rl = await rateLimitAsync(`login:${ip}`, LOGIN_RATE_LIMIT, LOGIN_WINDOW_MS)
     if (!rl.allowed) {
       return NextResponse.json(
         { error: "Too many login attempts. Try again later." },
@@ -63,14 +63,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (isPublicPath(pathname)) {
+  const kioskPatchRequiresAuth = pathname === "/api/kiosk/requests" && request.method === "PATCH"
+  if (isPublicPath(pathname) && !kioskPatchRequiresAuth) {
     return NextResponse.next()
   }
 
   const isApiRoute = pathname.startsWith("/api/")
   const isDashboardRoute = pathname.startsWith("/dashboard")
+  const isOnboardingRoute = pathname === "/onboarding" || pathname.startsWith("/onboarding/")
 
-  if (!isApiRoute && !isDashboardRoute) {
+  if (!isApiRoute && !isDashboardRoute && !isOnboardingRoute) {
     return NextResponse.next()
   }
 
@@ -95,7 +97,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isApiRoute) {
-    const rl = rateLimit(`api:${payload.userId}`, API_RATE_LIMIT, API_WINDOW_MS)
+    const rl = await rateLimitAsync(`api:${payload.userId}`, API_RATE_LIMIT, API_WINDOW_MS)
     if (!rl.allowed) {
       return NextResponse.json(
         { error: "Rate limit exceeded" },
@@ -126,5 +128,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/:path*", "/dashboard/:path*", "/login"],
+  matcher: ["/api/:path*", "/dashboard/:path*", "/login", "/onboarding"],
 }

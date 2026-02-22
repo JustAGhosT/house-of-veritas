@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { logger } from "@/lib/logger"
 import {
   ScanLine,
   Camera,
@@ -104,9 +105,9 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
 
       setIsScanning(true)
       setError(null)
-    } catch (err: any) {
-      console.error("Scanner error:", err)
-      setError(err.message || "Failed to start camera")
+    } catch (err: unknown) {
+      logger.error("Scanner error", { error: err instanceof Error ? err.message : String(err) })
+      setError(err instanceof Error ? err.message : "Failed to start camera")
       setIsScanning(false)
     }
   }, [])
@@ -137,7 +138,7 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
         onScanComplete?.(null, code)
       }
     } catch (err) {
-      console.error("Lookup error:", err)
+      logger.error("Lookup error", { error: err instanceof Error ? err.message : String(err) })
       setFoundItem(null)
     } finally {
       setLoading(false)
@@ -162,7 +163,7 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
           setTorchOn(!torchOn)
         }
       } catch (e) {
-        console.error("Torch error:", e)
+        logger.error("Torch error", { error: e instanceof Error ? e.message : String(e) })
       }
     }
   }

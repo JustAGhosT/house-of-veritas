@@ -27,6 +27,7 @@
 ## Phase 1: MVP Landing Page ✅ COMPLETE
 
 ### Epic 1.1: Landing Page Design & Development ✅
+
 - [x] Transform Apex template to House of Veritas branding
 - [x] Create HV logo and design system
 - [x] Implement 8 feature module showcases
@@ -36,6 +37,7 @@
 - [x] Implement grid pattern background
 
 ### Epic 1.2: Stubbed Backend APIs ✅
+
 - [x] Create 10 Next.js API routes
 - [x] Mock data for stats endpoint
 - [x] Mock data for documents (8 governance docs)
@@ -48,6 +50,7 @@
 - [x] Mock data for vehicle logs
 
 ### Epic 1.3: Documentation ✅
+
 - [x] Create comprehensive README
 - [x] Record all 4 design documents in /docs
 - [x] Add getting started guide
@@ -63,6 +66,7 @@
 **Owner:** Technical Lead / DevOps
 
 ### Epic 2.1: Azure Account & Prerequisites
+
 **Story Points:** 3  
 **Priority:** P0
 
@@ -87,6 +91,7 @@
   - **Acceptance:** Repository secured, CI/CD ready
 
 ### Epic 2.2: Terraform Infrastructure Code
+
 **Story Points:** 13  
 **Priority:** P0
 
@@ -135,6 +140,7 @@
   - **Acceptance:** Gateway configuration validated
 
 ### Epic 2.3: CI/CD Pipeline
+
 **Story Points:** 8  
 **Priority:** P0
 
@@ -159,6 +165,7 @@
   - **Acceptance:** Rollback procedure documented and tested
 
 ### Epic 2.4: Initial Infrastructure Deployment
+
 **Story Points:** 5  
 **Priority:** P0
 
@@ -183,6 +190,7 @@
   - **Acceptance:** Gateway accessible with public IP
 
 ### Epic 2.5: DNS & SSL Configuration
+
 **Story Points:** 5  
 **Priority:** P0
 
@@ -211,6 +219,7 @@
 **Status:** Configuration & setup documentation complete. Ready for production deployment.
 
 ### Epic 3.1: DocuSeal Deployment & Configuration ✅
+
 **Story Points:** 13  
 **Priority:** P0
 
@@ -242,6 +251,7 @@
   - **Acceptance:** API integration documented
 
 ### Epic 3.2: Baserow Deployment & Configuration ✅
+
 **Story Points:** 13  
 **Priority:** P0
 
@@ -291,6 +301,7 @@
   - **Acceptance:** API integration documented
 
 ### Epic 3.3: User Account Documentation ✅
+
 **Story Points:** 5  
 **Priority:** P0
 
@@ -304,6 +315,7 @@
   - **Acceptance:** User creation documented
 
 ### Epic 3.4: Data Seeding Scripts ✅
+
 **Story Points:** 8  
 **Priority:** P1
 
@@ -328,6 +340,7 @@
   - **Acceptance:** Task data ready
 
 ### Epic 3.5: Automation Scripts ✅
+
 **Story Points:** 8  
 **Priority:** P0
 
@@ -343,6 +356,7 @@
   - **Acceptance:** Alert function ready (/config/scripts/document-expiry-alert.py)
 
 ### Epic 3.6: Local Development Environment ✅
+
 **Story Points:** 5  
 **Priority:** P1
 
@@ -370,6 +384,7 @@
 **Status:** All Azure Functions created and ready for deployment
 
 ### Epic 4.1: DocuSeal ↔ Baserow Integration ✅
+
 **Story Points:** 13  
 **Priority:** P0
 
@@ -401,6 +416,7 @@
   - **Acceptance:** Requires production deployment
 
 ### Epic 4.2: Document Expiry Automation ✅
+
 **Story Points:** 8  
 **Priority:** P0
 
@@ -425,6 +441,7 @@
   - **Acceptance:** SMS client ready (requires Twilio config)
 
 ### Epic 4.3: Task & Time Tracking Automation ✅
+
 **Story Points:** 8  
 **Priority:** P1
 
@@ -450,6 +467,7 @@
   - **Acceptance:** Function code ready
 
 ### Epic 4.4: Financial Tracking Automation ✅
+
 **Story Points:** 5  
 **Priority:** P1
 
@@ -469,6 +487,7 @@
   - **Acceptance:** Function code ready
 
 ### Epic 4.5: Backup & Archive Automation ✅
+
 **Story Points:** 5  
 **Priority:** P0
 
@@ -494,6 +513,7 @@
 **Owner:** Frontend Lead
 
 ### Epic 5.1: Custom Dashboard Development
+
 **Story Points:** 13  
 **Priority:** P1
 
@@ -529,6 +549,7 @@
   - **Acceptance:** Irma has simple, focused dashboard
 
 ### Epic 5.2: Mobile Optimization
+
 **Story Points:** 8  
 **Priority:** P1
 
@@ -547,6 +568,7 @@
   - **Acceptance:** Mobile features working smoothly
 
 ### Epic 5.3: Accessibility Improvements
+
 **Story Points:** 5  
 **Priority:** P1
 
@@ -565,6 +587,7 @@
   - **Acceptance:** Full keyboard navigation working
 
 ### Epic 5.4: Performance Optimization
+
 **Story Points:** 5  
 **Priority:** P2
 
@@ -591,6 +614,7 @@
 **Owner:** QA Lead
 
 ### Epic 6.1: Functional Testing
+
 **Story Points:** 13  
 **Priority:** P0
 
@@ -646,6 +670,7 @@
   - **Acceptance:** Compliance alerts working correctly
 
 ### Epic 6.2: Integration Testing
+
 **Story Points:** 8  
 **Priority:** P0
 
@@ -664,6 +689,7 @@
   - **Acceptance:** All API integrations stable
 
 ### Epic 6.3: Security Testing
+
 **Story Points:** 8  
 **Priority:** P0
 
@@ -691,6 +717,7 @@
   - **Acceptance:** Encryption verified
 
 ### Epic 6.4: Performance & Load Testing
+
 **Story Points:** 5  
 **Priority:** P1
 
@@ -708,6 +735,7 @@
   - **Acceptance:** Scaling limits documented
 
 ### Epic 6.5: Disaster Recovery Testing
+
 **Story Points:** 5  
 **Priority:** P0
 
@@ -735,6 +763,7 @@
 **Owner:** Hans + Training Lead
 
 ### Epic 7.1: User Training
+
 **Story Points:** 8  
 **Priority:** P0
 
@@ -764,6 +793,7 @@
   - **Acceptance:** Support docs available
 
 ### Epic 7.2: User Acceptance Testing (UAT)
+
 **Story Points:** 8  
 **Priority:** P0
 
@@ -799,6 +829,7 @@
   - **Acceptance:** Irma signs off
 
 ### Epic 7.3: Go-Live Preparation
+
 **Story Points:** 5  
 **Priority:** P0
 
@@ -825,6 +856,7 @@
   - **Acceptance:** Users notified and prepared
 
 ### Epic 7.4: Go-Live & Stabilization
+
 **Story Points:** 3  
 **Priority:** P0
 
@@ -855,18 +887,21 @@
 ## Ongoing Maintenance (Post Go-Live)
 
 ### Epic M.1: Daily Operations
+
 - [ ] Check alerts and logs
 - [ ] Verify backups completed
 - [ ] Monitor system health
 - [ ] Respond to user support requests
 
 ### Epic M.2: Weekly Operations
+
 - [ ] Review spending (budget check)
 - [ ] Review uptime metrics
 - [ ] Review incident logs
 - [ ] Check for failed automation jobs
 
 ### Epic M.3: Monthly Operations
+
 - [ ] Patch Docker images (DocuSeal, Baserow)
 - [ ] Update Terraform providers/modules
 - [ ] Test all core workflows post-upgrade
@@ -875,6 +910,7 @@
 - [ ] Generate monthly report for Hans
 
 ### Epic M.4: Quarterly Operations
+
 - [ ] Rotate secrets (DB passwords, API tokens)
 - [ ] Clean up old users/access logs
 - [ ] Update SSL certificates
@@ -884,6 +920,7 @@
 - [ ] Review cost optimization opportunities
 
 ### Epic M.5: Annual Operations
+
 - [ ] Full disaster recovery test
 - [ ] Complete security audit (IAM, NSGs, code, users)
 - [ ] Review performance/cost/budget
@@ -916,12 +953,14 @@
 ## Dependencies & Risks
 
 ### Critical Dependencies
+
 1. **Azure subscription approval** - Required for Phase 2 start
 2. **Domain purchase** - Required for DNS/SSL setup
 3. **User availability** - Required for UAT and training
 4. **Budget approval** - Required for infrastructure costs
 
 ### Key Risks
+
 1. **Cost overrun** - Mitigate with daily monitoring and R800 alert
 2. **Data migration issues** - Mitigate with thorough testing in Phase 6
 3. **User adoption resistance** - Mitigate with comprehensive training
@@ -933,12 +972,14 @@
 ## Success Criteria
 
 ### Phase Completion Criteria
+
 - All stories in phase marked complete
 - All acceptance criteria met
 - Phase review conducted
 - Stakeholder sign-off obtained
 
 ### Project Completion Criteria
+
 - All 4 users actively using system daily
 - 100% of governance documents digitized
 - Zero critical bugs in production

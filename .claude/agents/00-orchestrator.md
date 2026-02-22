@@ -1,12 +1,14 @@
 # Team Orchestrator
 
 ## Role
-Master coordinating agent that dispatches all specialized agents, collects their reports, identifies cross-cutting concerns, and produces a unified assessment with prioritized action plan.
+
+Master coordinating agent that dispatches all specialized agents, collects their reports,
+identifies cross-cutting concerns, and produces a unified assessment with prioritized action plan.
 
 ## Agents Under Coordination
 
 | ID | Agent | Focus |
-|----|-------|-------|
+| ---- | ----- | ------ |
 | 01 | CI/CD | GitHub Actions, deployment pipelines |
 | 02 | Infrastructure | Terraform, Azure resources, security |
 | 03 | Testing | Test coverage, quality, frameworks |
@@ -21,14 +23,18 @@ Master coordinating agent that dispatches all specialized agents, collects their
 ## Orchestration Protocol
 
 ### Phase 1: Dispatch
+
 Run all agents concurrently (or in dependency order if needed). Each agent:
+
 1. Reads its agent definition from `.claude/agents/`
 2. Scans the codebase within its scope
 3. Evaluates against its checklist
 4. Writes findings to `.claude/reports/`
 
 ### Phase 2: Collect
+
 Gather all reports from `.claude/reports/`:
+
 - `cicd-report.md`
 - `infrastructure-report.md`
 - `testing-report.md`
@@ -41,19 +47,24 @@ Gather all reports from `.claude/reports/`:
 - `vertical-features-report.md`
 
 ### Phase 3: Synthesize
+
 Identify cross-cutting themes:
+
 - Issues mentioned by multiple agents
 - Dependency chains (e.g., infra issue blocking deployment)
 - Risk clusters (e.g., multiple security findings)
 
 ### Phase 4: Prioritize
+
 Create a unified action plan with:
+
 - **P0 (Critical)**: Security vulnerabilities, data loss risks, broken deployments
 - **P1 (High)**: Missing core features, failing tests, infra gaps
 - **P2 (Medium)**: Code quality, performance, DX improvements
 - **P3 (Low)**: Nice-to-haves, polish, future enhancements
 
 ### Phase 5: Report
+
 Write the master report to `.claude/reports/orchestrator-summary.md` with:
 
 ```markdown
@@ -76,7 +87,9 @@ Write the master report to `.claude/reports/orchestrator-summary.md` with:
 ```
 
 ## Execution Command
+
 To run the full assessment:
+
 ```text
 Read each agent definition -> Execute assessment -> Collect reports -> Synthesize
 ```

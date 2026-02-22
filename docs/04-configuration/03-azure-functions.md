@@ -17,7 +17,7 @@ This directory contains all Azure Functions for automation and integration.
 
 ## Directory Structure
 
-```
+```text
 azure-functions/
 ├── shared/
 │   └── utils.py              # Shared utilities (clients, config)
@@ -130,7 +130,7 @@ func azure functionapp publish func-houseofveritas
 
 Set these in Azure Portal → Function App → Configuration:
 
-```
+```text
 # Baserow
 BASEROW_URL=https://ops.nexamesh.ai
 BASEROW_TOKEN=<api-token>
@@ -170,6 +170,7 @@ BACKUP_CONTAINER=backups
 Receives webhooks when documents are signed in DocuSeal.
 
 **Events Handled:**
+
 - `submission.completed` - Updates employee contract status, document expiry
 - `submission.viewed` - Logs view event
 - `submission.created` - Logs creation
@@ -181,11 +182,13 @@ Receives webhooks when documents are signed in DocuSeal.
 Daily check for documents approaching expiry.
 
 **Alert Levels:**
+
 - 🔴 URGENT: ≤7 days
 - 🟡 WARNING: ≤30 days
 - 🟢 NOTICE: ≤60 days
 
 **Actions:**
+
 - Email to responsible party
 - SMS for urgent items
 - Daily summary to admin
@@ -195,6 +198,7 @@ Daily check for documents approaching expiry.
 Creates task instances from recurring templates.
 
 **Recurrence Types:**
+
 - Daily: 7 instances per week
 - Weekly: 1 instance per week
 - Monthly: 1st week only
@@ -205,6 +209,7 @@ Creates task instances from recurring templates.
 Calculates weekly overtime per BCEA.
 
 **Rules:**
+
 - Standard week: 45 hours
 - Weekday overtime: 1.5x rate
 - Sunday: 2x rate
@@ -215,6 +220,7 @@ Calculates weekly overtime per BCEA.
 Monthly leave accrual per BCEA.
 
 **Leave Types:**
+
 - Annual: 1.25 days/month (15/year)
 - Sick: 30 days/3-year cycle
 - Family: 3 days/year
@@ -224,6 +230,7 @@ Monthly leave accrual per BCEA.
 Notifies admin of pending expenses.
 
 **Triggers:**
+
 - HTTP webhook from Baserow
 - Hourly check (optional)
 
@@ -232,6 +239,7 @@ Notifies admin of pending expenses.
 Monthly financial summary.
 
 **Includes:**
+
 - Category breakdown
 - Budget vs actual
 - Employee spending
@@ -242,6 +250,7 @@ Monthly financial summary.
 Weekly data export to blob storage.
 
 **Exports:**
+
 - All 8 tables as CSV
 - Timestamped folders
 - 90-day retention
@@ -253,6 +262,7 @@ Weekly data export to blob storage.
 Functions automatically log to Application Insights when configured.
 
 View logs:
+
 1. Azure Portal → Function App → Monitor
 2. Application Insights → Logs
 

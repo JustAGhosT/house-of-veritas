@@ -121,7 +121,7 @@ export function RoleDashboards() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className={`p-6 rounded-2xl bg-gradient-to-br ${colors.bg} border ${colors.border} hover:scale-[1.02] transition-all duration-300`}
+                className={`p-6 rounded-2xl bg-linear-to-br ${colors.bg} border ${colors.border} hover:scale-[1.02] transition-all duration-300`}
               >
                 <div className={`p-3 rounded-lg ${colors.icon} w-fit mb-4`}>
                   <Icon className={`w-6 h-6 ${colors.text}`} strokeWidth={1.5} />

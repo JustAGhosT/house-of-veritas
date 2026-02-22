@@ -137,11 +137,11 @@ export class GumtreeService {
 Pre-filled form URL: ${postUrl}?${params.toString()}
           `.trim(),
         }
-      } catch (error: any) {
+      } catch (error) {
         return {
           success: false,
           platform: "gumtree",
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
         }
       }
     }
@@ -237,11 +237,11 @@ Note: For automated posting, configure Facebook Page access token.
       } else {
         throw new Error(data.error?.message || "Failed to create listing")
       }
-    } catch (error: any) {
+    } catch (error) {
       return {
         success: false,
         platform: "facebook",
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         requiresManualAction: true,
         manualInstructions: "Please create the listing manually on Facebook Marketplace",
       }
@@ -261,8 +261,8 @@ Note: For automated posting, configure Facebook Page access token.
         }
       )
       return await response.json()
-    } catch (error: any) {
-      return { error: error.message }
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : String(error) }
     }
   }
 }

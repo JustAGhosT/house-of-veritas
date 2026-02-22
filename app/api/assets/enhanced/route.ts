@@ -47,6 +47,7 @@ export interface Asset {
   purchasePrice?: number
   currentValue?: number
   location: string
+  storageOption?: string
   responsiblePerson: string
   photos: string[]
   maintenanceHistory: Array<{
@@ -84,6 +85,7 @@ let assets: Asset[] = [
     purchasePrice: 650000,
     currentValue: 520000,
     location: 'Garage',
+    storageOption: 'garage',
     responsiblePerson: 'charl',
     photos: ['/assets/hilux-1.jpg', '/assets/hilux-2.jpg'],
     maintenanceHistory: [
@@ -108,6 +110,7 @@ let assets: Asset[] = [
     purchasePrice: 45000,
     currentValue: 38000,
     location: 'Garden Shed',
+    storageOption: 'garden shed',
     responsiblePerson: 'lucky',
     photos: ['/assets/automower-1.jpg'],
     maintenanceHistory: [],
@@ -129,6 +132,7 @@ let assets: Asset[] = [
     purchasePrice: 2800,
     currentValue: 800,
     location: 'Workshop',
+    storageOption: 'workshop',
     responsiblePerson: 'charl',
     photos: [],
     maintenanceHistory: [
@@ -154,6 +158,7 @@ let assets: Asset[] = [
     purchasePrice: 28000,
     currentValue: 22000,
     location: 'Main Lounge',
+    storageOption: 'main lounge',
     responsiblePerson: 'hans',
     photos: ['/assets/tv-1.jpg'],
     maintenanceHistory: [],
@@ -175,6 +180,7 @@ let assets: Asset[] = [
     purchasePrice: 32000,
     currentValue: 18000,
     location: 'Patio',
+    storageOption: 'patio',
     responsiblePerson: 'lucky',
     photos: ['/assets/braai-1.jpg'],
     maintenanceHistory: [
@@ -239,10 +245,14 @@ export async function GET(request: Request) {
     }, {} as Record<string, number>),
   }
 
+  const { loadStorageOptions } = await import("@/lib/storage-options")
+  const storageOptions = await loadStorageOptions()
+
   return NextResponse.json({
     assets: filteredAssets,
     summary,
     categories: ASSET_CATEGORIES,
+    storageOptions,
   })
 }
 
@@ -262,20 +272,26 @@ export async function POST(request: Request) {
       purchasePrice,
       currentValue,
       location,
+      storageOption,
       photos = [],
       tags = [],
       saleStatus = 'not_for_sale',
       salePrice,
     } = body
 
-    if (!name || !category || !location) {
+    if (!name || !category) {
       return NextResponse.json(
-        { error: 'name, category, and location are required' },
+        { error: 'name and category are required' },
         { status: 400 }
       )
     }
 
-    // Auto-assign responsible person based on category
+    const { loadStorageOptions } = await import("@/lib/storage-options")
+    const storageOptions = await loadStorageOptions()
+    const resolvedStorage = storageOption && storageOptions.includes(storageOption)
+      ? storageOption
+      : (location || storageOptions[0])
+
     const responsiblePerson = ASSET_CATEGORIES[category as AssetCategory]?.responsible || 'hans'
 
     const newAsset: Asset = {
@@ -290,7 +306,8 @@ export async function POST(request: Request) {
       purchaseDate,
       purchasePrice,
       currentValue: currentValue || purchasePrice,
-      location,
+      location: location || resolvedStorage,
+      storageOption: resolvedStorage,
       responsiblePerson,
       photos,
       maintenanceHistory: [],
@@ -308,9 +325,9 @@ export async function POST(request: Request) {
       success: true,
       asset: newAsset,
     })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to create asset', details: error.message },
+      { error: 'Failed to create asset' },
       { status: 500 }
     )
   }
@@ -346,9 +363,9 @@ export async function PUT(request: Request) {
       success: true,
       asset: assets[index],
     })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to update asset', details: error.message },
+      { error: 'Failed to update asset' },
       { status: 500 }
     )
   }

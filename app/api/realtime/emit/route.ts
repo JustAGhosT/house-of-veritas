@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 import { 
   eventStore, 
   emitTaskEvent, 
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
       event,
     })
   } catch (error) {
-    console.error('Error emitting event:', error)
+    logger.error('Error emitting event', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to emit event' },
       { status: 500 }

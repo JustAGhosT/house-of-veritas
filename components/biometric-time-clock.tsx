@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { logger } from '@/lib/logger'
 import {
   Fingerprint,
   ScanFace,
@@ -59,7 +60,7 @@ export function BiometricTimeClockPanel() {
       const result = await response.json()
       setData(result)
     } catch (error) {
-      console.error('Failed to fetch biometric data:', error)
+      logger.error('Failed to fetch biometric data', { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
@@ -90,7 +91,7 @@ export function BiometricTimeClockPanel() {
         fetchData()
       }
     } catch (error) {
-      console.error('Clock action failed:', error)
+      logger.error('Clock action failed', { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setClocking(null)
     }
@@ -121,8 +122,11 @@ export function BiometricTimeClockPanel() {
         </div>
 
         <button
+          type="button"
           onClick={fetchData}
           className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+          aria-label="Refresh time clock data"
+          title="Refresh time clock data"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
@@ -131,14 +135,14 @@ export function BiometricTimeClockPanel() {
       {/* Mode Alert */}
       {data?.mode === 'mock' && (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <AlertCircle className="w-4 h-4 shrink-0" />
           <span>Using simulated biometrics. Configure BIOMETRIC_API_KEY for hardware integration.</span>
         </div>
       )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-gradient-to-br from-green-600/20 to-green-600/5 border border-green-500/30">
+        <div className="p-4 rounded-xl bg-linear-to-br from-green-600/20 to-green-600/5 border border-green-500/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/60 text-sm">Currently Working</p>
@@ -149,7 +153,7 @@ export function BiometricTimeClockPanel() {
             <UserCheck className="w-8 h-8 text-green-400 opacity-60" />
           </div>
         </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-blue-600/20 to-blue-600/5 border border-blue-500/30">
+        <div className="p-4 rounded-xl bg-linear-to-br from-blue-600/20 to-blue-600/5 border border-blue-500/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/60 text-sm">Completed Today</p>
@@ -160,7 +164,7 @@ export function BiometricTimeClockPanel() {
             <CheckCircle className="w-8 h-8 text-blue-400 opacity-60" />
           </div>
         </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-amber-600/20 to-amber-600/5 border border-amber-500/30">
+        <div className="p-4 rounded-xl bg-linear-to-br from-amber-600/20 to-amber-600/5 border border-amber-500/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/60 text-sm">Not Clocked In</p>
@@ -171,7 +175,7 @@ export function BiometricTimeClockPanel() {
             <UserX className="w-8 h-8 text-amber-400 opacity-60" />
           </div>
         </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-purple-600/20 to-purple-600/5 border border-purple-500/30">
+        <div className="p-4 rounded-xl bg-linear-to-br from-purple-600/20 to-purple-600/5 border border-purple-500/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/60 text-sm">Total Records</p>

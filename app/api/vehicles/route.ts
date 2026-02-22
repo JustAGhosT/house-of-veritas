@@ -1,13 +1,24 @@
 import { NextResponse } from 'next/server'
-import { getVehicleLogs, isBaserowConfigured } from '@/lib/services/baserow'
+import { getVehicleLogs, getBaserowEmployeeIdByAppId } from '@/lib/services/baserow'
+import { withDataSource } from '@/lib/api/response'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const driver = searchParams.get('driver')
+  const driverParam = searchParams.get('driver')
+  const personaId = searchParams.get('personaId')
+
+  let driver: number | undefined
+  if (driverParam) {
+    driver = parseInt(driverParam, 10)
+    if (Number.isNaN(driver)) driver = undefined
+  } else if (personaId) {
+    driver = (await getBaserowEmployeeIdByAppId(personaId)) ?? undefined
+  }
 
   try {
     const logs = await getVehicleLogs({
-      driver: driver ? parseInt(driver) : undefined,
+      driver,
     })
 
     // Calculate summary
@@ -19,16 +30,9 @@ export async function GET(request: Request) {
       totalFuelCost: logs.reduce((sum, l) => sum + (l.fuelCost || 0), 0),
     }
 
-    return NextResponse.json({
-      logs,
-      summary,
-      configured: isBaserowConfigured(),
-      message: isBaserowConfigured()
-        ? "Connected to Baserow"
-        : "Using mock data - Baserow not configured",
-    })
+    return withDataSource({ logs, summary })
   } catch (error) {
-    console.error('Error fetching vehicle logs:', error)
+    logger.error('Error fetching vehicle logs', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to fetch vehicle logs' },
       { status: 500 }

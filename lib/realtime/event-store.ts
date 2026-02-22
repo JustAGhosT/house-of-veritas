@@ -1,3 +1,5 @@
+import { logger } from "@/lib/logger"
+
 // Real-time event types
 export type EventType = 
   | 'task_created'
@@ -46,7 +48,7 @@ class EventStore {
       try {
         callback(fullEvent)
       } catch (error) {
-        console.error(`Error notifying listener ${listenerId}:`, error)
+        logger.error(`Error notifying listener ${listenerId}`, { error: error instanceof Error ? error.message : String(error) })
       }
     })
 

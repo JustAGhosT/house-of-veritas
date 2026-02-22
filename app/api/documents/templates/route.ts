@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getTemplates, isDocuSealConfigured } from '@/lib/services/docuseal'
+import { logger } from '@/lib/logger'
 
 export async function GET() {
   try {
@@ -13,7 +14,7 @@ export async function GET() {
         : "Using mock data - DocuSeal not configured"
     })
   } catch (error) {
-    console.error('Error fetching templates:', error)
+    logger.error('Error fetching templates', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to fetch templates' },
       { status: 500 }

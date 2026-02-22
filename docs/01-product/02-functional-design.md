@@ -21,21 +21,25 @@ P0 – Critical
 ## Primary Personas
 
 ### Hans (Owner/Administrator)
+
 - **Role:** Complete oversight and control
 - **Needs:** Full visibility, minimal manual intervention, quick delegation, rapid audit/data retrieval
 - **Dashboard:** All data, approval queues, compliance status, financial tracking
 
 ### Charl (Workshop Operator)
+
 - **Role:** Employee/Resident, Mechanic/Handyman
 - **Needs:** Clear daily tasks, simple time/expense logging, access to own documents
 - **Dashboard:** My tasks, workshop assets, time logs, incident reporting
 
 ### Lucky (Gardener/Handyman)
+
 - **Role:** Employee, Grounds Operations
 - **Needs:** Mobile-friendly interface, task list, expense submission, vehicle logs
 - **Dashboard:** Daily tasks, garden equipment, time tracking, expense requests
 
 ### Irma (Resident/Household)
+
 - **Role:** Resident, Household/Childcare
 - **Needs:** Simple interface, household tasks only, child-related incident reporting
 - **Dashboard:** Household tasks, resident agreement, child-related logs
@@ -49,6 +53,7 @@ P0 – Critical
 **Purpose:** Legally enforceable e-signatures with full audit trails
 
 **Key Features:**
+
 - Multi-signatory workflows
 - 18 governance documents tracked
 - Version control
@@ -58,6 +63,7 @@ P0 – Critical
 - DocuSeal ↔ Baserow integration
 
 **User Stories:**
+
 - As Hans, I want to assign documents for signature and track completion status
 - As Charl, I want to sign my employment contract digitally with a clear audit trail
 
@@ -68,6 +74,7 @@ P0 – Critical
 **Purpose:** Complete HR management with compliance tracking
 
 **Key Features:**
+
 - Employment contracts (linked to DocuSeal)
 - Leave management and accruals
 - Probation tracking
@@ -76,6 +83,7 @@ P0 – Critical
 - Contract status dashboard
 
 **Data Fields:**
+
 - Full Name, ID Number, Role
 - Employment Start Date
 - Contract Reference (DocuSeal link)
@@ -90,6 +98,7 @@ P0 – Critical
 **Purpose:** Track all tools, vehicles, and equipment
 
 **Key Features:**
+
 - Check-in/out workflows
 - Maintenance schedules
 - Condition tracking
@@ -98,6 +107,7 @@ P0 – Critical
 - Location tracking
 
 **Asset Types:**
+
 - Tools (workshop equipment)
 - Vehicles (Toyota Hilux, etc.)
 - Equipment (lawnmowers, generators)
@@ -111,13 +121,15 @@ P0 – Critical
 
 **Dual-Mode Time Tracking:**
 
-**Mode A: Task-Level Logging**
+#### Mode A: Task-Level Logging
+
 - Time spent per task
 - Completion notes
 - Project association
 - Summary views by person/project
 
-**Mode B: Clock-In/Out with Overtime**
+#### Mode B: Clock-In/Out with Overtime
+
 - Daily attendance tracking
 - Automatic overtime calculation (>9hrs/day, >45hrs/week)
 - Break duration tracking
@@ -125,6 +137,7 @@ P0 – Critical
 - BCEA compliance
 
 **Task Management:**
+
 - Daily/recurring assignments
 - Priority levels
 - Status tracking
@@ -138,12 +151,14 @@ P0 – Critical
 **Purpose:** Safety, equipment, and operational incident tracking
 
 **Incident Types:**
+
 - Safety (workshop accidents, injuries)
 - Equipment (breakdowns, malfunctions)
 - Vehicle (accidents, damage)
 - Household (property issues)
 
 **Workflow:**
+
 1. User reports incident (mobile form)
 2. Auto-routed to Hans
 3. Hans reviews and assigns actions
@@ -151,6 +166,7 @@ P0 – Critical
 5. Patterns analyzed for prevention
 
 **Key Fields:**
+
 - Date/Time, Location
 - Reporter, Witnesses
 - Description
@@ -166,6 +182,7 @@ P0 – Critical
 **Purpose:** Usage authorization and compliance tracking
 
 **Key Features:**
+
 - Driver authorization
 - Odometer tracking (start/end)
 - Distance calculation
@@ -174,6 +191,7 @@ P0 – Critical
 - Maintenance reminders
 
 **Use Cases:**
+
 - Materials pickup
 - School drop-off/pickup
 - Hardware store visits
@@ -185,13 +203,15 @@ P0 – Critical
 
 **Purpose:** Dual-mode expense management with contractor payments
 
-**Mode A: Post-Hoc Expense Logging**
+#### Mode A: Post-Hoc Expense Logging
+
 - Log actual expenses after incurred
 - 10 categories (Materials, Labor, Fuel, etc.)
 - Receipt uploads
 - After-the-fact approval
 
-**Mode B: Pre-Approval Workflow**
+#### Mode B: Pre-Approval Workflow
+
 1. User submits expense request
 2. Hans receives notification
 3. Approve/Reject with comments
@@ -200,6 +220,7 @@ P0 – Critical
 6. Budget auto-updates
 
 **Contractor Milestone Tracking:**
+
 - Total contract amount
 - Milestone stages (Deposit, Progress, Completion)
 - Payment % per stage
@@ -207,6 +228,7 @@ P0 – Critical
 - Overrun alerts
 
 **Dashboard Views:**
+
 - Budget vs Actuals by category
 - Contractor progress bars
 - Approval queue
@@ -219,11 +241,13 @@ P0 – Critical
 **Purpose:** Proactive compliance monitoring
 
 **Multi-Stage Alert System:**
+
 - **Green (60 days):** First notification
 - **Yellow (30 days):** Reminder notification
 - **Red (7 days):** Urgent alert
 
 **Tracked Documents:**
+
 - Property Charter (3-year cycle)
 - House Rules (annual)
 - Workshop Safety Manual (annual)
@@ -234,6 +258,7 @@ P0 – Critical
 - Succession Protocol (3-year cycle)
 
 **Dashboard View:**
+
 - Color-coded urgency
 - Quick action buttons
 - Filter by type/owner
@@ -244,6 +269,7 @@ P0 – Critical
 ## User Experience & Workflows
 
 ### Onboarding Flow
+
 1. Hans provisions infrastructure
 2. User accounts created
 3. Initial document assignments
@@ -253,6 +279,7 @@ P0 – Critical
 ### Daily Workflows
 
 **Hans' Morning Routine:**
+
 1. Check dashboard overview
 2. Review approval queue (expenses, leave)
 3. Check document expiry alerts
@@ -260,6 +287,7 @@ P0 – Critical
 5. Monitor contractor progress
 
 **Charl's Daily Flow:**
+
 1. View "My Tasks Today"
 2. Check out workshop tools
 3. Log time spent on tasks
@@ -267,6 +295,7 @@ P0 – Critical
 5. Clock out with notes
 
 **Lucky's Mobile Experience:**
+
 1. Open mobile dashboard
 2. See prioritized task list
 3. Submit expense with photo receipt
@@ -278,12 +307,14 @@ P0 – Critical
 ## Non-Functional Requirements
 
 ### Performance
+
 - <2s page load
 - 10 concurrent users supported
 - 50MB document uploads
 - <1s search/query response
 
 ### Security
+
 - Role-Based Access Control (RBAC)
 - End-to-end encryption
 - Full audit logging
@@ -291,12 +322,14 @@ P0 – Critical
 - Password policies + 2FA for Hans
 
 ### Usability
+
 - Responsive design (desktop/tablet/mobile)
 - <3 clicks to core actions
 - <1 hour onboarding/training
 - WCAG 2.1 AA accessibility
 
 ### Reliability
+
 - 99.9% uptime target
 - Daily DB backups
 - Weekly blob backups
@@ -309,16 +342,19 @@ P0 – Critical
 ## Integration Points
 
 ### DocuSeal ↔ Baserow
+
 - Webhook triggers on signature completion
 - Auto-update employee/contract records
 - Sync document expiry dates
 
 ### Baserow ↔ Email/SMS
+
 - Alert notifications
 - Reminder escalations
 - Approval requests
 
 ### Baserow ↔ Azure Blob
+
 - Document storage
 - Backup retention
 - Receipt/photo uploads
@@ -328,12 +364,14 @@ P0 – Critical
 ## Success Metrics
 
 ### Leading Indicators
+
 - % e-signature usage
 - Task completion rates (on-time)
 - % digital logging vs manual
 - User satisfaction scores
 
 ### Lagging Indicators
+
 - 100% document compliance
 - 0 missed renewals in 6 months
 - Hans' admin hours ≤5/week (down from 24/week)

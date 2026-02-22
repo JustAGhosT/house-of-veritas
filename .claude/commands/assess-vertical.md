@@ -3,6 +3,7 @@
 Read the agent definition at `.claude/agents/10-vertical-features.md` and trace each business feature across the full stack.
 
 ## Instructions
+
 1. Read `.claude/agents/10-vertical-features.md` for the full checklist
 2. For each of the 11 features listed, check presence at every layer:
    - UI Component (page/form/display)

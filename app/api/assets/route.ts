@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import { getAssets, isBaserowConfigured } from '@/lib/services/baserow'
+import { getAssets } from '@/lib/services/baserow'
+import { withDataSource } from '@/lib/api/response'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -30,16 +32,9 @@ export async function GET(request: Request) {
       },
     }
 
-    return NextResponse.json({
-      assets,
-      summary,
-      configured: isBaserowConfigured(),
-      message: isBaserowConfigured()
-        ? "Connected to Baserow"
-        : "Using mock data - Baserow not configured",
-    })
+    return withDataSource({ assets, summary })
   } catch (error) {
-    console.error('Error fetching assets:', error)
+    logger.error('Error fetching assets', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to fetch assets' },
       { status: 500 }

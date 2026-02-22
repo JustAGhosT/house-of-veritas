@@ -1,19 +1,30 @@
 import { NextResponse } from 'next/server'
-import { getTimeClockEntries, clockIn, clockOut, isBaserowConfigured } from '@/lib/services/baserow'
+import { getTimeClockEntries, clockIn, clockOut, clockInByAppId, clockOutByAppId, getBaserowEmployeeIdByAppId } from '@/lib/services/baserow'
+import { withDataSource } from '@/lib/api/response'
+import { toISODateString } from '@/lib/utils'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const employee = searchParams.get('employee')
+  const employeeParam = searchParams.get('employee')
+  const personaId = searchParams.get('personaId')
   const date = searchParams.get('date')
+
+  let employee: number | undefined
+  if (employeeParam) {
+    employee = parseInt(employeeParam, 10)
+    if (Number.isNaN(employee)) employee = undefined
+  } else if (personaId) {
+    employee = (await getBaserowEmployeeIdByAppId(personaId)) ?? undefined
+  }
 
   try {
     const entries = await getTimeClockEntries({
-      employee: employee ? parseInt(employee) : undefined,
+      employee,
       date: date || undefined,
     })
 
-    // Calculate summary
-    const today = new Date().toISOString().split('T')[0]
+    const today = toISODateString()
     const todayEntries = entries.filter((e) => e.date === today)
     
     const summary = {
@@ -24,16 +35,9 @@ export async function GET(request: Request) {
       pendingApproval: entries.filter((e) => e.approvalStatus === 'Pending').length,
     }
 
-    return NextResponse.json({
-      entries,
-      summary,
-      configured: isBaserowConfigured(),
-      message: isBaserowConfigured()
-        ? "Connected to Baserow"
-        : "Using mock data - Baserow not configured",
-    })
+    return withDataSource({ entries, summary })
   } catch (error) {
-    console.error('Error fetching time clock entries:', error)
+    logger.error('Error fetching time clock entries', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to fetch time clock entries' },
       { status: 500 }
@@ -44,38 +48,44 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { action, employeeId, entryId } = body
+    const { action, employeeId, entryId, personaId } = body
 
     if (action === 'clockIn') {
-      if (!employeeId) {
+      let entry
+      if (personaId && typeof personaId === 'string') {
+        entry = await clockInByAppId(personaId)
+      } else if (employeeId != null) {
+        const id = typeof employeeId === 'number' ? employeeId : parseInt(String(employeeId), 10)
+        if (Number.isNaN(id)) {
+          return NextResponse.json(
+            { error: 'Valid employee ID or personaId required for clock in' },
+            { status: 400 }
+          )
+        }
+        entry = await clockIn(id)
+      } else {
         return NextResponse.json(
-          { error: 'Employee ID is required for clock in' },
+          { error: 'Employee ID or personaId is required for clock in' },
           { status: 400 }
         )
       }
 
-      const entry = await clockIn(employeeId)
-
-      return NextResponse.json({
-        entry,
-        message: 'Clocked in successfully',
-        configured: isBaserowConfigured(),
-      })
+      return withDataSource({ entry, message: 'Clocked in successfully' })
     } else if (action === 'clockOut') {
+      if (personaId && typeof personaId === 'string') {
+        const entry = await clockOutByAppId(personaId)
+        return withDataSource({ entry, message: 'Clocked out successfully' })
+      }
       if (!entryId) {
         return NextResponse.json(
-          { error: 'Entry ID is required for clock out' },
+          { error: 'Entry ID or personaId is required for clock out' },
           { status: 400 }
         )
       }
 
-      const entry = await clockOut(entryId)
+      const entry = await clockOut(typeof entryId === 'number' ? entryId : parseInt(String(entryId), 10))
 
-      return NextResponse.json({
-        entry,
-        message: 'Clocked out successfully',
-        configured: isBaserowConfigured(),
-      })
+      return withDataSource({ entry, message: 'Clocked out successfully' })
     } else {
       return NextResponse.json(
         { error: 'Invalid action. Use "clockIn" or "clockOut"' },
@@ -83,7 +93,7 @@ export async function POST(request: Request) {
       )
     }
   } catch (error) {
-    console.error('Error processing time clock action:', error)
+    logger.error('Error processing time clock action', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to process time clock action' },
       { status: 500 }

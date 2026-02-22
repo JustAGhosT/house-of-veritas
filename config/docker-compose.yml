@@ -87,7 +87,7 @@ services:
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_MULTIPLE_DATABASES=${DOCUSEAL_DATABASE_NAME},${BASEROW_DATABASE_NAME}
+      - POSTGRES_MULTIPLE_DATABASES=${DOCUSEAL_DATABASE_NAME},${BASEROW_DATABASE_NAME},house_of_veritas
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-multi-db.sh:/docker-entrypoint-initdb.d/init-multi-db.sh:ro
@@ -95,6 +95,25 @@ services:
       - hov-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # MongoDB - Kiosk requests, audit log fallback
+  # ============================================
+  mongodb:
+    image: mongo:7
+    container_name: hov-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - hov-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand({ ping: 1 })"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -142,6 +161,8 @@ services:
 volumes:
   postgres_data:
     name: hov_postgres_data
+  mongodb_data:
+    name: hov_mongodb_data
   docuseal_data:
     name: hov_docuseal_data
   baserow_data:

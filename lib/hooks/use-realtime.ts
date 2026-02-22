@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { RealTimeEvent, EventType } from '@/lib/realtime/event-store'
+import { logger } from '@/lib/logger'
 
 interface UseRealTimeOptions {
   userId: string
@@ -64,7 +65,7 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
 
           // Handle different message types
           if (data.type === 'connected') {
-            console.log('Real-time connected:', data.listenerId)
+            logger.info('Real-time connected', { listenerId: data.listenerId })
             return
           }
 
@@ -89,12 +90,12 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
           setEvents((prev) => [realTimeEvent, ...prev].slice(0, 50))
           onEvent?.(realTimeEvent)
         } catch (err) {
-          console.error('Error parsing SSE message:', err)
+          logger.error('Error parsing SSE message', { error: err instanceof Error ? err.message : String(err) })
         }
       }
 
       eventSource.onerror = (err) => {
-        console.error('SSE error:', err)
+        logger.error('SSE error', { error: err })
         setIsConnected(false)
         setError(new Error('Connection lost'))
         onError?.(new Error('Connection lost'))
@@ -103,7 +104,7 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
         // Auto reconnect
         if (autoReconnect) {
           reconnectTimeoutRef.current = setTimeout(() => {
-            console.log('Attempting to reconnect...')
+            logger.info('Attempting to reconnect')
             connect()
           }, reconnectDelay)
         }
@@ -190,7 +191,7 @@ export function useEmitEvent() {
 
       return await response.json()
     } catch (error) {
-      console.error('Error emitting event:', error)
+      logger.error('Error emitting event', { error: error instanceof Error ? error.message : String(error) })
       throw error
     }
   }, [])

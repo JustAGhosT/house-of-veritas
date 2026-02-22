@@ -102,7 +102,7 @@ function GardenPattern() {
         </svg>
       </div>
       {/* Grid overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-size-[40px_40px]" />
     </div>
   )
 }
@@ -148,15 +148,15 @@ export default function LuckyDashboard() {
   return (
     <DashboardLayout persona="lucky">
       {/* Persona-specific background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-green-950/40 via-[#0a0a0f] to-emerald-950/30" />
+      <div className="fixed inset-0 -z-10 bg-linear-to-br from-green-950/40 via-[#0a0a0f] to-emerald-950/30" />
       <GardenPattern />
 
       {/* Time Clock Banner */}
-      <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-green-600/30 to-emerald-700/20 border border-green-500/30 backdrop-blur-sm relative overflow-hidden" data-testid="time-clock-banner">
+      <div className="mb-8 p-6 rounded-2xl bg-linear-to-r from-green-600/30 to-emerald-700/20 border border-green-500/30 backdrop-blur-sm relative overflow-hidden" data-testid="time-clock-banner">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgNSBRMzAgMTUgMjUgMjUgUTIwIDM1IDIwIDM1IFEyMCAzNSAxNSAyNSBRMTAgMTUgMjAgNSBaIiBmaWxsPSJyZ2JhKDE2LDE4NSwxMjksMC4wNSkiLz48L3N2Zz4=')] opacity-50" />
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-green-500/30 to-emerald-600/30 border border-green-500/30 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-xl bg-linear-to-br from-green-500/30 to-emerald-600/30 border border-green-500/30 flex items-center justify-center">
               <Clock className="w-8 h-8 text-green-400" />
             </div>
             <div>

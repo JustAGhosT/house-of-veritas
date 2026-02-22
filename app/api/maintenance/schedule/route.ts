@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 // Scheduled maintenance items (synced with calendar)
 interface ScheduledMaintenance {
@@ -185,7 +186,7 @@ export async function POST(request: Request) {
             }
           )
         } catch (e) {
-          console.error('Failed to create calendar event:', e)
+          logger.error('Failed to create calendar event', { error: e instanceof Error ? e.message : String(e) })
         }
       }
 
@@ -253,7 +254,7 @@ export async function POST(request: Request) {
         const calendarEvent = await calendarResponse.json()
         newMaintenance.calendarEventId = calendarEvent.event?.id
       } catch (e) {
-        console.error('Failed to create calendar event:', e)
+        logger.error('Failed to create calendar event', { error: e instanceof Error ? e.message : String(e) })
       }
     }
 
@@ -264,9 +265,9 @@ export async function POST(request: Request) {
       maintenance: newMaintenance,
       calendarEventCreated: !!newMaintenance.calendarEventId,
     })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to schedule maintenance', details: error.message },
+      { error: 'Failed to schedule maintenance' },
       { status: 500 }
     )
   }
@@ -301,9 +302,9 @@ export async function PUT(request: Request) {
       success: true,
       maintenance: scheduledMaintenance[index],
     })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to update maintenance', details: error.message },
+      { error: 'Failed to update maintenance' },
       { status: 500 }
     )
   }

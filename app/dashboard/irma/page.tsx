@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import DashboardLayout from "@/components/dashboard-layout"
+import { logger } from "@/lib/logger"
 import {
   ClipboardList,
   FileText,
@@ -93,7 +94,7 @@ function HomePattern() {
         <rect x="45" y="15" width="10" height="15" fill="currentColor"/>
       </svg>
       {/* Decorative dots pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:30px_30px]" />
+      <div className="absolute inset-0 bg-[radial-gradient(rgba(168,85,247,0.03)_1px,transparent_1px)] bg-size-[30px_30px]" />
     </div>
   )
 }
@@ -115,13 +116,68 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null
 }
 
+interface Task {
+  id: number | string
+  title: string
+  status: string
+  assignee?: string
+  dueDate?: string
+  completedAt?: string
+  completedDate?: string
+}
+
+interface DocumentItem {
+  id: number | string
+  name?: string
+  title?: string
+  status?: string
+  signedAt?: string
+  lastReview?: string
+  signedBy?: string[]
+}
+
 export default function IrmaDashboard() {
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [documents, setDocuments] = useState<DocumentItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [tasksRes, docsRes] = await Promise.all([
+        fetch("/api/tasks?assignee=irma"),
+        fetch("/api/documents"),
+      ])
+      const tasksData = await tasksRes.json()
+      const docsData = await docsRes.json()
+      setTasks(tasksData.tasks || [])
+      setDocuments(Array.isArray(docsData) ? docsData : (docsData.documents || docsData.templates || []))
+    } catch (error) {
+      logger.error("Irma dashboard fetch failed", { error: error instanceof Error ? error.message : String(error) })
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000)
     return () => clearInterval(timer)
   }, [])
+
+  const today = new Date().toISOString().split("T")[0]
+  const tasksToday = tasks.filter((t) => {
+    const due = t.dueDate?.split("T")[0] ?? t.dueDate
+    return due === today
+  })
+  const isCompleted = (t: Task) => t.status?.toLowerCase() === "completed"
+  const completedToday = tasksToday.filter(isCompleted).length
+  const completedThisWeek = tasks.filter(isCompleted).length
+  const signedDocs = documents.filter((d) => d.status === "signed" || d.signedAt || (d.signedBy && d.signedBy.length > 0))
+  const pendingTasks = tasks.filter((t) => !isCompleted(t)).slice(0, 5)
 
   const getGreeting = () => {
     const hour = currentTime.getHours()
@@ -133,14 +189,14 @@ export default function IrmaDashboard() {
   return (
     <DashboardLayout persona="irma">
       {/* Persona-specific background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-purple-950/40 via-[#0a0a0f] to-pink-950/30" />
+      <div className="fixed inset-0 -z-10 bg-linear-to-br from-purple-950/40 via-[#0a0a0f] to-pink-950/30" />
       <HomePattern />
 
       {/* Welcome Banner */}
-      <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-purple-600/30 to-pink-700/20 border border-purple-500/30 backdrop-blur-sm relative overflow-hidden" data-testid="welcome-banner">
+      <div className="mb-8 p-6 rounded-2xl bg-linear-to-r from-purple-600/30 to-pink-700/20 border border-purple-500/30 backdrop-blur-sm relative overflow-hidden" data-testid="welcome-banner">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgMzIgQzEwIDI0IDUgMTggNSAxMiBDNSA2IDEwIDQgMTUgOCBDMTggMTAgMTkgMTMgMjAgMTUgQzIxIDEzIDIyIDEwIDI1IDggQzMwIDQgMzUgNiAzNSAxMiBDMzUgMTggMzAgMjQgMjAgMzIgWiIgZmlsbD0icmdiYSgxNjgsMTMzLDI0NywwLjA1KSIvPjwvc3ZnPg==')] opacity-50" />
         <div className="flex items-center gap-4 relative">
-          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 border border-purple-500/30 flex items-center justify-center text-3xl">
+          <div className="w-16 h-16 rounded-xl bg-linear-to-br from-purple-500/30 to-pink-500/30 border border-purple-500/30 flex items-center justify-center text-3xl">
             🏠
           </div>
           <div>
@@ -170,23 +226,23 @@ export default function IrmaDashboard() {
             <ClipboardList className="w-5 h-5 text-purple-400" />
             <p className="text-purple-200/60 text-sm">Today's Tasks</p>
           </div>
-          <p className="text-2xl font-bold text-purple-100">3</p>
-          <p className="text-purple-400 text-sm">2 completed</p>
+          <p className="text-2xl font-bold text-purple-100">{loading ? "—" : tasksToday.length}</p>
+          <p className="text-purple-400 text-sm">{loading ? "…" : `${completedToday} completed`}</p>
         </div>
         <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/20 backdrop-blur-sm" data-testid="stat-documents">
           <div className="flex items-center gap-3 mb-2">
             <FileText className="w-5 h-5 text-purple-400" />
             <p className="text-purple-200/60 text-sm">Documents</p>
           </div>
-          <p className="text-2xl font-bold text-purple-100">4</p>
-          <p className="text-green-400 text-sm">All signed</p>
+          <p className="text-2xl font-bold text-purple-100">{loading ? "—" : documents.length}</p>
+          <p className="text-green-400 text-sm">{loading ? "…" : signedDocs.length === documents.length && documents.length > 0 ? "All signed" : `${signedDocs.length} signed`}</p>
         </div>
         <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/20 backdrop-blur-sm" data-testid="stat-weekly">
           <div className="flex items-center gap-3 mb-2">
             <Calendar className="w-5 h-5 text-purple-400" />
             <p className="text-purple-200/60 text-sm">This Week</p>
           </div>
-          <p className="text-2xl font-bold text-purple-100">24</p>
+          <p className="text-2xl font-bold text-purple-100">{loading ? "—" : completedThisWeek}</p>
           <p className="text-purple-200/50 text-sm">tasks completed</p>
         </div>
         <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/20 backdrop-blur-sm" data-testid="stat-meals">
@@ -277,50 +333,36 @@ export default function IrmaDashboard() {
             </div>
           </div>
           <div className="p-4 space-y-3">
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group" data-testid="task-morning-kitchen">
-              <CheckCircle className="w-5 h-5 text-green-400" />
-              <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-purple-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-purple-200/50 line-through">Morning kitchen clean</p>
-                <p className="text-purple-200/40 text-sm">Completed at 8:30 AM</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-purple-400/40 group-hover:text-purple-400/60" />
-            </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group" data-testid="task-laundry">
-              <CheckCircle className="w-5 h-5 text-green-400" />
-              <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                <Shirt className="w-4 h-4 text-purple-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-purple-200/50 line-through">Laundry - bedding</p>
-                <p className="text-purple-200/40 text-sm">Completed at 10:15 AM</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-purple-400/40 group-hover:text-purple-400/60" />
-            </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group" data-testid="task-dinner">
-              <AlertCircle className="w-5 h-5 text-amber-400" />
-              <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                <CookingPot className="w-4 h-4 text-amber-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-purple-100 font-medium">Meal preparation - dinner</p>
-                <p className="text-purple-200/50 text-sm">Lamb Curry · Due by 5:00 PM</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-purple-400/40 group-hover:text-purple-400/60" />
-            </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group" data-testid="task-babysitting">
-              <Circle className="w-5 h-5 text-purple-200/40" />
-              <div className="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center">
-                <Baby className="w-4 h-4 text-pink-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-purple-100 font-medium">Evening childcare</p>
-                <p className="text-purple-200/50 text-sm">6:00 PM - 8:00 PM</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-purple-400/40 group-hover:text-purple-400/60" />
-            </div>
+            {loading ? (
+              <div className="p-4 text-purple-200/50 text-sm">Loading tasks…</div>
+            ) : pendingTasks.length === 0 ? (
+              <div className="p-4 text-purple-200/50 text-sm">No tasks assigned</div>
+            ) : (
+              pendingTasks.map((task) => {
+                const done = isCompleted(task)
+                const Icon = done ? CheckCircle : (task as { priority?: string }).priority === "High" ? AlertCircle : Circle
+                const iconColor = done ? "text-green-400" : (task as { priority?: string }).priority === "High" ? "text-amber-400" : "text-purple-200/40"
+                return (
+                  <div
+                    key={task.id}
+                    className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group"
+                    data-testid={`task-${task.id}`}
+                  >
+                    <Icon className={`w-5 h-5 ${iconColor}`} />
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-purple-400" />
+                    </div>
+                    <div className="flex-1">
+                      <p className={done ? "text-purple-200/50 line-through" : "text-purple-100 font-medium"}>{task.title}</p>
+                      <p className="text-purple-200/40 text-sm">
+                        {done ? `Completed ${(task.completedAt ?? (task as { completedDate?: string }).completedDate) ? new Date((task.completedAt ?? (task as { completedDate?: string }).completedDate)!).toLocaleTimeString() : ""}` : task.dueDate ? `Due ${new Date(task.dueDate).toLocaleDateString()}` : ""}
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-purple-400/40 group-hover:text-purple-400/60" />
+                  </div>
+                )
+              })
+            )}
           </div>
           <div className="p-4 border-t border-purple-500/20">
             <button className="w-full text-center text-purple-400 hover:text-purple-300 text-sm font-medium">
@@ -383,36 +425,30 @@ export default function IrmaDashboard() {
             </div>
           </div>
           <div className="p-4 space-y-3">
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group">
-              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-purple-100 font-medium">Resident Agreement</p>
-                <p className="text-purple-200/50 text-sm">Signed Jan 2024 · Valid until Jan 2026</p>
-              </div>
-              <button className="text-purple-400 text-sm hover:text-purple-300">View</button>
-            </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group">
-              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-purple-100 font-medium">House Rules</p>
-                <p className="text-purple-200/50 text-sm">Signed Jan 2024 · Annual review</p>
-              </div>
-              <button className="text-purple-400 text-sm hover:text-purple-300">View</button>
-            </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group">
-              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-purple-100 font-medium">POPIA Consent</p>
-                <p className="text-purple-200/50 text-sm">Signed Jan 2024 · 3-year validity</p>
-              </div>
-              <button className="text-purple-400 text-sm hover:text-purple-300">View</button>
-            </div>
+            {loading ? (
+              <div className="p-4 text-purple-200/50 text-sm">Loading documents…</div>
+            ) : documents.length === 0 ? (
+              <div className="p-4 text-purple-200/50 text-sm">No documents</div>
+            ) : (
+              documents.slice(0, 5).map((doc) => {
+                const name = doc.name ?? doc.title ?? "Document"
+                const isSigned = doc.status === "signed" || !!doc.signedAt || (doc.signedBy && doc.signedBy.length > 0)
+                return (
+                  <div key={doc.id} className="flex items-center gap-4 p-4 rounded-xl bg-purple-950/50 border border-purple-500/10 hover:bg-purple-950/70 transition-colors cursor-pointer group">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isSigned ? "bg-green-500/20" : "bg-amber-500/20"}`}>
+                      <CheckCircle className={`w-5 h-5 ${isSigned ? "text-green-400" : "text-amber-400"}`} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-purple-100 font-medium">{name}</p>
+                      <p className="text-purple-200/50 text-sm">
+                        {isSigned && (doc.signedAt || doc.lastReview) ? `Signed ${new Date(doc.signedAt ?? doc.lastReview!).toLocaleDateString()}` : doc.status ?? "Pending"}
+                      </p>
+                    </div>
+                    <button className="text-purple-400 text-sm hover:text-purple-300">View</button>
+                  </div>
+                )
+              })
+            )}
           </div>
         </div>
 

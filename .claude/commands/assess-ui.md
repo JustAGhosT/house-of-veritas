@@ -3,6 +3,7 @@
 Read the agent definition at `.claude/agents/06-ui-layer.md` and execute a thorough assessment of the frontend.
 
 ## Instructions
+
 1. Read `.claude/agents/06-ui-layer.md` for the full checklist
 2. Scan all pages in `app/**/page.tsx` and layouts in `app/**/layout.tsx`
 3. Scan all components in `components/`

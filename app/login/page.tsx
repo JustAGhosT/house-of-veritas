@@ -15,7 +15,6 @@ export default function LoginPage() {
   const [resetEmail, setResetEmail] = useState("")
   const [resetMethod, setResetMethod] = useState<"sms" | "email">("sms")
   const [resetSuccess, setResetSuccess] = useState<string | null>(null)
-  const [demoPassword, setDemoPassword] = useState<string | null>(null)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,7 +40,6 @@ export default function LoginPage() {
     setIsLoading(true)
     setError("")
     setResetSuccess(null)
-    setDemoPassword(null)
 
     try {
       const response = await fetch("/api/auth/reset-password", {
@@ -62,9 +60,6 @@ export default function LoginPage() {
       }
 
       setResetSuccess(data.message)
-      if (data.demoPassword) {
-        setDemoPassword(data.demoPassword)
-      }
     } catch (err) {
       setError("Connection error. Please try again.")
     } finally {
@@ -83,14 +78,14 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0f] flex flex-col">
       {/* Background Pattern */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-950/30 via-[#0a0a0f] to-purple-950/20" />
-      <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(59,130,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-[size:50px_50px]" />
+      <div className="fixed inset-0 -z-10 bg-linear-to-br from-blue-950/30 via-[#0a0a0f] to-purple-950/20" />
+      <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(59,130,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-size-[50px_50px]" />
 
       {/* Header */}
       <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-600 to-blue-800 flex items-center justify-center">
               <span className="text-white font-bold text-lg">HV</span>
             </div>
             <div>
@@ -176,7 +171,7 @@ export default function LoginPage() {
                   className={`w-full py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
                     isLoading || !email || !password
                       ? "bg-white/10 text-white/40 cursor-not-allowed"
-                      : "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-500 hover:to-blue-600"
+                      : "bg-linear-to-r from-blue-600 to-blue-700 text-white hover:from-blue-500 hover:to-blue-600"
                   }`}
                   data-testid="login-submit"
                 >
@@ -229,7 +224,6 @@ export default function LoginPage() {
                 onClick={() => {
                   setView("login")
                   setResetSuccess(null)
-                  setDemoPassword(null)
                   setError("")
                 }}
                 className="flex items-center gap-2 text-white/60 hover:text-white mb-6 transition-colors"
@@ -329,12 +323,6 @@ export default function LoginPage() {
               {resetSuccess && (
                 <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 mb-6" data-testid="reset-success">
                   <p className="text-green-400 font-medium">{resetSuccess}</p>
-                  {demoPassword && (
-                    <div className="mt-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                      <p className="text-amber-400 text-sm font-medium mb-1">Demo Mode - Your new password:</p>
-                      <p className="text-white font-mono text-xl">{demoPassword}</p>
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -344,7 +332,7 @@ export default function LoginPage() {
                 className={`w-full py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
                   isLoading || !resetEmail
                     ? "bg-white/10 text-white/40 cursor-not-allowed"
-                    : "bg-gradient-to-r from-amber-600 to-amber-700 text-white hover:from-amber-500 hover:to-amber-600"
+                    : "bg-linear-to-r from-amber-600 to-amber-700 text-white hover:from-amber-500 hover:to-amber-600"
                 }`}
                 data-testid="reset-submit"
               >
@@ -363,7 +351,6 @@ export default function LoginPage() {
                   onClick={() => {
                     setView("login")
                     setResetSuccess(null)
-                    setDemoPassword(null)
                   }}
                   className="w-full mt-4 py-3 px-4 rounded-xl font-medium bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all border border-blue-500/30"
                   data-testid="return-to-login"

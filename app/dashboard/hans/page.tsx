@@ -118,7 +118,7 @@ function TechPattern() {
         ))}
       </svg>
       {/* Tech grid overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-size-[40px_40px]" />
     </div>
   )
 }
@@ -173,7 +173,7 @@ function StatCard({
   }
 
   return (
-    <div className={`p-6 rounded-2xl bg-gradient-to-br ${colorClasses[color as keyof typeof colorClasses]} border backdrop-blur-sm`} data-testid={`stat-card-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+    <div className={`p-6 rounded-2xl bg-linear-to-br ${colorClasses[color as keyof typeof colorClasses]} border backdrop-blur-sm`} data-testid={`stat-card-${title.toLowerCase().replace(/\s+/g, '-')}`}>
       <div className="flex items-start justify-between">
         <div>
           <p className="text-blue-200/60 text-sm mb-1">{title}</p>
@@ -236,10 +236,10 @@ function ApprovalItem({
       )}
       <p className="text-blue-200/40 text-sm hidden sm:block">{date}</p>
       <div className="flex gap-2">
-        <button className="p-2 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors border border-green-500/30" data-testid="approve-btn">
+        <button className="p-2 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors border border-green-500/30" data-testid="approve-btn" aria-label="Approve expense">
           <CheckCircle className="w-4 h-4" />
         </button>
-        <button className="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors border border-red-500/30" data-testid="reject-btn">
+        <button className="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors border border-red-500/30" data-testid="reject-btn" aria-label="Reject expense">
           <XCircle className="w-4 h-4" />
         </button>
       </div>
@@ -333,7 +333,7 @@ export default function HansDashboard() {
   return (
     <DashboardLayout persona="hans">
       {/* Persona-specific background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-950/40 via-[#0a0a0f] to-cyan-950/30" />
+      <div className="fixed inset-0 -z-10 bg-linear-to-br from-blue-950/40 via-[#0a0a0f] to-cyan-950/30" />
       <TechPattern />
 
       {/* Specialty Tags */}

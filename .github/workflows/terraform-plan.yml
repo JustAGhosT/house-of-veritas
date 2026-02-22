@@ -20,6 +20,7 @@ jobs:
   terraform-plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     
     steps:
       - name: Checkout
@@ -45,12 +46,17 @@ jobs:
       
       - name: Terraform Init
         working-directory: ${{ env.WORKING_DIR }}
+        env:
+          TF_STATE_KEY: ${{ secrets.TF_STATE_KEY || 'production.terraform.tfstate' }}
+          TF_STATE_RESOURCE_GROUP: ${{ secrets.TF_STATE_RESOURCE_GROUP }}
+          TF_STATE_STORAGE_ACCOUNT: ${{ secrets.TF_STATE_STORAGE_ACCOUNT }}
+          TF_STATE_CONTAINER: ${{ secrets.TF_STATE_CONTAINER }}
         run: |
           terraform init \
-            -backend-config="resource_group_name=${{ secrets.TF_STATE_RESOURCE_GROUP }}" \
-            -backend-config="storage_account_name=${{ secrets.TF_STATE_STORAGE_ACCOUNT }}" \
-            -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER }}" \
-            -backend-config="key=${{ secrets.TF_STATE_KEY || 'production.terraform.tfstate' }}"
+            -backend-config="resource_group_name=$TF_STATE_RESOURCE_GROUP" \
+            -backend-config="storage_account_name=$TF_STATE_STORAGE_ACCOUNT" \
+            -backend-config="container_name=$TF_STATE_CONTAINER" \
+            -backend-config="key=$TF_STATE_KEY"
       
       - name: Terraform Validate
         working-directory: ${{ env.WORKING_DIR }}
@@ -71,14 +77,21 @@ jobs:
       - name: Terraform Plan
         id: plan
         working-directory: ${{ env.WORKING_DIR }}
+        env:
+          DOMAIN_NAME: ${{ vars.DOMAIN_NAME || 'nexamesh.ai' }}
+          DB_ADMIN_PASSWORD: ${{ secrets.DB_ADMIN_PASSWORD }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SSL_CERTIFICATE_DATA: ${{ secrets.SSL_CERTIFICATE_DATA }}
+          SSL_CERTIFICATE_PASSWORD: ${{ secrets.SSL_CERTIFICATE_PASSWORD }}
         run: |
           terraform plan \
-            -var="domain_name=${{ vars.DOMAIN_NAME || 'nexamesh.ai' }}" \
-            -var="db_admin_password=${{ secrets.DB_ADMIN_PASSWORD }}" \
-            -var="smtp_username=${{ secrets.SMTP_USERNAME }}" \
-            -var="smtp_password=${{ secrets.SMTP_PASSWORD }}" \
-            -var="ssl_certificate_data=${{ secrets.SSL_CERTIFICATE_DATA }}" \
-            -var="ssl_certificate_password=${{ secrets.SSL_CERTIFICATE_PASSWORD }}" \
+            -var="domain_name=$DOMAIN_NAME" \
+            -var="db_admin_password=$DB_ADMIN_PASSWORD" \
+            -var="smtp_username=$SMTP_USERNAME" \
+            -var="smtp_password=$SMTP_PASSWORD" \
+            -var="ssl_certificate_data=$SSL_CERTIFICATE_DATA" \
+            -var="ssl_certificate_password=$SSL_CERTIFICATE_PASSWORD" \
             -var="deployer_ip=${{ steps.ip.outputs.ip }}" \
             -out=tfplan \
             -no-color
@@ -91,15 +104,26 @@ jobs:
           path: ${{ env.WORKING_DIR }}/tfplan
           retention-days: 5
       
+      - name: Capture Plan Output
+        id: show-plan
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          plan=$(terraform show -no-color tfplan 2>/dev/null || echo "Plan failed or file not found")
+          echo "plan<<EOF" >> $GITHUB_OUTPUT
+          echo "$plan" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        continue-on-error: true
+      
       - name: Comment PR with Plan
         uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "${{ steps.plan.outputs.stdout }}"
+          PLAN: "${{ steps.show-plan.outputs.plan }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Terraform Plan 📋
+            const marker = '#### Terraform Plan 📋';
+            const output = `${marker}
             
             <details><summary>Show Plan</summary>
             
@@ -111,9 +135,24 @@ jobs:
             
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
             
-            github.rest.issues.createComment({
+            const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
+              repo: context.repo.repo
+            });
+            const botComment = comments.find(c => c.user.type === 'Bot' && c.body && c.body.startsWith(marker));
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                comment_id: botComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              });
+            }

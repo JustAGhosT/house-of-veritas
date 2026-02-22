@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { writeFile, mkdir, unlink } from 'fs/promises'
+import { logger } from '@/lib/logger'
 import { existsSync } from 'fs'
 import path from 'path'
 import crypto from 'crypto'
+import { withAuth } from '@/lib/auth/rbac'
 
 // Configuration
 const UPLOAD_CONFIG = {
@@ -112,15 +114,15 @@ async function uploadToLocal(
   
   const filePath = path.join(uploadDir, filename)
   await writeFile(filePath, buffer)
-  
-  // Return a URL path (would need static file serving configured)
+
+  const url = `/api/files/serve?category=${encodeURIComponent(category)}&filename=${encodeURIComponent(filename)}`
   return {
-    url: `/uploads/${category}/${filename}`,
+    url,
     path: filePath,
   }
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request) => {
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File
@@ -193,26 +195,25 @@ export async function POST(request: NextRequest) {
       azureConfigured: isAzureConfigured(),
     })
     
-  } catch (error: any) {
-    console.error('Upload error:', error)
+  } catch (error) {
+    logger.error('Upload error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
-      { success: false, error: error.message || 'Upload failed' },
+      { success: false, error: error instanceof Error ? error.message : 'Upload failed' },
       { status: 500 }
     )
   }
-}
+})
 
-export async function GET(request: NextRequest) {
-  // Return upload configuration and status
+export const GET = withAuth(async () => {
   return NextResponse.json({
     maxFileSize: UPLOAD_CONFIG.maxFileSize,
     allowedMimeTypes: UPLOAD_CONFIG.allowedMimeTypes,
     azureConfigured: isAzureConfigured(),
     containers: ['asset-photos', 'invoice-scans', 'documents'],
   })
-}
+})
 
-export async function DELETE(request: NextRequest) {
+export const DELETE = withAuth(async (request) => {
   const { searchParams } = new URL(request.url)
   const fileId = searchParams.get('id')
   const blobName = searchParams.get('blobName')
@@ -240,11 +241,11 @@ export async function DELETE(request: NextRequest) {
     }
     
     return NextResponse.json({ success: true, deleted: fileId })
-  } catch (error: any) {
-    console.error('Delete error:', error)
+  } catch (error) {
+    logger.error('Delete error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
-      { success: false, error: error.message || 'Delete failed' },
+      { success: false, error: error instanceof Error ? error.message : 'Delete failed' },
       { status: 500 }
     )
   }
-}
+})

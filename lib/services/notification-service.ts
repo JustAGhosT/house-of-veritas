@@ -2,6 +2,7 @@
 // Supports SMS (Twilio), WhatsApp (Twilio), Email, and Push notifications
 
 import twilio from 'twilio'
+import { logger } from '@/lib/logger'
 
 export type NotificationChannel = 'sms' | 'whatsapp' | 'email' | 'push' | 'in_app'
 
@@ -95,8 +96,8 @@ export async function sendSMS(
   const client = getTwilioClient()
   
   if (!client || !TWILIO_CONFIG.fromNumber) {
-    console.log('[NotificationService] Twilio not configured, simulating SMS')
-    console.log(`[SMS SIMULATED] To: ${to}, Message: ${message}`)
+    logger.info('Twilio not configured, simulating SMS', { to })
+    logger.debug('SMS simulated', { to, message })
     return { 
       success: true, 
       messageId: `sim_sms_${Date.now()}`,
@@ -104,22 +105,22 @@ export async function sendSMS(
   }
 
   try {
-    console.log(`[SMS] Sending to ${to} via Twilio...`)
+    logger.info('Sending SMS via Twilio', { to })
     const result = await client.messages.create({
       body: message,
       from: TWILIO_CONFIG.fromNumber,
       to: to,
     })
-    console.log(`[SMS] Sent successfully! SID: ${result.sid}`)
+    logger.info('SMS sent successfully', { sid: result.sid })
     return { success: true, messageId: result.sid }
-  } catch (error: any) {
-    console.error('[SMS Error]', error.message || error)
-    // Handle common Twilio errors gracefully
-    if (error.code === 21608 || error.code === 21211 || error.code === 21614) {
-      console.log(`[SMS] Twilio error ${error.code} - simulating delivery to ${to}`)
-      return { success: true, messageId: `test_sms_${Date.now()}`, error: `Twilio: ${error.code}` }
+  } catch (error) {
+    logger.error('SMS Error', { error: error instanceof Error ? error.message : String(error) })
+    const code = error && typeof error === 'object' && 'code' in error ? (error as { code: number }).code : undefined
+    if (code === 21608 || code === 21211 || code === 21614) {
+      logger.info('Twilio error, simulating delivery', { code, to })
+      return { success: true, messageId: `test_sms_${Date.now()}`, error: `Twilio: ${code}` }
     }
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 }
 
@@ -131,8 +132,8 @@ export async function sendWhatsApp(
   const client = getTwilioClient()
   
   if (!client || !TWILIO_CONFIG.whatsappNumber) {
-    console.log('[NotificationService] Twilio WhatsApp not configured, simulating')
-    console.log(`[WHATSAPP SIMULATED] To: ${to}, Message: ${message}`)
+    logger.info('Twilio WhatsApp not configured, simulating', { to })
+    logger.debug('WhatsApp simulated', { to, message })
     return { 
       success: true, 
       messageId: `sim_wa_${Date.now()}`,
@@ -146,22 +147,22 @@ export async function sendWhatsApp(
       ? TWILIO_CONFIG.whatsappNumber 
       : `whatsapp:${TWILIO_CONFIG.whatsappNumber}`
     
-    console.log(`[WhatsApp] Sending to ${whatsappTo} via Twilio...`)
+    logger.info('Sending WhatsApp via Twilio', { to: whatsappTo })
     const result = await client.messages.create({
       body: message,
       from: whatsappFrom,
       to: whatsappTo,
     })
-    console.log(`[WhatsApp] Sent successfully! SID: ${result.sid}`)
+    logger.info('WhatsApp sent successfully', { sid: result.sid })
     return { success: true, messageId: result.sid }
-  } catch (error: any) {
-    console.error('[WhatsApp Error]', error.message || error)
-    // Simulate for test environments
-    if (error.code) {
-      console.log(`[WhatsApp] Twilio error ${error.code} - simulating delivery to ${to}`)
-      return { success: true, messageId: `test_wa_${Date.now()}`, error: `Twilio: ${error.code}` }
+  } catch (error) {
+    logger.error('WhatsApp Error', { error: error instanceof Error ? error.message : String(error) })
+    const code = error && typeof error === 'object' && 'code' in error ? (error as { code: number }).code : undefined
+    if (code) {
+      logger.info('Twilio WhatsApp error, simulating delivery', { code, to })
+      return { success: true, messageId: `test_wa_${Date.now()}`, error: `Twilio: ${code}` }
     }
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 }
 
@@ -172,7 +173,7 @@ export async function sendEmail(
   body: string,
   html?: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  console.log(`[Email SIMULATED] To: ${to}, Subject: ${subject}`)
+  logger.info('Email simulated', { to, subject })
   // In production, integrate with SendGrid, Resend, or SES
   return { 
     success: true, 
@@ -195,7 +196,7 @@ async function getUserPreference(userId: string): Promise<{
       return data.preference
     }
   } catch (error) {
-    console.error('[NotificationService] Failed to fetch user preference:', error)
+    logger.error('Failed to fetch user preference', { error: error instanceof Error ? error.message : String(error) })
   }
   return null
 }
@@ -210,13 +211,13 @@ export async function sendNotification(
 
   // Get user preference if requested
   let channels = payload.channels
-  let preference = null
-  
+  let preference: Awaited<ReturnType<typeof getUserPreference>> = null
+
   if (payload.usePreference) {
     preference = await getUserPreference(payload.userId)
-    if (preference && preference.preferredChannel) {
-      // Use preferred channel first, then fallbacks
-      channels = [preference.preferredChannel, ...(preference.fallbackOrder || []).filter(c => c !== preference.preferredChannel)]
+    if (preference?.preferredChannel) {
+      const preferred = preference.preferredChannel
+      channels = [preferred, ...(preference.fallbackOrder || []).filter(c => c !== preferred)]
     }
   }
 
@@ -252,7 +253,7 @@ export async function sendNotification(
 
       case 'push':
         // Push notification would be handled by service worker
-        console.log(`[Push] Would send push notification: ${payload.title}`)
+        logger.info('Push notification simulated', { title: payload.title })
         result = { channel: 'push', success: true, messageId: `push_${Date.now()}` }
         break
 

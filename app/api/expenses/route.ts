@@ -1,14 +1,27 @@
 import { NextResponse } from 'next/server'
-import { getExpenses, createExpense, updateExpense, isBaserowConfigured } from '@/lib/services/baserow'
+import { getExpenses, createExpense, updateExpense, getBaserowEmployeeIdByAppId } from '@/lib/services/baserow'
+import { withDataSource } from '@/lib/api/response'
+import { withRole } from '@/lib/auth/rbac'
+import { toISODateString } from '@/lib/utils'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const requester = searchParams.get('requester')
+  const requesterParam = searchParams.get('requester')
+  const personaId = searchParams.get('personaId')
   const status = searchParams.get('status')
+
+  let requester: number | undefined
+  if (requesterParam) {
+    requester = parseInt(requesterParam, 10)
+    if (Number.isNaN(requester)) requester = undefined
+  } else if (personaId) {
+    requester = (await getBaserowEmployeeIdByAppId(personaId)) ?? undefined
+  }
 
   try {
     const expenses = await getExpenses({
-      requester: requester ? parseInt(requester) : undefined,
+      requester,
       status: status || undefined,
     })
 
@@ -26,16 +39,9 @@ export async function GET(request: Request) {
         .reduce((sum, e) => sum + e.amount, 0),
     }
 
-    return NextResponse.json({
-      expenses,
-      summary,
-      configured: isBaserowConfigured(),
-      message: isBaserowConfigured()
-        ? "Connected to Baserow"
-        : "Using mock data - Baserow not configured",
-    })
+    return withDataSource({ expenses, summary })
   } catch (error) {
-    console.error('Error fetching expenses:', error)
+    logger.error('Error fetching expenses', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to fetch expenses' },
       { status: 500 }
@@ -43,44 +49,51 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export const POST = withRole("admin", "operator", "employee", "resident")(async (request) => {
   try {
     const body = await request.json()
-    const { requester, type, category, amount, vendor, date, project, notes } = body
+    const { requester, personaId, type, category, amount, vendor, date, project, notes } = body
 
-    if (!requester || !amount || !category) {
+    let resolvedRequester = requester
+    if (!resolvedRequester && personaId) {
+      resolvedRequester = (await getBaserowEmployeeIdByAppId(personaId)) ?? undefined
+    }
+    if (!resolvedRequester) {
+      const auth = request.headers.get("x-user-id")
+      if (auth) resolvedRequester = (await getBaserowEmployeeIdByAppId(auth)) ?? undefined
+    }
+    if (!resolvedRequester) resolvedRequester = 1
+
+    if (!amount || !category) {
       return NextResponse.json(
-        { error: 'Requester, amount, and category are required' },
+        { error: 'Amount and category are required' },
         { status: 400 }
       )
     }
 
     const expense = await createExpense({
-      requester,
+      requester: resolvedRequester,
       type: type || 'Request',
       category,
       amount,
       vendor,
-      date: date || new Date().toISOString().split('T')[0],
+      date: date || toISODateString(),
       approvalStatus: 'Pending',
       project,
       notes,
     })
 
-    return NextResponse.json({
-      expense,
-      configured: isBaserowConfigured(),
-    })
+    return withDataSource({ expense })
   } catch (error) {
-    console.error('Error creating expense:', error)
+    logger.error('Error creating expense', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to create expense' },
       { status: 500 }
     )
   }
-}
+})
 
-export async function PATCH(request: Request) {
+export const PATCH = withRole("admin")(async (request) => {
   try {
     const body = await request.json()
     const { id, ...updates } = body
@@ -101,15 +114,12 @@ export async function PATCH(request: Request) {
       )
     }
 
-    return NextResponse.json({
-      expense,
-      configured: isBaserowConfigured(),
-    })
+    return withDataSource({ expense })
   } catch (error) {
-    console.error('Error updating expense:', error)
+    logger.error('Error updating expense', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to update expense' },
       { status: 500 }
     )
   }
-}
+})

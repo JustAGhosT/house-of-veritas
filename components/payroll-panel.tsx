@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { logger } from '@/lib/logger'
 import {
   DollarSign,
   Users,
@@ -59,7 +60,7 @@ export function PayrollPanel() {
       const result = await response.json()
       setData(result)
     } catch (error) {
-      console.error('Failed to fetch payroll:', error)
+      logger.error('Failed to fetch payroll', { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
@@ -83,7 +84,7 @@ export function PayrollPanel() {
         fetchPayroll()
       }
     } catch (error) {
-      console.error('Failed to run payroll:', error)
+      logger.error('Failed to run payroll', { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setProcessing(false)
     }
@@ -140,6 +141,7 @@ export function PayrollPanel() {
           <button
             onClick={fetchPayroll}
             className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+            aria-label="Refresh payroll data"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -149,7 +151,7 @@ export function PayrollPanel() {
       {/* Mode Alert */}
       {data?.mode === 'mock' && (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <AlertCircle className="w-4 h-4 shrink-0" />
           <span>Using demo data. Configure QuickBooks/Xero for live payroll integration.</span>
         </div>
       )}
@@ -289,7 +291,7 @@ function SummaryCard({ title, value, icon: Icon, color }: {
   }
 
   return (
-    <div className={`p-4 rounded-xl bg-gradient-to-br ${colors[color]} border`}>
+    <div className={`p-4 rounded-xl bg-linear-to-br ${colors[color]} border`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-white/60 text-sm">{title}</p>

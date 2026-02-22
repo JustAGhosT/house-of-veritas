@@ -61,6 +61,7 @@ export function LanguageSelector() {
         value={language}
         onChange={(e) => setLanguage(e.target.value as Language)}
         className="appearance-none bg-white/5 border border-white/10 rounded-lg px-3 py-2 pr-8 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer"
+        aria-label="Display language"
       >
         {Object.entries(languages).map(([code, { name, flag }]) => (
           <option key={code} value={code} className="bg-[#0d0d12] text-white">

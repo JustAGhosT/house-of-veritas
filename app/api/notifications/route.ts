@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 import { 
   sendNotification, 
   sendTemplatedNotification,
@@ -94,10 +95,10 @@ export async function POST(request: Request) {
         failed: results.filter(r => !r.success).length,
       },
     })
-  } catch (error: any) {
-    console.error('Notification error:', error)
+  } catch (error) {
+    logger.error('Notification error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
-      { error: 'Failed to send notification', details: error.message },
+      { error: 'Failed to send notification' },
       { status: 500 }
     )
   }

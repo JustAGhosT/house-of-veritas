@@ -45,7 +45,11 @@ import {
   User,
   Calendar,
   Image as ImageIcon,
+  Sparkles,
+  Loader2,
 } from "lucide-react"
+import { AiSuggestIcon } from "@/components/ui/ai-suggest-icon"
+import { logger } from "@/lib/logger"
 
 // Asset Categories
 const ASSET_CATEGORIES = {
@@ -88,6 +92,7 @@ interface Asset {
   purchasePrice?: number
   currentValue?: number
   location: string
+  storageOption?: string
   responsiblePerson: string
   photos: string[]
   maintenanceHistory: Array<{
@@ -129,8 +134,10 @@ export default function AssetsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null)
   const [viewingAsset, setViewingAsset] = useState<Asset | null>(null)
+  const [storageOptions, setStorageOptions] = useState<string[]>([])
+  const [suggestingStorage, setSuggestingStorage] = useState(false)
+  const [suggestingCategory, setSuggestingCategory] = useState(false)
 
-  // Form state for new/edit asset
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -143,6 +150,7 @@ export default function AssetsPage() {
     purchasePrice: "",
     currentValue: "",
     location: "",
+    storageOption: "",
     saleStatus: "not_for_sale",
     salePrice: "",
     tags: "",
@@ -160,8 +168,9 @@ export default function AssetsPage() {
       const data = await res.json()
       setAssets(data.assets || [])
       setSummary(data.summary || null)
+      if (data.storageOptions?.length) setStorageOptions(data.storageOptions)
     } catch (error) {
-      console.error("Failed to fetch assets:", error)
+      logger.error("Failed to fetch assets", { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
@@ -180,6 +189,8 @@ export default function AssetsPage() {
         currentValue: formData.currentValue ? parseFloat(formData.currentValue) : undefined,
         salePrice: formData.salePrice ? parseFloat(formData.salePrice) : undefined,
         tags: formData.tags.split(",").map(t => t.trim()).filter(Boolean),
+        location: formData.storageOption || formData.location,
+        storageOption: formData.storageOption || formData.location,
         ...(editingAsset ? { id: editingAsset.id } : {}),
       }
 
@@ -196,7 +207,7 @@ export default function AssetsPage() {
         resetForm()
       }
     } catch (error) {
-      console.error("Failed to save asset:", error)
+      logger.error("Failed to save asset", { error: error instanceof Error ? error.message : String(error) })
     }
   }
 
@@ -206,7 +217,7 @@ export default function AssetsPage() {
       const res = await fetch(`/api/assets/enhanced?id=${id}`, { method: "DELETE" })
       if (res.ok) fetchAssets()
     } catch (error) {
-      console.error("Failed to delete asset:", error)
+      logger.error("Failed to delete asset", { error: error instanceof Error ? error.message : String(error) })
     }
   }
 
@@ -223,10 +234,54 @@ export default function AssetsPage() {
       purchasePrice: "",
       currentValue: "",
       location: "",
+      storageOption: "",
       saleStatus: "not_for_sale",
       salePrice: "",
       tags: "",
     })
+  }
+
+  const handleSuggestStorage = async () => {
+    if (!formData.name.trim()) return
+    setSuggestingStorage(true)
+    try {
+      const res = await fetch("/api/ai/suggest-storage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description || undefined,
+          category: formData.category || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (data.suggested) {
+        setFormData((p) => ({ ...p, storageOption: data.suggested, location: data.suggested }))
+      }
+    } finally {
+      setSuggestingStorage(false)
+    }
+  }
+
+  const handleSuggestCategory = async () => {
+    if (!formData.name.trim()) return
+    setSuggestingCategory(true)
+    try {
+      const res = await fetch("/api/ai/suggest-category", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (data.suggested) {
+        setFormData((p) => ({ ...p, category: data.suggested }))
+      }
+    } finally {
+      setSuggestingCategory(false)
+    }
   }
 
   const openEditDialog = (asset: Asset) => {
@@ -243,6 +298,7 @@ export default function AssetsPage() {
       purchasePrice: asset.purchasePrice?.toString() || "",
       currentValue: asset.currentValue?.toString() || "",
       location: asset.location,
+      storageOption: asset.storageOption || asset.location || "",
       saleStatus: asset.saleStatus,
       salePrice: asset.salePrice?.toString() || "",
       tags: asset.tags.join(", "),
@@ -308,16 +364,29 @@ export default function AssetsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label>Category *</Label>
-                    <Select value={formData.category} onValueChange={(v) => setFormData(p => ({ ...p, category: v }))}>
-                      <SelectTrigger className="bg-white/5 border-white/10">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(ASSET_CATEGORIES).map(([key, cat]) => (
-                          <SelectItem key={key} value={key}>{cat.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-2">
+                      <Select value={formData.category} onValueChange={(v) => setFormData(p => ({ ...p, category: v }))}>
+                        <SelectTrigger className="flex-1 bg-white/5 border-white/10">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(ASSET_CATEGORIES).map(([key, cat]) => (
+                            <SelectItem key={key} value={key}>{cat.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={handleSuggestCategory}
+                        disabled={!formData.name.trim() || suggestingCategory}
+                        className="shrink-0 border-white/10"
+                        title="Suggest category with AI"
+                      >
+                        <AiSuggestIcon loading={suggestingCategory} size="md" />
+                      </Button>
+                    </div>
                   </div>
                   <div className="space-y-2 sm:col-span-2">
                     <Label>Description</Label>
@@ -366,14 +435,33 @@ export default function AssetsPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Location *</Label>
-                    <Input
-                      value={formData.location}
-                      onChange={(e) => setFormData(p => ({ ...p, location: e.target.value }))}
-                      required
-                      placeholder="e.g. Garage, Workshop"
-                      className="bg-white/5 border-white/10"
-                    />
+                    <Label>Storage Location *</Label>
+                    <div className="flex gap-2">
+                      <Select
+                        value={formData.storageOption || formData.location || (storageOptions[0] ?? "")}
+                        onValueChange={(v) => setFormData(p => ({ ...p, storageOption: v, location: v }))}
+                      >
+                        <SelectTrigger className="flex-1 bg-white/5 border-white/10">
+                          <SelectValue placeholder="Select storage" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(storageOptions.length ? storageOptions : ["kitchen", "storeroom", "garage", "workshop", "garden shed", "main lounge", "patio", "office", "basement"]).map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={handleSuggestStorage}
+                        disabled={!formData.name.trim() || suggestingStorage}
+                        className="shrink-0 border-white/10"
+                        title="Suggest storage with AI"
+                      >
+                        <AiSuggestIcon loading={suggestingStorage} size="md" />
+                      </Button>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Purchase Date</Label>
@@ -574,7 +662,7 @@ export default function AssetsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {assets.map((asset) => (
-              <Card key={asset.id} className="bg-white/5 border-white/10 hover:bg-white/[0.07] transition-colors group" data-testid={`asset-card-${asset.id}`}>
+              <Card key={asset.id} className="bg-white/5 border-white/10 hover:bg-white/7 transition-colors group" data-testid={`asset-card-${asset.id}`}>
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">

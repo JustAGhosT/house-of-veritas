@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
-import { getAuthContext } from "@/lib/auth/rbac"
+import { z } from "zod"
+import { withRole } from "@/lib/auth/rbac"
+import { logger } from "@/lib/logger"
 
 const QUICKBOOKS_CONFIG = {
   clientId: process.env.QUICKBOOKS_CLIENT_ID,
@@ -63,15 +65,23 @@ function calculatePayroll(employee: typeof EMPLOYEE_PAYROLL[0]) {
   }
 }
 
-export async function GET(request: Request) {
-  const auth = getAuthContext(request)
-  if (!auth || auth.role !== "admin") {
-    return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
-  }
+const payrollQuerySchema = z.object({
+  action: z.enum(["status", "run", "export"]).optional(),
+  employeeId: z.string().optional(),
+  month: z.string().regex(/^\d{4}-\d{2}$/).default(new Date().toISOString().slice(0, 7)),
+})
+
+export const GET = withRole("admin")(async (request) => {
   const { searchParams } = new URL(request.url)
-  const action = searchParams.get('action')
-  const employeeId = searchParams.get('employeeId')
-  const month = searchParams.get('month') || new Date().toISOString().slice(0, 7)
+  const parsed = payrollQuerySchema.safeParse({
+    action: searchParams.get("action") || undefined,
+    employeeId: searchParams.get("employeeId") || undefined,
+    month: searchParams.get("month") || new Date().toISOString().slice(0, 7),
+  })
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid query parameters", details: parsed.error.flatten() }, { status: 400 })
+  }
+  const { action, employeeId, month } = parsed.data
 
   // Check integration status
   if (action === 'status') {
@@ -120,13 +130,9 @@ export async function GET(request: Request) {
     totals,
     generatedAt: new Date().toISOString(),
   })
-}
+})
 
-export async function POST(request: Request) {
-  const auth = getAuthContext(request)
-  if (!auth || auth.role !== "admin") {
-    return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
-  }
+export const POST = withRole("admin")(async (request) => {
   try {
     const body = await request.json()
     const { action, month, employeeId, adjustments } = body
@@ -179,10 +185,12 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
-  } catch (error: any) {
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Unknown error"
+    logger.error("Payroll operation failed", { error: msg })
     return NextResponse.json(
-      { error: 'Payroll operation failed', details: error.message },
+      { error: "Payroll operation failed" },
       { status: 500 }
     )
   }
-}
+})

@@ -256,14 +256,22 @@ resource "azurerm_application_gateway" "main" {
     }
   }
 
-  # WAF configuration
+  # WAF configuration - OWASP 3.2 with SQL injection rules enabled
   waf_configuration {
     enabled          = true
     firewall_mode    = "Prevention"
     rule_set_type    = "OWASP"
     rule_set_version = "3.2"
+    # No disabled_rule_group - all OWASP rules (including 942 SQL injection) active
+  }
 
-
+  # SSL policy - TLS 1.2 minimum (when HTTPS listeners exist)
+  dynamic "ssl_policy" {
+    for_each = local.has_ssl ? [1] : []
+    content {
+      policy_type = "Predefined"
+      policy_name = "AppGwSslPolicy20220101S"
+    }
   }
 
   tags = var.tags

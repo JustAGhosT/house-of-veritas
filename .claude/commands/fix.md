@@ -13,6 +13,7 @@ Read the orchestrator summary or a specific agent report, then fix the highest-p
 7. Update `.claude/state/orchestrator.json` with new metrics
 
 ## Priority Order
+
 1. Security vulnerabilities (JWT, auth, password leaks)
 2. Data integrity issues (floating-point money, in-memory stores)
 3. Build/CI failures (ignoreBuildErrors, yarn/npm mismatch)
@@ -20,6 +21,7 @@ Read the orchestrator summary or a specific agent report, then fix the highest-p
 5. Dead code and console.log replacement
 
 ## Constraints
+
 - Fix at most 5 P0 items per session to keep changes reviewable
 - Run `npm test` after each fix to verify no regressions
 - Commit after each logical group of fixes

@@ -185,9 +185,9 @@ export async function POST(request: Request) {
       success: true,
       event: newEvent,
     })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to create event', details: error.message },
+      { error: 'Failed to create event' },
       { status: 500 }
     )
   }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
+import { logger } from "@/lib/logger"
 
 interface Stats {
   documents: {
@@ -26,7 +27,7 @@ export function StatsSection() {
     fetch('/api/stats')
       .then(res => res.json())
       .then(data => setStats(data))
-      .catch(err => console.error('Failed to fetch stats:', err))
+      .catch(err => logger.error('Failed to fetch stats', { error: err instanceof Error ? err.message : String(err) }))
   }, [])
 
   if (!stats) return null

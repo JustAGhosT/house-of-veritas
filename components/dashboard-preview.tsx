@@ -186,7 +186,7 @@ export function DashboardPreview() {
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative p-8 rounded-3xl bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 shadow-2xl"
+          className="relative p-8 rounded-3xl bg-linear-to-br from-zinc-900 to-zinc-950 border border-zinc-800 shadow-2xl"
         >
           {/* Dashboard Header */}
           <div className="flex justify-between items-center mb-8 pb-4 border-b border-zinc-800">

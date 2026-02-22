@@ -87,7 +87,7 @@ export function ComplianceSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-12 p-8 rounded-2xl bg-gradient-to-br from-emerald-950/20 to-zinc-900/50 border border-emerald-900/30"
+          className="mt-12 p-8 rounded-2xl bg-linear-to-br from-emerald-950/20 to-zinc-900/50 border border-emerald-900/30"
         >
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div>

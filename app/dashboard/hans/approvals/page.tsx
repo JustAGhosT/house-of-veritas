@@ -43,6 +43,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react"
+import { logger } from "@/lib/logger"
 
 interface KioskRequest {
   id: string
@@ -93,7 +94,7 @@ export default function ApprovalsPage() {
       setRequests(data.requests || [])
       setSummary(data.summary || null)
     } catch (error) {
-      console.error("Failed to fetch requests:", error)
+      logger.error("Failed to fetch requests", { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setLoading(false)
     }
@@ -127,7 +128,7 @@ export default function ApprovalsPage() {
         setSelectedRequest(null)
       }
     } catch (error) {
-      console.error("Failed to update request:", error)
+      logger.error("Failed to update request", { error: error instanceof Error ? error.message : String(error) })
     } finally {
       setProcessing(false)
     }
@@ -351,7 +352,7 @@ export default function ApprovalsPage() {
             {filteredRequests.map((request) => (
               <Card
                 key={request.id}
-                className={`bg-white/5 border-white/10 hover:bg-white/[0.07] transition-colors ${
+                className={`bg-white/5 border-white/10 hover:bg-white/7 transition-colors ${
                   request.status === "pending" ? "border-l-4 border-l-yellow-500" : ""
                 }`}
                 data-testid={`request-card-${request.id}`}
@@ -411,7 +412,7 @@ export default function ApprovalsPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 lg:flex-shrink-0">
+                    <div className="flex items-center gap-2 lg:shrink-0">
                       <Button
                         variant="outline"
                         size="sm"
@@ -467,7 +468,7 @@ export default function ApprovalsPage() {
               <div className="space-y-4">
                 {/* Employee Info */}
                 <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                     <User className="h-5 w-5 text-white" />
                   </div>
                   <div>

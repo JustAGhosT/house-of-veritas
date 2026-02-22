@@ -1,6 +1,10 @@
 // DocuSeal API Integration Service
 // This service handles all interactions with the DocuSeal e-signature platform
 
+import { logger } from "@/lib/logger"
+
+const FETCH_TIMEOUT_MS = 10000
+
 interface DocuSealConfig {
   apiUrl: string
   apiKey: string
@@ -63,6 +67,7 @@ export async function getTemplates(): Promise<DocumentTemplate[]> {
 
   try {
     const response = await fetch(`${config.apiUrl}/templates`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         "X-Auth-Token": config.apiKey,
         "Content-Type": "application/json",
@@ -75,7 +80,7 @@ export async function getTemplates(): Promise<DocumentTemplate[]> {
 
     return await response.json()
   } catch (error) {
-    console.error("DocuSeal getTemplates error:", error)
+    logger.error("DocuSeal getTemplates error", { error: error instanceof Error ? error.message : String(error) })
     return getMockTemplates()
   }
 }
@@ -94,6 +99,7 @@ export async function createSubmission(
   try {
     const response = await fetch(`${config.apiUrl}/submissions`, {
       method: "POST",
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         "X-Auth-Token": config.apiKey,
         "Content-Type": "application/json",
@@ -123,7 +129,7 @@ export async function createSubmission(
       createdAt: new Date(),
     }
   } catch (error) {
-    console.error("DocuSeal createSubmission error:", error)
+    logger.error("DocuSeal createSubmission error", { error: error instanceof Error ? error.message : String(error) })
     return createMockSubmission(request)
   }
 }
@@ -140,6 +146,7 @@ export async function getSubmissionStatus(
 
   try {
     const response = await fetch(`${config.apiUrl}/submissions/${submissionId}`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         "X-Auth-Token": config.apiKey,
         "Content-Type": "application/json",
@@ -165,7 +172,7 @@ export async function getSubmissionStatus(
       documentUrl: data.document_url,
     }
   } catch (error) {
-    console.error("DocuSeal getSubmissionStatus error:", error)
+    logger.error("DocuSeal getSubmissionStatus error", { error: error instanceof Error ? error.message : String(error) })
     return getMockSubmissionStatus(submissionId)
   }
 }
