@@ -9,7 +9,9 @@ const adminHeaders = {
 
 describe("GET /api/expenses", () => {
   it("returns 200 with expenses and summary", async () => {
-    const request = new Request("http://localhost/api/expenses")
+    const request = new Request("http://localhost/api/expenses", {
+      headers: adminHeaders,
+    })
     const response = await GET(request)
     expect(response.status).toBe(200)
     const data = await response.json()

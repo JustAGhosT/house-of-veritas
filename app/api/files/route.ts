@@ -256,7 +256,7 @@ export const DELETE = withAuth(async (request) => {
       }
       const baseDir = path.resolve(UPLOAD_CONFIG.uploadDir, category)
       const filePath = path.resolve(baseDir, filename)
-      if (!filePath.startsWith(baseDir + path.sep) && filePath !== baseDir) {
+      if (!filePath.startsWith(baseDir + path.sep)) {
         return NextResponse.json(
           { success: false, error: 'Invalid path' },
           { status: 400 }

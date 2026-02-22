@@ -1,6 +1,6 @@
 # House of Veritas - Document Templates
 
-This file lists all 18 governance documents that need to be created as templates in DocuSeal.
+This file lists all 19 governance documents that need to be created as templates in DocuSeal.
 
 ## Template Creation Guide
 

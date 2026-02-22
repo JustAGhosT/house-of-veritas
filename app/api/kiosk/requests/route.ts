@@ -199,6 +199,14 @@ export const PATCH = withRole("admin")(async (request, context) => {
       )
     }
 
+    const VALID_STATUSES = ["approved", "rejected", "pending"] as const
+    if (!VALID_STATUSES.includes(status)) {
+      return NextResponse.json(
+        { success: false, error: `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}` },
+        { status: 400 }
+      )
+    }
+
     let objectId: ObjectId
     try {
       objectId = new ObjectId(requestId)
