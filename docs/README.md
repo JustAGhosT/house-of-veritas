@@ -13,6 +13,9 @@
 | [07-maintenance-smart-issue-prd.md](01-product/07-maintenance-smart-issue-prd.md) | Maintenance & Smart Issue Reporting PRD — map-based reporting, triage, SLA, audit |
 | [08-energy-sustainability-prd.md](01-product/08-energy-sustainability-prd.md) | Energy, Water & Sustainability PRD — GreenPulse, nudges, challenges, utility tracking |
 | [09-equipment-tool-loan-prd.md](01-product/09-equipment-tool-loan-prd.md) | Equipment, Tool & Loan Library PRD — VeritasVault, scan checkout, gamification |
+| [10-smart-cleaning-chore-prd.md](01-product/10-smart-cleaning-chore-prd.md) | Smart Cleaning & Chore Scheduler PRD — Harmony, rotation, swap, hero projects |
+| [11-gamification-kudos-prd.md](01-product/11-gamification-kudos-prd.md) | Gamified Engagement & Recognition PRD — Kudos & Heroics Engine, points, badges |
+| [12-document-compliance-prd.md](01-product/12-document-compliance-prd.md) | Document Locker & Compliance Portal PRD — Compliance Vault, e-sign, audit |
 
 ## 02-architecture/ -- Technical Architecture
 
