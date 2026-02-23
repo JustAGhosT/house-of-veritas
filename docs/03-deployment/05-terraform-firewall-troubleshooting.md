@@ -38,7 +38,7 @@ Key Vault and Storage Account use `default_action = "Deny"` with `ip_rules` and 
 
 ## Automated Solution (Current Setup)
 
-The workflows now **automatically fetch GitHub Actions IP ranges** from `api.github.com/meta` and pass them to Terraform as `ci_allowed_ip_ranges`. Terraform applies these to **Key Vault** firewalls (including 172.128.0.0/9 for Azure-hosted runners). **Storage** uses deployer IP only (single IP; GitHub ranges caused Azure validation errors). Ranges are filtered and collapsed with Python `ipaddress.collapse_addresses()`, capped at 1000 rules (Azure limit). If runners in some regions fail, use a self-hosted runner in your VNet.
+Terraform applies **deployer IP** (from ipify at plan time) to both Key Vault and Storage firewalls. Key Vault also gets **172.128.0.0/9** for Azure-hosted runners (172.184.x.x). No GitHub Actions IP ranges—simpler and avoids Azure validation errors. If runners in some regions fail, use a self-hosted runner in your VNet.
 
 **Greenfield (new deployment):** Works automatically. Terraform creates resources with the GitHub Actions IP ranges in the firewall from the start.
 
@@ -79,8 +79,7 @@ chmod +x add-github-actions-ips-to-azure.sh
 
 Run a self-hosted GitHub Actions runner on a VM inside your Azure VNet (e.g. in the container subnet). The subnet is already in `virtual_network_subnet_ids`, so no firewall changes are needed.
 
-- [GitHub: Adding self-hosted runners](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners)
-- Place the runner in the same subnet as your containers (`10.0.2.0/24`)
+- [phoenixvc-actions-runner](https://github.com/phoenixvc/phoenixvc-actions-runner) — Self-hosted runner infra (listener VM + VMSS) for phoenixvc org. Deploys into the runner subnet; use `terraform output runner_subnet_id` from HouseOfVeritas.
 
 ## Resource Names (Production Defaults)
 

@@ -52,6 +52,7 @@ module "network" {
   gateway_subnet_prefix   = var.gateway_subnet_prefix
   container_subnet_prefix = var.container_subnet_prefix
   database_subnet_prefix  = var.database_subnet_prefix
+  runner_subnet_prefix    = var.runner_subnet_prefix
 
   tags = local.common_tags
 }
@@ -60,12 +61,13 @@ module "network" {
 module "storage" {
   source = "../../modules/storage"
 
-  resource_group_name   = azurerm_resource_group.main.name
-  location              = azurerm_resource_group.main.location
-  storage_account_name  = var.storage_account_name
-  container_subnet_id   = module.network.container_subnet_id
-  database_subnet_id    = module.network.database_subnet_id
-  deployer_ip_addresses = local.ci_ip_rules_storage
+  resource_group_name    = azurerm_resource_group.main.name
+  location               = azurerm_resource_group.main.location
+  storage_account_name   = var.storage_account_name
+  container_subnet_id    = module.network.container_subnet_id
+  database_subnet_id     = module.network.database_subnet_id
+  runner_subnet_id       = module.network.runner_subnet_id
+  deployer_ip_addresses  = local.ci_ip_rules_storage
 
   tags = local.common_tags
 }
@@ -74,12 +76,13 @@ module "storage" {
 module "security" {
   source = "../../modules/security"
 
-  resource_group_name   = azurerm_resource_group.main.name
-  location              = azurerm_resource_group.main.location
-  key_vault_name        = var.key_vault_name
-  container_subnet_id   = module.network.container_subnet_id
-  deployer_ip_addresses = local.ci_ip_rules_keyvault
-  db_admin_password     = var.db_admin_password
+  resource_group_name    = azurerm_resource_group.main.name
+  location               = azurerm_resource_group.main.location
+  key_vault_name         = var.key_vault_name
+  container_subnet_id    = module.network.container_subnet_id
+  runner_subnet_id       = module.network.runner_subnet_id
+  deployer_ip_addresses  = local.ci_ip_rules_keyvault
+  db_admin_password      = var.db_admin_password
   docuseal_secret_key   = random_password.docuseal_secret.result
   baserow_secret_key    = random_password.baserow_secret.result
   smtp_password         = var.smtp_password
@@ -217,6 +220,8 @@ module "dns" {
   depends_on = [module.gateway]
 }
 
+# Runner infrastructure is in phoenixvc-actions-runner repo (deploys into runner_subnet_id)
+
 # Monitoring Module (alerts, budgets, Log Analytics)
 module "monitoring" {
   source = "../../modules/monitoring"
@@ -264,24 +269,10 @@ locals {
     Owner       = "Hans Jurgens Smit"
   }
 
-  ci_ip_rules = slice(
-    distinct(concat(
-      var.deployer_ip != "" ? [var.deployer_ip] : [],
-      coalesce(var.ci_allowed_ip_ranges, [])
-    )),
-    0,
-    1000
-  )
-
+  deployer_ip_trimmed = trimspace(var.deployer_ip)
+  deployer_ip_public  = local.deployer_ip_trimmed != "" && !can(regex("^(10\\.|172\\.|192\\.168\\.)", local.deployer_ip_trimmed)) ? [local.deployer_ip_trimmed] : []
   azure_internal_cidrs = ["172.128.0.0/9"]
 
-  ci_ip_rules_keyvault = slice(
-    distinct(concat(local.ci_ip_rules, local.azure_internal_cidrs)),
-    0,
-    1000
-  )
-
-  deployer_ip_trimmed  = trimspace(var.deployer_ip)
-  deployer_ip_public   = local.deployer_ip_trimmed != "" && !can(regex("^(10\\.|172\\.|192\\.168\\.)", local.deployer_ip_trimmed)) ? [local.deployer_ip_trimmed] : []
+  ci_ip_rules_keyvault = distinct(concat(local.deployer_ip_public, local.azure_internal_cidrs))
   ci_ip_rules_storage  = local.deployer_ip_public
 }

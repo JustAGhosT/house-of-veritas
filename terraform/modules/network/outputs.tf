@@ -23,6 +23,11 @@ output "database_subnet_id" {
   value       = azurerm_subnet.database.id
 }
 
+output "runner_subnet_id" {
+  description = "ID of the runner subnet"
+  value       = azurerm_subnet.runner.id
+}
+
 output "gateway_nsg_id" {
   description = "ID of the gateway NSG"
   value       = azurerm_network_security_group.gateway.id
