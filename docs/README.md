@@ -10,6 +10,7 @@
 | [04-renovation-studio-prd.md](01-product/04-renovation-studio-prd.md) | Renovation Studio module PRD — collaborative planning, AI imaging, voting, costing |
 | [05-estate-map-prd.md](01-product/05-estate-map-prd.md) | Estate Map & Spatial Overlay module PRD — interactive map, overlays, quick actions |
 | [06-collaborative-kitchen-prd.md](01-product/06-collaborative-kitchen-prd.md) | Collaborative Kitchen PRD — meal planner, pantry, shelf badges, allergy-safe AI recipes |
+| [07-maintenance-smart-issue-prd.md](01-product/07-maintenance-smart-issue-prd.md) | Maintenance & Smart Issue Reporting PRD — map-based reporting, triage, SLA, audit |
 
 ## 02-architecture/ -- Technical Architecture
 
