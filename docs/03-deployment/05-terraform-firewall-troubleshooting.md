@@ -38,7 +38,7 @@ Key Vault and Storage Account use `default_action = "Deny"` with `ip_rules` and 
 
 ## Automated Solution (Current Setup)
 
-The workflows now **automatically fetch GitHub Actions IP ranges** from `api.github.com/meta` and pass them to Terraform as `ci_allowed_ip_ranges`. Terraform applies these to **Key Vault** firewalls (including 172.128.0.0/9 for Azure-hosted runners). **Storage** uses deployer IP + GitHub Actions IP ranges (filtered: no /31, /32, no private IPs). Ranges are filtered and collapsed with Python `ipaddress.collapse_addresses()`, capped at 1000 rules (Azure limit). If runners in some regions fail, use a self-hosted runner in your VNet.
+The workflows now **automatically fetch GitHub Actions IP ranges** from `api.github.com/meta` and pass them to Terraform as `ci_allowed_ip_ranges`. Terraform applies these to **Key Vault** firewalls (including 172.128.0.0/9 for Azure-hosted runners). **Storage** uses deployer IP only (single IP; GitHub ranges caused Azure validation errors). Ranges are filtered and collapsed with Python `ipaddress.collapse_addresses()`, capped at 1000 rules (Azure limit). If runners in some regions fail, use a self-hosted runner in your VNet.
 
 **Greenfield (new deployment):** Works automatically. Terraform creates resources with the GitHub Actions IP ranges in the firewall from the start.
 
