@@ -115,11 +115,11 @@ Rising user expectations for transparency, mounting maintenance complexity, and 
 
 | Metric | Baseline | Target | Timeline |
 |--------|----------|--------|----------|
-| Issues triaged per day | 70% | 99% | 1 month post-launch |
-| Issue assignment <8h | 60% | 90% | 2 months |
+| Percentage of issues triaged same day | 70% | 99% | 1 month post-launch |
+| Percentage of issues assigned within 8h | 60% | 90% | 2 months |
 | Attribution rate | 80% | 95%+ | Immediate |
 | Admin overhead (vs. baseline) | 100% | <25% | 3 months |
-| 1st response within 24h | ~60% | 100% | 1 month |
+| Percentage of issues with 1st response within 24h | ~60% | 100% | 1 month |
 
 ---
 
@@ -250,7 +250,7 @@ Staff:   See assignments → Update status → Upload completion proof → Mark 
 
 - Azure Blob (image/doc storage)
 - Baserow (data store, workflow)
-- Notification Service (push & email)
+- Notification Service (push, email, SMS—e.g. Twilio or Azure Communication Services)
 - Map Overlay (interactive estate map)
 - AI Suggest (optional for duplicate/grouping/triage)
 
@@ -622,7 +622,7 @@ Few property/estate platforms support map-native and photo-based reporting anywh
 | Endpoint | Method | Input | Downstream Action | Notification | Audit Log |
 |----------|--------|-------|-------------------|--------------|-----------|
 | /api/issue/report | POST | json:issue, photo | Create Baserow row, Blob photo | Notify Admin | Yes |
-| /api/issue/check-dup | POST | json:location/type | Query open issues, suggest merge | - | No |
+| /api/issue/check-dup | POST | json:location/type | Query open issues, suggest merge; see algorithm below | - | No |
 | /api/issue/:id/status | PATCH | status | Update status, fire webhooks | Notify Reporter | Yes |
 | /api/issue/assign | POST | id, staff_id | Update assignment, SLA start | Notify Staff | Yes |
 | /api/issue/bulk-close | POST | [ids] | Close multiple, trigger summary | Notify Batch | Yes |
@@ -630,6 +630,18 @@ Few property/estate platforms support map-native and photo-based reporting anywh
 | /api/assets/unmapped | GET | - | Return unmapped for admin queue | - | No |
 | /api/issue/merge | POST | parent, children | Link/group issues, update log | - | Yes |
 | /api/issue/escalate | PATCH | id, reason | Update state, notify owner/admin | Notify Owner | Yes |
+
+### /api/issue/check-dup Algorithm
+
+Duplicates are detected by: (a) spatial proximity within 10 meters, (b) same issue type or same asset ID, and (c) a computed `similarityScore` with threshold 0.8 (80%). Response fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| similarityScore | number | 0–1; weighted combination of spatial, type, and asset match |
+| spatialDistanceMeters | number | Distance to nearest candidate issue |
+| typeMatch | boolean | True if issue type matches |
+| assetMatch | boolean | True if asset ID matches |
+| isDuplicate | boolean | True when `similarityScore >= 0.8` AND (`spatialDistanceMeters <= 10` OR `assetMatch == true`) |
 
 ---
 
@@ -642,7 +654,7 @@ Few property/estate platforms support map-native and photo-based reporting anywh
 **Acceptance:**
 
 - Submit disabled until 1+ photos uploaded.
-- Duplicate detection {within 10m, same type/asset} prompts confirmation dialog.
+- Duplicate detection (within 10m, same type/asset per check-dup algorithm) prompts confirmation dialog.
 - After submission, status auto-loads in my dashboard.
 - Asset not mapped shows "Describe asset" input; submission logs asset as unmapped.
 - Broken upload triggers minimal-loss retry; after 3 fails, saves text-only, alerts admin.
@@ -722,6 +734,8 @@ Few property/estate platforms support map-native and photo-based reporting anywh
 - All events (actions, assignments, merges, escalations) emit audit log entries.
 - Real-time events use WebSockets (assignment/status), HTTP(S) for atomic CRUD, and Azure Function event hooks (photo, AI trigger, duplicate checking).
 - Notification system is modular; allows custom delivery backends (Twilio, email, push).
+
+**Architectural note (WebSockets vs stateless Azure Functions):** The platform uses stateless Azure Functions for backend logic, while real-time assignment/status events require persistent WebSocket connections. Implementers must choose one of: (a) **Azure Web PubSub** as a managed WebSocket relay for push events, or (b) **Durable Functions** with `waitForExternalEvent` to bridge stateful signaling. See platform layer table and future ADR for chosen approach.
 
 **Security:**
 

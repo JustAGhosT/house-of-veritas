@@ -11,6 +11,8 @@
 | [05-estate-map-prd.md](01-product/05-estate-map-prd.md) | Estate Map & Spatial Overlay module PRD — interactive map, overlays, quick actions |
 | [06-collaborative-kitchen-prd.md](01-product/06-collaborative-kitchen-prd.md) | Collaborative Kitchen PRD — meal planner, pantry, shelf badges, allergy-safe AI recipes |
 | [07-maintenance-smart-issue-prd.md](01-product/07-maintenance-smart-issue-prd.md) | Maintenance & Smart Issue Reporting PRD — map-based reporting, triage, SLA, audit |
+| [08-energy-sustainability-prd.md](01-product/08-energy-sustainability-prd.md) | Energy, Water & Sustainability PRD — GreenPulse, nudges, challenges, utility tracking |
+| [09-equipment-tool-loan-prd.md](01-product/09-equipment-tool-loan-prd.md) | Equipment, Tool & Loan Library PRD — VeritasVault, scan checkout, gamification |
 
 ## 02-architecture/ -- Technical Architecture
 
@@ -35,6 +37,8 @@
 | [04-rollback-procedure.md](03-deployment/04-rollback-procedure.md) | Rollback procedure for Next.js, Functions, Terraform, containers |
 | [05-terraform-firewall-troubleshooting.md](03-deployment/05-terraform-firewall-troubleshooting.md) | Key Vault/Storage 403, container IP type, consumption budget, self-hosted runner |
 | [07-self-hosted-runner-setup.md](03-deployment/07-self-hosted-runner-setup.md) | Self-hosted runner setup for JustAGhosT repos (cross-account with phoenixvc) |
+
+*Note: 06 reserved for future deployment documentation.*
 
 ## 04-configuration/ -- Application Configuration
 
