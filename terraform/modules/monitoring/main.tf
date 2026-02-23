@@ -115,6 +115,8 @@ resource "azurerm_monitor_metric_alert" "webapp_response_time" {
 }
 
 resource "azurerm_consumption_budget_resource_group" "monthly" {
+  count = var.enable_consumption_budget ? 1 : 0
+
   name              = "hov-monthly-budget"
   resource_group_id = var.resource_group_id
 

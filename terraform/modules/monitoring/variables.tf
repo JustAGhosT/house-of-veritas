@@ -59,8 +59,14 @@ variable "enable_webapp_alerts" {
   default     = false
 }
 
+variable "enable_consumption_budget" {
+  description = "Create consumption budget. Requires EA, Web direct, or MCA subscription. Disable for Visual Studio/MSDN (offerType None)."
+  type        = bool
+  default     = true
+}
+
 variable "monthly_budget" {
-  description = "Monthly budget in ZAR"
+  description = "Monthly budget in ZAR (used when enable_consumption_budget is true)"
   type        = number
   default     = 1000
 }

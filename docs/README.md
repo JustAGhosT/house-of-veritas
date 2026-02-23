@@ -7,6 +7,7 @@
 | [01-platform-specification.md](01-product/01-platform-specification.md) | Platform vision, personas, core modules, success metrics |
 | [02-functional-design.md](01-product/02-functional-design.md) | Functional requirements, workflows, user stories for all 8 modules |
 | [03-product-requirements.md](01-product/03-product-requirements.md) | Full PRD with implementation status across all phases |
+| [04-renovation-studio-prd.md](01-product/04-renovation-studio-prd.md) | Renovation Studio module PRD — collaborative planning, AI imaging, voting, costing |
 
 ## 02-architecture/ -- Technical Architecture
 
@@ -29,6 +30,7 @@
 | [02-local-development.md](03-deployment/02-local-development.md) | Docker Compose setup, prerequisites, local vs production comparison |
 | [03-ci-cd-workflows.md](03-deployment/03-ci-cd-workflows.md) | GitHub Actions workflows: plan, apply, deploy, destroy, checklist |
 | [04-rollback-procedure.md](03-deployment/04-rollback-procedure.md) | Rollback procedure for Next.js, Functions, Terraform, containers |
+| [07-self-hosted-runner-setup.md](03-deployment/07-self-hosted-runner-setup.md) | Self-hosted runner setup for JustAGhosT repos (cross-account with phoenixvc) |
 
 ## 04-configuration/ -- Application Configuration
 

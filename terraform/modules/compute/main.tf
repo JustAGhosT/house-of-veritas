@@ -7,6 +7,7 @@ resource "azurerm_container_group" "docuseal" {
   resource_group_name = var.resource_group_name
   os_type             = "Linux"
   restart_policy      = "Always"
+  ip_address_type     = "Private"
 
   subnet_ids = [var.container_subnet_id]
 
@@ -58,6 +59,7 @@ resource "azurerm_container_group" "baserow" {
   resource_group_name = var.resource_group_name
   os_type             = "Linux"
   restart_policy      = "Always"
+  ip_address_type     = "Private"
 
   subnet_ids = [var.container_subnet_id]
 
