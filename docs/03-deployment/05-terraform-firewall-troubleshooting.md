@@ -1,5 +1,15 @@
 # Terraform Firewall Troubleshooting
 
+## TL;DR – Key Vault 403 (Client address: 172.184.x.x)
+
+If you see `Client address is not authorized` with `172.184.x.x` (Azure internal IP):
+
+1. Azure Portal → Key Vault `nl-prod-hov-kv-san` → Networking → **Allow access from all networks**
+2. Azure Portal → Storage Account `nlprodhovstsan` → Networking → **Allow access from all networks**
+3. Re-run the Terraform workflow (push or manual trigger)
+4. Terraform will apply the correct firewall rules (including 172.128.0.0/9 for Azure runners)
+5. Future runs work without manual steps
+
 ## Error: ForbiddenByFirewall / AuthorizationFailure
 
 When Terraform runs in GitHub Actions, you may see:
@@ -28,7 +38,7 @@ Key Vault and Storage Account use `default_action = "Deny"` with `ip_rules` and 
 
 ## Automated Solution (Current Setup)
 
-The workflows now **automatically fetch GitHub Actions IP ranges** from `api.github.com/meta` and pass them to Terraform as `ci_allowed_ip_ranges`. Terraform applies these to Key Vault and Storage firewalls. Ranges are filtered (/31 and /32 excluded for Azure Storage), then collapsed with Python `ipaddress.collapse_addresses()` to merge adjacent blocks. The result is capped at 1000 rules (Azure limit). If runners in some regions fail, use a self-hosted runner in your VNet.
+The workflows now **automatically fetch GitHub Actions IP ranges** from `api.github.com/meta` and pass them to Terraform as `ci_allowed_ip_ranges`. Terraform applies these to **Key Vault** firewalls (including 172.128.0.0/9 for Azure-hosted runners). **Storage** uses empty `ip_rules`—access is via VNet subnets and AzureServices only (avoids Azure Storage ip_rules validation issues). Ranges are filtered and collapsed with Python `ipaddress.collapse_addresses()`, capped at 1000 rules (Azure limit). If runners in some regions fail, use a self-hosted runner in your VNet.
 
 **Greenfield (new deployment):** Works automatically. Terraform creates resources with the GitHub Actions IP ranges in the firewall from the start.
 
