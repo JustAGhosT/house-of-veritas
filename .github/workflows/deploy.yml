@@ -187,7 +187,7 @@ jobs:
   # ============================================
   deploy-infrastructure:
     name: 'Deploy Infrastructure'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, azure-vnet-ghost]
     timeout-minutes: 45
     needs: [build]
     if: ${{ inputs.deploy_infrastructure }}
@@ -223,34 +223,10 @@ jobs:
             -backend-config="storage_account_name=${{ secrets.TF_STATE_STORAGE_ACCOUNT }}" \
             -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER }}" \
             -backend-config="key=${{ secrets.TF_STATE_KEY || 'production.terraform.tfstate' }}"
-      
-      - name: Fetch GitHub Actions IP ranges
-        id: gh-ips
-        run: |
-          CI_IP_RANGES=$(python3 config/scripts/fetch-github-actions-ips.py)
-          echo "ranges=$CI_IP_RANGES" >> $GITHUB_OUTPUT
-          echo "Compressed to $(echo "$CI_IP_RANGES" | jq 'length') ranges"
-
-      - name: Get runner public IP (fallback)
-        id: ip
-        run: |
-          IP=$(curl -fsS --retry 3 https://api.ipify.org) || echo ""
-          echo "ip=${IP:-}" >> $GITHUB_OUTPUT
 
       - name: Terraform Plan
         working-directory: ${{ env.WORKING_DIR }}
-        env:
-          CI_IP_RANGES: ${{ steps.gh-ips.outputs.ranges }}
-          DEPLOYER_IP: ${{ steps.ip.outputs.ip }}
         run: |
-          {
-            if [ -n "$CI_IP_RANGES" ] && [ "$CI_IP_RANGES" != "[]" ] && [ "$CI_IP_RANGES" != "null" ]; then
-              echo "ci_allowed_ip_ranges = $CI_IP_RANGES"
-            fi
-            if [ -n "$DEPLOYER_IP" ]; then
-              echo "deployer_ip = \"$DEPLOYER_IP\""
-            fi
-          } > ci_ranges.auto.tfvars
           terraform plan \
             -var="domain_name=${{ vars.DOMAIN_NAME || 'nexamesh.ai' }}" \
             -var="db_admin_password=${{ secrets.DB_ADMIN_PASSWORD }}" \
@@ -258,7 +234,6 @@ jobs:
             -var="smtp_password=${{ secrets.SMTP_PASSWORD }}" \
             -var="ssl_certificate_data=${{ secrets.SSL_CERTIFICATE_DATA }}" \
             -var="ssl_certificate_password=${{ secrets.SSL_CERTIFICATE_PASSWORD }}" \
-            -var-file=ci_ranges.auto.tfvars \
             -out=tfplan
       
       - name: Terraform Apply
@@ -360,19 +335,24 @@ jobs:
       
       - name: Verify DocuSeal Health
         run: |
-          # Get container IP or hostname
           DOCUSEAL_URL="${{ secrets.DOCUSEAL_URL }}"
-          
+          healthy=false
+
           if [ -n "$DOCUSEAL_URL" ]; then
             for i in {1..5}; do
               HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$DOCUSEAL_URL/health" || echo "000")
               if [ "$HTTP_STATUS" = "200" ]; then
                 echo "✅ DocuSeal is healthy"
+                healthy=true
                 break
               fi
               echo "Waiting for DocuSeal... (attempt $i/5)"
               sleep 30
             done
+            if [ "$healthy" != "true" ]; then
+              echo "❌ DocuSeal health check failed after 5 attempts"
+              exit 1
+            fi
           else
             echo "⚠️ DOCUSEAL_URL not configured, skipping health check"
           fi
@@ -415,17 +395,23 @@ jobs:
       - name: Verify Baserow Health
         run: |
           BASEROW_URL="${{ secrets.BASEROW_URL }}"
-          
+          healthy=false
+
           if [ -n "$BASEROW_URL" ]; then
             for i in {1..5}; do
               HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASEROW_URL/api/health/" || echo "000")
               if [ "$HTTP_STATUS" = "200" ]; then
                 echo "✅ Baserow is healthy"
+                healthy=true
                 break
               fi
               echo "Waiting for Baserow... (attempt $i/5)"
               sleep 30
             done
+            if [ "$healthy" != "true" ]; then
+              echo "❌ Baserow health check failed after 5 attempts"
+              exit 1
+            fi
           else
             echo "⚠️ BASEROW_URL not configured, skipping health check"
           fi

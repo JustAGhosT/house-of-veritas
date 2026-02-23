@@ -7,6 +7,15 @@
 | [01-platform-specification.md](01-product/01-platform-specification.md) | Platform vision, personas, core modules, success metrics |
 | [02-functional-design.md](01-product/02-functional-design.md) | Functional requirements, workflows, user stories for all 8 modules |
 | [03-product-requirements.md](01-product/03-product-requirements.md) | Full PRD with implementation status across all phases |
+| [04-renovation-studio-prd.md](01-product/04-renovation-studio-prd.md) | Renovation Studio module PRD — collaborative planning, AI imaging, voting, costing |
+| [05-estate-map-prd.md](01-product/05-estate-map-prd.md) | Estate Map & Spatial Overlay module PRD — interactive map, overlays, quick actions |
+| [06-collaborative-kitchen-prd.md](01-product/06-collaborative-kitchen-prd.md) | Collaborative Kitchen PRD — meal planner, pantry, shelf badges, allergy-safe AI recipes |
+| [07-maintenance-smart-issue-prd.md](01-product/07-maintenance-smart-issue-prd.md) | Maintenance & Smart Issue Reporting PRD — map-based reporting, triage, SLA, audit |
+| [08-energy-sustainability-prd.md](01-product/08-energy-sustainability-prd.md) | Energy, Water & Sustainability PRD — GreenPulse, nudges, challenges, utility tracking |
+| [09-equipment-tool-loan-prd.md](01-product/09-equipment-tool-loan-prd.md) | Equipment, Tool & Loan Library PRD — VeritasVault, scan checkout, gamification |
+| [10-smart-cleaning-chore-prd.md](01-product/10-smart-cleaning-chore-prd.md) | Smart Cleaning & Chore Scheduler PRD — Harmony, rotation, swap, hero projects |
+| [11-gamification-kudos-prd.md](01-product/11-gamification-kudos-prd.md) | Gamified Engagement & Recognition PRD — Kudos & Heroics Engine, points, badges |
+| [12-document-compliance-prd.md](01-product/12-document-compliance-prd.md) | Document Locker & Compliance Portal PRD — Compliance Vault, e-sign, audit |
 
 ## 02-architecture/ -- Technical Architecture
 
@@ -29,6 +38,10 @@
 | [02-local-development.md](03-deployment/02-local-development.md) | Docker Compose setup, prerequisites, local vs production comparison |
 | [03-ci-cd-workflows.md](03-deployment/03-ci-cd-workflows.md) | GitHub Actions workflows: plan, apply, deploy, destroy, checklist |
 | [04-rollback-procedure.md](03-deployment/04-rollback-procedure.md) | Rollback procedure for Next.js, Functions, Terraform, containers |
+| [05-terraform-firewall-troubleshooting.md](03-deployment/05-terraform-firewall-troubleshooting.md) | Key Vault/Storage 403, container IP type, consumption budget, self-hosted runner |
+| [07-self-hosted-runner-setup.md](03-deployment/07-self-hosted-runner-setup.md) | Self-hosted runner setup for JustAGhosT repos (cross-account with phoenixvc) |
+
+*Note: 06 reserved for future deployment documentation.*
 
 ## 04-configuration/ -- Application Configuration
 
