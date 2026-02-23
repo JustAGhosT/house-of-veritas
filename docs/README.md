@@ -16,6 +16,8 @@
 | [10-smart-cleaning-chore-prd.md](01-product/10-smart-cleaning-chore-prd.md) | Smart Cleaning & Chore Scheduler PRD — Harmony, rotation, swap, hero projects |
 | [11-gamification-kudos-prd.md](01-product/11-gamification-kudos-prd.md) | Gamified Engagement & Recognition PRD — Kudos & Heroics Engine, points, badges |
 | [12-document-compliance-prd.md](01-product/12-document-compliance-prd.md) | Document Locker & Compliance Portal PRD — Compliance Vault, e-sign, audit |
+| [13-ai-suggestion-engine-prd.md](01-product/13-ai-suggestion-engine-prd.md) | AI/Smart Suggestion Engine PRD — Insight & Nudge Engine, explainable AI |
+| [14-financial-expense-management-prd.md](01-product/14-financial-expense-management-prd.md) | Financial/Expense Management PRD — Finance & Shared Spend Engine, receipts, approvals, audit |
 
 ## 02-architecture/ -- Technical Architecture
 
