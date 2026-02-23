@@ -281,6 +281,17 @@ locals {
     1000
   )
 
-  # Storage: empty ip_rules; access via VNet subnets + AzureServices only (avoids ip_rules validation issues)
-  ci_ip_rules_storage = []
+  deployer_ip_public = var.deployer_ip != "" && !can(regex("^(10\\.|172\\.|192\\.168\\.)", var.deployer_ip)) ? [var.deployer_ip] : []
+
+  ci_ranges_storage = [
+    for cidr in coalesce(var.ci_allowed_ip_ranges, []) :
+    cidr
+    if !can(regex("^(10\\.|172\\.|192\\.168\\.)", cidr)) && !can(regex("/3[12]$", cidr))
+  ]
+
+  ci_ip_rules_storage = slice(
+    distinct(compact(concat(local.deployer_ip_public, local.ci_ranges_storage))),
+    0,
+    1000
+  )
 }
