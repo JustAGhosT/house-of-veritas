@@ -72,9 +72,8 @@ scp phoenixvc-actions-runner/scripts/install-persistent-runner.sh azureuser@<lis
 ssh azureuser@<listener-ip>
 
 # On the listener VM: run with the token and repo URL from Step 2
-# Security: avoid exporting GITHUB_RUNNER_TOKEN in a way that leaks to shell history.
-# Use read -rs to prompt for the token, or prefix the export with a space (HISTCONTROL=ignorespace).
-export GITHUB_RUNNER_TOKEN="<paste-token-from-github-ui>"
+# Security: use read -rs so the token is never stored in shell history.
+read -rsp "Paste GitHub runner token (input hidden): " GITHUB_RUNNER_TOKEN && echo
 export GITHUB_REPO_URL="https://github.com/JustAGhosT/HouseOfVeritas"
 ./install-persistent-runner.sh
 ```
