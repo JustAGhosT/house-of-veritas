@@ -20,6 +20,10 @@ resource "azurerm_postgresql_flexible_server" "main" {
   backup_retention_days        = 7
   geo_redundant_backup_enabled = false
 
+  lifecycle {
+    ignore_changes = [zone, high_availability]
+  }
+
   tags = var.tags
 
   depends_on = [azurerm_private_dns_zone_virtual_network_link.postgres]
