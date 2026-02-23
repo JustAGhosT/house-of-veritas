@@ -1,0 +1,6 @@
+# actionlint config - allow custom self-hosted runner labels
+# Used by: terraform-apply, terraform-destroy, terraform-plan, deploy (deploy-infrastructure)
+self-hosted-runner:
+  labels:
+    - self-hosted
+    - azure-vnet-ghost

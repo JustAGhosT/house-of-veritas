@@ -30,11 +30,13 @@ AuthorizationFailure: This request is not authorized to perform this operation.
 
 ## Root Cause
 
-Key Vault and Storage Account use `default_action = "Deny"` with `ip_rules` and `virtual_network_subnet_ids`. Terraform passes `deployer_ip` (the runner IP) so it can add it to the firewall—but Terraform fails **before** it can apply that change because:
+Key Vault and Storage Account use `default_action = "Deny"` with `ip_rules` and `virtual_network_subnet_ids`. Terraform must refresh state first (read Key Vault secrets, Storage containers) before it can apply any changes. The refresh is blocked if the runner's network is not allowed:
 
-1. Terraform refreshes state first (reads Key Vault secrets, Storage containers)
-2. The refresh is blocked by the firewall (runner IP not yet allowed)
-3. Terraform never reaches the step that would add the runner IP
+1. Terraform refreshes state first
+2. The refresh is blocked by the firewall (runner's IP or subnet not in allow list)
+3. Terraform never reaches the step that would update firewall rules
+
+**Current setup:** Terraform allows the **runner subnet** via `virtual_network_subnet_ids`. Workflows run on a self-hosted runner in that subnet, so the runner's traffic is allowed. No deployer IP or GitHub Actions IP ranges are used.
 
 ## Automated Solution (Current Setup)
 
@@ -54,7 +56,9 @@ Terraform uses **runner subnet** (`virtual_network_subnet_ids`) for Key Vault an
 
 **Switching to self-hosted runner:** After removing `deployer_ip` from workflows, the first run may fail with Storage 403 because the old runner IP is being removed and the new runner (self-hosted) may not be in use yet. Run the one-time bootstrap above, then re-run. Once the runner subnet is in the firewall, the self-hosted runner will have access.
 
-**Why isn't the self-hosted runner being used?** Workflows use `runs-on: [self-hosted, azure-vnet-ghost]`. If jobs run on GitHub-hosted instead, check: (1) Runner is registered at HouseOfVeritas → Settings → Actions → Runners and shows Idle; (2) Runner has label `azure-vnet-ghost`; (3) Runner is installed on the phoenixvc listener VM with `GITHUB_REPO_URL` set to the HouseOfVeritas repo. If no matching runner is available, GitHub falls back to hosted runners.
+**Why is the job queued and not running?** Workflows use `runs-on: [self-hosted, azure-vnet-ghost]`. GitHub schedules these jobs only on self-hosted runners with the `azure-vnet-ghost` label; if no matching runner is online and idle, the job stays **queued** and does **not** fall back to GitHub-hosted runners. Check: (1) Runner is registered at HouseOfVeritas → Settings → Actions → Runners and shows Idle; (2) Runner has label `azure-vnet-ghost`; (3) Runner is installed on the phoenixvc listener VM with `GITHUB_REPO_URL` set to the HouseOfVeritas repo.
+
+**Why does terraform-plan skip fork PRs?** The plan job runs on the self-hosted runner (VNet access). To avoid running untrusted fork code in the VNet, the job is restricted to same-repo PRs only (`head.repo.full_name == repository`). Fork PRs are skipped; contributors should open branches in the main repo for plan previews.
 
 ## Alternative Options
 
@@ -105,4 +109,4 @@ After the one-time bootstrap (or for greenfield):
 
 1. Push a change that triggers the Terraform workflow
 2. Terraform plan/apply should complete without 403 errors
-3. Firewall rules persist (GitHub Actions IP ranges)—no ephemeral IP clearing needed
+3. Firewall rules persist (runner subnet)—no ephemeral IP clearing needed

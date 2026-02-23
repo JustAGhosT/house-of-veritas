@@ -60,9 +60,9 @@ variable "enable_webapp_alerts" {
 }
 
 variable "enable_consumption_budget" {
-  description = "Create consumption budget. Requires EA, Web direct, or MCA subscription. Disable for Visual Studio/MSDN (offerType None)."
+  description = "Create consumption budget. Requires EA, Web direct, or MCA subscription. Disable for Visual Studio/MSDN (offerType None). Opt-in; set true when subscription supports Cost Management."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "monthly_budget" {

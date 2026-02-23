@@ -235,10 +235,9 @@ module "monitoring" {
   enable_database_alerts = true
   function_app_id        = module.functions.function_app_id
   enable_function_alerts = true
-  web_app_id                 = module.webapp.web_app_id
-  enable_webapp_alerts       = true
+  web_app_id                = module.webapp.web_app_id
+  enable_webapp_alerts      = true
   enable_consumption_budget  = false # MS-AZR-0036P (Visual Studio) does not support Cost Management
-  monthly_budget             = 1000
 
   tags = local.common_tags
 

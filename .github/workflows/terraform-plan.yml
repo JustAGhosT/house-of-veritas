@@ -21,7 +21,9 @@ jobs:
     name: 'Terraform Plan'
     runs-on: [self-hosted, azure-vnet-ghost]
     timeout-minutes: 30
-    
+    # Skip fork PRs: untrusted code would run in VNet-capable runner. Same-repo PRs only.
+    if: github.event_name != 'pull_request' || github.repository == github.event.pull_request.head.repo.full_name
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4

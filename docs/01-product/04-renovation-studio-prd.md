@@ -203,7 +203,7 @@ Enable open suggestion (all rooms/areas), structured voting/prioritization, AI d
 
 ### User Flow Diagram
 
-```
+```text
 +-------------------+
 |Room/Area Selection|
 +--------+----------+
@@ -313,7 +313,7 @@ Enable open suggestion (all rooms/areas), structured voting/prioritization, AI d
 
 ## Mesh Layer Mapping
 
-```
+```text
 +-------------------+      +------------------+      +-------------------+
 |   Frontend (UI)   |<---->|    Backend       |<---->|AI Integration     |
 | Next.js/React UI  |      | API, Baserow     |      |Azure Foundry      |
@@ -372,7 +372,7 @@ Enable open suggestion (all rooms/areas), structured voting/prioritization, AI d
 
 ### Entity-Relationship Diagram
 
-```
+```text
 +--------------+           +---------------+           +----------------+
 |   Room/Area  |<--------->| RenovationIdea|<--------->|     Vote       |
 |   (roomId)   |   1..N    | (id, roomId)  |   1..N    | (ideaId, ... ) |

@@ -335,19 +335,24 @@ jobs:
       
       - name: Verify DocuSeal Health
         run: |
-          # Get container IP or hostname
           DOCUSEAL_URL="${{ secrets.DOCUSEAL_URL }}"
-          
+          healthy=false
+
           if [ -n "$DOCUSEAL_URL" ]; then
             for i in {1..5}; do
               HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$DOCUSEAL_URL/health" || echo "000")
               if [ "$HTTP_STATUS" = "200" ]; then
                 echo "✅ DocuSeal is healthy"
+                healthy=true
                 break
               fi
               echo "Waiting for DocuSeal... (attempt $i/5)"
               sleep 30
             done
+            if [ "$healthy" != "true" ]; then
+              echo "❌ DocuSeal health check failed after 5 attempts"
+              exit 1
+            fi
           else
             echo "⚠️ DOCUSEAL_URL not configured, skipping health check"
           fi
@@ -390,17 +395,23 @@ jobs:
       - name: Verify Baserow Health
         run: |
           BASEROW_URL="${{ secrets.BASEROW_URL }}"
-          
+          healthy=false
+
           if [ -n "$BASEROW_URL" ]; then
             for i in {1..5}; do
               HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASEROW_URL/api/health/" || echo "000")
               if [ "$HTTP_STATUS" = "200" ]; then
                 echo "✅ Baserow is healthy"
+                healthy=true
                 break
               fi
               echo "Waiting for Baserow... (attempt $i/5)"
               sleep 30
             done
+            if [ "$healthy" != "true" ]; then
+              echo "❌ Baserow health check failed after 5 attempts"
+              exit 1
+            fi
           else
             echo "⚠️ BASEROW_URL not configured, skipping health check"
           fi

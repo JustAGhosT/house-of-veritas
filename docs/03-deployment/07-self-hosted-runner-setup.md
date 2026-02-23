@@ -62,6 +62,8 @@ The runner will be scoped to HouseOfVeritas only. (Personal accounts do not have
 
 SSH to the listener VM, then:
 
+Run from the root of your workspace where the `phoenixvc-actions-runner/` repo is checked out:
+
 ```bash
 # From your workstation: copy the install script to the VM
 scp phoenixvc-actions-runner/scripts/install-persistent-runner.sh azureuser@<listener-ip>:~/
@@ -70,6 +72,8 @@ scp phoenixvc-actions-runner/scripts/install-persistent-runner.sh azureuser@<lis
 ssh azureuser@<listener-ip>
 
 # On the listener VM: run with the token and repo URL from Step 2
+# Security: avoid exporting GITHUB_RUNNER_TOKEN in a way that leaks to shell history.
+# Use read -rs to prompt for the token, or prefix the export with a space (HISTCONTROL=ignorespace).
 export GITHUB_RUNNER_TOKEN="<paste-token-from-github-ui>"
 export GITHUB_REPO_URL="https://github.com/JustAGhosT/HouseOfVeritas"
 ./install-persistent-runner.sh
