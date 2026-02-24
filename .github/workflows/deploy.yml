@@ -142,6 +142,7 @@ jobs:
         with:
           name: nextjs-build
           path: .next/standalone
+          include-hidden-files: true
           retention-days: 7
 
   # ============================================
@@ -279,6 +280,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nextjs-build
+
+      - name: Verify artifact contains .next
+        run: |
+          test -d .next && test -f .next/BUILD_ID || (echo "ERROR: .next or BUILD_ID missing from artifact"; exit 1)
+          echo "Artifact verified: .next/BUILD_ID present"
 
       - name: Create deployment package
         run: zip -r deploy.zip . -x "*.git*"
