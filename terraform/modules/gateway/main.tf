@@ -126,14 +126,14 @@ resource "azurerm_application_gateway" "main" {
     host_name                      = "ops.${var.domain_name}"
   }
 
-  # SSL profile with TLS 1.2+ (required; AppGwSslPolicy20150501 deprecated Aug 2025)
+  # SSL profile with TLS 1.3 (listener-level overrides gateway; AppGwSslPolicy20150501 deprecated Aug 2025)
   dynamic "ssl_profile" {
     for_each = local.has_ssl ? [1] : []
     content {
       name = "modern-tls"
       ssl_policy {
-        policy_type = "Predefined"
-        policy_name = "AppGwSslPolicy20220101S"
+        policy_type          = "CustomV2"
+        min_protocol_version = "TLSv1_3"
       }
     }
   }
