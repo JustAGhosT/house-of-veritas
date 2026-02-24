@@ -5,19 +5,10 @@ import { motion } from "framer-motion"
 import { logger } from "@/lib/logger"
 
 interface Stats {
-  documents: {
-    total: number
-    digitized: number
-    compliance: number
-  }
-  users: {
-    total: number
-    active: number
-    names: string[]
-  }
-  uptime: {
-    percentage: number
-  }
+  users?: { total: number; active: number; names: string[] }
+  tasks?: { total: number; completed: number; inProgress: number; overdue: number }
+  expenses?: { thisMonth: number; pending: number; approved: number }
+  budget?: { allocated: number; spent: number; remaining: number; percentage: number }
 }
 
 export function StatsSection() {
@@ -32,30 +23,34 @@ export function StatsSection() {
 
   if (!stats) return null
 
+  const users = stats.users ?? { total: 0, active: 0, names: [] }
+  const tasks = stats.tasks ?? { total: 0, completed: 0, inProgress: 0, overdue: 0 }
+  const budget = stats.budget ?? { allocated: 0, spent: 0, remaining: 0, percentage: 0 }
+
   const statsData = [
     {
-      value: stats.documents.digitized,
-      label: "Governance Documents",
-      sublabel: "Digitized",
+      value: tasks.total,
+      label: "Tasks",
+      sublabel: `${tasks.completed} completed`,
       color: "text-blue-400"
     },
     {
-      value: `${stats.users.active}`,
+      value: users.active,
       label: "Active Users",
-      sublabel: stats.users.names.join(", "),
+      sublabel: users.names?.join(", ") ?? "—",
       color: "text-green-400"
     },
     {
-      value: `${stats.documents.compliance}%`,
-      label: "Document Compliance",
-      sublabel: "Fully compliant",
+      value: `${budget.percentage}%`,
+      label: "Budget Used",
+      sublabel: `R${budget.spent?.toLocaleString() ?? 0} of R${budget.allocated?.toLocaleString() ?? 0}`,
       color: "text-emerald-400"
     },
     {
-      value: `${stats.uptime.percentage}%`,
-      label: "System Uptime",
-      sublabel: "Last 30 days",
-      color: "text-blue-500"
+      value: tasks.overdue,
+      label: "Overdue Tasks",
+      sublabel: "Requires attention",
+      color: tasks.overdue > 0 ? "text-amber-400" : "text-blue-500"
     }
   ]
 
