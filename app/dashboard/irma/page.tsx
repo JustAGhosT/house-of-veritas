@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import DashboardLayout from "@/components/dashboard-layout"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 import {
   ClipboardList,
   FileText,
@@ -141,14 +142,13 @@ export default function IrmaDashboard() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [tasksRes, docsRes] = await Promise.all([
-        fetch("/api/tasks?assignee=irma"),
-        fetch("/api/documents"),
+      const [tasksData, docsData] = await Promise.all([
+        apiFetch<{ tasks?: Task[] }>("/api/tasks?assignee=irma", { label: "Tasks" }),
+        apiFetch<{ documents?: DocumentItem[]; templates?: DocumentItem[] } | DocumentItem[]>("/api/documents", { label: "Documents" }),
       ])
-      const tasksData = await tasksRes.json()
-      const docsData = await docsRes.json()
-      setTasks(tasksData.tasks || [])
-      setDocuments(Array.isArray(docsData) ? docsData : (docsData.documents || docsData.templates || []))
+      setTasks(tasksData?.tasks || [])
+      const docs = Array.isArray(docsData) ? docsData : (docsData as { documents?: DocumentItem[]; templates?: DocumentItem[] })
+      setDocuments(Array.isArray(docs) ? docs : (docs?.documents ?? docs?.templates ?? []))
     } catch (error) {
       logger.error("Irma dashboard fetch failed", { error: error instanceof Error ? error.message : String(error) })
     } finally {

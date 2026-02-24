@@ -5,6 +5,7 @@ import DashboardLayout from "@/components/dashboard-layout"
 import { useI18n, LanguageSelector } from "@/lib/i18n/context"
 import { usePWA } from "@/lib/hooks/use-pwa"
 import { useAuth } from "@/lib/auth-context"
+import { apiFetch, apiFetchSafe } from "@/lib/api-client"
 import {
   User,
   Globe,
@@ -67,10 +68,8 @@ export function SettingsPageContent({ persona }: { persona: "hans" | "charl" | "
   const [storageOptionsSaved, setStorageOptionsSaved] = useState(false)
 
   useEffect(() => {
-    fetch("/api/settings/storage-options")
-      .then((r) => r.json())
-      .then((d) => setStorageOptions(d.options || []))
-      .catch(() => setStorageOptions([]))
+    apiFetchSafe<{ options?: string[] }>("/api/settings/storage-options", { options: [] }, { label: "StorageOptions" })
+      .then((d) => setStorageOptions(d?.options || []))
   }, [])
 
   const handleSave = () => {
@@ -98,15 +97,13 @@ export function SettingsPageContent({ persona }: { persona: "hans" | "charl" | "
 
   const handleSaveStorageOptions = async () => {
     try {
-      const res = await fetch("/api/settings/storage-options", {
+      await apiFetch("/api/settings/storage-options", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ options: storageOptions }),
+        body: { options: storageOptions },
+        label: "SaveStorageOptions",
       })
-      if (res.ok) {
-        setStorageOptionsSaved(true)
-        setTimeout(() => setStorageOptionsSaved(false), 3000)
-      }
+      setStorageOptionsSaved(true)
+      setTimeout(() => setStorageOptionsSaved(false), 3000)
     } catch {
       // ignore
     }

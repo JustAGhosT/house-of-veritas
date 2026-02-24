@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { RealTimeEvent, EventType } from '@/lib/realtime/event-store'
 import { logger } from '@/lib/logger'
+import { apiFetch } from '@/lib/api-client'
 
 interface UseRealTimeOptions {
   userId: string
@@ -192,17 +193,11 @@ export function useEmitEvent() {
     userId?: string
   ) => {
     try {
-      const response = await fetch('/api/realtime/emit', {
+      return await apiFetch('/api/realtime/emit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, data, userId }),
+        body: { type, data, userId },
+        label: 'RealtimeEmit',
       })
-
-      if (!response.ok) {
-        throw new Error('Failed to emit event')
-      }
-
-      return await response.json()
     } catch (error) {
       logger.error('Error emitting event', { error: error instanceof Error ? error.message : String(error) })
       throw error

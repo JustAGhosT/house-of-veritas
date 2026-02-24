@@ -25,6 +25,7 @@ import {
   Leaf,
 } from "lucide-react"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 
 interface InventoryItem {
   id: string
@@ -53,9 +54,8 @@ export default function LuckyInventoryPage() {
   const fetchInventory = useCallback(async () => {
     try {
       // Fetch only garden supplies for Lucky
-      const res = await fetch("/api/inventory?category=garden_supplies")
-      const data = await res.json()
-      setItems(data.items || [])
+      const data = await apiFetch<{ items?: InventoryItem[] }>("/api/inventory?category=garden_supplies", { label: "Inventory" })
+      setItems(data?.items || [])
     } catch (error) {
       logger.error("Failed to fetch inventory", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -70,23 +70,21 @@ export default function LuckyInventoryPage() {
   const handleConsume = async () => {
     if (!selectedItem || !consumeQuantity) return
     try {
-      const res = await fetch("/api/inventory", {
+      await apiFetch("/api/inventory", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           action: "consume",
           itemId: selectedItem.id,
           quantity: parseFloat(consumeQuantity),
           usedBy: "lucky",
           purpose: consumePurpose,
-        }),
+        },
+        label: "ConsumeInventory",
       })
-      if (res.ok) {
-        fetchInventory()
-        setIsConsumeDialogOpen(false)
-        setConsumeQuantity("")
-        setConsumePurpose("")
-      }
+      fetchInventory()
+      setIsConsumeDialogOpen(false)
+      setConsumeQuantity("")
+      setConsumePurpose("")
     } catch (error) {
       logger.error("Failed to consume", { error: error instanceof Error ? error.message : String(error) })
     }

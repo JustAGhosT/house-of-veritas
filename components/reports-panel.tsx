@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { generatePDFReport } from '@/lib/utils/pdf-generator'
 import { logger } from '@/lib/logger'
+import { apiFetch } from '@/lib/api-client'
 
 type ReportType = 'expenses' | 'tasks' | 'time' | 'all'
 
@@ -38,8 +39,7 @@ export function ReportsPanel() {
       if (dateRange.start) params.append('startDate', dateRange.start)
       if (dateRange.end) params.append('endDate', dateRange.end)
 
-      const response = await fetch(`/api/reports?${params}`)
-      const data = await response.json()
+      const data = await apiFetch<ReportData>(`/api/reports?${params}`, { label: 'Reports' })
       setReportData(data)
     } catch (error) {
       logger.error('Failed to fetch report', { error: error instanceof Error ? error.message : String(error) })

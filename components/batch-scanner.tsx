@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 import {
   ScanLine,
   Camera,
@@ -126,22 +127,26 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
 
           // Look up item
           try {
-            const res = await fetch(`/api/inventory?barcode=${encodeURIComponent(decodedText)}`)
-            const data = await res.json()
+            const data = await apiFetch<{ items?: Array<{ id: string; name: string; currentStock: number; unit: string; location: string }> }>(
+              `/api/inventory?barcode=${encodeURIComponent(decodedText)}`,
+              { label: "InventoryLookup" }
+            )
             
+            const firstItem = data?.items?.[0]
+            const found = !!firstItem
             const newItem: ScannedItem = {
               code: decodedText,
               timestamp: new Date(),
               action: config.action,
               quantity: parseFloat(defaultQuantity) || 1,
-              found: data.items && data.items.length > 0,
-              ...(data.items && data.items.length > 0 
+              found,
+              ...(found && firstItem
                 ? {
-                    name: data.items[0].name,
-                    id: data.items[0].id,
-                    currentStock: data.items[0].currentStock,
-                    unit: data.items[0].unit,
-                    location: data.items[0].location,
+                    name: firstItem.name,
+                    id: firstItem.id,
+                    currentStock: firstItem.currentStock,
+                    unit: firstItem.unit,
+                    location: firstItem.location,
                   }
                 : {
                     name: "Unknown Item",
@@ -211,16 +216,16 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
       // Process each item
       for (const item of validItems) {
         try {
-          await fetch("/api/inventory", {
+          await apiFetch("/api/inventory", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+            body: {
               action: mode,
               itemId: item.id,
               quantity: item.quantity,
-              usedBy: "hans", // Would come from auth context
+              usedBy: "hans",
               purpose: defaultPurpose || `Batch ${mode}`,
-            }),
+            },
+            label: `Batch${mode === "consume" ? "Consume" : "Restock"}`,
           })
         } catch (err) {
           logger.error(`Failed to ${mode} ${item.name}`, { error: err instanceof Error ? err.message : String(err) })

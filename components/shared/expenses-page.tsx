@@ -25,6 +25,7 @@ import {
 import { DollarSign, RefreshCw, Loader2, Plus, Sparkles } from "lucide-react"
 import { AiSuggestIcon } from "@/components/ui/ai-suggest-icon"
 import { logger } from "@/lib/logger"
+import { apiFetch, apiFetchSafe } from "@/lib/api-client"
 
 const EXPENSE_CATEGORIES = ["Materials", "Supplies", "Fuel", "Tools", "Services", "Maintenance", "Other"]
 
@@ -65,10 +66,9 @@ export function ExpensesPage({ personaId, title = "Expenses", showAll = false }:
     try {
       const params = new URLSearchParams()
       if (!showAll) params.set("personaId", personaId)
-      const res = await fetch(`/api/expenses?${params}`)
-      const data = await res.json()
-      setExpenses(data.expenses || [])
-      setSummary(data.summary || null)
+      const data = await apiFetch<{ expenses?: Expense[]; summary?: { total: number; pending: number; approved: number; totalAmount: number } | null }>(`/api/expenses?${params}`, { label: "Expenses" })
+      setExpenses(data?.expenses || [])
+      setSummary(data?.summary || null)
     } catch (error) {
       logger.error("Failed to fetch expenses", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -81,10 +81,8 @@ export function ExpensesPage({ personaId, title = "Expenses", showAll = false }:
   }, [fetchExpenses])
 
   useEffect(() => {
-    fetch("/api/projects")
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => setProjectOptions((d?.projects || []).map((p: { name: string }) => p.name)))
-      .catch(() => setProjectOptions([]))
+    apiFetchSafe<{ projects?: { name: string }[] }>("/api/projects", { projects: [] }, { label: "Projects" })
+      .then((d) => setProjectOptions((d?.projects || []).map((p) => p.name)))
   }, [])
 
   const getStatusColor = (s: string) => {
@@ -96,13 +94,12 @@ export function ExpensesPage({ personaId, title = "Expenses", showAll = false }:
   const handleSuggestCategory = async () => {
     setSuggesting(true)
     try {
-      const res = await fetch("/api/ai/suggest-expense-category", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vendor: formData.vendor, description: formData.notes }),
-      })
-      const data = await res.json()
-      if (data.suggested) setFormData((p) => ({ ...p, category: data.suggested }))
+      const data = await apiFetchSafe<{ suggested?: string }>(
+        "/api/ai/suggest-expense-category",
+        {},
+        { method: "POST", body: { vendor: formData.vendor, description: formData.notes }, label: "AI Suggest" }
+      )
+      if (data?.suggested) setFormData((p) => ({ ...p, category: data.suggested ?? p.category }))
     } finally {
       setSuggesting(false)
     }
@@ -113,10 +110,9 @@ export function ExpensesPage({ personaId, title = "Expenses", showAll = false }:
     if (!formData.amount) return
     setSubmitting(true)
     try {
-      const res = await fetch("/api/expenses", {
+      await apiFetch("/api/expenses", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           personaId,
           category: formData.category,
           amount: parseFloat(formData.amount),
@@ -124,13 +120,12 @@ export function ExpensesPage({ personaId, title = "Expenses", showAll = false }:
           date: formData.date,
           project: formData.project || undefined,
           notes: formData.notes || undefined,
-        }),
+        },
+        label: "Expenses",
       })
-      if (res.ok) {
-        setAddOpen(false)
-        setFormData({ category: "Supplies", amount: "", vendor: "", date: new Date().toISOString().split("T")[0], project: "", notes: "" })
-        fetchExpenses()
-      }
+      setAddOpen(false)
+      setFormData({ category: "Supplies", amount: "", vendor: "", date: new Date().toISOString().split("T")[0], project: "", notes: "" })
+      fetchExpenses()
     } catch (error) {
       logger.error("Failed to submit expense", { error: error instanceof Error ? error.message : String(error) })
     } finally {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -48,10 +49,9 @@ export function CalendarPanel() {
   const fetchEvents = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/calendar')
-      const data = await response.json()
-      setEvents(data.items || [])
-      setMode(data.mode || 'mock')
+      const data = await apiFetch<{ items?: CalendarEvent[]; mode?: 'mock' | 'live' }>('/api/calendar', { label: 'Calendar' })
+      setEvents(data?.items || [])
+      setMode(data?.mode || 'mock')
     } catch (error) {
       logger.error('Failed to fetch calendar events', { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -321,16 +321,10 @@ function CreateEventModal({
         ? form.date 
         : `${form.date}T${form.endTime}:00`
 
-      await fetch('/api/calendar', {
+      await apiFetch('/api/calendar', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          summary: form.summary,
-          description: form.description,
-          start,
-          end,
-          allDay: form.allDay,
-        }),
+        body: { summary: form.summary, description: form.description, start, end, allDay: form.allDay },
+        label: 'Calendar',
       })
 
       onCreated()

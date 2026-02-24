@@ -39,6 +39,7 @@ import { AiSuggestIcon } from "@/components/ui/ai-suggest-icon"
 import type { Project } from "@/lib/projects"
 import type { ProjectSuggestion } from "@/app/api/projects/suggestions/route"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 import Image from "next/image"
 
 const PERSONA_INFO: Record<string, string> = {
@@ -83,9 +84,8 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
 
   const fetchProjects = useCallback(async () => {
     try {
-      const res = await fetch("/api/projects")
-      const data = await res.json()
-      setProjects(data.projects || [])
+      const data = await apiFetch<{ projects?: Project[] }>("/api/projects", { label: "Projects" })
+      setProjects(data?.projects || [])
     } catch (error) {
       logger.error("Failed to fetch projects", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -96,9 +96,8 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
   const fetchSuggestions = useCallback(async () => {
     if (!isAdmin) return
     try {
-      const res = await fetch("/api/projects/suggestions?status=pending")
-      const data = await res.json()
-      setSuggestions(data.suggestions || [])
+      const data = await apiFetch<{ suggestions?: ProjectSuggestion[] }>("/api/projects/suggestions?status=pending", { label: "ProjectSuggestions" })
+      setSuggestions(data?.suggestions || [])
     } catch {
       setSuggestions([])
     }
@@ -129,17 +128,15 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
     if (!photoBase64) return
     setAiLoading(true)
     try {
-      const res = await fetch("/api/ai/suggest-project-from-photo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64: photoBase64 }),
-      })
-      const data = await res.json()
-      if (data.suggested) {
+      const data = await apiFetch<{ suggested?: { name?: string; description?: string } }>(
+        "/api/ai/suggest-project-from-photo",
+        { method: "POST", body: { imageBase64: photoBase64 }, label: "AISuggestFromPhoto" }
+      )
+      if (data?.suggested) {
         setFormData((p) => ({
           ...p,
-          name: data.suggested.name,
-          description: data.suggested.description || p.description,
+          name: data.suggested!.name ?? p.name,
+          description: data.suggested!.description || p.description,
         }))
       }
     } catch (error) {
@@ -153,19 +150,16 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
     if (!formData.name) return
     setRefineLoading(true)
     try {
-      const res = await fetch("/api/ai/refine-description", {
+      const data = await apiFetch<{ refined?: string }>("/api/ai/refine-description", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           title: formData.name,
           description: formData.description,
           context: `Project type: ${formData.type}, Parent: ${formData.parentId || "none"}`,
-        }),
+        },
+        label: "RefineDescription",
       })
-      const data = await res.json()
-      if (data.refined) {
-        setFormData((p) => ({ ...p, description: data.refined }))
-      }
+      if (data?.refined) setFormData((p) => ({ ...p, description: data.refined! }))
     } catch (error) {
       logger.error("Refine description failed", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -176,19 +170,17 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const res = await fetch("/api/projects", {
+      await apiFetch("/api/projects", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           ...formData,
           parentId: formData.type === "subproject" ? formData.parentId || undefined : undefined,
-        }),
+        },
+        label: "CreateProject",
       })
-      if (res.ok) {
-        setDialogOpen(false)
-        resetForm()
-        fetchProjects()
-      }
+      setDialogOpen(false)
+      resetForm()
+      fetchProjects()
     } catch (error) {
       logger.error("Failed to create project", { error: error instanceof Error ? error.message : String(error) })
     }
@@ -197,21 +189,19 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
   const handleSuggest = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const res = await fetch("/api/projects/suggestions", {
+      await apiFetch("/api/projects/suggestions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           name: formData.name,
           description: formData.description,
           type: formData.type,
           parentId: formData.type === "subproject" ? formData.parentId || undefined : undefined,
-        }),
+        },
+        label: "SuggestProject",
       })
-      if (res.ok) {
-        setSuggestDialogOpen(false)
-        resetForm()
-        fetchSuggestions()
-      }
+      setSuggestDialogOpen(false)
+      resetForm()
+      fetchSuggestions()
     } catch (error) {
       logger.error("Failed to suggest project", { error: error instanceof Error ? error.message : String(error) })
     }
@@ -219,15 +209,13 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
 
   const handleApproveSuggestion = async (id: string) => {
     try {
-      const res = await fetch(`/api/projects/suggestions/${id}`, {
+      await apiFetch(`/api/projects/suggestions/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "approved" }),
+        body: { status: "approved" },
+        label: "ApproveSuggestion",
       })
-      if (res.ok) {
-        fetchSuggestions()
-        fetchProjects()
-      }
+      fetchSuggestions()
+      fetchProjects()
     } catch (error) {
       logger.error("Failed to approve", { error: error instanceof Error ? error.message : String(error) })
     }
@@ -235,12 +223,12 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
 
   const handleRejectSuggestion = async (id: string) => {
     try {
-      const res = await fetch(`/api/projects/suggestions/${id}`, {
+      await apiFetch(`/api/projects/suggestions/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "rejected" }),
+        body: { status: "rejected" },
+        label: "RejectSuggestion",
       })
-      if (res.ok) fetchSuggestions()
+      fetchSuggestions()
     } catch (error) {
       logger.error("Failed to reject", { error: error instanceof Error ? error.message : String(error) })
     }
@@ -255,15 +243,12 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
   const handleSuggestMember = async (projectId: string, projectName: string) => {
     setSuggestMemberLoading(projectId)
     try {
-      const res = await fetch("/api/ai/suggest-project-member", {
+      const data = await apiFetch<{ suggested?: string }>("/api/ai/suggest-project-member", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId, projectName }),
+        body: { projectId, projectName },
+        label: "SuggestProjectMember",
       })
-      const data = await res.json()
-      if (data.suggested) {
-        await handleAddMember(projectId, data.suggested, "contributor")
-      }
+      if (data?.suggested) await handleAddMember(projectId, data.suggested, "contributor")
     } catch (error) {
       logger.error("Suggest member failed", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -273,12 +258,12 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
 
   const handleAddMember = async (projectId: string, userId: string, role: string) => {
     try {
-      const res = await fetch(`/api/projects/${projectId}/members`, {
+      await apiFetch(`/api/projects/${projectId}/members`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, role }),
+        body: { userId, role },
+        label: "AddProjectMember",
       })
-      if (res.ok) fetchProjects()
+      fetchProjects()
     } catch (error) {
       logger.error("Failed to add member", { error: error instanceof Error ? error.message : String(error) })
     }

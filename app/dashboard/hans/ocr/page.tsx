@@ -40,6 +40,7 @@ import {
   Boxes,
 } from "lucide-react"
 import Image from "next/image"
+import { apiFetch } from "@/lib/api-client"
 
 const DOCUMENT_TYPES = [
   { value: "handwritten_request", label: "Handwritten Request", icon: PenTool, color: "text-purple-400" },
@@ -147,16 +148,11 @@ export default function OCRPage() {
       formData.append("file", selectedFile)
       formData.append("type", selectedType)
 
-      const res = await fetch("/api/ocr", {
+      const data = await apiFetch<{ result: OCRResult; error?: string }>("/api/ocr", {
         method: "POST",
         body: formData,
+        label: "OCR",
       })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.error || "Processing failed")
-      }
 
       setResult(data.result)
       setHistory(prev => [data.result, ...prev].slice(0, 10))
@@ -201,28 +197,25 @@ export default function OCRPage() {
     setImportSuccess(null)
     
     try {
-      const res = await fetch("/api/inventory", {
+      const data = await apiFetch<{ success?: boolean; imported?: number; updated?: number; error?: string }>("/api/inventory", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           action: "import-from-ocr",
           items: result.items,
           supplier: result.vendor?.name,
           location: importLocation,
           category: importCategory || undefined,
-        }),
+        },
+        label: "ImportFromOCR",
       })
-      
-      const data = await res.json()
-      
-      if (data.success) {
+      if (data?.success) {
         setImportSuccess({
-          imported: data.imported,
-          updated: data.updated,
+          imported: data.imported ?? 0,
+          updated: data.updated ?? 0,
         })
         setIsImportDialogOpen(false)
       } else {
-        setError(data.error || "Import failed")
+        setError(data?.error || "Import failed")
       }
     } catch (err: any) {
       setError(err.message || "Import failed")

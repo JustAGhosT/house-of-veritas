@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import type { AuditLogEntry, AuditAction } from '@/lib/audit-log'
 import { logger } from '@/lib/logger'
+import { apiFetch } from '@/lib/api-client'
 
 const ACTION_CONFIG: Record<AuditAction, { icon: any; color: string; label: string }> = {
   login: { icon: LogIn, color: 'text-green-400', label: 'Logged in' },
@@ -84,10 +85,12 @@ export function ActivityTimeline({
       if (userId) params.append('userId', userId)
       if (filter) params.append('action', filter)
 
-      const response = await fetch(`/api/audit?${params}`)
-      const data = await response.json()
-      setLogs(data.logs || [])
-      setSummary(data.summary || {})
+      const data = await apiFetch<{ logs?: AuditLogEntry[]; summary?: Record<string, number> }>(
+        `/api/audit?${params}`,
+        { label: 'Audit' }
+      )
+      setLogs(data?.logs || [])
+      setSummary(data?.summary || {})
     } catch (error) {
       logger.error('Failed to fetch audit logs', { error: error instanceof Error ? error.message : String(error) })
     } finally {

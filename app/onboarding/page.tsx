@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Users, CheckCircle, Loader2, ArrowRight, Key, FileSignature, Camera, Bell, Shield } from "lucide-react"
+import { apiFetch, apiFetchSafe } from "@/lib/api-client"
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Administrator",
@@ -36,11 +37,10 @@ export default function OnboardingPage() {
   const [twoFaEnabled, setTwoFaEnabled] = useState(false)
 
   useEffect(() => {
-    fetch("/api/users/me")
-      .then((r) => r.ok ? r.json() : null)
+    apiFetchSafe<{ user?: { id: string; name: string; role: string; responsibilities?: string[]; onboardingStatus?: string } } | null>("/api/users/me", null, { label: "UsersMe" })
       .then((data) => {
         if (data?.user) {
-          setUser(data.user)
+          setUser(data.user as { id: string; name: string; role: string; responsibilities?: string[] })
           if (data.user.onboardingStatus === "completed") {
             router.push(`/dashboard/${data.user.id}`)
           }
@@ -54,10 +54,8 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (!user) return
-    fetch("/api/onboarding/documents")
-      .then((r) => r.ok ? r.json() : null)
+    apiFetchSafe<{ documents?: { id: string; name: string }[] }>("/api/onboarding/documents", { documents: [] }, { label: "OnboardingDocs" })
       .then((data) => setOnboardingDocs(data?.documents || []))
-      .catch(() => setOnboardingDocs([]))
   }, [user])
 
   const handleSetPassword = async () => {
@@ -65,12 +63,12 @@ export default function OnboardingPage() {
     if (password !== confirmPassword) return
     setSettingPassword(true)
     try {
-      const res = await fetch("/api/users/me/password", {
+      await apiFetch("/api/users/me/password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: { password },
+        label: "SetPassword",
       })
-      if (res.ok) setPasswordSet(true)
+      setPasswordSet(true)
     } finally {
       setSettingPassword(false)
     }
@@ -83,8 +81,8 @@ export default function OnboardingPage() {
     try {
       const formData = new FormData()
       formData.append("file", file)
-      const res = await fetch("/api/users/me/photo", { method: "POST", body: formData })
-      if (res.ok) setPhotoUploaded(true)
+      await apiFetch("/api/users/me/photo", { method: "POST", body: formData, label: "UploadPhoto" })
+      setPhotoUploaded(true)
     } finally {
       setUploadingPhoto(false)
       e.target.value = ""
@@ -98,13 +96,12 @@ export default function OnboardingPage() {
   const handleSignDocument = async (templateId: string) => {
     setSigningDoc(templateId)
     try {
-      const res = await fetch("/api/onboarding/documents", {
+      const data = await apiFetch<{ submissionId?: string }>("/api/onboarding/documents", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ templateId }),
+        body: { templateId },
+        label: "SignDocument",
       })
-      const data = await res.json()
-      if (data.submissionId) {
+      if (data?.submissionId) {
         setDocumentsSigned(true)
       }
     } finally {

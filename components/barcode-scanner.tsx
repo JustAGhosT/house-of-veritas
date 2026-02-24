@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 import {
   ScanLine,
   Camera,
@@ -64,10 +65,11 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
   const lookupItem = useCallback(async (code: string) => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/inventory?barcode=${encodeURIComponent(code)}`)
-      const data = await res.json()
-      
-      if (data.items && data.items.length > 0) {
+      const data = await apiFetch<{ items?: InventoryItem[] }>(
+        `/api/inventory?barcode=${encodeURIComponent(code)}`,
+        { label: "InventoryLookup" }
+      )
+      if (data?.items && data.items.length > 0) {
         setFoundItem(data.items[0])
         onScanComplete?.(data.items[0], code)
       } else {

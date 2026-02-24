@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { logger } from '@/lib/logger'
+import { apiFetch } from '@/lib/api-client'
 import {
   DollarSign,
   Users,
@@ -56,8 +57,7 @@ export function PayrollPanel() {
   const fetchPayroll = useCallback(async () => {
     setLoading(true)
     try {
-      const response = await fetch(`/api/payroll?month=${selectedMonth}`)
-      const result = await response.json()
+      const result = await apiFetch<PayrollData>(`/api/payroll?month=${selectedMonth}`, { label: 'Payroll' })
       setData(result)
     } catch (error) {
       logger.error('Failed to fetch payroll', { error: error instanceof Error ? error.message : String(error) })
@@ -73,14 +73,13 @@ export function PayrollPanel() {
   const runPayroll = async () => {
     setProcessing(true)
     try {
-      const response = await fetch('/api/payroll', {
+      const result = await apiFetch<{ success?: boolean; totalPayout?: number }>('/api/payroll', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'run-payroll', month: selectedMonth }),
+        body: { action: 'run-payroll', month: selectedMonth },
+        label: 'Payroll',
       })
-      const result = await response.json()
-      if (result.success) {
-        alert(`Payroll processed successfully! Total payout: R${result.totalPayout.toLocaleString()}`)
+      if (result?.success) {
+        alert(`Payroll processed successfully! Total payout: R${(result.totalPayout ?? 0).toLocaleString()}`)
         fetchPayroll()
       }
     } catch (error) {

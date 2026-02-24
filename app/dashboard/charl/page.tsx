@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import DashboardLayout from "@/components/dashboard-layout"
 import { logger } from "@/lib/logger"
+import { apiFetchSafe } from "@/lib/api-client"
 import {
   ClipboardList,
   Clock,
@@ -208,8 +209,7 @@ export default function CharlDashboard() {
   const [stats, setStats] = useState<any>(null)
 
   useEffect(() => {
-    fetch("/api/stats")
-      .then((res) => res.json())
+    apiFetchSafe<any>("/api/stats", null, { label: "Stats" })
       .then((data) => setStats(data))
       .catch((err) => logger.error("Failed to fetch stats", { error: err instanceof Error ? err.message : String(err) }))
   }, [])

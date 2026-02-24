@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { logger } from "@/lib/logger"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface Stats {
   users?: { total: number; active: number; names: string[] }
@@ -15,10 +15,7 @@ export function StatsSection() {
   const [stats, setStats] = useState<Stats | null>(null)
 
   useEffect(() => {
-    fetch('/api/stats')
-      .then(res => res.json())
-      .then(data => setStats(data))
-      .catch(err => logger.error('Failed to fetch stats', { error: err instanceof Error ? err.message : String(err) }))
+    apiFetchSafe<Stats | null>("/api/stats", null, { label: "Stats" }).then(setStats)
   }, [])
 
   if (!stats) return null

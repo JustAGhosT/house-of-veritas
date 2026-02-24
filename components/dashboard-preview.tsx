@@ -3,6 +3,7 @@
 import { motion, useInView } from "framer-motion"
 import { useRef, useEffect, useState } from "react"
 import { TrendingUp, CheckCircle2, AlertCircle, Clock } from "lucide-react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface ContractorData {
   contractors: Array<{
@@ -12,27 +13,30 @@ interface ContractorData {
     totalPaid: number
     remaining: number
   }>
-  summary: {
+  summary?: {
     totalPaid: number
     totalRemaining: number
     averageProgress: number
   }
 }
 
+const EMPTY_CONTRACTORS: ContractorData = { contractors: [], summary: { totalPaid: 0, totalRemaining: 0, averageProgress: 0 } }
+
 function ContractorMilestones() {
   const [data, setData] = useState<ContractorData | null>(null)
 
   useEffect(() => {
-    fetch('/api/contractors')
-      .then(res => res.json())
-      .then(setData)
+    apiFetchSafe<ContractorData>("/api/contractors", EMPTY_CONTRACTORS, { label: "Contractors" })
+      .then((d) => setData(Array.isArray(d?.contractors) ? d : EMPTY_CONTRACTORS))
   }, [])
 
   if (!data) return <div className="text-zinc-500 text-sm">Loading...</div>
 
+  const contractors = Array.isArray(data.contractors) ? data.contractors : []
+  if (!contractors.length) return <div className="text-zinc-500 text-sm">—</div>
   return (
     <div className="space-y-3">
-      {data.contractors.slice(0, 3).map((contractor, i) => (
+      {contractors.slice(0, 3).map((contractor, i) => (
         <div key={i} className="p-3 bg-zinc-900/50 rounded-lg border border-zinc-800">
           <div className="flex justify-between items-start mb-2">
             <div>
@@ -60,19 +64,26 @@ function ContractorMilestones() {
 }
 
 function QuickStats() {
-  const [stats, setStats] = useState<any>(null)
+  const [stats, setStats] = useState<{
+    tasksCompleted: number
+    tasksTotal: number
+    docsExpiringSoon: number
+    budgetUsed: number
+  } | null>(null)
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/stats').then(r => r.json()),
-      fetch('/api/tasks').then(r => r.json()),
-      fetch('/api/documents').then(r => r.json()),
+      apiFetchSafe<{ budget?: { percentage?: number } }>("/api/stats", {}, { label: "Stats" }),
+      apiFetchSafe<{ summary?: { completed?: number; total?: number } }>("/api/tasks", {}, { label: "Tasks" }),
+      apiFetchSafe<Array<{ expiryDays?: number }>>("/api/documents", [], { label: "Documents" }),
     ]).then(([statsData, tasksData, docsData]) => {
+      const tasksSummary = tasksData?.summary
+      const docs = Array.isArray(docsData) ? docsData : []
       setStats({
-        tasksCompleted: tasksData.summary.completed,
-        tasksTotal: tasksData.summary.total,
-        docsExpiringSoon: docsData.filter((d: any) => d.expiryDays < 60).length,
-        budgetUsed: statsData.budget.percentage
+        tasksCompleted: tasksSummary?.completed ?? 0,
+        tasksTotal: tasksSummary?.total ?? 0,
+        docsExpiringSoon: docs.filter((d) => (d?.expiryDays ?? 999) < 60).length,
+        budgetUsed: statsData?.budget?.percentage ?? 0
       })
     })
   }, [])
@@ -132,9 +143,8 @@ function DocumentExpiry() {
   const [docs, setDocs] = useState<any[]>([])
 
   useEffect(() => {
-    fetch('/api/documents')
-      .then(res => res.json())
-      .then(data => setDocs(data.slice(0, 5)))
+    apiFetchSafe<unknown[]>("/api/documents", [], { label: "Documents" })
+      .then((data) => setDocs(Array.isArray(data) ? data.slice(0, 5) : []))
   }, [])
 
   return (
