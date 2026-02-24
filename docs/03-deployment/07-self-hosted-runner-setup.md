@@ -12,6 +12,7 @@ HouseOfVeritas runs on the **JustAGhosT** account but uses a self-hosted runner 
 | Runner infrastructure | phoenixvc org ([phoenixvc-actions-runner](https://github.com/phoenixvc/phoenixvc-actions-runner)) |
 | Runner VM | Azure VNet (runner subnet in HouseOfVeritas) |
 | Runner type | Persistent (`azure-vnet-ghost`) |
+| Terraform | v1.14.5 pre-installed via HashiCorp APT repo |
 
 The persistent runner is installed on the listener VM in phoenixvc-actions-runner and registered to the JustAGhosT account. It has VNet access to Key Vault and Storage via the runner subnet firewall rules.
 
@@ -128,6 +129,7 @@ The runner subnet is already in Key Vault and Storage `virtual_network_subnet_id
 
 | Issue | Check |
 |-------|-------|
+| `setup-terraform` AggregateError | Workflows use pre-installed Terraform on the runner VM (HashiCorp APT repo, v1.14.5). No download step. |
 | Job stays queued | Runner offline? `sudo ./svc.sh status` in `/opt/gh-runner-justaghost` on listener VM |
 | Runner not visible in repo | HouseOfVeritas → Settings → Actions → Runners (repo Settings) |
 | 403 on Key Vault/Storage | Runner subnet must be in HouseOfVeritas Key Vault and Storage firewall rules |
