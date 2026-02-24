@@ -137,10 +137,28 @@ jobs:
           cp -r public .next/standalone/public
           node -e "
             const fs = require('fs');
-            const p = '.next/standalone/package.json';
-            const pkg = JSON.parse(fs.readFileSync(p, 'utf8'));
-            (pkg.scripts = pkg.scripts || {}).start = 'node server.js';
-            fs.writeFileSync(p, JSON.stringify(pkg, null, 2));
+            const path = require('path');
+            const p = path.join('.next', 'standalone', 'package.json');
+            try {
+              if (!fs.existsSync(p)) {
+                console.error('Error: package.json not found at ' + p);
+                process.exit(1);
+              }
+              const content = fs.readFileSync(p, 'utf8');
+              let pkg;
+              try {
+                pkg = JSON.parse(content);
+              } catch (err) {
+                console.error('Error parsing package.json at ' + p + ': ' + err.message);
+                process.exit(1);
+              }
+              pkg.scripts = pkg.scripts || {};
+              pkg.scripts.start = 'node server.js';
+              fs.writeFileSync(p, JSON.stringify(pkg, null, 2));
+            } catch (err) {
+              console.error('Unexpected error while updating package.json at ' + p + ': ' + err.message);
+              process.exit(1);
+            }
           "
       
       - name: Upload Build Artifact

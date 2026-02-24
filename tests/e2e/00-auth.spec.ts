@@ -70,7 +70,9 @@ test.describe("Authentication", () => {
         { timeout: 10000 }
       )
 
-      await page.request.post("/api/auth/logout")
+      // Use API logout here for faster, deterministic cleanup between users.
+      const logoutResponse = await page.request.post("/api/auth/logout")
+      expect(logoutResponse.ok(), `Logout failed with status ${logoutResponse.status()}`).toBeTruthy()
       await page.goto("/login")
     }
   })
