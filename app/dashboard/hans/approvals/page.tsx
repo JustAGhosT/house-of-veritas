@@ -44,6 +44,7 @@ import {
   XCircle,
 } from "lucide-react"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 
 interface KioskRequest {
   id: string
@@ -89,10 +90,12 @@ export default function ApprovalsPage() {
       if (filterType !== "all") params.append("type", filterType)
       if (filterStatus !== "all") params.append("status", filterStatus)
 
-      const res = await fetch(`/api/kiosk/requests?${params}`)
-      const data = await res.json()
-      setRequests(data.requests || [])
-      setSummary(data.summary || null)
+      const data = await apiFetch<{ requests?: KioskRequest[]; summary?: Summary | null }>(
+        `/api/kiosk/requests?${params}`,
+        { label: "KioskRequests" }
+      )
+      setRequests(data?.requests || [])
+      setSummary(data?.summary ?? null)
     } catch (error) {
       logger.error("Failed to fetch requests", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -109,24 +112,21 @@ export default function ApprovalsPage() {
     setProcessing(true)
 
     try {
-      const res = await fetch("/api/kiosk/requests", {
+      await apiFetch("/api/kiosk/requests", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           requestId: selectedRequest.id,
           status: actionType === "approve" ? "approved" : "rejected",
           reviewedBy: "hans",
           notes: actionNotes,
-        }),
+        },
+        label: "UpdateKioskRequest",
       })
-
-      if (res.ok) {
-        await fetchRequests()
-        setShowActionDialog(false)
-        setShowDetailDialog(false)
-        setActionNotes("")
-        setSelectedRequest(null)
-      }
+      await fetchRequests()
+      setShowActionDialog(false)
+      setShowDetailDialog(false)
+      setActionNotes("")
+      setSelectedRequest(null)
     } catch (error) {
       logger.error("Failed to update request", { error: error instanceof Error ? error.message : String(error) })
     } finally {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { logger } from '@/lib/logger'
+import { apiFetch } from '@/lib/api-client'
 
 export function usePWA() {
   const [isInstalled, setIsInstalled] = useState(() =>
@@ -84,11 +85,10 @@ export function usePWA() {
         applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
       })
       
-      // Send subscription to server
-      await fetch('/api/notifications/subscribe', {
+      await apiFetch('/api/notifications/subscribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(subscription),
+        body: subscription.toJSON ? subscription.toJSON() : subscription,
+        label: 'PushSubscribe',
       })
 
       return subscription

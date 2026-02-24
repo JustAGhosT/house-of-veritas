@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Wifi, WifiOff } from "lucide-react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 export function ConnectionStatus() {
   const [status, setStatus] = useState<"connected" | "mock" | "error" | "loading">("loading")
@@ -9,13 +10,8 @@ export function ConnectionStatus() {
   useEffect(() => {
     async function check() {
       try {
-        const res = await fetch("/api/stats")
-        if (!res.ok) {
-          setStatus("error")
-          return
-        }
-        const data = await res.json()
-        setStatus(data.dataSource === "live" ? "connected" : "mock")
+        const data = await apiFetchSafe<{ dataSource?: string } | null>("/api/stats", null, { label: "Stats" })
+        setStatus(!data ? "error" : data.dataSource === "live" ? "connected" : "mock")
       } catch {
         setStatus("error")
       }

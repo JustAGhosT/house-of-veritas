@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { apiFetch } from "@/lib/api-client"
 import {
   Clock,
   Package,
@@ -192,13 +193,13 @@ export default function KioskPage() {
     setLoading(true)
     
     try {
-      await fetch("/api/time", {
+      await apiFetch("/api/time", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           action: currentUser.clockedIn ? "clockOut" : "clockIn",
           employeeId: currentUser.id,
-        }),
+        },
+        label: "ClockInOut",
       })
       
       setCurrentUser({
@@ -219,11 +220,13 @@ export default function KioskPage() {
 
   const handleBarcodeScanned = async (code: string) => {
     try {
-      const res = await fetch(`/api/inventory?barcode=${encodeURIComponent(code)}`)
-      const data = await res.json()
-      
-      if (data.items && data.items.length > 0) {
-        setScannedItem(data.items[0])
+      const data = await apiFetch<{ items?: Array<{ id: string; name: string; currentStock: number; unit: string; location?: string }> }>(
+        `/api/inventory?barcode=${encodeURIComponent(code)}`,
+        { label: "InventoryLookup" }
+      )
+      if (data?.items && data.items.length > 0) {
+        const item = data.items[0]
+        setScannedItem({ ...item, barcode: code, location: item.location ?? "" })
         setShowScanner(false)
         setShowItemAction(true)
       } else {
@@ -239,16 +242,16 @@ export default function KioskPage() {
     setLoading(true)
     
     try {
-      await fetch("/api/inventory", {
+      await apiFetch("/api/inventory", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           action: actionType,
           itemId: scannedItem.id,
           quantity: parseFloat(quantity),
           usedBy: currentUser.id,
           purpose: purpose || `Kiosk ${actionType}`,
-        }),
+        },
+        label: "InventoryAction",
       })
       
       setActionSuccess(true)
@@ -268,9 +271,8 @@ export default function KioskPage() {
   const fetchTasks = async () => {
     if (!currentUser) return
     try {
-      const res = await fetch(`/api/tasks?assignee=${currentUser.id}`)
-      const data = await res.json()
-      setTasks(data.tasks || [])
+      const data = await apiFetch<{ tasks?: Task[] }>(`/api/tasks?assignee=${currentUser.id}`, { label: "Tasks" })
+      setTasks(data?.tasks || [])
     } catch (err) {
       logger.error("Failed to fetch tasks", { error: err instanceof Error ? err.message : String(err) })
     }
@@ -285,9 +287,8 @@ export default function KioskPage() {
   const fetchRequestHistory = async () => {
     if (!currentUser) return
     try {
-      const res = await fetch(`/api/kiosk/requests?employeeId=${currentUser.id}`)
-      const data = await res.json()
-      setRequestHistory(data.requests || [])
+      const data = await apiFetch<{ requests?: RequestHistory[] }>(`/api/kiosk/requests?employeeId=${currentUser.id}`, { label: "KioskRequests" })
+      setRequestHistory(data?.requests || [])
     } catch (err) {
       logger.error("Failed to fetch request history", { error: err instanceof Error ? err.message : String(err) })
     }
@@ -302,10 +303,12 @@ export default function KioskPage() {
   const fetchNotificationPref = async () => {
     if (!currentUser) return
     try {
-      const res = await fetch(`/api/notifications/preferences?userId=${currentUser.id}`)
-      const data = await res.json()
-      if (data.preference?.preferredChannel) {
-        setNotificationPref(data.preference.preferredChannel)
+      const data = await apiFetch<{ preference?: { preferredChannel?: string } }>(
+        `/api/notifications/preferences?userId=${currentUser.id}`,
+        { label: "NotificationPref" }
+      )
+      if (data?.preference?.preferredChannel) {
+        setNotificationPref(data.preference.preferredChannel as "email" | "sms" | "whatsapp")
       }
     } catch (err) {
       logger.error("Failed to fetch notification pref", { error: err instanceof Error ? err.message : String(err) })
@@ -317,10 +320,9 @@ export default function KioskPage() {
     if (!currentUser) return
     setLoading(true)
     try {
-      await fetch("/api/notifications/preferences", {
+      await apiFetch("/api/notifications/preferences", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           userId: currentUser.id,
           preferredChannel: channel,
           fallbackOrder: channel === "sms" 
@@ -328,7 +330,8 @@ export default function KioskPage() {
             : channel === "whatsapp"
             ? ["whatsapp", "sms", "email"]
             : ["email", "sms", "whatsapp"],
-        }),
+        },
+        label: "SaveNotificationPref",
       })
       setNotificationPref(channel)
       setShowNotificationPrefs(false)
@@ -348,13 +351,13 @@ export default function KioskPage() {
   // Mark task as complete
   const completeTask = async (taskId: string) => {
     try {
-      await fetch("/api/tasks", {
+      await apiFetch("/api/tasks", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           taskId,
           updates: { status: "completed" },
-        }),
+        },
+        label: "CompleteTask",
       })
       fetchTasks() // Refresh tasks
       showSuccess("Task marked as complete!")
@@ -368,16 +371,16 @@ export default function KioskPage() {
     if (!currentUser || !stockRequest.itemName) return
     setLoading(true)
     try {
-      await fetch("/api/kiosk/requests", {
+      await apiFetch("/api/kiosk/requests", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           type: "stock_order",
           employeeId: currentUser.id,
           employeeName: currentUser.name,
           data: stockRequest,
           timestamp: new Date().toISOString(),
-        }),
+        },
+        label: "SubmitStockRequest",
       })
       setShowStockRequest(false)
       setStockRequest({ itemName: "", quantity: 1, urgency: "normal", notes: "" })
@@ -394,16 +397,16 @@ export default function KioskPage() {
     if (!currentUser || advanceRequest.amount <= 0) return
     setLoading(true)
     try {
-      await fetch("/api/kiosk/requests", {
+      await apiFetch("/api/kiosk/requests", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           type: "salary_advance",
           employeeId: currentUser.id,
           employeeName: currentUser.name,
           data: advanceRequest,
           timestamp: new Date().toISOString(),
-        }),
+        },
+        label: "SubmitAdvanceRequest",
       })
       setShowAdvanceRequest(false)
       setAdvanceRequest({ amount: 0, reason: "", repaymentPlan: "1month" })
@@ -420,16 +423,16 @@ export default function KioskPage() {
     if (!currentUser || !issueReport.assetName || !issueReport.description) return
     setLoading(true)
     try {
-      await fetch("/api/kiosk/requests", {
+      await apiFetch("/api/kiosk/requests", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           type: "issue_report",
           employeeId: currentUser.id,
           employeeName: currentUser.name,
           data: issueReport,
           timestamp: new Date().toISOString(),
-        }),
+        },
+        label: "SubmitIssueReport",
       })
       setShowIssueReport(false)
       setIssueReport({ assetName: "", issueType: "maintenance", description: "", location: "" })

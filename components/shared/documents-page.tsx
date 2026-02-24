@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { FileText, RefreshCw, Loader2, ExternalLink } from "lucide-react"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 
 interface Document {
   id: number
@@ -33,11 +34,10 @@ export function DocumentsPage({ personaId, personaName, title = "Documents" }: D
 
   const fetchDocuments = useCallback(async () => {
     try {
-      const res = await fetch("/api/documents")
-      const data = await res.json()
-      const docs = Array.isArray(data) ? data : data.documents || []
+      const data = await apiFetch<Document[] | { documents?: Document[] }>("/api/documents", { label: "Documents" })
+      const docs = Array.isArray(data) ? data : (data as { documents?: Document[] })?.documents || []
       const relevant = docs.filter(
-        (d: Document) =>
+        (d) =>
           d.signatories?.includes(personaName) ||
           d.responsible === personaName ||
           d.signedBy?.includes(personaName)

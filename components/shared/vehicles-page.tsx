@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Car, RefreshCw, Loader2 } from "lucide-react"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 
 interface VehicleLog {
   id: number
@@ -30,10 +31,12 @@ export function VehiclesPage({ personaId, title = "Vehicle Log", showAll = false
     try {
       const params = new URLSearchParams()
       if (!showAll) params.set("personaId", personaId)
-      const res = await fetch(`/api/vehicles?${params}`)
-      const data = await res.json()
-      setLogs(data.logs || [])
-      setSummary(data.summary || null)
+      const data = await apiFetch<{ logs?: VehicleLog[]; summary?: { total: number; totalDistance: number } }>(
+        `/api/vehicles?${params}`,
+        { label: "Vehicles" }
+      )
+      setLogs(data?.logs || [])
+      setSummary(data?.summary || null)
     } catch (error) {
       logger.error("Failed to fetch vehicles", { error: error instanceof Error ? error.message : String(error) })
     } finally {

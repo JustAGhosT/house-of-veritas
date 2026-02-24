@@ -51,6 +51,7 @@ import {
   ChevronDown,
 } from "lucide-react"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 
 const CATEGORIES = [
   { value: "building_materials", label: "Building Materials" },
@@ -141,11 +142,13 @@ export default function InventoryPage() {
       if (selectedCategory !== "all") params.append("category", selectedCategory)
       if (showLowStockOnly) params.append("lowStock", "true")
 
-      const res = await fetch(`/api/inventory?${params}`)
-      const data = await res.json()
-      setItems(data.items || [])
-      setAlerts(data.alerts || [])
-      setSummary(data.summary || null)
+      const data = await apiFetch<{ items?: InventoryItem[]; alerts?: Alert[]; summary?: any }>(
+        `/api/inventory?${params}`,
+        { label: "Inventory" }
+      )
+      setItems(data?.items || [])
+      setAlerts(data?.alerts || [])
+      setSummary(data?.summary ?? null)
     } catch (error) {
       logger.error("Failed to fetch inventory", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -160,23 +163,21 @@ export default function InventoryPage() {
   const handleConsume = async () => {
     if (!selectedItem || !consumeQuantity) return
     try {
-      const res = await fetch("/api/inventory", {
+      await apiFetch("/api/inventory", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           action: "consume",
           itemId: selectedItem.id,
           quantity: parseFloat(consumeQuantity),
-          usedBy: "hans", // Would be from auth context
+          usedBy: "hans",
           purpose: consumePurpose,
-        }),
+        },
+        label: "ConsumeInventory",
       })
-      if (res.ok) {
-        fetchInventory()
-        setIsConsumeDialogOpen(false)
-        setConsumeQuantity("")
-        setConsumePurpose("")
-      }
+      fetchInventory()
+      setIsConsumeDialogOpen(false)
+      setConsumeQuantity("")
+      setConsumePurpose("")
     } catch (error) {
       logger.error("Failed to consume", { error: error instanceof Error ? error.message : String(error) })
     }
@@ -185,22 +186,20 @@ export default function InventoryPage() {
   const handleRestock = async () => {
     if (!selectedItem || !restockQuantity) return
     try {
-      const res = await fetch("/api/inventory", {
+      await apiFetch("/api/inventory", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           action: "restock",
           itemId: selectedItem.id,
           quantity: parseFloat(restockQuantity),
           unitCost: restockCost ? parseFloat(restockCost) : undefined,
-        }),
+        },
+        label: "RestockInventory",
       })
-      if (res.ok) {
-        fetchInventory()
-        setIsRestockDialogOpen(false)
-        setRestockQuantity("")
-        setRestockCost("")
-      }
+      fetchInventory()
+      setIsRestockDialogOpen(false)
+      setRestockQuantity("")
+      setRestockCost("")
     } catch (error) {
       logger.error("Failed to restock", { error: error instanceof Error ? error.message : String(error) })
     }
@@ -208,17 +207,16 @@ export default function InventoryPage() {
 
   const generateShoppingList = async () => {
     try {
-      const res = await fetch("/api/inventory", {
+      const data = await apiFetch<{ success?: boolean; shoppingList?: ShoppingListItem[] }>("/api/inventory", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           action: "generate-shopping-list",
           store: selectedStore,
-        }),
+        },
+        label: "GenerateShoppingList",
       })
-      const data = await res.json()
-      if (data.success) {
-        setShoppingList(data.shoppingList || [])
+      if (data?.success) {
+        setShoppingList(data?.shoppingList || [])
         setIsShoppingListOpen(true)
       }
     } catch (error) {

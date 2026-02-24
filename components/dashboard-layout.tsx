@@ -4,6 +4,7 @@ import { useState, useEffect, startTransition } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { apiFetch } from "@/lib/api-client"
 import { NotificationPanel } from "@/components/notification-panel"
 import { RealTimeIndicator } from "@/components/realtime-indicator"
 import { ConnectionStatus } from "@/components/connection-status"
@@ -303,7 +304,7 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
             onComplete={async () => {
               setShowTutorial(false)
               router.replace(pathname || `/dashboard/${user.id}`)
-              await fetch("/api/users/me/onboard", { method: "POST" })
+              await apiFetch("/api/users/me/onboard", { method: "POST", label: "Onboard" })
               router.refresh()
             }}
           />

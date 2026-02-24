@@ -36,6 +36,7 @@ import {
 } from "lucide-react"
 import { AiSuggestIcon } from "@/components/ui/ai-suggest-icon"
 import { logger } from "@/lib/logger"
+import { apiFetch, apiFetchSafe } from "@/lib/api-client"
 
 interface Task {
   id: number
@@ -84,10 +85,13 @@ export function TasksPage({ personaId, title = "Tasks", showAll = false, canAddT
     try {
       const params = new URLSearchParams()
       if (!showAll) params.set("assignee", personaId)
-      const res = await fetch(`/api/tasks?${params}`)
-      const data = await res.json()
-      setTasks(data.tasks || [])
-      setSummary(data.summary || null)
+      const data = await apiFetch<{ tasks?: Task[]; summary?: { total: number; completed: number; inProgress: number; notStarted?: number; overdue: number } }>(
+        `/api/tasks?${params}`,
+        { label: "Tasks" }
+      )
+      setTasks(data?.tasks || [])
+      const s = data?.summary
+      setSummary(s ? { ...s, notStarted: s.notStarted ?? 0 } : null)
     } catch (error) {
       logger.error("Failed to fetch tasks", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -101,27 +105,24 @@ export function TasksPage({ personaId, title = "Tasks", showAll = false, canAddT
 
   useEffect(() => {
     if (!canAddTask) return
-    fetch("/api/projects")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => setProjectOptions((d?.projects || []).map((p: { name: string }) => p.name)))
-      .catch(() => setProjectOptions([]))
+    apiFetchSafe<{ projects?: { name: string }[] }>("/api/projects", { projects: [] }, { label: "Projects" })
+      .then((d) => setProjectOptions((d?.projects || []).map((p) => p.name)))
   }, [canAddTask])
 
   const handleRefineDescription = async () => {
     if (!taskForm.title) return
     setRefineLoading(true)
     try {
-      const res = await fetch("/api/ai/refine-description", {
+      const data = await apiFetch<{ refined?: string }>("/api/ai/refine-description", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           title: taskForm.title,
           description: taskForm.description,
           context: `Task for project: ${taskForm.project || "general"}`,
-        }),
+        },
+        label: "AI Refine",
       })
-      const data = await res.json()
-      if (data.refined) setTaskForm((p) => ({ ...p, description: data.refined }))
+      if (data?.refined) setTaskForm((p) => ({ ...p, description: data.refined ?? p.description }))
     } catch (error) {
       logger.error("Refine task description failed", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -132,23 +133,21 @@ export function TasksPage({ personaId, title = "Tasks", showAll = false, canAddT
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const res = await fetch("/api/tasks", {
+      await apiFetch("/api/tasks", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           title: taskForm.title,
           description: taskForm.description || undefined,
           project: taskForm.project || undefined,
           priority: taskForm.priority,
           assignedTo: taskForm.assignee ? PERSONA_TO_ID[taskForm.assignee] : undefined,
           dueDate: taskForm.dueDate || undefined,
-        }),
+        },
+        label: "Tasks",
       })
-      if (res.ok) {
-        setAddOpen(false)
-        setTaskForm({ title: "", description: "", project: "", priority: "Medium", assignee: "", dueDate: "" })
-        fetchTasks()
-      }
+      setAddOpen(false)
+      setTaskForm({ title: "", description: "", project: "", priority: "Medium", assignee: "", dueDate: "" })
+      fetchTasks()
     } catch (error) {
       logger.error("Failed to create task", { error: error instanceof Error ? error.message : String(error) })
     }

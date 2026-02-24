@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { logger } from '@/lib/logger'
+import { apiFetch } from '@/lib/api-client'
 import {
   AlertTriangle,
   Car,
@@ -47,8 +48,7 @@ export function PredictiveMaintenancePanel() {
     setLoading(true)
     try {
       const params = filter !== 'all' ? `?type=${filter}` : ''
-      const response = await fetch(`/api/ai/maintenance${params}`)
-      const result = await response.json()
+      const result = await apiFetch<MaintenanceData>(`/api/ai/maintenance${params}`, { label: "MaintenancePredictions" })
       setData(result)
     } catch (error) {
       logger.error('Failed to fetch maintenance predictions', { error: error instanceof Error ? error.message : String(error) })
@@ -60,13 +60,12 @@ export function PredictiveMaintenancePanel() {
   const autoScheduleMaintenance = async () => {
     setScheduling(true)
     try {
-      const response = await fetch('/api/maintenance/schedule', {
+      const result = await apiFetch<{ success?: boolean; scheduledCount?: number; calendarEventsCreated?: number }>('/api/maintenance/schedule', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'auto-schedule' }),
+        body: { action: 'auto-schedule' },
+        label: "AutoScheduleMaintenance",
       })
-      const result = await response.json()
-      if (result.success) {
+      if (result?.success) {
         alert(`Scheduled ${result.scheduledCount} maintenance items and created ${result.calendarEventsCreated} calendar events!`)
       }
     } catch (error) {

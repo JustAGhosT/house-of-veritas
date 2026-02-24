@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Upload, X, Loader2, ImageIcon, CheckCircle } from "lucide-react"
 import Image from "next/image"
+import { apiFetch } from "@/lib/api-client"
 
 interface ImageUploadProps {
   onUpload: (files: UploadedFile[]) => void
@@ -78,17 +79,15 @@ export function ImageUpload({
         formData.append("category", category)
         if (assetId) formData.append("assetId", assetId)
 
-        const res = await fetch("/api/files", {
+        const data = await apiFetch<{ success?: boolean; file?: UploadedFile; error?: string }>("/api/files", {
           method: "POST",
           body: formData,
+          label: "UploadFile",
         })
-
-        const data = await res.json()
-        
-        if (data.success) {
+        if (data?.success && data?.file) {
           newUploads.push(data.file)
         } else {
-          setError(data.error || "Upload failed")
+          setError(data?.error || "Upload failed")
         }
       } catch (err: any) {
         setError(err.message || "Upload failed")

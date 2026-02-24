@@ -3,6 +3,7 @@
 import { motion, useInView } from "framer-motion"
 import { useRef, useEffect, useState } from "react"
 import { TrendingUp, CheckCircle2, AlertCircle, Clock } from "lucide-react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface ContractorData {
   contractors: Array<{
@@ -12,22 +13,21 @@ interface ContractorData {
     totalPaid: number
     remaining: number
   }>
-  summary: {
+  summary?: {
     totalPaid: number
     totalRemaining: number
     averageProgress: number
   }
 }
 
+const EMPTY_CONTRACTORS: ContractorData = { contractors: [], summary: { totalPaid: 0, totalRemaining: 0, averageProgress: 0 } }
+
 function ContractorMilestones() {
   const [data, setData] = useState<ContractorData | null>(null)
 
   useEffect(() => {
-    fetch('/api/contractors')
-      .then(res => res.json())
-      .then((d) => (Array.isArray(d?.contractors) ? d : { contractors: [] }))
-      .then(setData)
-      .catch(() => setData({ contractors: [] }))
+    apiFetchSafe<ContractorData>("/api/contractors", EMPTY_CONTRACTORS, { label: "Contractors" })
+      .then((d) => setData(Array.isArray(d?.contractors) ? d : EMPTY_CONTRACTORS))
   }, [])
 
   if (!data) return <div className="text-zinc-500 text-sm">Loading...</div>
@@ -73,19 +73,19 @@ function QuickStats() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/stats').then(r => r.json()),
-      fetch('/api/tasks').then(r => r.json()),
-      fetch('/api/documents').then(r => r.json()),
+      apiFetchSafe<{ budget?: { percentage?: number } }>("/api/stats", {}, { label: "Stats" }),
+      apiFetchSafe<{ summary?: { completed?: number; total?: number } }>("/api/tasks", {}, { label: "Tasks" }),
+      apiFetchSafe<Array<{ expiryDays?: number }>>("/api/documents", [], { label: "Documents" }),
     ]).then(([statsData, tasksData, docsData]) => {
       const tasksSummary = tasksData?.summary
       const docs = Array.isArray(docsData) ? docsData : []
       setStats({
         tasksCompleted: tasksSummary?.completed ?? 0,
         tasksTotal: tasksSummary?.total ?? 0,
-        docsExpiringSoon: docs.filter((d: { expiryDays?: number }) => (d?.expiryDays ?? 999) < 60).length,
+        docsExpiringSoon: docs.filter((d) => (d?.expiryDays ?? 999) < 60).length,
         budgetUsed: statsData?.budget?.percentage ?? 0
       })
-    }).catch(() => setStats({ tasksCompleted: 0, tasksTotal: 0, docsExpiringSoon: 0, budgetUsed: 0 }))
+    })
   }, [])
 
   if (!stats) return null
@@ -143,10 +143,8 @@ function DocumentExpiry() {
   const [docs, setDocs] = useState<any[]>([])
 
   useEffect(() => {
-    fetch('/api/documents')
-      .then(res => res.json())
-      .then(data => setDocs(Array.isArray(data) ? data.slice(0, 5) : []))
-      .catch(() => setDocs([]))
+    apiFetchSafe<unknown[]>("/api/documents", [], { label: "Documents" })
+      .then((data) => setDocs(Array.isArray(data) ? data.slice(0, 5) : []))
   }, [])
 
   return (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { logger } from '@/lib/logger'
+import { apiFetch } from '@/lib/api-client'
 import {
   Fingerprint,
   ScanFace,
@@ -56,8 +57,7 @@ export function BiometricTimeClockPanel() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/biometric')
-      const result = await response.json()
+      const result = await apiFetch<BiometricData>('/api/biometric', { label: 'Biometric' })
       setData(result)
     } catch (error) {
       logger.error('Failed to fetch biometric data', { error: error instanceof Error ? error.message : String(error) })
@@ -76,20 +76,12 @@ export function BiometricTimeClockPanel() {
   const handleClockAction = async (employeeId: string, action: 'clock_in' | 'clock_out') => {
     setClocking(employeeId)
     try {
-      const response = await fetch('/api/biometric', {
+      const result = await apiFetch<{ success?: boolean }>('/api/biometric', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action,
-          employeeId,
-          method: 'fingerprint',
-          location: 'Dashboard',
-        }),
+        body: { action, employeeId, method: 'fingerprint', location: 'Dashboard' },
+        label: 'Biometric',
       })
-      const result = await response.json()
-      if (result.success) {
-        fetchData()
-      }
+      if (result?.success) fetchData()
     } catch (error) {
       logger.error('Clock action failed', { error: error instanceof Error ? error.message : String(error) })
     } finally {

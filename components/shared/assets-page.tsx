@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Package, RefreshCw, Loader2 } from "lucide-react"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 
 interface Asset {
   id: number
@@ -30,10 +31,12 @@ export function AssetsPage({ personaId, title = "Assets", showAll = false }: Ass
 
   const fetchAssets = useCallback(async () => {
     try {
-      const res = await fetch("/api/assets")
-      const data = await res.json()
-      setAssets(data.assets || [])
-      setSummary(data.summary || null)
+      const data = await apiFetch<{ assets?: Asset[]; summary?: { total: number; available: number; checkedOut: number } }>(
+        "/api/assets",
+        { label: "Assets" }
+      )
+      setAssets(data?.assets || [])
+      setSummary(data?.summary || null)
     } catch (error) {
       logger.error("Failed to fetch assets", { error: error instanceof Error ? error.message : String(error) })
     } finally {

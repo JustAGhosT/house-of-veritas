@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Clock, Play, Square, Loader2, RefreshCw } from "lucide-react"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 
 interface TimePageProps {
   personaId: string
@@ -23,13 +24,13 @@ export function TimePage({ personaId, title = "Time Clock", showAll = false }: T
     try {
       const params = new URLSearchParams()
       if (!showAll) params.set("personaId", personaId)
-      const res = await fetch(`/api/time?${params}`)
-      if (!res.ok) {
-        throw new Error(`API error: ${res.status}`)
-      }
-      const data = await res.json()
-      setEntries(data.entries || [])
-      setSummary(data.summary || null)
+      const data = await apiFetch<{ entries?: { id: number; date: string; clockIn?: string; clockOut?: string; employeeName?: string }[]; summary?: { todayClockedIn?: number; totalHoursToday?: number } | null }>(
+        `/api/time?${params}`,
+        { label: "Time" }
+      )
+      setEntries(data?.entries || [])
+      const sum = data?.summary
+      setSummary(sum ? { todayClockedIn: sum.todayClockedIn ?? 0, totalHoursToday: sum.totalHoursToday ?? 0 } : null)
     } catch (error) {
       logger.error("Failed to fetch time", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -48,16 +49,9 @@ export function TimePage({ personaId, title = "Time Clock", showAll = false }: T
   const handleClock = async () => {
     setProcessing(true)
     try {
-      const action = clockedIn ? "clockOut" : "clockIn"
       const body = clockedIn ? { action: "clockOut", personaId } : { action: "clockIn", personaId }
-      const res = await fetch("/api/time", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      })
-      if (res.ok) {
-        await fetchTime()
-      }
+      await apiFetch("/api/time", { method: "POST", body, label: "Time" })
+      await fetchTime()
     } catch (error) {
       logger.error("Clock failed", { error: error instanceof Error ? error.message : String(error) })
     } finally {

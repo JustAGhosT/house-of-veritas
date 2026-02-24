@@ -50,6 +50,7 @@ import {
 } from "lucide-react"
 import { AiSuggestIcon } from "@/components/ui/ai-suggest-icon"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 import Image from "next/image"
 
 // Asset Categories
@@ -165,11 +166,13 @@ export default function AssetsPage() {
       if (selectedSaleStatus !== "all") params.append("saleStatus", selectedSaleStatus)
       if (searchTerm) params.append("search", searchTerm)
 
-      const res = await fetch(`/api/assets/enhanced?${params}`)
-      const data = await res.json()
-      setAssets(data.assets || [])
-      setSummary(data.summary || null)
-      if (data.storageOptions?.length) setStorageOptions(data.storageOptions)
+      const data = await apiFetch<{ assets?: Asset[]; summary?: AssetSummary | null; storageOptions?: string[] }>(
+        `/api/assets/enhanced?${params}`,
+        { label: "Assets" }
+      )
+      setAssets(data?.assets || [])
+      setSummary(data?.summary ?? null)
+      if (data?.storageOptions?.length) setStorageOptions(data.storageOptions)
     } catch (error) {
       logger.error("Failed to fetch assets", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -195,18 +198,15 @@ export default function AssetsPage() {
         ...(editingAsset ? { id: editingAsset.id } : {}),
       }
 
-      const res = await fetch("/api/assets/enhanced", {
+      await apiFetch("/api/assets/enhanced", {
         method: editingAsset ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: payload,
+        label: "SaveAsset",
       })
-
-      if (res.ok) {
-        fetchAssets()
-        setIsAddDialogOpen(false)
-        setEditingAsset(null)
-        resetForm()
-      }
+      fetchAssets()
+      setIsAddDialogOpen(false)
+      setEditingAsset(null)
+      resetForm()
     } catch (error) {
       logger.error("Failed to save asset", { error: error instanceof Error ? error.message : String(error) })
     }
@@ -215,8 +215,8 @@ export default function AssetsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this asset?")) return
     try {
-      const res = await fetch(`/api/assets/enhanced?id=${id}`, { method: "DELETE" })
-      if (res.ok) fetchAssets()
+      await apiFetch(`/api/assets/enhanced?id=${id}`, { method: "DELETE", label: "DeleteAsset" })
+      fetchAssets()
     } catch (error) {
       logger.error("Failed to delete asset", { error: error instanceof Error ? error.message : String(error) })
     }
@@ -246,19 +246,16 @@ export default function AssetsPage() {
     if (!formData.name.trim()) return
     setSuggestingStorage(true)
     try {
-      const res = await fetch("/api/ai/suggest-storage", {
+      const data = await apiFetch<{ suggested?: string }>("/api/ai/suggest-storage", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           name: formData.name,
           description: formData.description || undefined,
           category: formData.category || undefined,
-        }),
+        },
+        label: "SuggestStorage",
       })
-      const data = await res.json()
-      if (data.suggested) {
-        setFormData((p) => ({ ...p, storageOption: data.suggested, location: data.suggested }))
-      }
+      if (data?.suggested) setFormData((p) => ({ ...p, storageOption: data.suggested!, location: data.suggested! }))
     } finally {
       setSuggestingStorage(false)
     }
@@ -268,18 +265,15 @@ export default function AssetsPage() {
     if (!formData.name.trim()) return
     setSuggestingCategory(true)
     try {
-      const res = await fetch("/api/ai/suggest-category", {
+      const data = await apiFetch<{ suggested?: string }>("/api/ai/suggest-category", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           name: formData.name,
           description: formData.description || undefined,
-        }),
+        },
+        label: "SuggestCategory",
       })
-      const data = await res.json()
-      if (data.suggested) {
-        setFormData((p) => ({ ...p, category: data.suggested }))
-      }
+      if (data?.suggested) setFormData((p) => ({ ...p, category: data.suggested! }))
     } finally {
       setSuggestingCategory(false)
     }

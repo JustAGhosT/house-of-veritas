@@ -36,6 +36,7 @@ import {
   Send,
 } from "lucide-react"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 import type { UserWithManagement, UserStatus, OnboardingStatus } from "@/lib/user-management"
 import type { UserRole } from "@/lib/users"
 import { EmployeesPage } from "@/components/shared/employees-page"
@@ -72,11 +73,8 @@ export default function HansTeamPage() {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch("/api/users")
-      if (res.ok) {
-        const data = await res.json()
-        setUsers(data.users || [])
-      }
+      const data = await apiFetch<{ users?: UserWithManagement[] }>("/api/users", { label: "Users" })
+      setUsers(data?.users || [])
     } catch (error) {
       logger.error("Failed to fetch users", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -91,8 +89,8 @@ export default function HansTeamPage() {
   const handleOnboard = async (user: UserWithManagement) => {
     setProcessing(true)
     try {
-      const res = await fetch(`/api/users/${user.id}/onboard`, { method: "POST" })
-      if (res.ok) await fetchUsers()
+      await apiFetch(`/api/users/${user.id}/onboard`, { method: "POST", label: "Onboard" })
+      await fetchUsers()
     } catch (error) {
       logger.error("Onboard failed", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -103,8 +101,8 @@ export default function HansTeamPage() {
   const handleInvite = async (user: UserWithManagement) => {
     setInvitingId(user.id)
     try {
-      const res = await fetch(`/api/users/${user.id}/invite`, { method: "POST" })
-      if (res.ok) await fetchUsers()
+      await apiFetch(`/api/users/${user.id}/invite`, { method: "POST", label: "Invite" })
+      await fetchUsers()
     } catch (error) {
       logger.error("Invite failed", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -115,12 +113,12 @@ export default function HansTeamPage() {
   const handleOffboard = async (user: UserWithManagement, complete = false) => {
     setProcessing(true)
     try {
-      const res = await fetch(`/api/users/${user.id}/offboard`, {
+      await apiFetch(`/api/users/${user.id}/offboard`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ complete }),
+        body: { complete },
+        label: "Offboard",
       })
-      if (res.ok) await fetchUsers()
+      await fetchUsers()
     } catch (error) {
       logger.error("Offboard failed", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -132,16 +130,14 @@ export default function HansTeamPage() {
     if (!selectedUser) return
     setProcessing(true)
     try {
-      const res = await fetch(`/api/users/${selectedUser.id}`, {
+      await apiFetch(`/api/users/${selectedUser.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editForm),
+        body: editForm,
+        label: "UpdateUser",
       })
-      if (res.ok) {
-        setShowEditDialog(false)
-        setSelectedUser(null)
-        await fetchUsers()
-      }
+      setShowEditDialog(false)
+      setSelectedUser(null)
+      await fetchUsers()
     } catch (error) {
       logger.error("Update failed", { error: error instanceof Error ? error.message : String(error) })
     } finally {

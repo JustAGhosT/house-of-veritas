@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { apiFetchSafe } from "@/lib/api-client"
 import DashboardLayout from "@/components/dashboard-layout"
 import {
   FileText,
@@ -310,9 +311,7 @@ export default function HansDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Fetch dashboard data
-    fetch("/api/stats")
-      .then((res) => res.json())
+    apiFetchSafe<any>("/api/stats", null, { label: "Stats" })
       .then((data) => {
         setStats(data)
         setLoading(false)

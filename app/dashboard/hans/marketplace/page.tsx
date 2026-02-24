@@ -39,6 +39,7 @@ import {
   AlertCircle,
 } from "lucide-react"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 
 interface MarketplaceListing {
   id: string
@@ -121,20 +122,16 @@ export default function MarketplacePage() {
 
   const fetchListings = useCallback(async () => {
     try {
-      const [listingsRes, platformsRes, assetsRes] = await Promise.all([
-        fetch("/api/marketplace"),
-        fetch("/api/marketplace?action=platforms"),
-        fetch("/api/assets/enhanced?saleStatus=for_sale"),
+      const [listingsData, platformsData, assetsData] = await Promise.all([
+        apiFetch<{ listings?: MarketplaceListing[]; summary?: unknown }>("/api/marketplace", { label: "Marketplace" }),
+        apiFetch<{ platforms?: Record<string, Platform> }>("/api/marketplace?action=platforms", { label: "Platforms" }),
+        apiFetch<{ assets?: Asset[] }>("/api/assets/enhanced?saleStatus=for_sale", { label: "AssetsForSale" }),
       ])
 
-      const listingsData = await listingsRes.json()
-      const platformsData = await platformsRes.json()
-      const assetsData = await assetsRes.json()
-
-      setListings(listingsData.listings || [])
-      setSummary(listingsData.summary || null)
-      setPlatforms(platformsData.platforms || {})
-      setAssetsForSale(assetsData.assets || [])
+      setListings(listingsData?.listings ?? [])
+      setSummary(listingsData?.summary ?? null)
+      setPlatforms(platformsData?.platforms ?? {})
+      setAssetsForSale(assetsData?.assets ?? [])
     } catch (error) {
       logger.error("Failed to fetch data", { error: error instanceof Error ? error.message : String(error) })
     } finally {
@@ -150,10 +147,9 @@ export default function MarketplacePage() {
     if (!selectedAsset) return
 
     try {
-      const res = await fetch("/api/marketplace", {
+      const data = await apiFetch<{ success?: boolean; generated?: { title?: string; description?: string; suggestedPrice?: number } }>("/api/marketplace", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           action: "generate-listing",
           assetId: selectedAsset.id,
           assetName: selectedAsset.name,
@@ -163,15 +159,14 @@ export default function MarketplacePage() {
           model: selectedAsset.model,
           price: selectedAsset.salePrice || selectedAsset.currentValue,
           description: selectedAsset.description,
-        }),
+        },
+        label: "GenerateListing",
       })
-
-      const data = await res.json()
-      if (data.success) {
+      if (data?.success && data?.generated) {
         setGeneratedListing(data.generated)
-        setListingTitle(data.generated.title)
-        setListingDescription(data.generated.description)
-        setListingPrice(data.generated.suggestedPrice?.toString() || "")
+        setListingTitle(data.generated.title ?? "")
+        setListingDescription(data.generated.description ?? "")
+        setListingPrice(data.generated.suggestedPrice?.toString() ?? "")
         setIsGenerateDialogOpen(false)
         setIsPublishDialogOpen(true)
       }
@@ -184,10 +179,9 @@ export default function MarketplacePage() {
     if (!selectedAsset || selectedPlatforms.length === 0) return
 
     try {
-      const res = await fetch("/api/marketplace", {
+      const data = await apiFetch<{ success?: boolean }>("/api/marketplace", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           action: "auto-publish",
           assetId: selectedAsset.id,
           assetName: selectedAsset.name,
@@ -197,11 +191,10 @@ export default function MarketplacePage() {
           price: parseFloat(listingPrice),
           category: selectedAsset.category,
           condition: selectedAsset.condition,
-        }),
+        },
+        label: "PublishListing",
       })
-
-      const data = await res.json()
-      if (data.success) {
+      if (data?.success) {
         fetchListings()
         setIsPublishDialogOpen(false)
         resetForm()

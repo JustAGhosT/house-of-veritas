@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Users, RefreshCw, Loader2 } from "lucide-react"
 import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 
 interface Employee {
   id: number
@@ -25,9 +26,8 @@ export function EmployeesPage({ embedded = false }: EmployeesPageProps = {}) {
 
   const fetchEmployees = useCallback(async () => {
     try {
-      const res = await fetch("/api/employees")
-      const data = await res.json()
-      setEmployees(data.employees || [])
+      const data = await apiFetch<{ employees?: Employee[] }>("/api/employees", { label: "Employees" })
+      setEmployees(data?.employees || [])
     } catch (error) {
       logger.error("Failed to fetch employees", { error: error instanceof Error ? error.message : String(error) })
     } finally {

@@ -30,6 +30,7 @@ import {
   Settings,
 } from "lucide-react"
 import Image from "next/image"
+import { apiFetch, ApiError } from "@/lib/api-client"
 
 const colorClasses: Record<string, string> = {
   blue: "from-blue-500 to-blue-700",
@@ -74,18 +75,17 @@ export function UserProfileDropdown({
     setSaving(true)
     setError("")
     try {
-      const res = await fetch("/api/users/me", {
+      await apiFetch("/api/users/me", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone }),
+        body: { phone },
+        label: "SaveProfile",
       })
-      if (res.ok) {
-        setEditOpen(false)
-        router.refresh()
-      } else {
-        const data = await res.json()
-        setError(data.error || "Failed to save")
-      }
+      setEditOpen(false)
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof ApiError && typeof err.body === "object" && err.body && "error" in err.body
+        ? String((err.body as { error?: string }).error)
+        : "Failed to save")
     } finally {
       setSaving(false)
     }
@@ -103,20 +103,19 @@ export function UserProfileDropdown({
     setSaving(true)
     setError("")
     try {
-      const res = await fetch("/api/users/me/password", {
+      await apiFetch("/api/users/me/password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: { password },
+        label: "SavePassword",
       })
-      if (res.ok) {
-        setPasswordOpen(false)
-        setPassword("")
-        setConfirmPassword("")
-        router.refresh()
-      } else {
-        const data = await res.json()
-        setError(data.error || "Failed to update password")
-      }
+      setPasswordOpen(false)
+      setPassword("")
+      setConfirmPassword("")
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof ApiError && typeof err.body === "object" && err.body && "error" in err.body
+        ? String((err.body as { error?: string }).error)
+        : "Failed to update password")
     } finally {
       setSaving(false)
     }
