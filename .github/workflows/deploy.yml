@@ -279,6 +279,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nextjs-build
+
+      - name: Create deployment package
+        run: zip -r deploy.zip . -x "*.git*"
       
       - name: Azure Login
         uses: azure/login@v2
@@ -289,7 +292,7 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ vars.WEBAPP_NAME || 'nl-prod-hov-app-san' }}
-          package: .
+          package: deploy.zip
       
       - name: Verify Web App Health
         run: |

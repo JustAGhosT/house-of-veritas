@@ -97,6 +97,8 @@ Run a self-hosted GitHub Actions runner on a VM inside your Azure VNet (e.g. in 
 
 **"next: not found" on Azure App Service:** The deploy workflow uses Next.js standalone output. After build, `.next/static` and `public` are copied into `.next/standalone/`, the standalone `package.json` start script is set to `node server.js`, and that folder is deployed. Terraform sets `app_command_line = "node server.js"` to override the default. If you see "next: not found": 1) Run the full deploy workflow (build + deploy-infrastructure + deploy-webapp) so Terraform applies the startup command and the new artifact is deployed; 2) Re-run the workflow if it previously failed before deploy-webapp; 3) Check Azure Portal → Web App → Configuration → General Settings for "Startup Command" = `node server.js`.
 
+**"Could not find a production build in the './.next' directory":** The `.next` folder is hidden (dot-prefixed) and can be excluded when packaging. The deploy workflow creates an explicit `zip -r deploy.zip .` before deploy so `.next` is included. If this error persists, verify the zip contains `.next` (e.g. `unzip -l deploy.zip | grep "\.next"` in a local test).
+
 **ApplicationGatewayDeprecatedTlsVersionUsedInSslPolicy:** AppGwSslPolicy20150501 (TLS 1.0/1.1) is deprecated as of Aug 2025. The gateway module uses a **static** `ssl_policy` block (always present) with `policy_name = "AppGwSslPolicy20220101"` (TLS 1.2 and 1.3). Do not use a dynamic block—omitting `ssl_policy` lets Azure default to the deprecated policy. Regenerate the plan (`terraform plan -out=tfplan`) before applying. See [Azure TLS retirement](https://aka.ms/appgw-oldtlsversions).
 
 ---
