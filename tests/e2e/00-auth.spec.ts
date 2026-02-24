@@ -70,6 +70,7 @@ test.describe("Authentication", () => {
         { timeout: 10000 }
       )
 
+      await page.request.post("/api/auth/logout")
       await page.goto("/login")
     }
   })
