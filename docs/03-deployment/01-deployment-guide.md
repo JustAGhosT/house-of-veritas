@@ -637,7 +637,7 @@ Resolve-DnsName -Name nexamesh.ai -Type NS
 - All subnets private except gateway; NSG deny-by-default
 - Managed identities for container KV access
 - Key Vault with network ACLs (container subnet only)
-- TLS 1.2+ enforced on storage and database
+- TLS 1.2+ enforced on Application Gateway, storage, and database
 - WAF (OWASP 3.2) on Application Gateway
 - Blob versioning and soft-delete enabled
 - POPIA, BCEA, ECT Act compliant

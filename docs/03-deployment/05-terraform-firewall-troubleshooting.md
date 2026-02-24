@@ -95,6 +95,8 @@ Run a self-hosted GitHub Actions runner on a VM inside your Azure VNet (e.g. in 
 
 **Consumption Budget 400 (offerType: None):** Cost Management consumption budgets only support Enterprise Agreement, Web direct, and Microsoft Customer Agreement. Visual Studio / MSDN subscriptions (e.g. MS-AZR-0036P) return `offerType: None` and cannot use `azurerm_consumption_budget_resource_group`. Set `enable_consumption_budget = false` in the monitoring module.
 
+**ApplicationGatewayDeprecatedTlsVersionUsedInSslPolicy:** AppGwSslPolicy20150501 (TLS 1.0/1.1) is deprecated as of Aug 2025. The gateway module uses `ssl_policy` with `policy_name = "AppGwSslPolicy20220101"` (TLS 1.2 and 1.3). No `ssl_profile`; listeners inherit the gateway policy. See [Azure TLS retirement](https://aka.ms/appgw-oldtlsversions).
+
 ---
 
 ## Resource Names (Production Defaults)
