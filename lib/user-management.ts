@@ -1,8 +1,4 @@
-import {
-  isPostgresConfigured,
-  query,
-  withClient,
-} from "@/lib/db/postgres"
+import { isPostgresConfigured, query, withClient } from "@/lib/db/postgres"
 import { User, UserRole, findUserByIdAsync, getAllUsersAsync } from "@/lib/users"
 
 export type UserStatus = "active" | "inactive" | "onboarding" | "offboarding" | "offboarded"
@@ -121,7 +117,7 @@ export async function getAllUsersWithManagement(): Promise<UserWithManagement[]>
       passwordHash: undefined as never,
       status: "active" as UserStatus,
       responsibilities: u.specialty || [],
-      onboardingStatus: u.id === "hans" ? "completed" : "pending" as OnboardingStatus,
+      onboardingStatus: u.id === "hans" ? "completed" : ("pending" as OnboardingStatus),
       onboardingCompletedAt: u.id === "hans" ? new Date().toISOString() : null,
       offboardingStatus: "none" as OffboardingStatus,
       offboardingInitiatedAt: null,
@@ -150,7 +146,7 @@ export async function getUserWithManagement(id: string): Promise<UserWithManagem
       passwordHash: undefined as never,
       status: "active" as UserStatus,
       responsibilities: user.specialty || [],
-      onboardingStatus: user.id === "hans" ? "completed" : "pending" as OnboardingStatus,
+      onboardingStatus: user.id === "hans" ? "completed" : ("pending" as OnboardingStatus),
       onboardingCompletedAt: user.id === "hans" ? new Date().toISOString() : null,
       offboardingStatus: "none" as OffboardingStatus,
       offboardingInitiatedAt: null,
@@ -224,10 +220,7 @@ export async function updateUserManagement(
   setClauses.push(`updated_at = NOW()`)
   values.push(id)
 
-  await query(
-    `UPDATE users SET ${setClauses.join(", ")} WHERE LOWER(id) = LOWER($${idx})`,
-    values
-  )
+  await query(`UPDATE users SET ${setClauses.join(", ")} WHERE LOWER(id) = LOWER($${idx})`, values)
   return getUserWithManagement(id)
 }
 

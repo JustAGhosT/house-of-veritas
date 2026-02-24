@@ -2,7 +2,15 @@ import { NextResponse } from "next/server"
 import { withAuth } from "@/lib/auth/rbac"
 import { suggestExpenseCategory } from "@/lib/ai/azure-foundry"
 
-const EXPENSE_CATEGORIES = ["Materials", "Supplies", "Fuel", "Tools", "Services", "Maintenance", "Other"]
+const EXPENSE_CATEGORIES = [
+  "Materials",
+  "Supplies",
+  "Fuel",
+  "Tools",
+  "Services",
+  "Maintenance",
+  "Other",
+]
 
 export const POST = withAuth(async (request: Request) => {
   try {

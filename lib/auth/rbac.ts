@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server"
 import type { UserRole } from "@/lib/users"
-import { hasResponsibility, getDefaultResponsibilities, type Responsibility } from "@/lib/access-config"
+import {
+  hasResponsibility,
+  getDefaultResponsibilities,
+  type Responsibility,
+} from "@/lib/access-config"
 
 export interface AuthenticatedRequest extends NextRequest {
   userId: string
@@ -25,7 +29,9 @@ export function getAuthContext(request: Request): {
   if (responsibilitiesHeader) {
     try {
       const parsed = JSON.parse(responsibilitiesHeader)
-      responsibilities = Array.isArray(parsed) ? (parsed as string[]) : getDefaultResponsibilities(role)
+      responsibilities = Array.isArray(parsed)
+        ? (parsed as string[])
+        : getDefaultResponsibilities(role)
     } catch {
       responsibilities = getDefaultResponsibilities(role)
     }
@@ -51,7 +57,10 @@ type RouteHandler = (
 
 export function withRole(...allowedRoles: UserRole[]) {
   return function (handler: RouteHandler) {
-    return async function (request: Request, routeContext?: { params?: Promise<Record<string, string>> }) {
+    return async function (
+      request: Request,
+      routeContext?: { params?: Promise<Record<string, string>> }
+    ) {
       const auth = getAuthContext(request)
       if (!auth) {
         return NextResponse.json({ error: "Authentication required" }, { status: 401 })
@@ -73,17 +82,17 @@ export function withRole(...allowedRoles: UserRole[]) {
  */
 export function withResponsibility(required: Responsibility) {
   return function (handler: RouteHandler) {
-    return async function (request: Request, routeContext?: { params?: Promise<Record<string, string>> }) {
+    return async function (
+      request: Request,
+      routeContext?: { params?: Promise<Record<string, string>> }
+    ) {
       const auth = getAuthContext(request)
       if (!auth) {
         return NextResponse.json({ error: "Authentication required" }, { status: 401 })
       }
 
       if (auth.role !== "admin" && !hasResponsibility(auth.responsibilities ?? [], required)) {
-        return NextResponse.json(
-          { error: `Requires responsibility: ${required}` },
-          { status: 403 }
-        )
+        return NextResponse.json({ error: `Requires responsibility: ${required}` }, { status: 403 })
       }
 
       const context: RouteContext = { ...auth, params: routeContext?.params }
@@ -93,7 +102,10 @@ export function withResponsibility(required: Responsibility) {
 }
 
 export function withAuth(handler: RouteHandler) {
-  return async function (request: Request, routeContext?: { params?: Promise<Record<string, string>> }) {
+  return async function (
+    request: Request,
+    routeContext?: { params?: Promise<Record<string, string>> }
+  ) {
     const auth = getAuthContext(request)
     if (!auth) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })

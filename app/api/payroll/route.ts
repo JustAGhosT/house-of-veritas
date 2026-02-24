@@ -16,9 +16,9 @@ export function isQuickBooksConfigured(): boolean {
 // Employee payroll data (mock)
 const EMPLOYEE_PAYROLL = [
   {
-    id: 'charl',
-    name: 'Charl',
-    role: 'Workshop & Maintenance',
+    id: "charl",
+    name: "Charl",
+    role: "Workshop & Maintenance",
     hourlyRate: 85,
     monthlyHours: 176,
     overtime: 12,
@@ -26,9 +26,9 @@ const EMPLOYEE_PAYROLL = [
     deductions: { tax: 2850, uif: 142, pension: 570 },
   },
   {
-    id: 'lucky',
-    name: 'Lucky',
-    role: 'Gardener & Groundskeeper',
+    id: "lucky",
+    name: "Lucky",
+    role: "Gardener & Groundskeeper",
     hourlyRate: 65,
     monthlyHours: 184,
     overtime: 8,
@@ -36,9 +36,9 @@ const EMPLOYEE_PAYROLL = [
     deductions: { tax: 1980, uif: 120, pension: 480 },
   },
   {
-    id: 'irma',
-    name: 'Irma',
-    role: 'Housekeeper & Admin',
+    id: "irma",
+    name: "Irma",
+    role: "Housekeeper & Admin",
     hourlyRate: 75,
     monthlyHours: 160,
     overtime: 0,
@@ -48,7 +48,7 @@ const EMPLOYEE_PAYROLL = [
 ]
 
 // Calculate payroll for an employee
-function calculatePayroll(employee: typeof EMPLOYEE_PAYROLL[0]) {
+function calculatePayroll(employee: (typeof EMPLOYEE_PAYROLL)[0]) {
   const regularPay = employee.hourlyRate * employee.monthlyHours
   const overtimePay = employee.overtimeRate * employee.overtime
   const grossPay = regularPay + overtimePay
@@ -68,7 +68,10 @@ function calculatePayroll(employee: typeof EMPLOYEE_PAYROLL[0]) {
 const payrollQuerySchema = z.object({
   action: z.enum(["status", "run", "export"]).optional(),
   employeeId: z.string().optional(),
-  month: z.string().regex(/^\d{4}-\d{2}$/).default(new Date().toISOString().slice(0, 7)),
+  month: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/)
+    .default(new Date().toISOString().slice(0, 7)),
 })
 
 export const GET = withRole("admin")(async (request) => {
@@ -79,35 +82,38 @@ export const GET = withRole("admin")(async (request) => {
     month: searchParams.get("month") || new Date().toISOString().slice(0, 7),
   })
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid query parameters", details: parsed.error.flatten() }, { status: 400 })
+    return NextResponse.json(
+      { error: "Invalid query parameters", details: parsed.error.flatten() },
+      { status: 400 }
+    )
   }
   const { action, employeeId, month } = parsed.data
 
   // Check integration status
-  if (action === 'status') {
+  if (action === "status") {
     return NextResponse.json({
       quickbooks: {
         configured: isQuickBooksConfigured(),
-        mode: isQuickBooksConfigured() ? 'live' : 'mock',
+        mode: isQuickBooksConfigured() ? "live" : "mock",
       },
       xero: {
         configured: false,
-        mode: 'mock',
+        mode: "mock",
       },
       note: isQuickBooksConfigured()
-        ? 'QuickBooks integration active'
-        : 'Using mock payroll data. Configure QUICKBOOKS_CLIENT_ID/SECRET for live integration.',
+        ? "QuickBooks integration active"
+        : "Using mock payroll data. Configure QUICKBOOKS_CLIENT_ID/SECRET for live integration.",
     })
   }
 
   // Get specific employee payroll
   if (employeeId) {
-    const employee = EMPLOYEE_PAYROLL.find(e => e.id === employeeId)
+    const employee = EMPLOYEE_PAYROLL.find((e) => e.id === employeeId)
     if (!employee) {
-      return NextResponse.json({ error: 'Employee not found' }, { status: 404 })
+      return NextResponse.json({ error: "Employee not found" }, { status: 404 })
     }
     return NextResponse.json({
-      mode: isQuickBooksConfigured() ? 'live' : 'mock',
+      mode: isQuickBooksConfigured() ? "live" : "mock",
       month,
       payroll: calculatePayroll(employee),
     })
@@ -124,7 +130,7 @@ export const GET = withRole("admin")(async (request) => {
   }
 
   return NextResponse.json({
-    mode: isQuickBooksConfigured() ? 'live' : 'mock',
+    mode: isQuickBooksConfigured() ? "live" : "mock",
     month,
     employees: payrollData,
     totals,
@@ -137,30 +143,33 @@ export const POST = withRole("admin")(async (request) => {
     const body = await request.json()
     const { action, month, employeeId, adjustments } = body
 
-    if (action === 'run-payroll') {
+    if (action === "run-payroll") {
       // In production, this would sync with QuickBooks
       const payrollData = EMPLOYEE_PAYROLL.map(calculatePayroll)
-      
+
       return NextResponse.json({
         success: true,
-        mode: isQuickBooksConfigured() ? 'live' : 'mock',
+        mode: isQuickBooksConfigured() ? "live" : "mock",
         month: month || new Date().toISOString().slice(0, 7),
-        status: 'processed',
+        status: "processed",
         employees: payrollData.length,
         totalPayout: payrollData.reduce((sum, p) => sum + p.netPay, 0),
         message: isQuickBooksConfigured()
-          ? 'Payroll synced to QuickBooks'
-          : 'Payroll processed (mock mode)',
+          ? "Payroll synced to QuickBooks"
+          : "Payroll processed (mock mode)",
       })
     }
 
-    if (action === 'sync-quickbooks') {
+    if (action === "sync-quickbooks") {
       if (!isQuickBooksConfigured()) {
-        return NextResponse.json({
-          success: false,
-          error: 'QuickBooks not configured',
-          instructions: 'Set QUICKBOOKS_CLIENT_ID and QUICKBOOKS_CLIENT_SECRET',
-        }, { status: 400 })
+        return NextResponse.json(
+          {
+            success: false,
+            error: "QuickBooks not configured",
+            instructions: "Set QUICKBOOKS_CLIENT_ID and QUICKBOOKS_CLIENT_SECRET",
+          },
+          { status: 400 }
+        )
       }
 
       // In production: sync time entries and expenses to QuickBooks
@@ -170,27 +179,24 @@ export const POST = withRole("admin")(async (request) => {
           timeEntries: 24,
           expenses: 8,
         },
-        message: 'Data synced to QuickBooks',
+        message: "Data synced to QuickBooks",
       })
     }
 
-    if (action === 'adjust-payroll' && employeeId && adjustments) {
+    if (action === "adjust-payroll" && employeeId && adjustments) {
       // Process payroll adjustments
       return NextResponse.json({
         success: true,
         employeeId,
         adjustments,
-        message: 'Payroll adjustments recorded',
+        message: "Payroll adjustments recorded",
       })
     }
 
-    return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 })
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Unknown error"
     logger.error("Payroll operation failed", { error: msg })
-    return NextResponse.json(
-      { error: "Payroll operation failed" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Payroll operation failed" }, { status: 500 })
   }
 })

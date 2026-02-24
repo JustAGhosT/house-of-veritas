@@ -44,37 +44,37 @@ Upload the 18 governance documents as templates. See `/config/templates/` for th
 
 ### Template Categories
 
-| # | Document | Type | Signers |
-| - | -------- | ---- | ------- |
-| 1 | Property Charter | Governance | Hans |
-| 2 | House Rules | Governance | All |
-| 3 | Workshop Safety Manual | Safety | Charl, Lucky |
-| 4 | Employment Contract | HR | Employee + Hans |
-| 5 | Resident Agreement | Governance | Irma + Hans |
-| 6 | Vehicle Usage Policy | Operations | Charl, Lucky |
-| 7 | Tool Checkout Policy | Operations | Charl, Lucky |
-| 8 | Expense Reimbursement Policy | Finance | All |
-| 9 | Leave Policy | HR | All |
-| 10 | Overtime Policy | HR | Charl, Lucky |
-| 11 | Incident Reporting Procedure | Safety | All |
-| 12 | Emergency Contact List | Safety | All |
-| 13 | Asset Maintenance Schedule | Operations | Charl |
-| 14 | Garden Maintenance Plan | Operations | Lucky |
-| 15 | Household Task Roster | Operations | Irma |
-| 16 | Financial Approval Matrix | Finance | Hans |
-| 17 | POPIA Consent Form | Compliance | All |
-| 18 | Succession Protocol | Governance | Hans |
+| #   | Document                     | Type       | Signers         |
+| --- | ---------------------------- | ---------- | --------------- |
+| 1   | Property Charter             | Governance | Hans            |
+| 2   | House Rules                  | Governance | All             |
+| 3   | Workshop Safety Manual       | Safety     | Charl, Lucky    |
+| 4   | Employment Contract          | HR         | Employee + Hans |
+| 5   | Resident Agreement           | Governance | Irma + Hans     |
+| 6   | Vehicle Usage Policy         | Operations | Charl, Lucky    |
+| 7   | Tool Checkout Policy         | Operations | Charl, Lucky    |
+| 8   | Expense Reimbursement Policy | Finance    | All             |
+| 9   | Leave Policy                 | HR         | All             |
+| 10  | Overtime Policy              | HR         | Charl, Lucky    |
+| 11  | Incident Reporting Procedure | Safety     | All             |
+| 12  | Emergency Contact List       | Safety     | All             |
+| 13  | Asset Maintenance Schedule   | Operations | Charl           |
+| 14  | Garden Maintenance Plan      | Operations | Lucky           |
+| 15  | Household Task Roster        | Operations | Irma            |
+| 16  | Financial Approval Matrix    | Finance    | Hans            |
+| 17  | POPIA Consent Form           | Compliance | All             |
+| 18  | Succession Protocol          | Governance | Hans            |
 
 ## User Accounts
 
 Create the following user accounts:
 
-| User | Email | Role |
-| ---- | ----- | ---- |
-| Hans | <hans@nexamesh.ai> | Admin |
+| User  | Email               | Role     |
+| ----- | ------------------- | -------- |
+| Hans  | <hans@nexamesh.ai>  | Admin    |
 | Charl | <charl@nexamesh.ai> | Employee |
 | Lucky | <lucky@nexamesh.ai> | Employee |
-| Irma | <irma@nexamesh.ai> | Resident |
+| Irma  | <irma@nexamesh.ai>  | Resident |
 
 ## Webhook Configuration
 
@@ -88,13 +88,13 @@ Register webhook for integration with Baserow:
 
 Base URL: `https://docs.nexamesh.ai/api`
 
-| Endpoint | Method | Description |
-| -------- | ------ | ----------- |
-| `/api/templates` | GET | List all templates |
-| `/api/templates` | POST | Create template |
-| `/api/submissions` | POST | Create signature request |
-| `/api/submissions/:id` | GET | Get submission status |
-| `/api/webhooks` | POST | Register webhook |
+| Endpoint               | Method | Description              |
+| ---------------------- | ------ | ------------------------ |
+| `/api/templates`       | GET    | List all templates       |
+| `/api/templates`       | POST   | Create template          |
+| `/api/submissions`     | POST   | Create signature request |
+| `/api/submissions/:id` | GET    | Get submission status    |
+| `/api/webhooks`        | POST   | Register webhook         |
 
 ## Testing Checklist
 

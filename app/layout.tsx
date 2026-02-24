@@ -23,19 +23,20 @@ export const viewport = {
 
 export const metadata: Metadata = {
   title: "House of Veritas - Digital Governance & Estate Management",
-  description: "Secure platform for estate management, document compliance, and operational accountability. BCEA-compliant with full audit trails.",
-  manifest: '/manifest.json',
+  description:
+    "Secure platform for estate management, document compliance, and operational accountability. BCEA-compliant with full audit trails.",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'House of Veritas',
+    statusBarStyle: "black-translucent",
+    title: "House of Veritas",
   },
   formatDetection: {
     telephone: true,
   },
   icons: {
-    icon: '/icons/icon.svg',
-    apple: '/icons/icon-192x192.svg',
+    icon: "/icons/icon.svg",
+    apple: "/icons/icon-192x192.svg",
   },
 }
 
@@ -49,9 +50,7 @@ export default function RootLayout({
       <body className={`${manrope.variable} ${inter.variable} font-sans antialiased`}>
         <div className="noise-overlay" aria-hidden="true" />
         <Providers>
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
+          <ErrorBoundary>{children}</ErrorBoundary>
         </Providers>
       </body>
     </html>

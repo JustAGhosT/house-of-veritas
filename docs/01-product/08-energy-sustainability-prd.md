@@ -8,12 +8,12 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (desktop & mobile) |
-| Backend | Baserow (manual inputs), Azure Functions (nudge/challenge logic, analytics) |
-| Storage | Data logs, image uploads |
-| Integration | Map/room overlays, resident/room registry |
+| Layer       | Technology                                                                  |
+| ----------- | --------------------------------------------------------------------------- |
+| Frontend    | Next.js/React (desktop & mobile)                                            |
+| Backend     | Baserow (manual inputs), Azure Functions (nudge/challenge logic, analytics) |
+| Storage     | Data logs, image uploads                                                    |
+| Integration | Map/room overlays, resident/room registry                                   |
 
 ---
 
@@ -123,24 +123,24 @@ Utility costs and eco-compliance obligations are escalating. Engaging residents 
 
 ## Measurable Objectives
 
-| Objective | Baseline | Target | Timeline |
-|-----------|----------|--------|----------|
-| Leak/overuse detection rate | <20% | >50% | 3 months |
-| Challenge participation | None | >80% of rooms | 6 months |
-| Green event logging | None | >90% completeness | 6 months |
-| Automated nudge/alert handling | Manual only | >50% auto | 6 months |
-| Admin workflow efficiency gain | N/A | 30% less manual | 6 months |
+| Objective                      | Baseline    | Target            | Timeline |
+| ------------------------------ | ----------- | ----------------- | -------- |
+| Leak/overuse detection rate    | <20%        | >50%              | 3 months |
+| Challenge participation        | None        | >80% of rooms     | 6 months |
+| Green event logging            | None        | >90% completeness | 6 months |
+| Automated nudge/alert handling | Manual only | >50% auto         | 6 months |
+| Admin workflow efficiency gain | N/A         | 30% less manual   | 6 months |
 
 ---
 
 ## Stakeholders
 
-| Stakeholder | Role |
-|-------------|------|
-| Residents | Provide usage input; receive feedback, nudges, and rewards |
-| Admin/Estate Manager | Configure, monitor, and act on trends; set nudges/challenges; review analytics |
-| Owner/Principal | Review aggregated results, cost savings, and regulatory readiness |
-| Sustainability Champion | Run coaching/events; advocate for adoption; amplify green culture |
+| Stakeholder             | Role                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| Residents               | Provide usage input; receive feedback, nudges, and rewards                     |
+| Admin/Estate Manager    | Configure, monitor, and act on trends; set nudges/challenges; review analytics |
+| Owner/Principal         | Review aggregated results, cost savings, and regulatory readiness              |
+| Sustainability Champion | Run coaching/events; advocate for adoption; amplify green culture              |
 
 ---
 
@@ -227,26 +227,26 @@ Monitor usage/events data → Set challenges/targets → Issue nudges or auto-al
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Responsive | Mobile-first design |
-| Performance | Fast feedback/confirmation (<2s per action) |
-| Security | Secure, auditable activity logging and encrypted storage of uploads |
-| Scalability | Graceful handling of 10+ concurrent room/device entries |
-| Compliance | Adherence to GDPR/POPIA |
-| Accessibility | Full screen-reader and ARIA accessibility |
+| Requirement   | Target                                                              |
+| ------------- | ------------------------------------------------------------------- |
+| Responsive    | Mobile-first design                                                 |
+| Performance   | Fast feedback/confirmation (<2s per action)                         |
+| Security      | Secure, auditable activity logging and encrypted storage of uploads |
+| Scalability   | Graceful handling of 10+ concurrent room/device entries             |
+| Compliance    | Adherence to GDPR/POPIA                                             |
+| Accessibility | Full screen-reader and ARIA accessibility                           |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Component | Role/Responsibility |
-|-------|-----------|---------------------|
-| Frontend | Room/device input, dashboards | Data input, feedback, social |
-| Backend | Usage DB, nudge/challenge logic | Persistence, automations |
-| Analytics Engine | Azure Functions | Trend detection, reporting |
-| Storage | Logs, image uploads | Evidence, compliance |
-| Integration | Notification/map overlays | Engagement, transparency |
+| Layer            | Component                       | Role/Responsibility          |
+| ---------------- | ------------------------------- | ---------------------------- |
+| Frontend         | Room/device input, dashboards   | Data input, feedback, social |
+| Backend          | Usage DB, nudge/challenge logic | Persistence, automations     |
+| Analytics Engine | Azure Functions                 | Trend detection, reporting   |
+| Storage          | Logs, image uploads             | Evidence, compliance         |
+| Integration      | Notification/map overlays       | Engagement, transparency     |
 
 ---
 
@@ -254,15 +254,15 @@ Monitor usage/events data → Set challenges/targets → Issue nudges or auto-al
 
 ### Required APIs
 
-| Endpoint | Purpose |
-|----------|---------|
-| POST/GET /api/usage | Record and retrieve usage by room/device (room, appliance, time) |
-| POST/GET /api/greenevent | Log and retrieve green behaviors |
-| POST /api/nudge | Send nudges to residents/admins |
-| POST/GET /api/challenge | Create/join challenges |
-| GET /api/leaderboard | Retrieve challenge and usage rankings |
-| POST /api/analytics/report | Generate and access usage/engagement analytics |
-| GET /api/iot/import | (Planned) Ingest smart meter/IoT data |
+| Endpoint                   | Purpose                                                          |
+| -------------------------- | ---------------------------------------------------------------- |
+| POST/GET /api/usage        | Record and retrieve usage by room/device (room, appliance, time) |
+| POST/GET /api/greenevent   | Log and retrieve green behaviors                                 |
+| POST /api/nudge            | Send nudges to residents/admins                                  |
+| POST/GET /api/challenge    | Create/join challenges                                           |
+| GET /api/leaderboard       | Retrieve challenge and usage rankings                            |
+| POST /api/analytics/report | Generate and access usage/engagement analytics                   |
+| GET /api/iot/import        | (Planned) Ingest smart meter/IoT data                            |
 
 ### External Dependencies
 
@@ -275,11 +275,11 @@ Monitor usage/events data → Set challenges/targets → Issue nudges or auto-al
 
 ## Data Models
 
-| Entity | Fields |
-|--------|--------|
-| Usage | ID, resident, room, device, type, value/unit, timestamp, proof, challengeID, nudge status |
-| GreenEvent | ID, resident, event type, timestamp, photo |
-| Challenge | ID, type, target, status, participants, reward |
+| Entity     | Fields                                                                                    |
+| ---------- | ----------------------------------------------------------------------------------------- |
+| Usage      | ID, resident, room, device, type, value/unit, timestamp, proof, challengeID, nudge status |
+| GreenEvent | ID, resident, event type, timestamp, photo                                                |
+| Challenge  | ID, type, target, status, participants, reward                                            |
 
 ---
 
@@ -350,11 +350,11 @@ Monitor usage/events data → Set challenges/targets → Issue nudges or auto-al
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target |
-|-------|-------|--------|
-| 1 | Manual data entry, nudge/challenge UI | +3 weeks |
-| 2 | Green event logging, rewards module | +2 weeks |
-| 3 | IoT import, deeper analytics | Ongoing |
+| Phase | Scope                                 | Target   |
+| ----- | ------------------------------------- | -------- |
+| 1     | Manual data entry, nudge/challenge UI | +3 weeks |
+| 2     | Green event logging, rewards module   | +2 weeks |
+| 3     | IoT import, deeper analytics          | Ongoing  |
 
 ---
 
@@ -392,22 +392,22 @@ Monitor usage/events data → Set challenges/targets → Issue nudges or auto-al
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation Strategy |
-|------|--------|-------------|---------------------|
-| Resident input fatigue | High | Medium | Gamify, rotate prompts, automate with IoT |
-| Data spam/gaming | Medium | Low | Peer/admin audit, anomaly detection alerts |
-| Challenge dropouts | Medium | Medium | Incentivize completion, allow re-join |
-| Opt-out from public leader | Low | Medium | Visible private benefits, not just social status |
+| Risk                       | Impact | Probability | Mitigation Strategy                              |
+| -------------------------- | ------ | ----------- | ------------------------------------------------ |
+| Resident input fatigue     | High   | Medium      | Gamify, rotate prompts, automate with IoT        |
+| Data spam/gaming           | Medium | Low         | Peer/admin audit, anomaly detection alerts       |
+| Challenge dropouts         | Medium | Medium      | Incentivize completion, allow re-join            |
+| Opt-out from public leader | Low    | Medium      | Visible private benefits, not just social status |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target Date | Impact if Unresolved |
-|----------|-------|-------------|---------------------|
-| Should some green events be private? | Product | MVP | Potential privacy backlash |
-| Should public leaderboard opt-out be available? | Product | MVP | Resident engagement reduction |
-| Should nudge logic escalate for high usage/leaks? | Product/Dev | MVP | Missed risk mitigation |
+| Question                                          | Owner       | Target Date | Impact if Unresolved          |
+| ------------------------------------------------- | ----------- | ----------- | ----------------------------- |
+| Should some green events be private?              | Product     | MVP         | Potential privacy backlash    |
+| Should public leaderboard opt-out be available?   | Product     | MVP         | Resident engagement reduction |
+| Should nudge logic escalate for high usage/leaks? | Product/Dev | MVP         | Missed risk mitigation        |
 
 ---
 

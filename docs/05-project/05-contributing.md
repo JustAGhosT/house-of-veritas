@@ -2,13 +2,13 @@
 
 ## Branch Strategy
 
-| Branch | Purpose | Protection |
-| ------ | ------- | ---------- |
-| `main` | Production-ready code | Protected, requires PR |
-| `develop` | Integration branch | Default PR target |
-| `feature/*` | New features | Branch from `develop` |
-| `fix/*` | Bug fixes | Branch from `develop` |
-| `hotfix/*` | Urgent production fixes | Branch from `main` |
+| Branch      | Purpose                 | Protection             |
+| ----------- | ----------------------- | ---------------------- |
+| `main`      | Production-ready code   | Protected, requires PR |
+| `develop`   | Integration branch      | Default PR target      |
+| `feature/*` | New features            | Branch from `develop`  |
+| `fix/*`     | Bug fixes               | Branch from `develop`  |
+| `hotfix/*`  | Urgent production fixes | Branch from `main`     |
 
 ## Development Workflow
 

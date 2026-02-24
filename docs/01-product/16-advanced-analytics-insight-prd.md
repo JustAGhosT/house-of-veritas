@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (dashboard builder, insight feed, alerts, export) |
-| Backend | Azure Functions (KPI calculation, anomaly/outlier detection, trending, forecasting), Baserow (aggregated/event logs) |
-| Storage | Secure Blob (exports, trend snapshots, owner/audit reports) |
+| Layer    | Technology                                                                                                           |
+| -------- | -------------------------------------------------------------------------------------------------------------------- |
+| Frontend | Next.js/React (dashboard builder, insight feed, alerts, export)                                                      |
+| Backend  | Azure Functions (KPI calculation, anomaly/outlier detection, trending, forecasting), Baserow (aggregated/event logs) |
+| Storage  | Secure Blob (exports, trend snapshots, owner/audit reports)                                                          |
 
 ---
 
@@ -116,24 +116,24 @@ Aggregate, normalize, visualize, and export all estate data/events with minimal 
 
 ## Measurable Objectives
 
-| Objective | Target | Baseline | Timeline |
-|-----------|--------|----------|----------|
-| 100% KPI coverage | 100% | — | 6 months |
-| Alert resolution rate | >90% | <40% | 3 months after go-live |
-| Dashboard render/drill time | <10s | >60s | Ongoing |
-| Export/audit completion time | <1hr | 3–5 hrs | First release |
+| Objective                    | Target | Baseline | Timeline               |
+| ---------------------------- | ------ | -------- | ---------------------- |
+| 100% KPI coverage            | 100%   | —        | 6 months               |
+| Alert resolution rate        | >90%   | <40%     | 3 months after go-live |
+| Dashboard render/drill time  | <10s   | >60s     | Ongoing                |
+| Export/audit completion time | <1hr   | 3–5 hrs  | First release          |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibilities |
-|------|------------------|
-| Admin | Builds dashboards |
-| Owner | Views trends, acts, gets alerts |
+| Role            | Responsibilities                   |
+| --------------- | ---------------------------------- |
+| Admin           | Builds dashboards                  |
+| Owner           | Views trends, acts, gets alerts    |
 | Auditor/Insurer | Exports and reviews compliance/SLE |
-| Module Leads | Curates events, tunes data streams |
-| Resident | Consumes summary/alerts only |
+| Module Leads    | Curates events, tunes data streams |
+| Resident        | Consumes summary/alerts only       |
 
 ---
 
@@ -233,25 +233,25 @@ summary view
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Dashboard load/drilldown | Sub-10s |
-| Security | Encrypted storage and transport |
-| Trend export retention | 10 years |
-| Audit | Complete audit trails, robust error recovery |
-| Accessibility | Fully ARIA-accessible dashboards and feeds |
-| Scale | Burst: >10,000 events/report |
+| Requirement              | Target                                       |
+| ------------------------ | -------------------------------------------- |
+| Dashboard load/drilldown | Sub-10s                                      |
+| Security                 | Encrypted storage and transport              |
+| Trend export retention   | 10 years                                     |
+| Audit                    | Complete audit trails, robust error recovery |
+| Accessibility            | Fully ARIA-accessible dashboards and feeds   |
+| Scale                    | Burst: >10,000 events/report                 |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Components | Responsibilities |
-|-------|-------------|------------------|
-| Frontend | Dashboard builder, alert/feed panels, trend drill/compare | User interaction |
-| Backend | Event ingest, KPI/alert logic, explain/Audit engine | Logic, computation |
-| Notification | Real-time and batch delivery | Alerts, feeds |
-| Storage | Log/trend/audit/export blob, snapshot service | Persistence, exports |
+| Layer        | Components                                                | Responsibilities     |
+| ------------ | --------------------------------------------------------- | -------------------- |
+| Frontend     | Dashboard builder, alert/feed panels, trend drill/compare | User interaction     |
+| Backend      | Event ingest, KPI/alert logic, explain/Audit engine       | Logic, computation   |
+| Notification | Real-time and batch delivery                              | Alerts, feeds        |
+| Storage      | Log/trend/audit/export blob, snapshot service             | Persistence, exports |
 
 ---
 
@@ -259,15 +259,15 @@ summary view
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/event/ingest | POST/GET | Ingest module data/events |
-| /api/kpi/update | GET | Query module KPIs/status |
-| /api/alert | POST/GET | Set and retrieve alerts |
-| /api/explain | POST/GET | AI-driven explain/why event |
-| /api/drilldown | POST/GET | Trigger trend root-cause drill |
-| /api/export | POST/GET | Bulk export flows |
-| /api/auditlog | GET | Retrieve compliance/audit histories |
+| Endpoint          | Method   | Purpose                             |
+| ----------------- | -------- | ----------------------------------- |
+| /api/event/ingest | POST/GET | Ingest module data/events           |
+| /api/kpi/update   | GET      | Query module KPIs/status            |
+| /api/alert        | POST/GET | Set and retrieve alerts             |
+| /api/explain      | POST/GET | AI-driven explain/why event         |
+| /api/drilldown    | POST/GET | Trigger trend root-cause drill      |
+| /api/export       | POST/GET | Bulk export flows                   |
+| /api/auditlog     | GET      | Retrieve compliance/audit histories |
 
 ### External Dependencies
 
@@ -280,13 +280,13 @@ summary view
 
 ## Data Models
 
-| Entity | Key Fields |
-|--------|------------|
-| Event | ID, module, context, value, timestamp |
-| KPI | ID, module, threshold, value, trend, owner |
-| Alert | EventID, type, status, owner, audit trail |
-| Dashboard | KPIs, owner, modules, filter/view/export settings |
-| Audit | Action, operator, event/time, outcome, drill, export |
+| Entity    | Key Fields                                           |
+| --------- | ---------------------------------------------------- |
+| Event     | ID, module, context, value, timestamp                |
+| KPI       | ID, module, threshold, value, trend, owner           |
+| Alert     | EventID, type, status, owner, audit trail            |
+| Dashboard | KPIs, owner, modules, filter/view/export settings    |
+| Audit     | Action, operator, event/time, outcome, drill, export |
 
 ---
 
@@ -342,11 +342,11 @@ summary view
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target Date |
-|-------|-------|-------------|
-| 1 | Ingest/KPI/alert/dashboard core | End Q3 |
-| 2 | Advanced compare, Explain, Export | End Q4 |
-| 3 | Linked owner/role feed, multi-estate, BI API | Q1 next year |
+| Phase | Scope                                        | Target Date  |
+| ----- | -------------------------------------------- | ------------ |
+| 1     | Ingest/KPI/alert/dashboard core              | End Q3       |
+| 2     | Advanced compare, Explain, Export            | End Q4       |
+| 3     | Linked owner/role feed, multi-estate, BI API | Q1 next year |
 
 ---
 
@@ -378,22 +378,22 @@ summary view
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Alert overload | Alert fatigue, missed incidents | High | Throttle/AI auto-tune, configurable rules |
-| Role filter miss | Exposes sensitive data | Medium | Manual config + periodic tests |
-| Dashboard performance | User drop-off due to slow load | Medium | Batch/stream processing, sub-10s targets |
-| Audit/export loss | Compliance breach | Low | Double-write, scheduled backup/export |
+| Risk                  | Impact                          | Probability | Mitigation                                |
+| --------------------- | ------------------------------- | ----------- | ----------------------------------------- |
+| Alert overload        | Alert fatigue, missed incidents | High        | Throttle/AI auto-tune, configurable rules |
+| Role filter miss      | Exposes sensitive data          | Medium      | Manual config + periodic tests            |
+| Dashboard performance | User drop-off due to slow load  | Medium      | Batch/stream processing, sub-10s targets  |
+| Audit/export loss     | Compliance breach               | Low         | Double-write, scheduled backup/export     |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target Date | Impact if Unresolved |
-|----------|-------|-------------|----------------------|
-| Which KPIs/alerts must be owner/admin only? | Product Lead | Q2 | Privacy breach, misuse |
-| Extent of AI/forecast in v1—what is "explainable enough"? | Data Science | Q3 | Missed adoption, complexity |
-| Resident summary: per-module or estate-public? | PM/Legal | Q3 | Privacy/Security ambiguity |
+| Question                                                  | Owner        | Target Date | Impact if Unresolved        |
+| --------------------------------------------------------- | ------------ | ----------- | --------------------------- |
+| Which KPIs/alerts must be owner/admin only?               | Product Lead | Q2          | Privacy breach, misuse      |
+| Extent of AI/forecast in v1—what is "explainable enough"? | Data Science | Q3          | Missed adoption, complexity |
+| Resident summary: per-module or estate-public?            | PM/Legal     | Q3          | Privacy/Security ambiguity  |
 
 ---
 

@@ -67,7 +67,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.push(`/dashboard/${user.id}`)
     } else if (user && isOnboardingPage && user.onboardingStatus === "completed") {
       router.push(`/dashboard/${user.id}`)
-    } else if (user && isDashboardPage && user.role !== "admin" && user.onboardingStatus !== "completed") {
+    } else if (
+      user &&
+      isDashboardPage &&
+      user.role !== "admin" &&
+      user.onboardingStatus !== "completed"
+    ) {
       router.push("/onboarding")
     } else if (user && isDashboardPage) {
       const dashboardUser = pathname?.split("/")[2]
@@ -79,7 +84,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, isLoading, pathname, router])
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -156,8 +164,8 @@ export function withAuth<P extends object>(
 
     if (isLoading) {
       return (
-        <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+        <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
         </div>
       )
     }

@@ -43,7 +43,12 @@ import Image from "next/image"
 import { apiFetch } from "@/lib/api-client"
 
 const DOCUMENT_TYPES = [
-  { value: "handwritten_request", label: "Handwritten Request", icon: PenTool, color: "text-purple-400" },
+  {
+    value: "handwritten_request",
+    label: "Handwritten Request",
+    icon: PenTool,
+    color: "text-purple-400",
+  },
   { value: "invoice", label: "Invoice", icon: FileText, color: "text-blue-400" },
   { value: "receipt", label: "Receipt", icon: Receipt, color: "text-green-400" },
 ]
@@ -84,13 +89,15 @@ export default function OCRPage() {
   const [error, setError] = useState<string | null>(null)
   const [history, setHistory] = useState<OCRResult[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
-  
+
   // Import to Inventory state
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
   const [importLocation, setImportLocation] = useState("Workshop Store")
   const [importCategory, setImportCategory] = useState("")
   const [importing, setImporting] = useState(false)
-  const [importSuccess, setImportSuccess] = useState<{ imported: number; updated: number } | null>(null)
+  const [importSuccess, setImportSuccess] = useState<{ imported: number; updated: number } | null>(
+    null
+  )
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -155,7 +162,7 @@ export default function OCRPage() {
       })
 
       setResult(data.result)
-      setHistory(prev => [data.result, ...prev].slice(0, 10))
+      setHistory((prev) => [data.result, ...prev].slice(0, 10))
     } catch (err: any) {
       setError(err.message || "Failed to process document")
     } finally {
@@ -192,12 +199,17 @@ export default function OCRPage() {
   // Import items to inventory
   const handleImportToInventory = async () => {
     if (!result?.items || result.items.length === 0) return
-    
+
     setImporting(true)
     setImportSuccess(null)
-    
+
     try {
-      const data = await apiFetch<{ success?: boolean; imported?: number; updated?: number; error?: string }>("/api/inventory", {
+      const data = await apiFetch<{
+        success?: boolean
+        imported?: number
+        updated?: number
+        error?: string
+      }>("/api/inventory", {
         method: "PUT",
         body: {
           action: "import-from-ocr",
@@ -226,26 +238,26 @@ export default function OCRPage() {
 
   return (
     <DashboardLayout persona="hans">
-      <div className="space-y-6 relative z-10">
+      <div className="relative z-10 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+          <h1 className="flex items-center gap-3 text-2xl font-bold text-white sm:text-3xl">
             <ScanLine className="h-8 w-8 text-cyan-400" />
             OCR Document Scanner
           </h1>
-          <p className="text-white/60 mt-1">
+          <p className="mt-1 text-white/60">
             Extract text and data from invoices, receipts, and handwritten notes
             {!process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY && (
-              <Badge variant="outline" className="ml-2 text-yellow-400 border-yellow-400/50">
+              <Badge variant="outline" className="ml-2 border-yellow-400/50 text-yellow-400">
                 Demo Mode
               </Badge>
             )}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Upload Section */}
-          <Card className="bg-white/5 border-white/10">
+          <Card className="border-white/10 bg-white/5">
             <CardHeader>
               <CardTitle className="text-white">Upload Document</CardTitle>
               <CardDescription className="text-white/60">
@@ -261,15 +273,15 @@ export default function OCRPage() {
                     <button
                       key={type.value}
                       onClick={() => setSelectedType(type.value)}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-lg border transition-all ${
+                      className={`flex flex-col items-center gap-2 rounded-lg border p-4 transition-all ${
                         selectedType === type.value
-                          ? "bg-white/10 border-blue-500"
-                          : "bg-white/5 border-white/10 hover:border-white/20"
+                          ? "border-blue-500 bg-white/10"
+                          : "border-white/10 bg-white/5 hover:border-white/20"
                       }`}
                       data-testid={`doc-type-${type.value}`}
                     >
                       <Icon className={`h-6 w-6 ${type.color}`} />
-                      <span className="text-white text-xs text-center">{type.label}</span>
+                      <span className="text-center text-xs text-white">{type.label}</span>
                     </button>
                   )
                 })}
@@ -279,7 +291,7 @@ export default function OCRPage() {
               <div
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}
-                className={`relative border-2 border-dashed rounded-xl transition-all ${
+                className={`relative rounded-xl border-2 border-dashed transition-all ${
                   selectedFile
                     ? "border-green-500/50 bg-green-500/5"
                     : "border-white/20 hover:border-white/40"
@@ -290,10 +302,10 @@ export default function OCRPage() {
                   type="file"
                   accept="image/jpeg,image/png,image/webp,application/pdf"
                   onChange={handleFileSelect}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                   data-testid="file-input"
                 />
-                
+
                 {selectedFile ? (
                   <div className="p-6 text-center">
                     {preview ? (
@@ -302,31 +314,34 @@ export default function OCRPage() {
                         alt="Preview"
                         width={400}
                         height={192}
-                        className="max-h-48 w-auto mx-auto rounded-lg mb-4"
+                        className="mx-auto mb-4 max-h-48 w-auto rounded-lg"
                         unoptimized
                       />
                     ) : (
-                      <FileText className="h-16 w-16 mx-auto text-blue-400 mb-4" />
+                      <FileText className="mx-auto mb-4 h-16 w-16 text-blue-400" />
                     )}
-                    <p className="text-white font-medium">{selectedFile.name}</p>
-                    <p className="text-white/40 text-sm">
+                    <p className="font-medium text-white">{selectedFile.name}</p>
+                    <p className="text-sm text-white/40">
                       {(selectedFile.size / 1024).toFixed(1)} KB
                     </p>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={(e) => { e.stopPropagation(); clearSelection() }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        clearSelection()
+                      }}
                       className="mt-2"
                     >
-                      <X className="h-4 w-4 mr-1" />
+                      <X className="mr-1 h-4 w-4" />
                       Remove
                     </Button>
                   </div>
                 ) : (
                   <div className="p-12 text-center">
-                    <Upload className="h-12 w-12 mx-auto text-white/40 mb-4" />
-                    <p className="text-white font-medium">Drop file here or click to upload</p>
-                    <p className="text-white/40 text-sm mt-1">
+                    <Upload className="mx-auto mb-4 h-12 w-12 text-white/40" />
+                    <p className="font-medium text-white">Drop file here or click to upload</p>
+                    <p className="mt-1 text-sm text-white/40">
                       Supports JPEG, PNG, WEBP, PDF (max 10MB)
                     </p>
                   </div>
@@ -335,9 +350,9 @@ export default function OCRPage() {
 
               {/* Error Display */}
               {error && (
-                <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
                   <AlertCircle className="h-5 w-5 text-red-400" />
-                  <p className="text-red-300 text-sm">{error}</p>
+                  <p className="text-sm text-red-300">{error}</p>
                 </div>
               )}
 
@@ -350,12 +365,12 @@ export default function OCRPage() {
               >
                 {processing ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Processing...
                   </>
                 ) : (
                   <>
-                    <ScanLine className="h-4 w-4 mr-2" />
+                    <ScanLine className="mr-2 h-4 w-4" />
                     Process Document
                   </>
                 )}
@@ -364,25 +379,33 @@ export default function OCRPage() {
           </Card>
 
           {/* Results Section */}
-          <Card className="bg-white/5 border-white/10">
+          <Card className="border-white/10 bg-white/5">
             <CardHeader>
               <CardTitle className="text-white">Extracted Data</CardTitle>
               <CardDescription className="text-white/60">
-                {result ? "Document processed successfully" : "Upload and process a document to see results"}
+                {result
+                  ? "Document processed successfully"
+                  : "Upload and process a document to see results"}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {result ? (
                 <Tabs defaultValue="structured" className="w-full">
-                  <TabsList className="bg-white/5 w-full">
-                    <TabsTrigger value="structured" className="flex-1">Structured</TabsTrigger>
-                    <TabsTrigger value="raw" className="flex-1">Raw Text</TabsTrigger>
-                    <TabsTrigger value="items" className="flex-1">Items</TabsTrigger>
+                  <TabsList className="w-full bg-white/5">
+                    <TabsTrigger value="structured" className="flex-1">
+                      Structured
+                    </TabsTrigger>
+                    <TabsTrigger value="raw" className="flex-1">
+                      Raw Text
+                    </TabsTrigger>
+                    <TabsTrigger value="items" className="flex-1">
+                      Items
+                    </TabsTrigger>
                   </TabsList>
-                  
-                  <TabsContent value="structured" className="space-y-4 mt-4">
+
+                  <TabsContent value="structured" className="mt-4 space-y-4">
                     {/* Confidence Score */}
-                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                    <div className="flex items-center justify-between rounded-lg bg-white/5 p-3">
                       <span className="text-white/60">Confidence</span>
                       <span className={`font-semibold ${getConfidenceColor(result.confidence)}`}>
                         {(result.confidence * 100).toFixed(1)}%
@@ -391,28 +414,30 @@ export default function OCRPage() {
 
                     {/* Vendor Info */}
                     {result.vendor && (
-                      <div className="p-4 bg-white/5 rounded-lg space-y-2">
-                        <p className="text-white/40 text-xs uppercase tracking-wider">Vendor</p>
+                      <div className="space-y-2 rounded-lg bg-white/5 p-4">
+                        <p className="text-xs tracking-wider text-white/40 uppercase">Vendor</p>
                         {result.vendor.name && (
-                          <p className="text-white font-medium">{result.vendor.name}</p>
+                          <p className="font-medium text-white">{result.vendor.name}</p>
                         )}
                         {result.vendor.address && (
-                          <p className="text-white/60 text-sm">{result.vendor.address}</p>
+                          <p className="text-sm text-white/60">{result.vendor.address}</p>
                         )}
                         {result.vendor.phone && (
-                          <p className="text-white/60 text-sm">{result.vendor.phone}</p>
+                          <p className="text-sm text-white/60">{result.vendor.phone}</p>
                         )}
                       </div>
                     )}
 
                     {/* Totals */}
                     {result.totals && (
-                      <div className="p-4 bg-white/5 rounded-lg space-y-2">
-                        <p className="text-white/40 text-xs uppercase tracking-wider">Totals</p>
+                      <div className="space-y-2 rounded-lg bg-white/5 p-4">
+                        <p className="text-xs tracking-wider text-white/40 uppercase">Totals</p>
                         {result.totals.subtotal && (
                           <div className="flex justify-between">
                             <span className="text-white/60">Subtotal</span>
-                            <span className="text-white">{formatCurrency(result.totals.subtotal)}</span>
+                            <span className="text-white">
+                              {formatCurrency(result.totals.subtotal)}
+                            </span>
                           </div>
                         )}
                         {result.totals.tax && (
@@ -422,15 +447,17 @@ export default function OCRPage() {
                           </div>
                         )}
                         {result.totals.total && (
-                          <div className="flex justify-between pt-2 border-t border-white/10">
-                            <span className="text-white font-medium">Total</span>
-                            <span className="text-white font-bold text-lg">{formatCurrency(result.totals.total)}</span>
+                          <div className="flex justify-between border-t border-white/10 pt-2">
+                            <span className="font-medium text-white">Total</span>
+                            <span className="text-lg font-bold text-white">
+                              {formatCurrency(result.totals.total)}
+                            </span>
                           </div>
                         )}
                       </div>
                     )}
                   </TabsContent>
-                  
+
                   <TabsContent value="raw" className="mt-4">
                     <div className="relative">
                       <Button
@@ -441,75 +468,87 @@ export default function OCRPage() {
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
-                      <pre className="bg-black/30 p-4 rounded-lg text-white/80 text-sm whitespace-pre-wrap max-h-[400px] overflow-y-auto">
+                      <pre className="max-h-[400px] overflow-y-auto rounded-lg bg-black/30 p-4 text-sm whitespace-pre-wrap text-white/80">
                         {result.extractedText}
                       </pre>
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="items" className="mt-4">
                     {result.items && result.items.length > 0 ? (
                       <div className="space-y-2">
                         {result.items.map((item, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between rounded-lg bg-white/5 p-3"
+                          >
                             <div className="flex-1">
-                              <p className="text-white text-sm">{item.name}</p>
+                              <p className="text-sm text-white">{item.name}</p>
                               {item.quantity && (
-                                <p className="text-white/40 text-xs">
+                                <p className="text-xs text-white/40">
                                   Qty: {item.quantity} {item.unit || ""}
                                 </p>
                               )}
                             </div>
                             <div className="text-right">
                               {item.price && (
-                                <p className="text-white/60 text-xs">@ {formatCurrency(item.price)}</p>
+                                <p className="text-xs text-white/60">
+                                  @ {formatCurrency(item.price)}
+                                </p>
                               )}
                               {item.total && (
-                                <p className="text-white font-medium">{formatCurrency(item.total)}</p>
+                                <p className="font-medium text-white">
+                                  {formatCurrency(item.total)}
+                                </p>
                               )}
                             </div>
                           </div>
                         ))}
-                        
+
                         {/* Import Success Message */}
                         {importSuccess && (
-                          <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                          <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 p-3">
                             <CheckCircle className="h-5 w-5 text-green-400" />
-                            <p className="text-green-300 text-sm">
-                              Successfully imported {importSuccess.imported} new and updated {importSuccess.updated} existing items
+                            <p className="text-sm text-green-300">
+                              Successfully imported {importSuccess.imported} new and updated{" "}
+                              {importSuccess.updated} existing items
                             </p>
                           </div>
                         )}
-                        
+
                         {/* Action Buttons */}
                         <div className="flex gap-2 pt-4">
-                          <Button variant="outline" className="flex-1 border-white/10" onClick={() => copyToClipboard(JSON.stringify(result.items, null, 2))}>
-                            <Copy className="h-4 w-4 mr-2" />
+                          <Button
+                            variant="outline"
+                            className="flex-1 border-white/10"
+                            onClick={() => copyToClipboard(JSON.stringify(result.items, null, 2))}
+                          >
+                            <Copy className="mr-2 h-4 w-4" />
                             Copy Items
                           </Button>
-                          <Button 
+                          <Button
                             className="flex-1 bg-green-600 hover:bg-green-700"
                             onClick={() => setIsImportDialogOpen(true)}
                             data-testid="import-to-inventory-btn"
                           >
-                            <Boxes className="h-4 w-4 mr-2" />
+                            <Boxes className="mr-2 h-4 w-4" />
                             Import to Inventory
                           </Button>
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-white/40">
-                        <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <div className="py-8 text-center text-white/40">
+                        <FileText className="mx-auto mb-4 h-12 w-12 opacity-50" />
                         <p>No line items detected</p>
                       </div>
                     )}
                   </TabsContent>
                 </Tabs>
               ) : (
-                <div className="text-center py-12 text-white/40">
-                  <ScanLine className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                <div className="py-12 text-center text-white/40">
+                  <ScanLine className="mx-auto mb-4 h-16 w-16 opacity-30" />
                   <p>No document processed yet</p>
-                  <p className="text-sm mt-1">Upload a document to extract data</p>
+                  <p className="mt-1 text-sm">Upload a document to extract data</p>
                 </div>
               )}
             </CardContent>
@@ -518,19 +557,19 @@ export default function OCRPage() {
 
         {/* History Section */}
         {history.length > 0 && (
-          <Card className="bg-white/5 border-white/10">
+          <Card className="border-white/10 bg-white/5">
             <CardHeader>
               <CardTitle className="text-white">Recent Scans</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {history.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => setResult(item)}
-                    className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors text-left"
+                    className="rounded-lg bg-white/5 p-4 text-left transition-colors hover:bg-white/10"
                   >
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="mb-2 flex items-center gap-2">
                       <Badge variant="outline" className="text-xs capitalize">
                         {item.type.replace(/_/g, " ")}
                       </Badge>
@@ -538,11 +577,13 @@ export default function OCRPage() {
                         {(item.confidence * 100).toFixed(0)}%
                       </span>
                     </div>
-                    <p className="text-white/60 text-xs truncate">
+                    <p className="truncate text-xs text-white/60">
                       {new Date(item.processedAt).toLocaleString()}
                     </p>
                     {item.totals?.total && (
-                      <p className="text-white font-medium mt-1">{formatCurrency(item.totals.total)}</p>
+                      <p className="mt-1 font-medium text-white">
+                        {formatCurrency(item.totals.total)}
+                      </p>
                     )}
                   </button>
                 ))}
@@ -553,7 +594,7 @@ export default function OCRPage() {
 
         {/* Import to Inventory Dialog */}
         <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
-          <DialogContent className="bg-[#0d0d12] border-white/10 text-white">
+          <DialogContent className="border-white/10 bg-[#0d0d12] text-white">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Boxes className="h-5 w-5 text-green-400" />
@@ -566,16 +607,16 @@ export default function OCRPage() {
             <div className="space-y-4 py-4">
               {/* Vendor Info */}
               {result?.vendor?.name && (
-                <div className="p-3 bg-white/5 rounded-lg">
-                  <p className="text-white/40 text-xs uppercase tracking-wider mb-1">Supplier</p>
-                  <p className="text-white font-medium">{result.vendor.name}</p>
+                <div className="rounded-lg bg-white/5 p-3">
+                  <p className="mb-1 text-xs tracking-wider text-white/40 uppercase">Supplier</p>
+                  <p className="font-medium text-white">{result.vendor.name}</p>
                 </div>
               )}
-              
+
               <div className="space-y-2">
                 <Label>Storage Location</Label>
                 <Select value={importLocation} onValueChange={setImportLocation}>
-                  <SelectTrigger className="bg-white/5 border-white/10">
+                  <SelectTrigger className="border-white/10 bg-white/5">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -587,11 +628,11 @@ export default function OCRPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
                 <Label>Override Category (optional)</Label>
                 <Select value={importCategory} onValueChange={setImportCategory}>
-                  <SelectTrigger className="bg-white/5 border-white/10">
+                  <SelectTrigger className="border-white/10 bg-white/5">
                     <SelectValue placeholder="Auto-detect from item names" />
                   </SelectTrigger>
                   <SelectContent>
@@ -609,9 +650,9 @@ export default function OCRPage() {
               {/* Preview Items */}
               <div className="space-y-2">
                 <Label>Items to Import</Label>
-                <div className="max-h-40 overflow-y-auto space-y-1">
+                <div className="max-h-40 space-y-1 overflow-y-auto">
                   {result?.items?.map((item, idx) => (
-                    <div key={idx} className="flex justify-between text-sm p-2 bg-white/5 rounded">
+                    <div key={idx} className="flex justify-between rounded bg-white/5 p-2 text-sm">
                       <span className="text-white">{item.name}</span>
                       <span className="text-white/60">
                         {item.quantity || 1} {item.unit || "units"}
@@ -625,7 +666,7 @@ export default function OCRPage() {
               <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 onClick={handleImportToInventory}
                 disabled={importing}
                 className="bg-green-600 hover:bg-green-700"
@@ -633,12 +674,12 @@ export default function OCRPage() {
               >
                 {importing ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Importing...
                   </>
                 ) : (
                   <>
-                    <Boxes className="h-4 w-4 mr-2" />
+                    <Boxes className="mr-2 h-4 w-4" />
                     Import {result?.items?.length || 0} Items
                   </>
                 )}

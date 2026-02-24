@@ -1,19 +1,19 @@
 import { logger } from "@/lib/logger"
 
 // Real-time event types
-export type EventType = 
-  | 'task_created'
-  | 'task_updated'
-  | 'task_completed'
-  | 'expense_created'
-  | 'expense_approved'
-  | 'expense_rejected'
-  | 'clock_in'
-  | 'clock_out'
-  | 'notification'
-  | 'document_signed'
-  | 'approval_required'
-  | 'system_alert'
+export type EventType =
+  | "task_created"
+  | "task_updated"
+  | "task_completed"
+  | "expense_created"
+  | "expense_approved"
+  | "expense_rejected"
+  | "clock_in"
+  | "clock_out"
+  | "notification"
+  | "document_signed"
+  | "approval_required"
+  | "system_alert"
 
 export interface RealTimeEvent {
   id: string
@@ -29,7 +29,7 @@ class EventStore {
   private listeners: Map<string, (event: RealTimeEvent) => void> = new Map()
   private maxEvents = 100
 
-  addEvent(event: Omit<RealTimeEvent, 'id' | 'timestamp'>) {
+  addEvent(event: Omit<RealTimeEvent, "id" | "timestamp">) {
     const fullEvent: RealTimeEvent = {
       ...event,
       id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -37,7 +37,7 @@ class EventStore {
     }
 
     this.events.unshift(fullEvent)
-    
+
     // Keep only recent events
     if (this.events.length > this.maxEvents) {
       this.events = this.events.slice(0, this.maxEvents)
@@ -48,7 +48,9 @@ class EventStore {
       try {
         callback(fullEvent)
       } catch (error) {
-        logger.error(`Error notifying listener ${listenerId}`, { error: error instanceof Error ? error.message : String(error) })
+        logger.error(`Error notifying listener ${listenerId}`, {
+          error: error instanceof Error ? error.message : String(error),
+        })
       }
     })
 
@@ -70,7 +72,7 @@ class EventStore {
 
   getEventsForUser(userId: string, count: number = 20): RealTimeEvent[] {
     return this.events
-      .filter(e => !e.userId || e.userId === userId || userId === 'hans')
+      .filter((e) => !e.userId || e.userId === userId || userId === "hans")
       .slice(0, count)
   }
 }
@@ -80,7 +82,7 @@ export const eventStore = new EventStore()
 
 // Helper functions to emit events
 export function emitTaskEvent(
-  type: 'task_created' | 'task_updated' | 'task_completed',
+  type: "task_created" | "task_updated" | "task_completed",
   task: any,
   userId?: string
 ) {
@@ -92,7 +94,7 @@ export function emitTaskEvent(
 }
 
 export function emitExpenseEvent(
-  type: 'expense_created' | 'expense_approved' | 'expense_rejected',
+  type: "expense_created" | "expense_approved" | "expense_rejected",
   expense: any,
   userId?: string
 ) {
@@ -103,11 +105,7 @@ export function emitExpenseEvent(
   })
 }
 
-export function emitClockEvent(
-  type: 'clock_in' | 'clock_out',
-  entry: any,
-  userId?: string
-) {
+export function emitClockEvent(type: "clock_in" | "clock_out", entry: any, userId?: string) {
   return eventStore.addEvent({
     type,
     data: entry,
@@ -115,12 +113,9 @@ export function emitClockEvent(
   })
 }
 
-export function emitNotification(
-  notification: any,
-  userId?: string
-) {
+export function emitNotification(notification: any, userId?: string) {
   return eventStore.addEvent({
-    type: 'notification',
+    type: "notification",
     data: notification,
     userId,
   })
@@ -128,20 +123,22 @@ export function emitNotification(
 
 export function emitApprovalRequired(
   item: any,
-  userId: string = 'hans' // Approvals go to admin
+  userId: string = "hans" // Approvals go to admin
 ) {
   return eventStore.addEvent({
-    type: 'approval_required',
+    type: "approval_required",
     data: item,
     userId,
   })
 }
 
-export function emitSystemAlert(
-  alert: { title: string; message: string; severity: 'info' | 'warning' | 'error' }
-) {
+export function emitSystemAlert(alert: {
+  title: string
+  message: string
+  severity: "info" | "warning" | "error"
+}) {
   return eventStore.addEvent({
-    type: 'system_alert',
+    type: "system_alert",
     data: alert,
   })
 }

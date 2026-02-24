@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (connect portal, configuration, logging UI) |
-| Backend | Azure Functions (sync agents, data normalization/mapping, queue/send operations) |
-| Data Layer | Baserow (integration registry/log), API/webhook clients |
+| Layer      | Technology                                                                       |
+| ---------- | -------------------------------------------------------------------------------- |
+| Frontend   | Next.js/React (connect portal, configuration, logging UI)                        |
+| Backend    | Azure Functions (sync agents, data normalization/mapping, queue/send operations) |
+| Data Layer | Baserow (integration registry/log), API/webhook clients                          |
 
 ---
 
@@ -124,25 +124,25 @@ Effectively and securely map/sync data across divergent systems using event-base
 
 ## Measurable Objectives
 
-| Metric | Baseline | Target | Timeline |
-|--------|----------|--------|----------|
-| Partner launch/setup time | — | <10 minutes | Each integration |
-| Missing log/audit events | — | Zero | Rolling, daily |
-| Sync retry rate | — | <5% | First month live |
-| Module auto-connect rate | — | 95%+ | First 3 months |
-| Admin satisfaction (post-onboard) | — | 90%+ | First 6 months |
+| Metric                            | Baseline | Target      | Timeline         |
+| --------------------------------- | -------- | ----------- | ---------------- |
+| Partner launch/setup time         | —        | <10 minutes | Each integration |
+| Missing log/audit events          | —        | Zero        | Rolling, daily   |
+| Sync retry rate                   | —        | <5%         | First month live |
+| Module auto-connect rate          | —        | 95%+        | First 3 months   |
+| Admin satisfaction (post-onboard) | —        | 90%+        | First 6 months   |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibility |
-|------|-----------------|
-| Admin | Configure, monitor, fix, approve, and export integrations |
-| Owner | Monitor, approve, and control roles |
-| Accountant | Manage payroll, AR, and data export |
-| Partner | View/download data, request and flag export issues |
-| Auditor | Review and extract event/action logs for compliance |
+| Role       | Responsibility                                            |
+| ---------- | --------------------------------------------------------- |
+| Admin      | Configure, monitor, fix, approve, and export integrations |
+| Owner      | Monitor, approve, and control roles                       |
+| Accountant | Manage payroll, AR, and data export                       |
+| Partner    | View/download data, request and flag export issues        |
+| Auditor    | Review and extract event/action logs for compliance       |
 
 ---
 
@@ -249,24 +249,24 @@ Effectively and securely map/sync data across divergent systems using event-base
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Batch processing | Sub-5 seconds per event |
-| Security | Fully encrypted data and event logs in transit and at rest |
-| Retry/burst queue | Scalability to 1,000 events/minute |
-| Export log storage | 7-year compliant |
-| Accessibility | ARIA-compliant configuration and dashboard UI |
-| Partner onboarding | <10 minute support |
+| Requirement        | Target                                                     |
+| ------------------ | ---------------------------------------------------------- |
+| Batch processing   | Sub-5 seconds per event                                    |
+| Security           | Fully encrypted data and event logs in transit and at rest |
+| Retry/burst queue  | Scalability to 1,000 events/minute                         |
+| Export log storage | 7-year compliant                                           |
+| Accessibility      | ARIA-compliant configuration and dashboard UI              |
+| Partner onboarding | <10 minute support                                         |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Component | Responsibility |
-|-------|-----------|----------------|
+| Layer    | Component                     | Responsibility                                    |
+| -------- | ----------------------------- | ------------------------------------------------- |
 | Frontend | Portal wizard, config, log UI | Integration onboarding, visibility, action/rescue |
-| Backend | Sync/job engine, audit/log | Event normalize/map, approval/consent, error/fix |
-| Storage | Baserow, Azure, APIs | Config/consent storage, event export, log/archive |
+| Backend  | Sync/job engine, audit/log    | Event normalize/map, approval/consent, error/fix  |
+| Storage  | Baserow, Azure, APIs          | Config/consent storage, event export, log/archive |
 
 ---
 
@@ -274,16 +274,16 @@ Effectively and securely map/sync data across divergent systems using event-base
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/integration/add | POST/GET | Create/list integrations |
-| /api/map | POST/GET | Map/inspect fields, schema management |
-| /api/sync | POST/GET | Initiate batch/event sync |
-| /api/approve | POST/GET | Owner/Admin approvals |
-| /api/error | POST/GET | Error log, retry/fix actions |
-| /api/export | POST/GET | Export payloads/logs |
-| /api/audit | POST/GET | Audit event and access trail queries |
-| /api/role | POST/GET | Manage partner/admin/owner privileges |
+| Endpoint             | Method   | Purpose                               |
+| -------------------- | -------- | ------------------------------------- |
+| /api/integration/add | POST/GET | Create/list integrations              |
+| /api/map             | POST/GET | Map/inspect fields, schema management |
+| /api/sync            | POST/GET | Initiate batch/event sync             |
+| /api/approve         | POST/GET | Owner/Admin approvals                 |
+| /api/error           | POST/GET | Error log, retry/fix actions          |
+| /api/export          | POST/GET | Export payloads/logs                  |
+| /api/audit           | POST/GET | Audit event and access trail queries  |
+| /api/role            | POST/GET | Manage partner/admin/owner privileges |
 
 ### External Dependencies
 
@@ -298,13 +298,13 @@ Effectively and securely map/sync data across divergent systems using event-base
 
 ## Data Models
 
-| Entity | Key Fields |
-|--------|------------|
+| Entity      | Key Fields                                                                |
+| ----------- | ------------------------------------------------------------------------- |
 | Integration | ID, type, config, mapped fields, partner, role, status, event log, errors |
-| ExportEvent | integrationID, type, batchRef, module, status, results, retries |
-| Log | action, by, timestamp, error/retry, exportKey, approval |
-| Partner | ID, access, on/off, expiry, log |
-| Audit | exportID, user, field, action, by, when |
+| ExportEvent | integrationID, type, batchRef, module, status, results, retries           |
+| Log         | action, by, timestamp, error/retry, exportKey, approval                   |
+| Partner     | ID, access, on/off, expiry, log                                           |
+| Audit       | exportID, user, field, action, by, when                                   |
 
 ---
 
@@ -359,11 +359,11 @@ Effectively and securely map/sync data across divergent systems using event-base
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target Date | Dependencies |
-|-------|-------|-------------|--------------|
-| 1 | API & batch, role/export/log, onboarding | Month 1–2 | Partner APIs, DevOps |
-| 2 | Analytics, alert/auto-repair flows | Month 3–4 | Expanded job queue |
-| 3 | Marketplace shop, multi-tenant onboarding | Month 5–6 | SSO, UI audit, consent |
+| Phase | Scope                                     | Target Date | Dependencies           |
+| ----- | ----------------------------------------- | ----------- | ---------------------- |
+| 1     | API & batch, role/export/log, onboarding  | Month 1–2   | Partner APIs, DevOps   |
+| 2     | Analytics, alert/auto-repair flows        | Month 3–4   | Expanded job queue     |
+| 3     | Marketplace shop, multi-tenant onboarding | Month 5–6   | SSO, UI audit, consent |
 
 ---
 
@@ -394,23 +394,23 @@ Effectively and securely map/sync data across divergent systems using event-base
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation Strategy |
-|------|--------|-------------|---------------------|
-| API failure | Data loss/delay | Medium | Automatic retry, manual backfill |
-| Config drift | Role/data breach | Medium | Role lock, audit checks |
-| Extreme load/burst | Batch timeout | Low–Medium | Queue/delay, burst reservoir |
-| Audit log loss | Compliance failure | Low | Manual retrain/export logic |
+| Risk               | Impact             | Probability | Mitigation Strategy              |
+| ------------------ | ------------------ | ----------- | -------------------------------- |
+| API failure        | Data loss/delay    | Medium      | Automatic retry, manual backfill |
+| Config drift       | Role/data breach   | Medium      | Role lock, audit checks          |
+| Extreme load/burst | Batch timeout      | Low–Medium  | Queue/delay, burst reservoir     |
+| Audit log loss     | Compliance failure | Low         | Manual retrain/export logic      |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target Resolution | Impact if Unresolved |
-|----------|-------|-------------------|----------------------|
-| Connector auto-add mechanisms | Product | Next milestone | Slower partner onboarding |
-| Partner/owner SSO scheme | Engineering | Design lock | Integration security/Audit risk |
-| Audit trail real-time visibility | Product | Dev phase 2 | Compliance, admin effectiveness |
-| Batch export automatic triggers | Engineering | UAT | User friction, error detection |
+| Question                         | Owner       | Target Resolution | Impact if Unresolved            |
+| -------------------------------- | ----------- | ----------------- | ------------------------------- |
+| Connector auto-add mechanisms    | Product     | Next milestone    | Slower partner onboarding       |
+| Partner/owner SSO scheme         | Engineering | Design lock       | Integration security/Audit risk |
+| Audit trail real-time visibility | Product     | Dev phase 2       | Compliance, admin effectiveness |
+| Batch export automatic triggers  | Engineering | UAT               | User friction, error detection  |
 
 ---
 

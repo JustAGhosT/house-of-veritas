@@ -27,16 +27,10 @@ export async function GET() {
       process.env.BASEROW_API_URL || process.env.NEXT_PUBLIC_BASEROW_URL,
       "/api/_health/"
     ),
-    checkService(
-      "docuseal",
-      process.env.NEXT_PUBLIC_DOCUSEAL_URL,
-      "/health"
-    ),
+    checkService("docuseal", process.env.NEXT_PUBLIC_DOCUSEAL_URL, "/health"),
   ])
 
-  const overall = checks.every(
-    (c) => c.status === "up" || c.status === "unconfigured"
-  )
+  const overall = checks.every((c) => c.status === "up" || c.status === "unconfigured")
 
   return NextResponse.json({
     status: overall ? "healthy" : "degraded",

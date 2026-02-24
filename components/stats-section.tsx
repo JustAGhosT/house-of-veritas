@@ -29,36 +29,36 @@ export function StatsSection() {
       value: tasks.total,
       label: "Tasks",
       sublabel: `${tasks.completed} completed`,
-      color: "text-blue-400"
+      color: "text-blue-400",
     },
     {
       value: users.active,
       label: "Active Users",
       sublabel: users.names?.join(", ") ?? "—",
-      color: "text-green-400"
+      color: "text-green-400",
     },
     {
       value: `${budget.percentage}%`,
       label: "Budget Used",
       sublabel: `R${budget.spent?.toLocaleString() ?? 0} of R${budget.allocated?.toLocaleString() ?? 0}`,
-      color: "text-emerald-400"
+      color: "text-emerald-400",
     },
     {
       value: tasks.overdue,
       label: "Overdue Tasks",
       sublabel: "Requires attention",
-      color: tasks.overdue > 0 ? "text-amber-400" : "text-blue-500"
-    }
+      color: tasks.overdue > 0 ? "text-amber-400" : "text-blue-500",
+    },
   ]
 
   return (
-    <section className="py-16 px-4">
-      <div className="max-w-6xl mx-auto">
+    <section className="px-4 py-16">
+      <div className="mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
         >
           {statsData.map((stat, index) => (
             <motion.div
@@ -66,18 +66,12 @@ export function StatsSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="relative p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition-all duration-300"
+              className="relative rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all duration-300 hover:border-zinc-700"
             >
               <div className="text-center">
-                <div className={`text-4xl font-bold mb-2 ${stat.color}`}>
-                  {stat.value}
-                </div>
-                <div className="text-sm font-semibold text-zinc-300 mb-1">
-                  {stat.label}
-                </div>
-                <div className="text-xs text-zinc-500">
-                  {stat.sublabel}
-                </div>
+                <div className={`mb-2 text-4xl font-bold ${stat.color}`}>{stat.value}</div>
+                <div className="mb-1 text-sm font-semibold text-zinc-300">{stat.label}</div>
+                <div className="text-xs text-zinc-500">{stat.sublabel}</div>
               </div>
             </motion.div>
           ))}

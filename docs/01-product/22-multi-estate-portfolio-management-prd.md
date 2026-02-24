@@ -8,12 +8,12 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (portfolio dashboard, estate switching, SSO experience) |
-| Backend | Azure Functions (estate API/event sync, cross-venue analytics) |
-| Data Layer | Baserow (estate registry, role DB) |
-| Identity Layer | SSO/IdP |
+| Layer          | Technology                                                            |
+| -------------- | --------------------------------------------------------------------- |
+| Frontend       | Next.js/React (portfolio dashboard, estate switching, SSO experience) |
+| Backend        | Azure Functions (estate API/event sync, cross-venue analytics)        |
+| Data Layer     | Baserow (estate registry, role DB)                                    |
+| Identity Layer | SSO/IdP                                                               |
 
 ---
 
@@ -120,23 +120,23 @@ The surge in multi-estate and enterprise property ownership, plus increasing reg
 
 ## Measurable Objectives
 
-| Objective | Baseline | Target | Timeline |
-|-----------|----------|--------|----------|
-| Sub-2s estate switch/join | 5–10s | <2s | 6 months |
-| Missed alert/audit/offline logs | 10–20% | 0% | 3 months |
+| Objective                               | Baseline | Target    | Timeline |
+| --------------------------------------- | -------- | --------- | -------- |
+| Sub-2s estate switch/join               | 5–10s    | <2s       | 6 months |
+| Missed alert/audit/offline logs         | 10–20%   | 0%        | 3 months |
 | Export/log report time for owners/audit | 2–4 days | <24 hours | 6 months |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibility |
-|------|----------------|
-| Portfolio Owner/Admin | Overall control, SSO, audit, export |
-| Property Manager | Day-to-day estate management, roles, alerts |
-| Resident | Limited read/view per estate context |
-| Finance/Compliance Partner | Reporting, compliance oversight |
-| Auditor/Insurer | Audit access, compliance, insurance checks |
+| Role                       | Responsibility                              |
+| -------------------------- | ------------------------------------------- |
+| Portfolio Owner/Admin      | Overall control, SSO, audit, export         |
+| Property Manager           | Day-to-day estate management, roles, alerts |
+| Resident                   | Limited read/view per estate context        |
+| Finance/Compliance Partner | Reporting, compliance oversight             |
+| Auditor/Insurer            | Audit access, compliance, insurance checks  |
 
 ---
 
@@ -219,24 +219,24 @@ The surge in multi-estate and enterprise property ownership, plus increasing reg
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| SSO/login/switch | Sub-2s |
-| Security | Encrypted role/event/alert data in transit and at rest |
-| Audit log & data retention | 7 years |
-| Accessibility | Full ARIA dashboard and WCAG 2.1 AA compliance |
-| Scale | Batch operations, 100+ estates |
-| Role drift/error rate | Maximum 5% |
+| Requirement                | Target                                                 |
+| -------------------------- | ------------------------------------------------------ |
+| SSO/login/switch           | Sub-2s                                                 |
+| Security                   | Encrypted role/event/alert data in transit and at rest |
+| Audit log & data retention | 7 years                                                |
+| Accessibility              | Full ARIA dashboard and WCAG 2.1 AA compliance         |
+| Scale                      | Batch operations, 100+ estates                         |
+| Role drift/error rate      | Maximum 5%                                             |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Components | Responsibilities |
-|-------|------------|------------------|
-| Frontend | Dashboard, switch/view, alert | UI, user actions, event filtering |
-| Backend | API, event/log/role batch, audit | Data sync, analytics, compliance |
-| Storage | Logs, export, batch/event tables | Secure records, retention, exports |
+| Layer    | Components                       | Responsibilities                   |
+| -------- | -------------------------------- | ---------------------------------- |
+| Frontend | Dashboard, switch/view, alert    | UI, user actions, event filtering  |
+| Backend  | API, event/log/role batch, audit | Data sync, analytics, compliance   |
+| Storage  | Logs, export, batch/event tables | Secure records, retention, exports |
 
 ---
 
@@ -244,16 +244,16 @@ The surge in multi-estate and enterprise property ownership, plus increasing reg
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/estate | POST/GET | Create, retrieve estates |
-| /api/user | POST/GET | Manage users |
-| /api/role | POST/PATCH | Role assignment and edits |
-| /api/event | POST/GET | Event creation and logs |
-| /api/alert | POST/GET | Alert notifications |
-| /api/export | POST/GET | Batch export/report |
-| /api/audit | GET | Retrieve audit logs |
-| /api/switch | POST/GET | Estate switch/join actions |
+| Endpoint    | Method     | Purpose                    |
+| ----------- | ---------- | -------------------------- |
+| /api/estate | POST/GET   | Create, retrieve estates   |
+| /api/user   | POST/GET   | Manage users               |
+| /api/role   | POST/PATCH | Role assignment and edits  |
+| /api/event  | POST/GET   | Event creation and logs    |
+| /api/alert  | POST/GET   | Alert notifications        |
+| /api/export | POST/GET   | Batch export/report        |
+| /api/audit  | GET        | Retrieve audit logs        |
+| /api/switch | POST/GET   | Estate switch/join actions |
 
 API hooks for all modules (chores, expense, incidents, docs, analytics, tools, AI).
 
@@ -268,13 +268,13 @@ API hooks for all modules (chores, expense, incidents, docs, analytics, tools, A
 
 ## Data Models
 
-| Entity | Key Fields |
-|--------|------------|
+| Entity | Key Fields                                          |
+| ------ | --------------------------------------------------- |
 | Estate | ID, name, owner/admin, modules, created, log/export |
-| User | UserID, role(s), estate(s), join/leave/history |
-| Event | EstateID, module, context, value, date |
-| Role | UserID, estateID, type, expiry/history |
-| Audit | EstateID, action, by, time, log, export |
+| User   | UserID, role(s), estate(s), join/leave/history      |
+| Event  | EstateID, module, context, value, date              |
+| Role   | UserID, estateID, type, expiry/history              |
+| Audit  | EstateID, action, by, time, log, export             |
 
 ---
 
@@ -329,11 +329,11 @@ API hooks for all modules (chores, expense, incidents, docs, analytics, tools, A
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target Date | Dependencies |
-|-------|-------|-------------|-------------|
-| Phase 1 | SSO, estate join/switch, event/alert/log/export | Mo+0–3 | — |
-| Phase 2 | Multi-property dashboard, batch/owner manage, roles | Mo+4–6 | — |
-| Phase 3 | Board/audit API export/report, BI partner hooks | Mo+7–12 | BI partners, module hooks, SSO/IdP readiness |
+| Phase   | Scope                                               | Target Date | Dependencies                                 |
+| ------- | --------------------------------------------------- | ----------- | -------------------------------------------- |
+| Phase 1 | SSO, estate join/switch, event/alert/log/export     | Mo+0–3      | —                                            |
+| Phase 2 | Multi-property dashboard, batch/owner manage, roles | Mo+4–6      | —                                            |
+| Phase 3 | Board/audit API export/report, BI partner hooks     | Mo+7–12     | BI partners, module hooks, SSO/IdP readiness |
 
 ---
 
@@ -363,22 +363,22 @@ API hooks for all modules (chores, expense, incidents, docs, analytics, tools, A
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Role/estate drift | High | Medium | Batch/admin audit/export, bi-weekly reconciliation |
-| SSO failure or outage | High | Low–Medium | Secondary admin-owner fallback, manual export support |
-| Compliance/audit lag | High | Medium | Automated backups, scheduled exports, retention policy |
-| Batch/export scaling issues | Medium | Medium | Cap batch size, monitoring, asynchronous retries |
+| Risk                        | Impact | Probability | Mitigation                                             |
+| --------------------------- | ------ | ----------- | ------------------------------------------------------ |
+| Role/estate drift           | High   | Medium      | Batch/admin audit/export, bi-weekly reconciliation     |
+| SSO failure or outage       | High   | Low–Medium  | Secondary admin-owner fallback, manual export support  |
+| Compliance/audit lag        | High   | Medium      | Automated backups, scheduled exports, retention policy |
+| Batch/export scaling issues | Medium | Medium      | Cap batch size, monitoring, asynchronous retries       |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target Date | Impact if Unresolved |
-|----------|-------|-------------|---------------------|
-| Mass/batch resident add/remove enabled? | Product | TBD | May delay admin onboarding flows |
-| Owner-only SSO/control at MVP? | Lead Dev | Pre-Alpha | Impacts initial access model |
-| Per-estate privacy/notification per role? | PM | Sprint 2 | Delays notification compliance/audit |
+| Question                                  | Owner    | Target Date | Impact if Unresolved                 |
+| ----------------------------------------- | -------- | ----------- | ------------------------------------ |
+| Mass/batch resident add/remove enabled?   | Product  | TBD         | May delay admin onboarding flows     |
+| Owner-only SSO/control at MVP?            | Lead Dev | Pre-Alpha   | Impacts initial access model         |
+| Per-estate privacy/notification per role? | PM       | Sprint 2    | Delays notification compliance/audit |
 
 ---
 

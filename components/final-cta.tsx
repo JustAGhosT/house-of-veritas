@@ -3,6 +3,7 @@
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 import { ArrowRight } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export function FinalCTA() {
@@ -10,44 +11,51 @@ export function FinalCTA() {
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   return (
-    <section className="py-24 px-4">
+    <section className="px-4 py-24">
       <motion.div
         ref={ref}
         initial={{ opacity: 0, y: 40 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
-        className="max-w-4xl mx-auto text-center"
+        className="mx-auto max-w-4xl text-center"
       >
         <h2
-          className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight"
+          className="mb-6 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl"
           style={{ fontFamily: "var(--font-inter)" }}
         >
           Ready to transform your governance?
         </h2>
-        <p className="text-lg sm:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto">
-          Join House of Veritas in achieving 100% digital compliance with legally enforceable e-signatures and complete operational transparency.
+        <p className="mx-auto mb-10 max-w-2xl text-lg text-zinc-400 sm:text-xl">
+          Join House of Veritas in achieving 100% digital compliance with legally enforceable
+          e-signatures and complete operational transparency.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Button
             size="lg"
-            className="shimmer-btn bg-blue-600 text-white hover:bg-blue-700 rounded-full px-8 h-14 text-base font-medium shadow-lg shadow-blue-600/20"
+            className="shimmer-btn h-14 cursor-pointer rounded-full bg-blue-600 px-8 text-base font-medium text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700"
             data-testid="final-cta-access-btn"
+            asChild
           >
-            Access Platform
-            <ArrowRight className="ml-2 w-5 h-5" />
+            <Link href="/login">
+              Access Platform
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
           </Button>
           <Button
             variant="outline"
             size="lg"
-            className="rounded-full px-8 h-14 text-base font-medium border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white hover:border-zinc-600 bg-transparent"
+            className="h-14 cursor-pointer rounded-full border-zinc-700 bg-transparent px-8 text-base font-medium text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800 hover:text-white"
             data-testid="final-cta-contact-btn"
+            asChild
           >
-            Contact Administrator
+            <Link href="#contact">Contact Administrator</Link>
           </Button>
         </div>
 
-        <p className="mt-8 text-sm text-zinc-500">Azure-powered • BCEA Compliant • 99.9% Uptime SLA</p>
+        <p className="mt-8 text-sm text-zinc-500">
+          Azure-powered • BCEA Compliant • 99.9% Uptime SLA
+        </p>
       </motion.div>
     </section>
   )

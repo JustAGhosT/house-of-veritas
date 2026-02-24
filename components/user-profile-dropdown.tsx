@@ -20,15 +20,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  LogOut,
-  User,
-  Phone,
-  Key,
-  RotateCcw,
-  ChevronDown,
-  Settings,
-} from "lucide-react"
+import { LogOut, User, Phone, Key, RotateCcw, ChevronDown, Settings } from "lucide-react"
 import Image from "next/image"
 import { apiFetch, ApiError } from "@/lib/api-client"
 
@@ -41,7 +33,16 @@ const colorClasses: Record<string, string> = {
 }
 
 interface UserProfileDropdownProps {
-  user: { id: string; name: string; email: string; phone?: string; role: string; color?: string; icon?: string; photoUrl?: string }
+  user: {
+    id: string
+    name: string
+    email: string
+    phone?: string
+    role: string
+    color?: string
+    icon?: string
+    photoUrl?: string
+  }
   personaInfo: { name: string; role: string; color: string; icon: string }
   onLogout: () => void
   onRepeatTutorial?: () => void
@@ -83,9 +84,11 @@ export function UserProfileDropdown({
       setEditOpen(false)
       router.refresh()
     } catch (err) {
-      setError(err instanceof ApiError && typeof err.body === "object" && err.body && "error" in err.body
-        ? String((err.body as { error?: string }).error)
-        : "Failed to save")
+      setError(
+        err instanceof ApiError && typeof err.body === "object" && err.body && "error" in err.body
+          ? String((err.body as { error?: string }).error)
+          : "Failed to save"
+      )
     } finally {
       setSaving(false)
     }
@@ -113,9 +116,11 @@ export function UserProfileDropdown({
       setConfirmPassword("")
       router.refresh()
     } catch (err) {
-      setError(err instanceof ApiError && typeof err.body === "object" && err.body && "error" in err.body
-        ? String((err.body as { error?: string }).error)
-        : "Failed to update password")
+      setError(
+        err instanceof ApiError && typeof err.body === "object" && err.body && "error" in err.body
+          ? String((err.body as { error?: string }).error)
+          : "Failed to update password"
+      )
     } finally {
       setSaving(false)
     }
@@ -131,43 +136,55 @@ export function UserProfileDropdown({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className={`
-              flex items-center gap-3 p-2 rounded-xl transition-all
-              ${compact ? "w-full" : ""}
-              hover:bg-white/10 text-left
-            `}
+            className={`flex items-center gap-3 rounded-xl p-2 transition-all ${compact ? "w-full" : ""} text-left hover:bg-white/10`}
             data-testid="user-profile-trigger"
           >
-            <div className={`w-10 h-10 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative ${user.photoUrl ? "bg-transparent" : `bg-linear-to-br ${colorClasses[color] || colorClasses.blue}`}`}>
+            <div
+              className={`relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full ${user.photoUrl ? "bg-transparent" : `bg-linear-to-br ${colorClasses[color] || colorClasses.blue}`}`}
+            >
               {user.photoUrl ? (
                 <Image src={user.photoUrl} alt="" fill className="object-cover" unoptimized />
               ) : (
                 <span className="text-lg">{icon}</span>
               )}
             </div>
-            <div className="flex-1 min-w-0 hidden sm:block">
-              <p className="text-white text-sm font-medium truncate">{user.name || personaInfo.name}</p>
-              <p className="text-white/50 text-xs truncate">{user.role || personaInfo.role}</p>
+            <div className="hidden min-w-0 flex-1 sm:block">
+              <p className="truncate text-sm font-medium text-white">
+                {user.name || personaInfo.name}
+              </p>
+              <p className="truncate text-xs text-white/50">{user.role || personaInfo.role}</p>
             </div>
-            <ChevronDown className="w-4 h-4 text-white/50 shrink-0" />
+            <ChevronDown className="h-4 w-4 shrink-0 text-white/50" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 bg-[#0d0d12] border-white/10">
-          <DropdownMenuItem onClick={() => router.push(`/dashboard/${user.id}/settings`)} className="text-white/80 focus:bg-white/10 focus:text-white">
-            <Settings className="w-4 h-4 mr-2" />
+        <DropdownMenuContent align="end" className="w-56 border-white/10 bg-[#0d0d12]">
+          <DropdownMenuItem
+            onClick={() => router.push(`/dashboard/${user.id}/settings`)}
+            className="text-white/80 focus:bg-white/10 focus:text-white"
+          >
+            <Settings className="mr-2 h-4 w-4" />
             Settings
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setEditOpen(true)} className="text-white/80 focus:bg-white/10 focus:text-white">
-            <User className="w-4 h-4 mr-2" />
+          <DropdownMenuItem
+            onClick={() => setEditOpen(true)}
+            className="text-white/80 focus:bg-white/10 focus:text-white"
+          >
+            <User className="mr-2 h-4 w-4" />
             Edit profile
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setPasswordOpen(true)} className="text-white/80 focus:bg-white/10 focus:text-white">
-            <Key className="w-4 h-4 mr-2" />
+          <DropdownMenuItem
+            onClick={() => setPasswordOpen(true)}
+            className="text-white/80 focus:bg-white/10 focus:text-white"
+          >
+            <Key className="mr-2 h-4 w-4" />
             Change password
           </DropdownMenuItem>
           {onRepeatTutorial && (
-            <DropdownMenuItem onClick={handleRepeatTutorial} className="text-white/80 focus:bg-white/10 focus:text-white">
-              <RotateCcw className="w-4 h-4 mr-2" />
+            <DropdownMenuItem
+              onClick={handleRepeatTutorial}
+              className="text-white/80 focus:bg-white/10 focus:text-white"
+            >
+              <RotateCcw className="mr-2 h-4 w-4" />
               Repeat tutorial
             </DropdownMenuItem>
           )}
@@ -177,14 +194,14 @@ export function UserProfileDropdown({
             className="text-red-400 focus:bg-red-500/20 focus:text-red-400"
             data-testid="header-logout"
           >
-            <LogOut className="w-4 h-4 mr-2" />
+            <LogOut className="mr-2 h-4 w-4" />
             Logout
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="bg-[#0d0d12] border-white/10 text-white">
+        <DialogContent className="border-white/10 bg-[#0d0d12] text-white">
           <DialogHeader>
             <DialogTitle>Edit profile</DialogTitle>
             <DialogDescription className="text-white/60">
@@ -198,25 +215,43 @@ export function UserProfileDropdown({
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="mt-2 bg-white/5 border-white/10"
+                className="mt-2 border-white/10 bg-white/5"
                 placeholder="+27..."
               />
             </div>
-            {error && <p className="text-red-400 text-sm">{error}</p>}
+            {error && <p className="text-sm text-red-400">{error}</p>}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditOpen(false)} className="border-white/10">
+            <Button
+              variant="outline"
+              onClick={() => setEditOpen(false)}
+              className="border-white/10"
+            >
               Cancel
             </Button>
-            <Button onClick={handleSaveProfile} disabled={saving} className="bg-blue-600 hover:bg-blue-700">
+            <Button
+              onClick={handleSaveProfile}
+              disabled={saving}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               {saving ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={passwordOpen} onOpenChange={(open) => { setPasswordOpen(open); if (!open) { setPassword(""); setConfirmPassword(""); setError(""); } }}>
-        <DialogContent className="bg-[#0d0d12] border-white/10 text-white">
+      <Dialog
+        open={passwordOpen}
+        onOpenChange={(open) => {
+          setPasswordOpen(open)
+          if (!open) {
+            setPassword("")
+            setConfirmPassword("")
+            setError("")
+          }
+        }}
+      >
+        <DialogContent className="border-white/10 bg-[#0d0d12] text-white">
           <DialogHeader>
             <DialogTitle>Change password</DialogTitle>
             <DialogDescription className="text-white/60">
@@ -230,7 +265,7 @@ export function UserProfileDropdown({
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-2 bg-white/5 border-white/10"
+                className="mt-2 border-white/10 bg-white/5"
                 placeholder="••••••••"
               />
             </div>
@@ -240,17 +275,25 @@ export function UserProfileDropdown({
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-2 bg-white/5 border-white/10"
+                className="mt-2 border-white/10 bg-white/5"
                 placeholder="••••••••"
               />
             </div>
-            {error && <p className="text-red-400 text-sm">{error}</p>}
+            {error && <p className="text-sm text-red-400">{error}</p>}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setPasswordOpen(false)} className="border-white/10">
+            <Button
+              variant="outline"
+              onClick={() => setPasswordOpen(false)}
+              className="border-white/10"
+            >
               Cancel
             </Button>
-            <Button onClick={handleSavePassword} disabled={saving} className="bg-blue-600 hover:bg-blue-700">
+            <Button
+              onClick={handleSavePassword}
+              disabled={saving}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               {saving ? "Saving..." : "Update"}
             </Button>
           </DialogFooter>

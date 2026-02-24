@@ -57,7 +57,9 @@ export const POST = withRole("admin")(async (request, context) => {
     await saveProjects(projects)
     return NextResponse.json({ member, project: projects[idx] })
   } catch (err) {
-    logger.error("Failed to add member", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Failed to add member", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ error: "Failed to add member" }, { status: 500 })
   }
 })
@@ -87,7 +89,9 @@ export const DELETE = withRole("admin")(async (request, context) => {
     await saveProjects(projects)
     return NextResponse.json({ success: true, project: projects[idx] })
   } catch (err) {
-    logger.error("Failed to remove member", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Failed to remove member", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ error: "Failed to remove member" }, { status: 500 })
   }
 })

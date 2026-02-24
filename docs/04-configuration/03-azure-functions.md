@@ -4,16 +4,16 @@ This directory contains all Azure Functions for automation and integration.
 
 ## Functions Overview
 
-| Function | Trigger | Schedule | Purpose |
-|----------|---------|----------|---------|
-| DocuSealWebhook | HTTP POST | On demand | Handle DocuSeal signature events |
-| DocumentExpiryAlert | Timer | Daily 6:00 AM | Check expiring documents |
-| RecurringTasks | Timer | Monday 8:00 AM | Create weekly tasks |
-| OvertimeCalculator | Timer | Sunday 11:00 PM | Calculate weekly overtime |
-| LeaveBalanceUpdate | Timer | Monthly 1st 7:00 AM | Update leave balances |
-| ExpenseNotification | HTTP POST | On demand | Notify on new expenses |
-| BudgetReport | Timer | Monthly 5th 8:00 AM | Generate financial report |
-| BackupExport | Timer | Sunday midnight | Export data to blob storage |
+| Function            | Trigger   | Schedule            | Purpose                          |
+| ------------------- | --------- | ------------------- | -------------------------------- |
+| DocuSealWebhook     | HTTP POST | On demand           | Handle DocuSeal signature events |
+| DocumentExpiryAlert | Timer     | Daily 6:00 AM       | Check expiring documents         |
+| RecurringTasks      | Timer     | Monday 8:00 AM      | Create weekly tasks              |
+| OvertimeCalculator  | Timer     | Sunday 11:00 PM     | Calculate weekly overtime        |
+| LeaveBalanceUpdate  | Timer     | Monthly 1st 7:00 AM | Update leave balances            |
+| ExpenseNotification | HTTP POST | On demand           | Notify on new expenses           |
+| BudgetReport        | Timer     | Monthly 5th 8:00 AM | Generate financial report        |
+| BackupExport        | Timer     | Sunday midnight     | Export data to blob storage      |
 
 ## Directory Structure
 

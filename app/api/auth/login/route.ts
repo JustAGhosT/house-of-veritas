@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server"
-import { findUserByEmailAsync, findUserByIdAsync, getPasswordHashAsync, verifyPassword, safeUser } from "@/lib/users"
+import {
+  findUserByEmailAsync,
+  findUserByIdAsync,
+  getPasswordHashAsync,
+  verifyPassword,
+  safeUser,
+} from "@/lib/users"
 import { signToken, getSessionCookieConfig } from "@/lib/auth/jwt"
 import { logger } from "@/lib/logger"
 

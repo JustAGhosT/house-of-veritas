@@ -26,10 +26,14 @@ export function EmployeesPage({ embedded = false }: EmployeesPageProps = {}) {
 
   const fetchEmployees = useCallback(async () => {
     try {
-      const data = await apiFetch<{ employees?: Employee[] }>("/api/employees", { label: "Employees" })
+      const data = await apiFetch<{ employees?: Employee[] }>("/api/employees", {
+        label: "Employees",
+      })
       setEmployees(data?.employees || [])
     } catch (error) {
-      logger.error("Failed to fetch employees", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to fetch employees", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setLoading(false)
     }
@@ -43,15 +47,15 @@ export function EmployeesPage({ embedded = false }: EmployeesPageProps = {}) {
     <div className="space-y-6">
       {!embedded && (
         <div>
-          <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
+          <h1 className="flex items-center gap-2 text-2xl font-semibold text-white">
             <Users className="h-7 w-7" />
             Employees
           </h1>
-          <p className="text-white/60 mt-1">Employee directory and management</p>
+          <p className="mt-1 text-white/60">Employee directory and management</p>
         </div>
       )}
 
-      <Card className="bg-[#0d0d12]/80 border-white/10">
+      <Card className="border-white/10 bg-[#0d0d12]/80">
         <CardHeader>
           <CardTitle className="text-white">Employee List</CardTitle>
           <CardDescription className="text-white/60">
@@ -64,20 +68,22 @@ export function EmployeesPage({ embedded = false }: EmployeesPageProps = {}) {
               <Loader2 className="h-8 w-8 animate-spin text-white/40" />
             </div>
           ) : employees.length === 0 ? (
-            <p className="text-white/50 text-center py-8">No employees found.</p>
+            <p className="py-8 text-center text-white/50">No employees found.</p>
           ) : (
             <div className="space-y-3">
               {employees.map((emp) => (
                 <div
                   key={emp.id}
-                  className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10"
+                  className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4"
                 >
                   <div>
-                    <p className="text-white font-medium">{emp.fullName}</p>
-                    <p className="text-white/50 text-sm">{emp.role} · {emp.email}</p>
+                    <p className="font-medium text-white">{emp.fullName}</p>
+                    <p className="text-sm text-white/50">
+                      {emp.role} · {emp.email}
+                    </p>
                   </div>
                   {emp.leaveBalance != null && (
-                    <span className="text-white/60 text-sm">{emp.leaveBalance} days leave</span>
+                    <span className="text-sm text-white/60">{emp.leaveBalance} days leave</span>
                   )}
                 </div>
               ))}
@@ -85,7 +91,7 @@ export function EmployeesPage({ embedded = false }: EmployeesPageProps = {}) {
           )}
           <div className="mt-4">
             <Button variant="outline" className="border-white/10" onClick={fetchEmployees}>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
           </div>

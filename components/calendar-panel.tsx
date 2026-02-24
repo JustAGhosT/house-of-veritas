@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import { logger } from "@/lib/logger"
 import { apiFetch } from "@/lib/api-client"
 import {
@@ -14,7 +14,7 @@ import {
   Users,
   Loader2,
   AlertCircle,
-} from 'lucide-react'
+} from "lucide-react"
 
 interface CalendarEvent {
   id: string
@@ -27,21 +27,21 @@ interface CalendarEvent {
 }
 
 const COLOR_MAP: Record<string, string> = {
-  '1': 'bg-blue-500',
-  '2': 'bg-green-500',
-  '3': 'bg-purple-500',
-  '4': 'bg-red-500',
-  '5': 'bg-amber-500',
-  '6': 'bg-orange-500',
-  '7': 'bg-teal-500',
-  '8': 'bg-gray-500',
-  '9': 'bg-pink-500',
+  "1": "bg-blue-500",
+  "2": "bg-green-500",
+  "3": "bg-purple-500",
+  "4": "bg-red-500",
+  "5": "bg-amber-500",
+  "6": "bg-orange-500",
+  "7": "bg-teal-500",
+  "8": "bg-gray-500",
+  "9": "bg-pink-500",
 }
 
 export function CalendarPanel() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [loading, setLoading] = useState(true)
-  const [mode, setMode] = useState<'mock' | 'live'>('mock')
+  const [mode, setMode] = useState<"mock" | "live">("mock")
   const [currentDate, setCurrentDate] = useState(new Date())
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -49,11 +49,16 @@ export function CalendarPanel() {
   const fetchEvents = async () => {
     setLoading(true)
     try {
-      const data = await apiFetch<{ items?: CalendarEvent[]; mode?: 'mock' | 'live' }>('/api/calendar', { label: 'Calendar' })
+      const data = await apiFetch<{ items?: CalendarEvent[]; mode?: "mock" | "live" }>(
+        "/api/calendar",
+        { label: "Calendar" }
+      )
       setEvents(data?.items || [])
-      setMode(data?.mode || 'mock')
+      setMode(data?.mode || "mock")
     } catch (error) {
-      logger.error('Failed to fetch calendar events', { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to fetch calendar events", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setLoading(false)
     }
@@ -77,91 +82,91 @@ export function CalendarPanel() {
 
   const getEventsForDate = (day: number) => {
     const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
-    const targetDateStr = targetDate.toISOString().split('T')[0]
-    
-    return events.filter(event => {
+    const targetDateStr = targetDate.toISOString().split("T")[0]
+
+    return events.filter((event) => {
       const eventDate = event.start.dateTime || event.start.date
       if (!eventDate) return false
       return eventDate.startsWith(targetDateStr)
     })
   }
 
-  const navigateMonth = (direction: 'prev' | 'next') => {
-    setCurrentDate(prev => {
+  const navigateMonth = (direction: "prev" | "next") => {
+    setCurrentDate((prev) => {
       const newDate = new Date(prev)
-      newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1))
+      newDate.setMonth(newDate.getMonth() + (direction === "next" ? 1 : -1))
       return newDate
     })
   }
 
-  const monthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })
+  const monthName = currentDate.toLocaleString("default", { month: "long", year: "numeric" })
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-blue-500/20">
-            <CalendarIcon className="w-5 h-5 text-blue-400" />
+          <div className="rounded-xl bg-blue-500/20 p-2">
+            <CalendarIcon className="h-5 w-5 text-blue-400" />
           </div>
           <div>
-            <h2 className="text-white font-semibold">Calendar</h2>
-            <p className="text-white/50 text-sm">
-              {mode === 'mock' ? 'Demo Mode' : 'Connected to Google Calendar'}
+            <h2 className="font-semibold text-white">Calendar</h2>
+            <p className="text-sm text-white/50">
+              {mode === "mock" ? "Demo Mode" : "Connected to Google Calendar"}
             </p>
           </div>
         </div>
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="h-4 w-4" />
           New Event
         </button>
       </div>
 
       {/* Mode Alert */}
-      {mode === 'mock' && (
-        <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+      {mode === "mock" && (
+        <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-400">
+          <AlertCircle className="h-4 w-4 shrink-0" />
           <span>Using demo data. Configure Google Calendar API for live sync.</span>
         </div>
       )}
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
         </div>
       ) : (
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid gap-6 lg:grid-cols-3">
           {/* Calendar Grid */}
-          <div className="lg:col-span-2 bg-white/5 rounded-2xl border border-white/10 p-4">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 lg:col-span-2">
             {/* Month Navigation */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <button
                 type="button"
-                onClick={() => navigateMonth('prev')}
-                className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+                onClick={() => navigateMonth("prev")}
+                className="rounded-lg p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
                 aria-label="Previous month"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="h-5 w-5" />
               </button>
-              <h3 className="text-white font-semibold text-lg">{monthName}</h3>
+              <h3 className="text-lg font-semibold text-white">{monthName}</h3>
               <button
                 type="button"
-                onClick={() => navigateMonth('next')}
-                className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+                onClick={() => navigateMonth("next")}
+                className="rounded-lg p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
                 aria-label="Next month"
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="h-5 w-5" />
               </button>
             </div>
 
             {/* Day Headers */}
-            <div className="grid grid-cols-7 gap-1 mb-2">
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                <div key={day} className="text-center text-white/40 text-sm py-2">
+            <div className="mb-2 grid grid-cols-7 gap-1">
+              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                <div key={day} className="py-2 text-center text-sm text-white/40">
                   {day}
                 </div>
               ))}
@@ -173,36 +178,36 @@ export function CalendarPanel() {
               {Array.from({ length: startingDay }).map((_, i) => (
                 <div key={`empty-${i}`} className="aspect-square" />
               ))}
-              
+
               {/* Days of the month */}
               {Array.from({ length: daysInMonth }).map((_, i) => {
                 const day = i + 1
                 const dayEvents = getEventsForDate(day)
-                const isToday = 
+                const isToday =
                   day === new Date().getDate() &&
                   currentDate.getMonth() === new Date().getMonth() &&
                   currentDate.getFullYear() === new Date().getFullYear()
-                
+
                 return (
                   <button
                     key={day}
                     onClick={() => {
-                      setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day))
+                      setSelectedDate(
+                        new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+                      )
                       setShowCreateModal(true)
                     }}
-                    className={`aspect-square p-1 rounded-lg transition-colors relative ${
-                      isToday 
-                        ? 'bg-blue-600 text-white' 
-                        : 'hover:bg-white/10 text-white/80'
+                    className={`relative aspect-square rounded-lg p-1 transition-colors ${
+                      isToday ? "bg-blue-600 text-white" : "text-white/80 hover:bg-white/10"
                     }`}
                   >
                     <span className="text-sm">{day}</span>
                     {dayEvents.length > 0 && (
-                      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
+                      <div className="absolute bottom-1 left-1/2 flex -translate-x-1/2 gap-0.5">
                         {dayEvents.slice(0, 3).map((evt, idx) => (
                           <div
                             key={idx}
-                            className={`w-1.5 h-1.5 rounded-full ${COLOR_MAP[evt.colorId || '1']}`}
+                            className={`h-1.5 w-1.5 rounded-full ${COLOR_MAP[evt.colorId || "1"]}`}
                           />
                         ))}
                       </div>
@@ -214,49 +219,51 @@ export function CalendarPanel() {
           </div>
 
           {/* Upcoming Events */}
-          <div className="bg-white/5 rounded-2xl border border-white/10 p-4">
-            <h3 className="text-white font-semibold mb-4">Upcoming Events</h3>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <h3 className="mb-4 font-semibold text-white">Upcoming Events</h3>
+            <div className="max-h-96 space-y-3 overflow-y-auto">
               {events.length === 0 ? (
-                <p className="text-white/50 text-sm text-center py-8">No upcoming events</p>
+                <p className="py-8 text-center text-sm text-white/50">No upcoming events</p>
               ) : (
-                events.slice(0, 10).map(event => {
+                events.slice(0, 10).map((event) => {
                   const eventDate = event.start.dateTime || event.start.date
-                  const displayDate = eventDate 
-                    ? new Date(eventDate).toLocaleDateString('en-ZA', { 
-                        weekday: 'short', 
-                        month: 'short', 
-                        day: 'numeric' 
+                  const displayDate = eventDate
+                    ? new Date(eventDate).toLocaleDateString("en-ZA", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
                       })
-                    : ''
+                    : ""
                   const displayTime = event.start.dateTime
-                    ? new Date(event.start.dateTime).toLocaleTimeString('en-ZA', {
-                        hour: '2-digit',
-                        minute: '2-digit',
+                    ? new Date(event.start.dateTime).toLocaleTimeString("en-ZA", {
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })
-                    : 'All day'
+                    : "All day"
 
                   return (
                     <div
                       key={event.id}
-                      className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                      className="rounded-lg bg-white/5 p-3 transition-colors hover:bg-white/10"
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`w-1 h-12 rounded-full ${COLOR_MAP[event.colorId || '1']}`} />
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-white font-medium text-sm truncate">
+                        <div
+                          className={`h-12 w-1 rounded-full ${COLOR_MAP[event.colorId || "1"]}`}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <h4 className="truncate text-sm font-medium text-white">
                             {event.summary}
                           </h4>
-                          <div className="flex items-center gap-2 mt-1 text-white/50 text-xs">
-                            <CalendarIcon className="w-3 h-3" />
+                          <div className="mt-1 flex items-center gap-2 text-xs text-white/50">
+                            <CalendarIcon className="h-3 w-3" />
                             {displayDate}
                           </div>
-                          <div className="flex items-center gap-2 mt-0.5 text-white/50 text-xs">
-                            <Clock className="w-3 h-3" />
+                          <div className="mt-0.5 flex items-center gap-2 text-xs text-white/50">
+                            <Clock className="h-3 w-3" />
                             {displayTime}
                           </div>
                           {event.description && (
-                            <p className="text-white/40 text-xs mt-2 line-clamp-2">
+                            <p className="mt-2 line-clamp-2 text-xs text-white/40">
                               {event.description}
                             </p>
                           )}
@@ -290,22 +297,22 @@ export function CalendarPanel() {
   )
 }
 
-function CreateEventModal({ 
-  onClose, 
+function CreateEventModal({
+  onClose,
   onCreated,
-  initialDate 
-}: { 
+  initialDate,
+}: {
   onClose: () => void
   onCreated: () => void
   initialDate: Date | null
 }) {
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
-    summary: '',
-    description: '',
-    date: initialDate?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
-    startTime: '09:00',
-    endTime: '10:00',
+    summary: "",
+    description: "",
+    date: initialDate?.toISOString().split("T")[0] || new Date().toISOString().split("T")[0],
+    startTime: "09:00",
+    endTime: "10:00",
     allDay: false,
   })
 
@@ -314,76 +321,89 @@ function CreateEventModal({
     setLoading(true)
 
     try {
-      const start = form.allDay 
-        ? form.date 
-        : `${form.date}T${form.startTime}:00`
-      const end = form.allDay 
-        ? form.date 
-        : `${form.date}T${form.endTime}:00`
+      const start = form.allDay ? form.date : `${form.date}T${form.startTime}:00`
+      const end = form.allDay ? form.date : `${form.date}T${form.endTime}:00`
 
-      await apiFetch('/api/calendar', {
-        method: 'POST',
-        body: { summary: form.summary, description: form.description, start, end, allDay: form.allDay },
-        label: 'Calendar',
+      await apiFetch("/api/calendar", {
+        method: "POST",
+        body: {
+          summary: form.summary,
+          description: form.description,
+          start,
+          end,
+          allDay: form.allDay,
+        },
+        label: "Calendar",
       })
 
       onCreated()
     } catch (error) {
-      logger.error('Failed to create event', { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to create event", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="w-full max-w-md bg-[#0d0d12] rounded-2xl border border-white/10 shadow-2xl">
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <h3 className="text-white font-semibold">Create Event</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0d0d12] shadow-2xl">
+        <div className="flex items-center justify-between border-b border-white/10 p-4">
+          <h3 className="font-semibold text-white">Create Event</h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+            className="rounded-lg p-1 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
             aria-label="Close event form"
           >
-            <X className="w-5 h-5" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 p-4">
           <div>
-            <label htmlFor="calendar-event-title" className="block text-white/60 text-sm mb-2">Event Title</label>
+            <label htmlFor="calendar-event-title" className="mb-2 block text-sm text-white/60">
+              Event Title
+            </label>
             <input
               id="calendar-event-title"
               type="text"
               value={form.summary}
-              onChange={(e) => setForm(prev => ({ ...prev, summary: e.target.value }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, summary: e.target.value }))}
               required
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/30"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/30"
               placeholder="Enter event title"
             />
           </div>
 
           <div>
-            <label htmlFor="calendar-event-description" className="block text-white/60 text-sm mb-2">Description</label>
+            <label
+              htmlFor="calendar-event-description"
+              className="mb-2 block text-sm text-white/60"
+            >
+              Description
+            </label>
             <textarea
               id="calendar-event-description"
               value={form.description}
-              onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
               rows={3}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/30 resize-none"
+              className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/30"
               placeholder="Event description (optional)"
             />
           </div>
 
           <div>
-            <label htmlFor="calendar-event-date" className="block text-white/60 text-sm mb-2">Date</label>
+            <label htmlFor="calendar-event-date" className="mb-2 block text-sm text-white/60">
+              Date
+            </label>
             <input
               id="calendar-event-date"
               type="date"
               value={form.date}
-              onChange={(e) => setForm(prev => ({ ...prev, date: e.target.value }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, date: e.target.value }))}
               required
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white"
             />
           </div>
 
@@ -392,32 +412,38 @@ function CreateEventModal({
               type="checkbox"
               id="allDay"
               checked={form.allDay}
-              onChange={(e) => setForm(prev => ({ ...prev, allDay: e.target.checked }))}
-              className="w-4 h-4 rounded"
+              onChange={(e) => setForm((prev) => ({ ...prev, allDay: e.target.checked }))}
+              className="h-4 w-4 rounded"
             />
-            <label htmlFor="allDay" className="text-white/60 text-sm">All day event</label>
+            <label htmlFor="allDay" className="text-sm text-white/60">
+              All day event
+            </label>
           </div>
 
           {!form.allDay && (
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="calendar-event-start" className="block text-white/60 text-sm mb-2">Start Time</label>
+                <label htmlFor="calendar-event-start" className="mb-2 block text-sm text-white/60">
+                  Start Time
+                </label>
                 <input
                   id="calendar-event-start"
                   type="time"
                   value={form.startTime}
-                  onChange={(e) => setForm(prev => ({ ...prev, startTime: e.target.value }))}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white"
+                  onChange={(e) => setForm((prev) => ({ ...prev, startTime: e.target.value }))}
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white"
                 />
               </div>
               <div>
-                <label htmlFor="calendar-event-end" className="block text-white/60 text-sm mb-2">End Time</label>
+                <label htmlFor="calendar-event-end" className="mb-2 block text-sm text-white/60">
+                  End Time
+                </label>
                 <input
                   id="calendar-event-end"
                   type="time"
                   value={form.endTime}
-                  onChange={(e) => setForm(prev => ({ ...prev, endTime: e.target.value }))}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white"
+                  onChange={(e) => setForm((prev) => ({ ...prev, endTime: e.target.value }))}
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white"
                 />
               </div>
             </div>
@@ -427,16 +453,20 @@ function CreateEventModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 rounded-lg bg-white/5 text-white/60 hover:bg-white/10 hover:text-white transition-colors"
+              className="flex-1 rounded-lg bg-white/5 px-4 py-3 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
               Create
             </button>
           </div>

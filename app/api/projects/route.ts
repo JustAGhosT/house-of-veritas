@@ -43,7 +43,9 @@ export async function GET(request: Request) {
       subprojects,
     })
   } catch (err) {
-    logger.error("Failed to load projects", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Failed to load projects", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ error: "Failed to load projects" }, { status: 500 })
   }
 }
@@ -81,7 +83,9 @@ export const POST = withRole("admin")(async (request: Request) => {
 
     return NextResponse.json({ project })
   } catch (err) {
-    logger.error("Failed to create project", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Failed to create project", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ error: "Failed to create project" }, { status: 500 })
   }
 })

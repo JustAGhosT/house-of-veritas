@@ -69,6 +69,7 @@ Add the GitHub Actions IP ranges to Key Vault and Storage so any runner can conn
 **Prerequisite:** Run from a machine that can already reach Key Vault and Storage (e.g. VM in your VNet, or after temporarily allowing "All networks" in the portal).
 
 **Using the helper script:**
+
 ```bash
 # From a machine with Azure CLI and network access
 cd config/scripts
@@ -78,6 +79,7 @@ chmod +x add-github-actions-ips-to-azure.sh
 ```
 
 **Manual steps (Azure Portal):**
+
 1. Get the IP ranges: `curl -s https://api.github.com/meta | jq -r '.actions[]' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'`
 2. Key Vault → Networking → Firewall → Add existing IPv4 address ranges
 3. Storage Account → Networking → Firewall → Add existing IPv4 address ranges

@@ -46,16 +46,17 @@ tests/                    # Unit (Vitest) + E2E (Playwright)
 
 ## Users (Personas)
 
-| ID | Role | Dashboard |
-|----|------|-----------|
-| hans | admin | Full estate oversight, payroll, reports |
-| charl | operator | Workshop, vehicles, time clock |
-| lucky | operator | Garden, expenses, inventory |
-| irma | resident | Household, meal planning, documents |
+| ID    | Role     | Dashboard                               |
+| ----- | -------- | --------------------------------------- |
+| hans  | admin    | Full estate oversight, payroll, reports |
+| charl | operator | Workshop, vehicles, time clock          |
+| lucky | operator | Garden, expenses, inventory             |
+| irma  | resident | Household, meal planning, documents     |
 
 ## Agent System
 
 See `AGENTS.md` for the multi-agent assessment framework. Key commands:
+
 - Individual: `Read .claude/commands/assess-{domain}.md`
 - Full audit: `Read .claude/commands/assess-all.md`
 - Reports: `.claude/reports/` (gitignored)
@@ -71,6 +72,7 @@ See `AGENTS.md` for the multi-agent assessment framework. Key commands:
 ## Hooks
 
 Lifecycle hooks in `.claude/hooks/`:
+
 - `session-start.sh` — Verify environment and build state
 - `protect-sensitive.sh` — Block writes to .env, .tfvars, credentials
 - `guard-destructive-bash.sh` — Block force-push, hard reset, terraform destroy

@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (document dashboard, expiry/alert/invite modals) |
-| Backend | Baserow (document registry, expiry tracker), Azure Functions (alerting, renewal, role audit) |
-| Storage | Secure Blob/File system |
+| Layer    | Technology                                                                                   |
+| -------- | -------------------------------------------------------------------------------------------- |
+| Frontend | Next.js/React (document dashboard, expiry/alert/invite modals)                               |
+| Backend  | Baserow (document registry, expiry tracker), Azure Functions (alerting, renewal, role audit) |
+| Storage  | Secure Blob/File system                                                                      |
 
 ---
 
@@ -115,23 +115,23 @@ With heightened legal liability, insurance scrutiny, and the demand for best-in-
 
 ## Measurable Objectives
 
-| Objective | Target |
-|-----------|--------|
-| Zero late/overdue signatures | Yes |
-| Audit log export time | <1hr |
-| On-time review compliance | 99% |
-| Onboarding for new docs | <10min |
+| Objective                    | Target |
+| ---------------------------- | ------ |
+| Zero late/overdue signatures | Yes    |
+| Audit log export time        | <1hr   |
+| On-time review compliance    | 99%    |
+| Onboarding for new docs      | <10min |
 
 ---
 
 ## Stakeholders
 
-| Stakeholder | Role | Responsibilities |
-|-------------|------|------------------|
-| Residents | End users | View, sign, verify doc status |
-| Admin/Compliance Lead | Ops & Compliance | Track, enforce, export docs, configure |
-| Owner | Estate management | Review, configure settings, escalate |
-| Auditor/Inspector | External assurance | Access, filter/export, validate audit |
+| Stakeholder           | Role               | Responsibilities                       |
+| --------------------- | ------------------ | -------------------------------------- |
+| Residents             | End users          | View, sign, verify doc status          |
+| Admin/Compliance Lead | Ops & Compliance   | Track, enforce, export docs, configure |
+| Owner                 | Estate management  | Review, configure settings, escalate   |
+| Auditor/Inspector     | External assurance | Access, filter/export, validate audit  |
 
 ---
 
@@ -210,25 +210,25 @@ With heightened legal liability, insurance scrutiny, and the demand for best-in-
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Dashboard filter/load | Under 2s |
-| Encryption | End-to-end (in transit & rest) |
-| Audit/event log retention | >5 years |
-| Availability | Automatic failover; high-availability |
-| Compliance | GDPR, POPIA, ISO |
-| Accessibility | Full ARIA dashboard accessibility |
+| Requirement               | Target                                |
+| ------------------------- | ------------------------------------- |
+| Dashboard filter/load     | Under 2s                              |
+| Encryption                | End-to-end (in transit & rest)        |
+| Audit/event log retention | >5 years                              |
+| Availability              | Automatic failover; high-availability |
+| Compliance                | GDPR, POPIA, ISO                      |
+| Accessibility             | Full ARIA dashboard accessibility     |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Component/Responsibility |
-|-------|--------------------------|
-| Frontend | Role-based doc views, alerts, e-signature, batch ops |
-| Backend | Baserow (doc/status registry), Azure Functions (expiry/alerting, audit exports) |
-| Storage | Secure Blob/files |
-| Cross-Module | Incident/task connections, user/role authentication |
+| Layer        | Component/Responsibility                                                        |
+| ------------ | ------------------------------------------------------------------------------- |
+| Frontend     | Role-based doc views, alerts, e-signature, batch ops                            |
+| Backend      | Baserow (doc/status registry), Azure Functions (expiry/alerting, audit exports) |
+| Storage      | Secure Blob/files                                                               |
+| Cross-Module | Incident/task connections, user/role authentication                             |
 
 ---
 
@@ -236,14 +236,14 @@ With heightened legal liability, insurance scrutiny, and the demand for best-in-
 
 ### Required APIs
 
-| API | Purpose | Method |
-|-----|---------|--------|
-| /api/doc | Upload, edit, archive docs; batch upload, filter, export | POST/GET/PATCH |
-| /api/sign | Trigger/view/sign, update | POST |
-| /api/remind | Notify, resend, alert | POST/PATCH |
-| /api/role | Get/assign access roles | GET |
-| /api/auditlog | Action logs/export | POST/GET |
-| /api/signature/update | E-sign webhook/status | Webhook |
+| API                   | Purpose                                                  | Method         |
+| --------------------- | -------------------------------------------------------- | -------------- |
+| /api/doc              | Upload, edit, archive docs; batch upload, filter, export | POST/GET/PATCH |
+| /api/sign             | Trigger/view/sign, update                                | POST           |
+| /api/remind           | Notify, resend, alert                                    | POST/PATCH     |
+| /api/role             | Get/assign access roles                                  | GET            |
+| /api/auditlog         | Action logs/export                                       | POST/GET       |
+| /api/signature/update | E-sign webhook/status                                    | Webhook        |
 
 ### External Dependencies
 
@@ -258,13 +258,13 @@ With heightened legal liability, insurance scrutiny, and the demand for best-in-
 
 ## Data Models
 
-| Model | Fields |
-|-------|--------|
-| Doc | ID, type, file, owner/assigned, signers, status, expiry, renew, audit trail, access links, action log |
-| Signature | DocID, user, status, timestamp |
-| Role | UserID, access, expiry date |
-| Audit | DocID, action, user, timestamp, version/history |
-| AccessGrant | DocID, user, time window, status |
+| Model       | Fields                                                                                                |
+| ----------- | ----------------------------------------------------------------------------------------------------- |
+| Doc         | ID, type, file, owner/assigned, signers, status, expiry, renew, audit trail, access links, action log |
+| Signature   | DocID, user, status, timestamp                                                                        |
+| Role        | UserID, access, expiry date                                                                           |
+| Audit       | DocID, action, user, timestamp, version/history                                                       |
+| AccessGrant | DocID, user, time window, status                                                                      |
 
 ---
 
@@ -341,11 +341,11 @@ With heightened legal liability, insurance scrutiny, and the demand for best-in-
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target |
-|-------|-------|--------|
-| 1 | MVP (upload, role, alert, audit) | 2 weeks |
-| 2 | Expiry/renewal, e-sign, auditor access | +2 weeks |
-| 3 | Feedback/incidents, versioning, scaling | +2 weeks |
+| Phase | Scope                                   | Target   |
+| ----- | --------------------------------------- | -------- |
+| 1     | MVP (upload, role, alert, audit)        | 2 weeks  |
+| 2     | Expiry/renewal, e-sign, auditor access  | +2 weeks |
+| 3     | Feedback/incidents, versioning, scaling | +2 weeks |
 
 ---
 
@@ -377,23 +377,23 @@ With heightened legal liability, insurance scrutiny, and the demand for best-in-
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Missed expiry/renewals | Compliance failure | Medium | Multi-interval alerts, role alert queues |
-| Document deletion | Data loss | Low | Archive + restore, restricted delete |
-| E-signature error | Legal risk | Low/Med | Fallback/manual flag, auto-notify admins |
-| Access/role drift | Unauthorized access | Medium | History/event log review, role reconciliation |
-| Audit/export failure | Audit non-compliance | Low | 24/7 batch export availability |
+| Risk                   | Impact               | Probability | Mitigation                                    |
+| ---------------------- | -------------------- | ----------- | --------------------------------------------- |
+| Missed expiry/renewals | Compliance failure   | Medium      | Multi-interval alerts, role alert queues      |
+| Document deletion      | Data loss            | Low         | Archive + restore, restricted delete          |
+| E-signature error      | Legal risk           | Low/Med     | Fallback/manual flag, auto-notify admins      |
+| Access/role drift      | Unauthorized access  | Medium      | History/event log review, role reconciliation |
+| Audit/export failure   | Audit non-compliance | Low         | 24/7 batch export availability                |
 
 ---
 
 ## Open Questions
 
-| Question | Impact |
-|----------|--------|
-| Should residents see all signed docs or only those currently assigned to their role? | |
-| Can owners filter and view audit logs by user granularity? | |
-| Should the system enable fallback to physical/manual signatures if e-sign fails? | |
+| Question                                                                             | Impact |
+| ------------------------------------------------------------------------------------ | ------ |
+| Should residents see all signed docs or only those currently assigned to their role? |        |
+| Can owners filter and view audit logs by user granularity?                           |        |
+| Should the system enable fallback to physical/manual signatures if e-sign fails?     |        |
 
 ---
 

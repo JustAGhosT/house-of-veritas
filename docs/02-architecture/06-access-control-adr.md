@@ -71,24 +71,24 @@ Users also have `specialty` (skills) and `responsibilities` (in user-management)
 
 **Criteria** (weights sum to 100):
 
-| Criterion | Weight | Description |
-| ----------- | -------- | ------------- |
-| Flexibility | 25 | Grant Projects to Irma without making her operator |
-| Task/permission alignment | 25 | Use same model for task assignment and access |
-| Simplicity | 20 | Easy to reason about and configure |
-| Migration effort | 15 | Minimal changes to existing code |
-| Extensibility | 15 | Easy to add new features (e.g. Inventory) per user |
+| Criterion                 | Weight | Description                                        |
+| ------------------------- | ------ | -------------------------------------------------- |
+| Flexibility               | 25     | Grant Projects to Irma without making her operator |
+| Task/permission alignment | 25     | Use same model for task assignment and access      |
+| Simplicity                | 20     | Easy to reason about and configure                 |
+| Migration effort          | 15     | Minimal changes to existing code                   |
+| Extensibility             | 15     | Easy to add new features (e.g. Inventory) per user |
 
 **Options scored 1–5** (5 = best):
 
-| Criterion | A: Single Role | B: Multiple Roles | C: Responsibilities | D: Hybrid |
-| ----------- | ---------------- | ------------------- | ---------------------- | ----------- |
-| Flexibility | 2 | 4 | 5 | 5 |
-| Task/permission alignment | 2 | 3 | 5 | 5 |
-| Simplicity | 5 | 2 | 4 | 4 |
-| Migration effort | 5 | 2 | 3 | 4 |
-| Extensibility | 2 | 4 | 5 | 5 |
-| **Weighted total** | **3.35** | **3.15** | **4.45** | **4.65** |
+| Criterion                 | A: Single Role | B: Multiple Roles | C: Responsibilities | D: Hybrid |
+| ------------------------- | -------------- | ----------------- | ------------------- | --------- |
+| Flexibility               | 2              | 4                 | 5                   | 5         |
+| Task/permission alignment | 2              | 3                 | 5                   | 5         |
+| Simplicity                | 5              | 2                 | 4                   | 4         |
+| Migration effort          | 5              | 2                 | 3                   | 4         |
+| Extensibility             | 2              | 4                 | 5                   | 5         |
+| **Weighted total**        | **3.35**       | **3.15**          | **4.45**            | **4.65**  |
 
 **Decision:** **Option D — Hybrid (Role + Responsibilities)**
 
@@ -105,25 +105,25 @@ Users also have `specialty` (skills) and `responsibilities` (in user-management)
 
 ### Responsibilities (Feature-Level)
 
-| Responsibility | Grants Access To |
-| ---------------- | ------------------ |
-| `Projects` | Projects page (view, suggest) |
-| `Expenses` | Expenses page (submit, view own) |
-| `Inventory` | Inventory page |
-| `Household` | Household tasks, meal planning |
-| `Assets` | Assets page (view, check out) |
-| `Vehicles` | Vehicle log |
-| `Time` | Time clock |
-| `Documents` | Documents page |
+| Responsibility | Grants Access To                 |
+| -------------- | -------------------------------- |
+| `Projects`     | Projects page (view, suggest)    |
+| `Expenses`     | Expenses page (submit, view own) |
+| `Inventory`    | Inventory page                   |
+| `Household`    | Household tasks, meal planning   |
+| `Assets`       | Assets page (view, check out)    |
+| `Vehicles`     | Vehicle log                      |
+| `Time`         | Time clock                       |
+| `Documents`    | Documents page                   |
 
 ### Default Responsibility Sets by Role
 
-| Role | Default Responsibilities |
-| ------ | -------------------------- |
-| admin | (all — no explicit list needed) |
-| operator | Projects, Assets, Vehicles, Time, Documents |
+| Role     | Default Responsibilities                                 |
+| -------- | -------------------------------------------------------- |
+| admin    | (all — no explicit list needed)                          |
+| operator | Projects, Assets, Vehicles, Time, Documents              |
 | employee | Projects, Inventory, Expenses, Vehicles, Time, Documents |
-| resident | Household, Documents, Projects |
+| resident | Household, Documents, Projects                           |
 
 **Rationale for adding Projects to resident:** Residents may participate in household projects
 (e.g. paint house internal, garden revamp). They should view projects and suggest new ones,

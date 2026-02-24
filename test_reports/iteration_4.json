@@ -28,19 +28,16 @@
     "Clock In/Out state is randomly initialized (Math.random() > 0.5) - should fetch actual state from API",
     "Tasks API returns all tasks regardless of assignee filter (uses numeric IDs internally)"
   ],
-  "updated_files": [
-    "/app/app/kiosk/page.tsx",
-    "/app/backend/tests/test_kiosk_api.py"
-  ],
+  "updated_files": ["/app/app/kiosk/page.tsx", "/app/backend/tests/test_kiosk_api.py"],
   "success_rate": {
     "backend": "100% (16/16 tests passed)",
     "frontend": "100% (all UI flows working)"
   },
   "test_credentials": {
-    "charl": {"pin": "1234", "role": "Workshop Operator"},
-    "lucky": {"pin": "5678", "role": "Gardener"},
-    "irma": {"pin": "9012", "role": "Household"},
-    "hans": {"pin": "0000", "role": "Administrator"}
+    "charl": { "pin": "1234", "role": "Workshop Operator" },
+    "lucky": { "pin": "5678", "role": "Gardener" },
+    "irma": { "pin": "9012", "role": "Household" },
+    "hans": { "pin": "0000", "role": "Administrator" }
   },
   "seed_data_creation": "Mock data seeded in /app/app/api/kiosk/requests/route.ts",
   "retest_needed": false,

@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (asset management, lifecycle, and depreciation dashboards) |
-| Backend | Baserow (asset registry & scheduling), Azure Functions (alerting & depreciation engine) |
-| Storage | Azure Blob (photos, documents, insurance certificates) |
+| Layer    | Technology                                                                              |
+| -------- | --------------------------------------------------------------------------------------- |
+| Frontend | Next.js/React (asset management, lifecycle, and depreciation dashboards)                |
+| Backend  | Baserow (asset registry & scheduling), Azure Functions (alerting & depreciation engine) |
+| Storage  | Azure Blob (photos, documents, insurance certificates)                                  |
 
 ---
 
@@ -119,23 +119,23 @@ Estate assets are major capital investments where compliance, tax, and owner val
 
 ## Measurable Objectives
 
-| Metric | Baseline | Target | Timeline |
-|--------|----------|--------|----------|
-| Lost/aged assets | N/A | Zero | 12 months |
-| Maintenance on-time % | <40% | 95%+ | 9 months |
-| Compliance document tracked | N/A | 100% | 6 months |
-| Depreciation/report for tax | <10% | 100% | Annually |
+| Metric                      | Baseline | Target | Timeline  |
+| --------------------------- | -------- | ------ | --------- |
+| Lost/aged assets            | N/A      | Zero   | 12 months |
+| Maintenance on-time %       | <40%     | 95%+   | 9 months  |
+| Compliance document tracked | N/A      | 100%   | 6 months  |
+| Depreciation/report for tax | <10%     | 100%   | Annually  |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibility |
-|------|----------------|
-| Admin | Tracks asset inventory, manages scheduling, validates asset events |
-| Owner | Audits, authorizes retirement/disposal/export, monitors trends |
-| Maintenance/Support | Delivers services, closes work orders, reports incidents |
-| Insurance/Auditor | Reviews compliance, certs/insurance, and supports audit cycles |
+| Role                | Responsibility                                                     |
+| ------------------- | ------------------------------------------------------------------ |
+| Admin               | Tracks asset inventory, manages scheduling, validates asset events |
+| Owner               | Audits, authorizes retirement/disposal/export, monitors trends     |
+| Maintenance/Support | Delivers services, closes work orders, reports incidents           |
+| Insurance/Auditor   | Reviews compliance, certs/insurance, and supports audit cycles     |
 
 ---
 
@@ -206,25 +206,25 @@ Estate assets are major capital investments where compliance, tax, and owner val
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Mobile scan and edit support | Yes |
-| Camera proof/upload integration | Yes |
-| Accessibility | ARIA compliance |
-| Status response | Sub-2s |
-| Secure log retention | 7+ years |
-| Service close time on event trigger | <6h |
-| Audit trail | Complete; rapid compliance export |
+| Requirement                         | Target                            |
+| ----------------------------------- | --------------------------------- |
+| Mobile scan and edit support        | Yes                               |
+| Camera proof/upload integration     | Yes                               |
+| Accessibility                       | ARIA compliance                   |
+| Status response                     | Sub-2s                            |
+| Secure log retention                | 7+ years                          |
+| Service close time on event trigger | <6h                               |
+| Audit trail                         | Complete; rapid compliance export |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Component/Responsibility |
-|-------|---------------------------|
-| Frontend | Asset management interface (add, assign, service logs, depreciation views, retire/export) |
-| Backend | Asset registry and event DB (Baserow), depreciation engine (Azure Functions), alerting, scheduling, audit/event trace |
-| Storage | Azure Blob for photos, receipts, certification archives, export logs |
+| Layer    | Component/Responsibility                                                                                              |
+| -------- | --------------------------------------------------------------------------------------------------------------------- |
+| Frontend | Asset management interface (add, assign, service logs, depreciation views, retire/export)                             |
+| Backend  | Asset registry and event DB (Baserow), depreciation engine (Azure Functions), alerting, scheduling, audit/event trace |
+| Storage  | Azure Blob for photos, receipts, certification archives, export logs                                                  |
 
 ---
 
@@ -232,16 +232,16 @@ Estate assets are major capital investments where compliance, tax, and owner val
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/asset | POST/GET | Create and fetch asset data |
-| /api/assign | PATCH | Assign/transfer asset ownership |
-| /api/service | POST/GET | Service event logs |
-| /api/maintenance | POST | Schedule and record maintenance |
-| /api/depreciate | POST/GET | Asset depreciation calculation and retrieval |
-| /api/report/export | POST | Generate and export compliance, tax, and audit reports |
-| /api/audit | GET | Audit event log access |
-| /api/doc | POST/GET | Upload/fetch insurance, certification, and media proofs |
+| Endpoint           | Method   | Purpose                                                 |
+| ------------------ | -------- | ------------------------------------------------------- |
+| /api/asset         | POST/GET | Create and fetch asset data                             |
+| /api/assign        | PATCH    | Assign/transfer asset ownership                         |
+| /api/service       | POST/GET | Service event logs                                      |
+| /api/maintenance   | POST     | Schedule and record maintenance                         |
+| /api/depreciate    | POST/GET | Asset depreciation calculation and retrieval            |
+| /api/report/export | POST     | Generate and export compliance, tax, and audit reports  |
+| /api/audit         | GET      | Audit event log access                                  |
+| /api/doc           | POST/GET | Upload/fetch insurance, certification, and media proofs |
 
 ### External Dependencies
 
@@ -256,13 +256,13 @@ Estate assets are major capital investments where compliance, tax, and owner val
 
 ## Data Models
 
-| Entity | Key Fields |
-|--------|------------|
-| Asset | ID, serial, type, assigned user, docs/photos/cert, schedule, service/event, depreciation, start/retire/replace dates, status |
-| Service | AssetID, time/desc, status, proof, overdue flag |
-| Depreciation | AssetID, curve/model, value, start/end, event/close |
-| Audit | AssetID, action, executor, timestamp, doc, retire/export flag |
-| Insurance | AssetID, provider, certificate/date, renewal flag, claim/event logs |
+| Entity       | Key Fields                                                                                                                   |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Asset        | ID, serial, type, assigned user, docs/photos/cert, schedule, service/event, depreciation, start/retire/replace dates, status |
+| Service      | AssetID, time/desc, status, proof, overdue flag                                                                              |
+| Depreciation | AssetID, curve/model, value, start/end, event/close                                                                          |
+| Audit        | AssetID, action, executor, timestamp, doc, retire/export flag                                                                |
+| Insurance    | AssetID, provider, certificate/date, renewal flag, claim/event logs                                                          |
 
 ---
 
@@ -324,14 +324,14 @@ Estate assets are major capital investments where compliance, tax, and owner val
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target Date | Dependencies |
-|-------|-------|-------------|--------------|
-| Phase 1 | Asset add → Schedule → Assign → Service | Q3 | Baserow, Blob |
-| Phase 2 | Depreciation calc/report/export | Q4 | Azure Functions |
-| Phase 3 | Audit/insurance/export, doc archive | Q1 2027 | Maintenance partner, APIs |
-| Enhancement | Mobile-first & camera, bulk workflows | Q2 2027 | Frontend, UX testing |
+| Phase       | Scope                                   | Target Date | Dependencies              |
+| ----------- | --------------------------------------- | ----------- | ------------------------- |
+| Phase 1     | Asset add → Schedule → Assign → Service | Q3          | Baserow, Blob             |
+| Phase 2     | Depreciation calc/report/export         | Q4          | Azure Functions           |
+| Phase 3     | Audit/insurance/export, doc archive     | Q1 2027     | Maintenance partner, APIs |
+| Enhancement | Mobile-first & camera, bulk workflows   | Q2 2027     | Frontend, UX testing      |
 
-*Dates are relative to document version Feb 2025.*
+_Dates are relative to document version Feb 2025._
 
 ---
 
@@ -364,12 +364,12 @@ Estate assets are major capital investments where compliance, tax, and owner val
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Overdue/late maintenance | High | Medium | Auto-alerting, escalation, incident creation |
-| Asset loss/disposal event unlogged | High | Low | Mandatory event log, admin override required |
-| Insurance/dep/doc upload fails | Medium | Medium | Admin backup process, retry queue |
-| Audit/export delay | Medium | Medium | Batch processing, pre-scheduled exports |
+| Risk                               | Impact | Probability | Mitigation                                   |
+| ---------------------------------- | ------ | ----------- | -------------------------------------------- |
+| Overdue/late maintenance           | High   | Medium      | Auto-alerting, escalation, incident creation |
+| Asset loss/disposal event unlogged | High   | Low         | Mandatory event log, admin override required |
+| Insurance/dep/doc upload fails     | Medium | Medium      | Admin backup process, retry queue            |
+| Audit/export delay                 | Medium | Medium      | Batch processing, pre-scheduled exports      |
 
 ---
 

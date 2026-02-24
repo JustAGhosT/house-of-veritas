@@ -46,12 +46,8 @@ export function NotificationPanel() {
   const [isOpen, setIsOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
   const { user } = useAuth()
-  const {
-    getNotificationsForUser,
-    markAsRead,
-    markAllAsRead,
-    clearNotification,
-  } = useNotifications()
+  const { getNotificationsForUser, markAsRead, markAllAsRead, clearNotification } =
+    useNotifications()
 
   const notifications = user ? getNotificationsForUser(user.id) : []
   const unreadCount = notifications.filter((n) => !n.read).length
@@ -80,12 +76,12 @@ export function NotificationPanel() {
       {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+        className="relative rounded-lg p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
         data-testid="notification-bell"
       >
-        <Bell className="w-5 h-5" />
+        <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
+          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-medium text-white">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -94,32 +90,32 @@ export function NotificationPanel() {
       {/* Notification Panel */}
       {isOpen && (
         <div
-          className="absolute right-0 top-full mt-2 w-96 max-h-[500px] bg-[#0d0d12] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
+          className="absolute top-full right-0 z-50 mt-2 max-h-[500px] w-96 overflow-hidden rounded-2xl border border-white/10 bg-[#0d0d12] shadow-2xl"
           data-testid="notification-panel"
         >
           {/* Header */}
-          <div className="p-4 border-b border-white/10 flex items-center justify-between">
+          <div className="flex items-center justify-between border-b border-white/10 p-4">
             <div>
-              <h3 className="text-white font-semibold">Notifications</h3>
-              <p className="text-white/50 text-sm">{unreadCount} unread</p>
+              <h3 className="font-semibold text-white">Notifications</h3>
+              <p className="text-sm text-white/50">{unreadCount} unread</p>
             </div>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
                 <button
                   onClick={() => markAllAsRead()}
-                  className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+                  className="rounded-lg p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
                   title="Mark all as read"
                   data-testid="mark-all-read"
                 >
-                  <CheckCheck className="w-4 h-4" />
+                  <CheckCheck className="h-4 w-4" />
                 </button>
               )}
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+                className="rounded-lg p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
                 data-testid="close-notifications"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -128,7 +124,7 @@ export function NotificationPanel() {
           <div className="max-h-[400px] overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <Bell className="w-12 h-12 text-white/20 mx-auto mb-3" />
+                <Bell className="mx-auto mb-3 h-12 w-12 text-white/20" />
                 <p className="text-white/60">No notifications</p>
               </div>
             ) : (
@@ -166,7 +162,7 @@ function NotificationItem({
 
   return (
     <div
-      className={`p-4 hover:bg-white/5 transition-colors cursor-pointer group ${
+      className={`group cursor-pointer p-4 transition-colors hover:bg-white/5 ${
         !notification.read ? "bg-blue-500/5" : ""
       }`}
       onClick={onMarkRead}
@@ -174,25 +170,29 @@ function NotificationItem({
     >
       <div className="flex items-start gap-3">
         {/* Icon */}
-        <div className={`p-2 rounded-lg shrink-0 ${typeColors[notification.type]}`}>
-          <Icon className="w-4 h-4" />
+        <div className={`shrink-0 rounded-lg p-2 ${typeColors[notification.type]}`}>
+          <Icon className="h-4 w-4" />
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <p className={`font-medium text-sm ${notification.read ? "text-white/70" : "text-white"}`}>
+            <p
+              className={`text-sm font-medium ${notification.read ? "text-white/70" : "text-white"}`}
+            >
               {notification.title}
             </p>
             {notification.priority && (
-              <span className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${priorityColors[notification.priority]}`} />
+              <span
+                className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${priorityColors[notification.priority]}`}
+              />
             )}
           </div>
-          <p className="text-white/50 text-sm mt-1 line-clamp-2">{notification.message}</p>
-          <div className="flex items-center gap-3 mt-2">
-            <span className="text-white/40 text-xs">{formatTime(notification.timestamp)}</span>
+          <p className="mt-1 line-clamp-2 text-sm text-white/50">{notification.message}</p>
+          <div className="mt-2 flex items-center gap-3">
+            <span className="text-xs text-white/40">{formatTime(notification.timestamp)}</span>
             {notification.fromUser && (
-              <span className="text-white/40 text-xs">
+              <span className="text-xs text-white/40">
                 from <span className="capitalize">{notification.fromUser}</span>
               </span>
             )}
@@ -200,17 +200,17 @@ function NotificationItem({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           {!notification.read && (
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 onMarkRead()
               }}
-              className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+              className="rounded-lg p-1.5 text-white/40 transition-colors hover:bg-white/10 hover:text-white"
               title="Mark as read"
             >
-              <Check className="w-4 h-4" />
+              <Check className="h-4 w-4" />
             </button>
           )}
           <button
@@ -218,17 +218,17 @@ function NotificationItem({
               e.stopPropagation()
               onClear()
             }}
-            className="p-1.5 rounded-lg hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-colors"
+            className="rounded-lg p-1.5 text-white/40 transition-colors hover:bg-red-500/20 hover:text-red-400"
             title="Remove"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="h-4 w-4" />
           </button>
         </div>
       </div>
 
       {/* Unread indicator */}
       {!notification.read && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r" />
+        <div className="absolute top-1/2 left-0 h-8 w-1 -translate-y-1/2 rounded-r bg-blue-500" />
       )}
     </div>
   )

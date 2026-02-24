@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 const textRevealVariants = {
@@ -18,32 +19,38 @@ const textRevealVariants = {
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-24 pb-16 overflow-hidden">
+    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pt-24 pb-16">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-linear-to-b from-zinc-950 via-zinc-950 to-zinc-900 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-zinc-950 via-zinc-950 to-zinc-900" />
 
       {/* Subtle radial glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-blue-900/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="pointer-events-none absolute top-1/4 left-1/2 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-blue-900/10 blur-3xl" />
 
-      <div className="relative z-10 max-w-5xl mx-auto text-center">
+      <div className="relative z-10 mx-auto max-w-5xl text-center">
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-blue-800/50 mb-8"
+          className="mb-8 inline-flex items-center gap-2 rounded-full border border-blue-800/50 bg-zinc-900 px-4 py-2"
         >
-          <span className="w-2 h-2 rounded-full bg-blue-500 pulse-glow" />
+          <span className="pulse-glow h-2 w-2 rounded-full bg-blue-500" />
           <span className="text-sm text-zinc-400">Azure-Powered Platform</span>
         </motion.div>
 
         {/* Headline with text mask animation */}
         <h1
-          className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6"
+          className="mb-6 text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl"
           style={{ fontFamily: "var(--font-inter), sans-serif" }}
         >
           <span className="block overflow-hidden">
-            <motion.span className="block" variants={textRevealVariants} initial="hidden" animate="visible" custom={0}>
+            <motion.span
+              className="block"
+              variants={textRevealVariants}
+              initial="hidden"
+              animate="visible"
+              custom={0}
+            >
               Governance Made Simple.
             </motion.span>
           </span>
@@ -65,10 +72,10 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed"
+          className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-zinc-400 sm:text-xl"
         >
-          The complete platform for estate management, document compliance, and operational accountability.
-          Everything you need for legally enforceable governance.
+          The complete platform for estate management, document compliance, and operational
+          accountability. Everything you need for legally enforceable governance.
         </motion.p>
 
         {/* CTAs */}
@@ -76,23 +83,27 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
+          className="mb-16 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
           <Button
             size="lg"
-            className="shimmer-btn bg-blue-600 text-white hover:bg-blue-700 rounded-full px-8 h-12 text-base font-medium shadow-lg shadow-blue-600/20"
+            className="shimmer-btn h-12 cursor-pointer rounded-full bg-blue-600 px-8 text-base font-medium text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700"
             data-testid="access-documents-btn"
+            asChild
           >
-            Access Documents
-            <ArrowRight className="ml-2 w-4 h-4" />
+            <Link href="/login">
+              Access Documents
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
           </Button>
           <Button
             variant="outline"
             size="lg"
-            className="rounded-full px-8 h-12 text-base font-medium border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white hover:border-zinc-600 bg-transparent"
+            className="h-12 cursor-pointer rounded-full border-zinc-700 bg-transparent px-8 text-base font-medium text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800 hover:text-white"
             data-testid="view-dashboard-btn"
+            asChild
           >
-            View Operations Dashboard
+            <Link href="/login">View Operations Dashboard</Link>
           </Button>
         </motion.div>
       </div>

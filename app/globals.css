@@ -3,6 +3,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Clickable elements show pointer cursor */
+a[href],
+button:not(:disabled),
+[role="button"] {
+  cursor: pointer;
+}
+
 :root {
   --background: oklch(0.09 0 0);
   --foreground: oklch(1 0 0);
@@ -169,7 +176,12 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
   background-size: 200% 100%;
   animation: shimmer 3s ease-in-out infinite;
 }
@@ -228,10 +240,10 @@
 }
 
 .grid-room-bg::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: 
+  background:
     linear-gradient(to bottom, rgba(10, 10, 15, 0.9) 0%, transparent 30%),
     linear-gradient(to top, rgba(10, 10, 15, 0.95) 0%, transparent 50%);
   z-index: 2;
@@ -249,8 +261,8 @@
     linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 50px 50px;
-  mask-image: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 80%);
-  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 80%);
+  mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 80%);
+  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 80%);
 }
 
 .grid-room-walls {
@@ -271,7 +283,14 @@
   transform: translateX(-50%);
   width: 80%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(30, 64, 175, 0.3), rgba(30, 64, 175, 0.5), rgba(30, 64, 175, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(30, 64, 175, 0.3),
+    rgba(30, 64, 175, 0.5),
+    rgba(30, 64, 175, 0.3),
+    transparent
+  );
   filter: blur(8px);
   z-index: 1;
 }

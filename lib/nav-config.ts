@@ -56,18 +56,84 @@ interface PageDef {
 const PAGE_DEFINITIONS: PageDef[] = [
   { name: "Overview", href: "/dashboard", icon: Home },
   { name: "Team", href: "/dashboard/hans/team", icon: Users, category: "People", adminOnly: true },
-  { name: "Approvals", href: "/dashboard/hans/approvals", icon: CheckSquare, category: "People", adminOnly: true },
-  { name: "Projects", href: "/dashboard", icon: FolderKanban, category: "Operations", requiredResponsibility: "Projects" },
+  {
+    name: "Approvals",
+    href: "/dashboard/hans/approvals",
+    icon: CheckSquare,
+    category: "People",
+    adminOnly: true,
+  },
+  {
+    name: "Projects",
+    href: "/dashboard",
+    icon: FolderKanban,
+    category: "Operations",
+    requiredResponsibility: "Projects",
+  },
   { name: "Tasks", href: "/dashboard", icon: ClipboardList, category: "Operations" },
-  { name: "Time & Attendance", href: "/dashboard", icon: Clock, category: "Operations", requiredResponsibility: "Time" },
-  { name: "Expenses", href: "/dashboard", icon: DollarSign, category: "Operations", requiredResponsibility: "Expenses" },
-  { name: "Vehicles", href: "/dashboard", icon: Car, category: "Operations", requiredResponsibility: "Vehicles" },
-  { name: "Assets", href: "/dashboard", icon: Package, category: "Operations", requiredResponsibility: "Assets" },
-  { name: "Inventory", href: "/dashboard", icon: Boxes, category: "Operations", requiredResponsibility: "Inventory" },
-  { name: "Maintenance", href: "/dashboard", icon: Wrench, category: "Operations", adminOnly: true },
-  { name: "Documents", href: "/dashboard", icon: FileText, category: "Documents & Finance", requiredResponsibility: "Documents" },
-  { name: "Calendar", href: "/dashboard", icon: Calendar, category: "Documents & Finance", adminOnly: true },
-  { name: "Payroll", href: "/dashboard", icon: DollarSign, category: "Documents & Finance", adminOnly: true },
+  {
+    name: "Time & Attendance",
+    href: "/dashboard",
+    icon: Clock,
+    category: "Operations",
+    requiredResponsibility: "Time",
+  },
+  {
+    name: "Expenses",
+    href: "/dashboard",
+    icon: DollarSign,
+    category: "Operations",
+    requiredResponsibility: "Expenses",
+  },
+  {
+    name: "Vehicles",
+    href: "/dashboard",
+    icon: Car,
+    category: "Operations",
+    requiredResponsibility: "Vehicles",
+  },
+  {
+    name: "Assets",
+    href: "/dashboard",
+    icon: Package,
+    category: "Operations",
+    requiredResponsibility: "Assets",
+  },
+  {
+    name: "Inventory",
+    href: "/dashboard",
+    icon: Boxes,
+    category: "Operations",
+    requiredResponsibility: "Inventory",
+  },
+  {
+    name: "Maintenance",
+    href: "/dashboard",
+    icon: Wrench,
+    category: "Operations",
+    adminOnly: true,
+  },
+  {
+    name: "Documents",
+    href: "/dashboard",
+    icon: FileText,
+    category: "Documents & Finance",
+    requiredResponsibility: "Documents",
+  },
+  {
+    name: "Calendar",
+    href: "/dashboard",
+    icon: Calendar,
+    category: "Documents & Finance",
+    adminOnly: true,
+  },
+  {
+    name: "Payroll",
+    href: "/dashboard",
+    icon: DollarSign,
+    category: "Documents & Finance",
+    adminOnly: true,
+  },
   { name: "OCR Scanner", href: "/dashboard", icon: ScanLine, category: "Tools", adminOnly: true },
   { name: "Marketplace", href: "/dashboard", icon: Store, category: "Tools", adminOnly: true },
   { name: "Reports", href: "/dashboard", icon: BarChart3, category: "Admin", adminOnly: true },
@@ -76,79 +142,75 @@ const PAGE_DEFINITIONS: PageDef[] = [
 
 const PERSONA_HREF_OVERRIDES: Record<string, Record<string, string>> = {
   hans: {
-    "Overview": "/dashboard/hans",
-    "Tasks": "/dashboard/hans/tasks",
+    Overview: "/dashboard/hans",
+    Tasks: "/dashboard/hans/tasks",
     "Time & Attendance": "/dashboard/hans/time",
-    "Expenses": "/dashboard/hans/expenses",
-    "Vehicles": "/dashboard/hans/vehicles",
-    "Assets": "/dashboard/hans/assets",
-    "Inventory": "/dashboard/hans/inventory",
-    "Documents": "/dashboard/hans/documents",
-    "Calendar": "/dashboard/hans/calendar",
-    "Payroll": "/dashboard/hans/payroll",
+    Expenses: "/dashboard/hans/expenses",
+    Vehicles: "/dashboard/hans/vehicles",
+    Assets: "/dashboard/hans/assets",
+    Inventory: "/dashboard/hans/inventory",
+    Documents: "/dashboard/hans/documents",
+    Calendar: "/dashboard/hans/calendar",
+    Payroll: "/dashboard/hans/payroll",
     "OCR Scanner": "/dashboard/hans/ocr",
-    "Marketplace": "/dashboard/hans/marketplace",
-    "Reports": "/dashboard/hans/reports",
-    "Settings": "/dashboard/hans/settings",
-    "Projects": "/dashboard/hans/projects",
+    Marketplace: "/dashboard/hans/marketplace",
+    Reports: "/dashboard/hans/reports",
+    Settings: "/dashboard/hans/settings",
+    Projects: "/dashboard/hans/projects",
   },
   charl: {
     "My Dashboard": "/dashboard/charl",
-    "Projects": "/dashboard/charl/projects",
+    Projects: "/dashboard/charl/projects",
     "My Tasks": "/dashboard/charl/tasks",
     "Time Clock": "/dashboard/charl/time",
     "Vehicle Log": "/dashboard/charl/vehicles",
-    "Assets": "/dashboard/charl/assets",
+    Assets: "/dashboard/charl/assets",
     "My Documents": "/dashboard/charl/documents",
-    "Settings": "/dashboard/charl/settings",
+    Settings: "/dashboard/charl/settings",
   },
   lucky: {
     "My Dashboard": "/dashboard/lucky",
-    "Projects": "/dashboard/lucky/projects",
+    Projects: "/dashboard/lucky/projects",
     "My Tasks": "/dashboard/lucky/tasks",
     "Time Clock": "/dashboard/lucky/time",
     "Vehicle Log": "/dashboard/lucky/vehicles",
-    "Inventory": "/dashboard/lucky/inventory",
-    "Expenses": "/dashboard/lucky/expenses",
+    Inventory: "/dashboard/lucky/inventory",
+    Expenses: "/dashboard/lucky/expenses",
     "My Documents": "/dashboard/lucky/documents",
-    "Settings": "/dashboard/lucky/settings",
+    Settings: "/dashboard/lucky/settings",
   },
   irma: {
     "My Dashboard": "/dashboard/irma",
-    "Projects": "/dashboard/irma/projects",
+    Projects: "/dashboard/irma/projects",
     "Household Tasks": "/dashboard/irma/tasks",
     "My Documents": "/dashboard/irma/documents",
-    "Settings": "/dashboard/irma/settings",
+    Settings: "/dashboard/irma/settings",
   },
 }
 
 const PERSONA_LABEL_OVERRIDES: Record<string, Record<string, string>> = {
   charl: {
-    "Overview": "My Dashboard",
-    "Tasks": "My Tasks",
+    Overview: "My Dashboard",
+    Tasks: "My Tasks",
     "Time & Attendance": "Time Clock",
-    "Vehicles": "Vehicle Log",
-    "Documents": "My Documents",
+    Vehicles: "Vehicle Log",
+    Documents: "My Documents",
   },
   lucky: {
-    "Overview": "My Dashboard",
-    "Tasks": "My Tasks",
+    Overview: "My Dashboard",
+    Tasks: "My Tasks",
     "Time & Attendance": "Time Clock",
-    "Vehicles": "Vehicle Log",
-    "Documents": "My Documents",
+    Vehicles: "Vehicle Log",
+    Documents: "My Documents",
   },
   irma: {
-    "Overview": "My Dashboard",
-    "Tasks": "Household Tasks",
-    "Documents": "My Documents",
+    Overview: "My Dashboard",
+    Tasks: "Household Tasks",
+    Documents: "My Documents",
   },
 }
 
-function canAccessPage(
-  page: PageDef,
-  role: UserRole,
-  responsibilities: string[]
-): boolean {
+function canAccessPage(page: PageDef, role: UserRole, responsibilities: string[]): boolean {
   if (role === "admin") return true
   if (page.adminOnly) return false
   if (!page.requiredResponsibility) return true
@@ -180,7 +242,11 @@ export function buildNavEntries(
 
     if (persona !== "hans" && p.category === "People") continue
     if (persona !== "hans" && p.category === "Documents & Finance" && p.adminOnly) continue
-    if (persona !== "hans" && (p.category === "Tools" || (p.category === "Admin" && p.name === "Reports"))) continue
+    if (
+      persona !== "hans" &&
+      (p.category === "Tools" || (p.category === "Admin" && p.name === "Reports"))
+    )
+      continue
 
     if (persona === "hans") {
       if (p.category) {
@@ -221,7 +287,13 @@ export function buildNavEntries(
     result.push(uncategorized.find((u) => u.name === "My Dashboard") || uncategorized[0])
     if (work.length > 0) result.push({ category: "Work", items: work })
     if (isResident) (result[1] as NavCategory).category = "Household"
-    result.push(uncategorized.find((u) => u.name === "Settings") || { name: "Settings", href: `/dashboard/${persona}/settings`, icon: Settings })
+    result.push(
+      uncategorized.find((u) => u.name === "Settings") || {
+        name: "Settings",
+        href: `/dashboard/${persona}/settings`,
+        icon: Settings,
+      }
+    )
   }
 
   return result.filter(Boolean)

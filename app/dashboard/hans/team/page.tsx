@@ -73,10 +73,14 @@ export default function HansTeamPage() {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const data = await apiFetch<{ users?: UserWithManagement[] }>("/api/users", { label: "Users" })
+      const data = await apiFetch<{ users?: UserWithManagement[] }>("/api/users", {
+        label: "Users",
+      })
       setUsers(data?.users || [])
     } catch (error) {
-      logger.error("Failed to fetch users", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to fetch users", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setLoading(false)
     }
@@ -92,7 +96,9 @@ export default function HansTeamPage() {
       await apiFetch(`/api/users/${user.id}/onboard`, { method: "POST", label: "Onboard" })
       await fetchUsers()
     } catch (error) {
-      logger.error("Onboard failed", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Onboard failed", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setProcessing(false)
     }
@@ -104,7 +110,9 @@ export default function HansTeamPage() {
       await apiFetch(`/api/users/${user.id}/invite`, { method: "POST", label: "Invite" })
       await fetchUsers()
     } catch (error) {
-      logger.error("Invite failed", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Invite failed", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setInvitingId(null)
     }
@@ -120,7 +128,9 @@ export default function HansTeamPage() {
       })
       await fetchUsers()
     } catch (error) {
-      logger.error("Offboard failed", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Offboard failed", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setProcessing(false)
     }
@@ -139,7 +149,9 @@ export default function HansTeamPage() {
       setSelectedUser(null)
       await fetchUsers()
     } catch (error) {
-      logger.error("Update failed", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Update failed", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setProcessing(false)
     }
@@ -147,7 +159,11 @@ export default function HansTeamPage() {
 
   const openEdit = (user: UserWithManagement) => {
     setSelectedUser(user)
-    setEditForm({ status: user.status, role: user.role, responsibilities: user.responsibilities || [] })
+    setEditForm({
+      status: user.status,
+      role: user.role,
+      responsibilities: user.responsibilities || [],
+    })
     setShowEditDialog(true)
   }
 
@@ -166,29 +182,29 @@ export default function HansTeamPage() {
     <DashboardLayout persona="hans">
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
+          <h1 className="flex items-center gap-2 text-2xl font-semibold text-white">
             <Users className="h-7 w-7" />
             Team
           </h1>
-          <p className="text-white/60 mt-1">
+          <p className="mt-1 text-white/60">
             Platform users (auth, roles, onboarding) and HR roster (employees from Baserow).
           </p>
         </div>
 
         <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="bg-white/5 border border-white/10">
+          <TabsList className="border border-white/10 bg-white/5">
             <TabsTrigger value="users" className="data-[state=active]:bg-white/10">
-              <UserPlus className="h-4 w-4 mr-2" />
+              <UserPlus className="mr-2 h-4 w-4" />
               Platform Users
             </TabsTrigger>
             <TabsTrigger value="employees" className="data-[state=active]:bg-white/10">
-              <Briefcase className="h-4 w-4 mr-2" />
+              <Briefcase className="mr-2 h-4 w-4" />
               HR Roster
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="space-y-4">
-            <Card className="bg-[#0d0d12]/80 border-white/10">
+            <Card className="border-white/10 bg-[#0d0d12]/80">
               <CardHeader>
                 <CardTitle className="text-white">Platform Users</CardTitle>
                 <CardDescription className="text-white/60">
@@ -205,16 +221,16 @@ export default function HansTeamPage() {
                     {users.map((user) => (
                       <div
                         key={user.id}
-                        className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-white/5 border border-white/10"
+                        className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-4"
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center text-2xl">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-blue-500/20 to-purple-500/20 text-2xl">
                             {user.icon}
                           </div>
                           <div>
-                            <p className="text-white font-medium">{user.name}</p>
-                            <p className="text-white/50 text-sm">{user.email}</p>
-                            <div className="flex items-center gap-2 mt-1">
+                            <p className="font-medium text-white">{user.name}</p>
+                            <p className="text-sm text-white/50">{user.email}</p>
+                            <div className="mt-1 flex items-center gap-2">
                               {getStatusBadge(user.status)}
                               <Badge variant="outline" className="border-white/20 text-white/70">
                                 {ROLE_LABELS[user.role]}
@@ -228,31 +244,62 @@ export default function HansTeamPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" className="border-white/10" onClick={() => openEdit(user)}>
-                            <Edit className="h-4 w-4 mr-1" />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-white/10"
+                            onClick={() => openEdit(user)}
+                          >
+                            <Edit className="mr-1 h-4 w-4" />
                             Edit
                           </Button>
                           {user.onboardingStatus !== "completed" && user.id !== "hans" && (
                             <>
-                              <Button size="sm" variant="outline" className="border-blue-500/50 text-blue-400" onClick={() => handleInvite(user)} disabled={!!invitingId}>
-                                {invitingId === user.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-blue-500/50 text-blue-400"
+                                onClick={() => handleInvite(user)}
+                                disabled={!!invitingId}
+                              >
+                                {invitingId === user.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Send className="mr-1 h-4 w-4" />
+                                )}
                                 Send Invite
                               </Button>
-                              <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => handleOnboard(user)} disabled={processing}>
-                                <UserCheck className="h-4 w-4 mr-1" />
+                              <Button
+                                size="sm"
+                                className="bg-green-600 hover:bg-green-700"
+                                onClick={() => handleOnboard(user)}
+                                disabled={processing}
+                              >
+                                <UserCheck className="mr-1 h-4 w-4" />
                                 Complete Onboarding
                               </Button>
                             </>
                           )}
                           {user.status === "active" && user.id !== "hans" && (
-                            <Button variant="outline" size="sm" className="border-orange-500/50 text-orange-400" onClick={() => handleOffboard(user)} disabled={processing}>
-                              <UserX className="h-4 w-4 mr-1" />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-orange-500/50 text-orange-400"
+                              onClick={() => handleOffboard(user)}
+                              disabled={processing}
+                            >
+                              <UserX className="mr-1 h-4 w-4" />
                               Initiate Offboarding
                             </Button>
                           )}
                           {user.status === "offboarding" && user.id !== "hans" && (
-                            <Button variant="destructive" size="sm" onClick={() => handleOffboard(user, true)} disabled={processing}>
-                              <XCircle className="h-4 w-4 mr-1" />
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleOffboard(user, true)}
+                              disabled={processing}
+                            >
+                              <XCircle className="mr-1 h-4 w-4" />
                               Complete Offboarding
                             </Button>
                           )}
@@ -263,7 +310,7 @@ export default function HansTeamPage() {
                 )}
                 <div className="mt-4">
                   <Button variant="outline" className="border-white/10" onClick={fetchUsers}>
-                    <RefreshCw className="h-4 w-4 mr-2" />
+                    <RefreshCw className="mr-2 h-4 w-4" />
                     Refresh
                   </Button>
                 </div>
@@ -277,34 +324,46 @@ export default function HansTeamPage() {
         </Tabs>
 
         <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-          <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-md">
+          <DialogContent className="max-w-md border-white/10 bg-[#0d0d12] text-white">
             <DialogHeader>
               <DialogTitle>Edit User</DialogTitle>
-              <DialogDescription className="text-white/60">Update status, role, and responsibilities.</DialogDescription>
+              <DialogDescription className="text-white/60">
+                Update status, role, and responsibilities.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
                 <Label className="text-white/80">Status</Label>
-                <Select value={editForm.status || "active"} onValueChange={(v) => setEditForm((f) => ({ ...f, status: v as UserStatus }))}>
-                  <SelectTrigger className="bg-white/5 border-white/10">
+                <Select
+                  value={editForm.status || "active"}
+                  onValueChange={(v) => setEditForm((f) => ({ ...f, status: v as UserStatus }))}
+                >
+                  <SelectTrigger className="border-white/10 bg-white/5">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {(Object.keys(STATUS_LABELS) as UserStatus[]).map((s) => (
-                      <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>
+                      <SelectItem key={s} value={s}>
+                        {STATUS_LABELS[s]}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label className="text-white/80">Role</Label>
-                <Select value={editForm.role || "employee"} onValueChange={(v) => setEditForm((f) => ({ ...f, role: v as UserRole }))}>
-                  <SelectTrigger className="bg-white/5 border-white/10">
+                <Select
+                  value={editForm.role || "employee"}
+                  onValueChange={(v) => setEditForm((f) => ({ ...f, role: v as UserRole }))}
+                >
+                  <SelectTrigger className="border-white/10 bg-white/5">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {(Object.keys(ROLE_LABELS) as UserRole[]).map((r) => (
-                      <SelectItem key={r} value={r}>{ROLE_LABELS[r]}</SelectItem>
+                      <SelectItem key={r} value={r}>
+                        {ROLE_LABELS[r]}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -312,16 +371,28 @@ export default function HansTeamPage() {
               <div>
                 <Label className="text-white/80">Responsibilities (comma-separated)</Label>
                 <Input
-                  className="bg-white/5 border-white/10"
+                  className="border-white/10 bg-white/5"
                   value={(editForm.responsibilities || []).join(", ")}
-                  onChange={(e) => setEditForm((f) => ({ ...f, responsibilities: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) }))}
+                  onChange={(e) =>
+                    setEditForm((f) => ({
+                      ...f,
+                      responsibilities: e.target.value
+                        .split(",")
+                        .map((s) => s.trim())
+                        .filter(Boolean),
+                    }))
+                  }
                   placeholder="e.g. Gardening, Workshop, Documents"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEditDialog(false)}>Cancel</Button>
-              <Button onClick={handleUpdate} disabled={processing}>{processing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}</Button>
+              <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdate} disabled={processing}>
+                {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

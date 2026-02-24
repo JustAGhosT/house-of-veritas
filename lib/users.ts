@@ -1,10 +1,5 @@
 import { hashSync, compareSync } from "bcryptjs"
-import {
-  isPostgresConfigured,
-  query,
-  withClient,
-  ensureSchema,
-} from "@/lib/db/postgres"
+import { isPostgresConfigured, query, withClient, ensureSchema } from "@/lib/db/postgres"
 
 export interface User {
   id: string
@@ -216,9 +211,7 @@ export async function seedUsersIfEmpty(): Promise<void> {
 }
 
 export function findUserByEmail(email: string): User | undefined {
-  return Object.values(USERS).find(
-    (user) => user.email.toLowerCase() === email.toLowerCase()
-  )
+  return Object.values(USERS).find((user) => user.email.toLowerCase() === email.toLowerCase())
 }
 
 export function findUserById(id: string): User | undefined {

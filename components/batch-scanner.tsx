@@ -103,7 +103,7 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
   const startScanner = useCallback(async () => {
     try {
       const { Html5Qrcode } = await import("html5-qrcode")
-      
+
       const scanner = new Html5Qrcode("batch-scanner-reader")
       scannerRef.current = scanner
 
@@ -115,7 +115,7 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
         },
         async (decodedText) => {
           // Check if already scanned
-          if (scannedItems.some(item => item.code === decodedText)) {
+          if (scannedItems.some((item) => item.code === decodedText)) {
             setLastScan(`Already scanned: ${decodedText}`)
             if (navigator.vibrate) navigator.vibrate([50, 50, 50])
             return
@@ -127,11 +127,18 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
 
           // Look up item
           try {
-            const data = await apiFetch<{ items?: Array<{ id: string; name: string; currentStock: number; unit: string; location: string }> }>(
-              `/api/inventory?barcode=${encodeURIComponent(decodedText)}`,
-              { label: "InventoryLookup" }
-            )
-            
+            const data = await apiFetch<{
+              items?: Array<{
+                id: string
+                name: string
+                currentStock: number
+                unit: string
+                location: string
+              }>
+            }>(`/api/inventory?barcode=${encodeURIComponent(decodedText)}`, {
+              label: "InventoryLookup",
+            })
+
             const firstItem = data?.items?.[0]
             const found = !!firstItem
             const newItem: ScannedItem = {
@@ -154,13 +161,14 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
                     currentStock: 0,
                     unit: "units",
                     location: "Unknown",
-                  }
-              ),
+                  }),
             }
-            
-            setScannedItems(prev => [newItem, ...prev])
+
+            setScannedItems((prev) => [newItem, ...prev])
           } catch (err) {
-            logger.error("Lookup error", { error: err instanceof Error ? err.message : String(err) })
+            logger.error("Lookup error", {
+              error: err instanceof Error ? err.message : String(err),
+            })
           }
         },
         () => {}
@@ -193,13 +201,13 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
   }
 
   const removeItem = (code: string) => {
-    setScannedItems(prev => prev.filter(item => item.code !== code))
+    setScannedItems((prev) => prev.filter((item) => item.code !== code))
   }
 
   const updateItemQuantity = (code: string, quantity: number) => {
-    setScannedItems(prev => prev.map(item => 
-      item.code === code ? { ...item, quantity } : item
-    ))
+    setScannedItems((prev) =>
+      prev.map((item) => (item.code === code ? { ...item, quantity } : item))
+    )
   }
 
   const clearAll = () => {
@@ -210,8 +218,8 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
   const submitBatch = async () => {
     if (scannedItems.length === 0) return
 
-    const validItems = scannedItems.filter(item => item.found)
-    
+    const validItems = scannedItems.filter((item) => item.found)
+
     if (mode === "consume" || mode === "restock") {
       // Process each item
       for (const item of validItems) {
@@ -228,7 +236,9 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
             label: `Batch${mode === "consume" ? "Consume" : "Restock"}`,
           })
         } catch (err) {
-          logger.error(`Failed to ${mode} ${item.name}`, { error: err instanceof Error ? err.message : String(err) })
+          logger.error(`Failed to ${mode} ${item.name}`, {
+            error: err instanceof Error ? err.message : String(err),
+          })
         }
       }
     }
@@ -242,20 +252,20 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
     }
   }, [stopScanner])
 
-  const foundCount = scannedItems.filter(i => i.found).length
-  const notFoundCount = scannedItems.filter(i => !i.found).length
+  const foundCount = scannedItems.filter((i) => i.found).length
+  const notFoundCount = scannedItems.filter((i) => !i.found).length
 
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className={`p-2 rounded-lg ${config.bgColor}`}>
+          <div className={`rounded-lg p-2 ${config.bgColor}`}>
             <ClipboardList className={`h-5 w-5 ${config.color}`} />
           </div>
           <div>
-            <h3 className="text-white font-medium">{config.title}</h3>
-            <p className="text-white/60 text-sm">{config.description}</p>
+            <h3 className="font-medium text-white">{config.title}</h3>
+            <p className="text-sm text-white/60">{config.description}</p>
           </div>
         </div>
         {onClose && (
@@ -266,8 +276,8 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
       </div>
 
       {/* Scanner Controls */}
-      <Card className="bg-white/5 border-white/10">
-        <CardContent className="pt-4 space-y-4">
+      <Card className="border-white/10 bg-white/5">
+        <CardContent className="space-y-4 pt-4">
           {/* Mode-specific settings */}
           {(mode === "consume" || mode === "restock") && (
             <div className="grid grid-cols-2 gap-4">
@@ -277,7 +287,7 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
                   type="number"
                   value={defaultQuantity}
                   onChange={(e) => setDefaultQuantity(e.target.value)}
-                  className="bg-white/5 border-white/10"
+                  className="border-white/10 bg-white/5"
                   min="1"
                 />
               </div>
@@ -288,7 +298,7 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
                     value={defaultPurpose}
                     onChange={(e) => setDefaultPurpose(e.target.value)}
                     placeholder="e.g. Monthly maintenance"
-                    className="bg-white/5 border-white/10"
+                    className="border-white/10 bg-white/5"
                   />
                 </div>
               )}
@@ -299,14 +309,14 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
           <div className="relative">
             <div
               id="batch-scanner-reader"
-              className="w-full aspect-video bg-black/50 rounded-lg overflow-hidden"
+              className="aspect-video w-full overflow-hidden rounded-lg bg-black/50"
             />
-            
+
             {/* Status Overlay */}
             {!isScanning && !error && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-                <Button onClick={startScanner} className={`${config.bgColor.replace('20', '100')}`}>
-                  <Camera className="h-4 w-4 mr-2" />
+                <Button onClick={startScanner} className={`${config.bgColor.replace("20", "100")}`}>
+                  <Camera className="mr-2 h-4 w-4" />
                   Start Scanner
                 </Button>
               </div>
@@ -314,8 +324,8 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
 
             {error && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-                <div className="text-center p-4">
-                  <CameraOff className="h-12 w-12 text-red-400 mx-auto mb-3" />
+                <div className="p-4 text-center">
+                  <CameraOff className="mx-auto mb-3 h-12 w-12 text-red-400" />
                   <p className="text-red-400">{error}</p>
                   <Button onClick={startScanner} className="mt-4" variant="outline">
                     Retry
@@ -329,14 +339,12 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {isScanning && (
-                <Badge className="bg-green-500 animate-pulse">
-                  <div className="w-2 h-2 bg-white rounded-full mr-2" />
+                <Badge className="animate-pulse bg-green-500">
+                  <div className="mr-2 h-2 w-2 rounded-full bg-white" />
                   Scanning...
                 </Badge>
               )}
-              {lastScan && (
-                <span className="text-white/60 text-sm">Last: {lastScan}</span>
-              )}
+              {lastScan && <span className="text-sm text-white/60">Last: {lastScan}</span>}
             </div>
             <div className="flex gap-2">
               <Button
@@ -347,12 +355,12 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
               >
                 {isScanning ? (
                   <>
-                    <Pause className="h-4 w-4 mr-1" />
+                    <Pause className="mr-1 h-4 w-4" />
                     Pause
                   </>
                 ) : (
                   <>
-                    <Play className="h-4 w-4 mr-1" />
+                    <Play className="mr-1 h-4 w-4" />
                     Resume
                   </>
                 )}
@@ -363,16 +371,16 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
       </Card>
 
       {/* Scanned Items Summary */}
-      <Card className="bg-white/5 border-white/10">
+      <Card className="border-white/10 bg-white/5">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-white text-lg">
+            <CardTitle className="text-lg text-white">
               Scanned Items ({scannedItems.length})
             </CardTitle>
             <div className="flex gap-2">
               {scannedItems.length > 0 && (
                 <Button size="sm" variant="ghost" onClick={clearAll} className="text-red-400">
-                  <Trash2 className="h-4 w-4 mr-1" />
+                  <Trash2 className="mr-1 h-4 w-4" />
                   Clear
                 </Button>
               )}
@@ -380,13 +388,13 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
           </div>
           {scannedItems.length > 0 && (
             <div className="flex gap-2 text-sm">
-              <Badge variant="outline" className="text-green-400 border-green-400/50">
-                <CheckCircle className="h-3 w-3 mr-1" />
+              <Badge variant="outline" className="border-green-400/50 text-green-400">
+                <CheckCircle className="mr-1 h-3 w-3" />
                 {foundCount} found
               </Badge>
               {notFoundCount > 0 && (
-                <Badge variant="outline" className="text-yellow-400 border-yellow-400/50">
-                  <AlertTriangle className="h-3 w-3 mr-1" />
+                <Badge variant="outline" className="border-yellow-400/50 text-yellow-400">
+                  <AlertTriangle className="mr-1 h-3 w-3" />
                   {notFoundCount} not found
                 </Badge>
               )}
@@ -395,53 +403,57 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
         </CardHeader>
         <CardContent>
           {scannedItems.length === 0 ? (
-            <div className="text-center py-8 text-white/40">
-              <ScanLine className="h-12 w-12 mx-auto mb-3 opacity-50" />
+            <div className="py-8 text-center text-white/40">
+              <ScanLine className="mx-auto mb-3 h-12 w-12 opacity-50" />
               <p>No items scanned yet</p>
               <p className="text-sm">Start scanning to add items</p>
             </div>
           ) : (
-            <div className="space-y-2 max-h-60 overflow-y-auto">
+            <div className="max-h-60 space-y-2 overflow-y-auto">
               {scannedItems.map((item, idx) => (
                 <div
                   key={item.code}
-                  className={`flex items-center justify-between p-3 rounded-lg ${
-                    item.found ? 'bg-white/5' : 'bg-yellow-500/10 border border-yellow-500/30'
+                  className={`flex items-center justify-between rounded-lg p-3 ${
+                    item.found ? "bg-white/5" : "border border-yellow-500/30 bg-yellow-500/10"
                   }`}
                 >
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       {item.found ? (
-                        <CheckCircle className="h-4 w-4 text-green-400 shrink-0" />
+                        <CheckCircle className="h-4 w-4 shrink-0 text-green-400" />
                       ) : (
-                        <AlertTriangle className="h-4 w-4 text-yellow-400 shrink-0" />
+                        <AlertTriangle className="h-4 w-4 shrink-0 text-yellow-400" />
                       )}
-                      <span className="text-white font-medium truncate">{item.name}</span>
+                      <span className="truncate font-medium text-white">{item.name}</span>
                     </div>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-white/40">
+                    <div className="mt-1 flex items-center gap-2 text-xs text-white/40">
                       <span className="font-mono">{item.code}</span>
                       {item.found && (
                         <>
                           <span>•</span>
-                          <span>Stock: {item.currentStock} {item.unit}</span>
+                          <span>
+                            Stock: {item.currentStock} {item.unit}
+                          </span>
                         </>
                       )}
                     </div>
                   </div>
-                  
+
                   {(mode === "consume" || mode === "restock") && item.found && (
-                    <div className="flex items-center gap-2 mx-2">
+                    <div className="mx-2 flex items-center gap-2">
                       <Input
                         type="number"
                         value={item.quantity}
-                        onChange={(e) => updateItemQuantity(item.code, parseFloat(e.target.value) || 1)}
-                        className="w-16 h-8 text-center bg-white/5 border-white/10"
+                        onChange={(e) =>
+                          updateItemQuantity(item.code, parseFloat(e.target.value) || 1)
+                        }
+                        className="h-8 w-16 border-white/10 bg-white/5 text-center"
                         min="1"
                       />
-                      <span className="text-white/40 text-sm">{item.unit}</span>
+                      <span className="text-sm text-white/40">{item.unit}</span>
                     </div>
                   )}
-                  
+
                   <Button
                     size="sm"
                     variant="ghost"
@@ -467,21 +479,27 @@ export function BatchScanner({ mode, onComplete, onClose }: BatchScannerProps) {
         <Button
           onClick={submitBatch}
           disabled={scannedItems.length === 0 || foundCount === 0}
-          className={mode === "consume" ? "bg-orange-600 hover:bg-orange-700" : mode === "restock" ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}
+          className={
+            mode === "consume"
+              ? "bg-orange-600 hover:bg-orange-700"
+              : mode === "restock"
+                ? "bg-green-600 hover:bg-green-700"
+                : "bg-blue-600 hover:bg-blue-700"
+          }
         >
           {mode === "consume" ? (
             <>
-              <ArrowDown className="h-4 w-4 mr-2" />
+              <ArrowDown className="mr-2 h-4 w-4" />
               Record Consumption ({foundCount})
             </>
           ) : mode === "restock" ? (
             <>
-              <ArrowUp className="h-4 w-4 mr-2" />
+              <ArrowUp className="mr-2 h-4 w-4" />
               Add Stock ({foundCount})
             </>
           ) : (
             <>
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="mr-2 h-4 w-4" />
               Save Stock Count ({foundCount})
             </>
           )}
@@ -507,12 +525,8 @@ export function BatchScanDialog({ mode, open, onOpenChange, onComplete }: BatchS
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-        <BatchScanner
-          mode={mode}
-          onComplete={handleComplete}
-          onClose={() => onOpenChange(false)}
-        />
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto border-white/10 bg-[#0d0d12] text-white">
+        <BatchScanner mode={mode} onComplete={handleComplete} onClose={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>
   )

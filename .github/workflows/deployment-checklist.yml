@@ -1,4 +1,4 @@
-name: 'Deployment Checklist'
+name: "Deployment Checklist"
 
 # Run on PRs to main, manual trigger, and scheduled (daily)
 on:
@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
   schedule:
     # Run daily at 6am UTC to catch infrastructure drift
-    - cron: '0 6 * * *'
+    - cron: "0 6 * * *"
 
 permissions:
   contents: read
@@ -19,16 +19,16 @@ permissions:
   issues: write
 
 env:
-  AZURE_RESOURCE_GROUP: 'nl-prod-hov-rg-san'
-  AZURE_LOCATION: 'southafricanorth'
-  AZURE_ENV: 'prod'
+  AZURE_RESOURCE_GROUP: "nl-prod-hov-rg-san"
+  AZURE_LOCATION: "southafricanorth"
+  AZURE_ENV: "prod"
 
 jobs:
   # ============================================
   # Job 1: Run Deployment Checklist
   # ============================================
   deployment-checklist:
-    name: 'Infrastructure Verification'
+    name: "Infrastructure Verification"
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
@@ -36,32 +36,32 @@ jobs:
       failed: ${{ steps.checklist.outputs.failed }}
       warnings: ${{ steps.checklist.outputs.warnings }}
       json_report: ${{ steps.checklist.outputs.json_report }}
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      
+          python-version: "3.11"
+
       - name: Install Azure CLI
         run: |
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
           az --version
-      
+
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
         continue-on-error: true
-      
+
       - name: Set Azure Subscription
         run: |
           az account set --subscription "${{ fromJSON(secrets.AZURE_CREDENTIALS).subscriptionId }}" || echo "Could not set subscription"
         continue-on-error: true
-      
+
       - name: Run Deployment Checklist
         id: checklist
         env:
@@ -72,23 +72,23 @@ jobs:
           # Run checklist and capture output
           python3 config/scripts/deployment-checklist.py --verbose > checklist_output.txt 2>&1 || true
           cat checklist_output.txt
-          
+
           # Run JSON output for parsing
           python3 config/scripts/deployment-checklist.py --json > checklist_report.json 2>&1 || true
-          
+
           # Extract counts from output
           PASSED=$(grep -oP '✅ Passed:\s+\K\d+' checklist_output.txt || echo "0")
           FAILED=$(grep -oP '❌ Failed:\s+\K\d+' checklist_output.txt || echo "0")
           WARNINGS=$(grep -oP '⚠️  Warnings:\s+\K\d+' checklist_output.txt || echo "0")
-          
+
           echo "passed=$PASSED" >> $GITHUB_OUTPUT
           echo "failed=$FAILED" >> $GITHUB_OUTPUT
           echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
-          
+
           # Store JSON report (base64 encoded for multi-line)
           JSON_REPORT=$(cat checklist_report.json | base64 -w 0)
           echo "json_report=$JSON_REPORT" >> $GITHUB_OUTPUT
-      
+
       - name: Upload Checklist Report
         uses: actions/upload-artifact@v4
         with:
@@ -97,7 +97,7 @@ jobs:
             checklist_output.txt
             checklist_report.json
           retention-days: 30
-      
+
       - name: Comment PR with Checklist Results
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
@@ -106,11 +106,11 @@ jobs:
           script: |
             const fs = require('fs');
             const output = fs.readFileSync('checklist_output.txt', 'utf8');
-            
+
             const passed = '${{ steps.checklist.outputs.passed }}';
             const failed = '${{ steps.checklist.outputs.failed }}';
             const warnings = '${{ steps.checklist.outputs.warnings }}';
-            
+
             let status = '🎉 All checks passed!';
             let statusIcon = '✅';
             if (parseInt(failed) > 0) {
@@ -120,37 +120,37 @@ jobs:
               status = `⚠️ ${warnings} warning(s) detected`;
               statusIcon = '⚠️';
             }
-            
+
             const body = `## ${statusIcon} Deployment Checklist Results
-            
+
             | Metric | Count |
             |--------|-------|
             | ✅ Passed | ${passed} |
             | ❌ Failed | ${failed} |
             | ⚠️ Warnings | ${warnings} |
-            
+
             **Status:** ${status}
-            
+
             <details>
             <summary>📋 Full Checklist Output</summary>
-            
+
             \`\`\`
             ${output.substring(0, 60000)}
             \`\`\`
-            
+
             </details>
-            
+
             ---
             *Run by @${{ github.actor }} on \`${{ github.event_name }}\`*
             `;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: body
             });
-      
+
       - name: Create Issue for Failed Checks (Scheduled Run)
         if: github.event_name == 'schedule' && steps.checklist.outputs.failed != '0'
         uses: actions/github-script@v7
@@ -160,7 +160,7 @@ jobs:
             const fs = require('fs');
             const output = fs.readFileSync('checklist_output.txt', 'utf8');
             const failed = '${{ steps.checklist.outputs.failed }}';
-            
+
             // Check for existing open issue
             const existingIssues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -168,7 +168,7 @@ jobs:
               state: 'open',
               labels: 'infrastructure-drift'
             });
-            
+
             if (existingIssues.data.length > 0) {
               // Update existing issue
               await github.rest.issues.createComment({
@@ -187,7 +187,7 @@ jobs:
                 labels: ['infrastructure-drift', 'priority:high']
               });
             }
-      
+
       - name: Report Critical Issues
         if: steps.checklist.outputs.failed != '0' && github.event_name == 'pull_request'
         run: |
@@ -199,19 +199,19 @@ jobs:
   # Job 2: Validate Configuration Files
   # ============================================
   validate-config:
-    name: 'Validate Configuration'
+    name: "Validate Configuration"
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      
+          python-version: "3.11"
+
       - name: Validate Docker Compose
         run: |
           if [ -f "config/docker-compose.yml" ]; then
@@ -220,7 +220,7 @@ jobs:
           else
             echo "⚠️ docker-compose.yml not found — skipping"
           fi
-      
+
       - name: Validate Python Scripts
         run: |
           # Check Python syntax for all scripts
@@ -230,7 +230,7 @@ jobs:
               echo "✅ $script syntax OK"
             fi
           done
-      
+
       - name: Validate Shell Scripts
         run: |
           # Check shell script syntax
@@ -240,7 +240,7 @@ jobs:
               echo "✅ $script syntax OK"
             fi
           done
-      
+
       - name: Check Required Files Exist
         run: |
           REQUIRED_FILES=(
@@ -251,7 +251,7 @@ jobs:
             "config/scripts/seed-baserow.py"
             "docs/04-configuration/04-document-templates.md"
           )
-          
+
           MISSING=0
           for file in "${REQUIRED_FILES[@]}"; do
             if [ ! -f "$file" ]; then
@@ -261,41 +261,41 @@ jobs:
               echo "✅ Found: $file"
             fi
           done
-          
+
           if [ $MISSING -gt 0 ]; then
             echo "❌ $MISSING required file(s) missing"
             exit 1
           fi
-          
+
           echo "✅ All required configuration files present"
 
   # ============================================
   # Job 3: Build & Test Next.js Application
   # ============================================
   build-test:
-    name: 'Build & Test'
+    name: "Build & Test"
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
+          node-version: "20"
+          cache: "npm"
+
       - name: Install Dependencies
         run: npm ci
-      
+
       - name: Lint Check
         run: npm run lint
-      
+
       - name: Build Application
         run: npm run build
-      
+
       - name: Run Tests
         run: npm test -- --run
 
@@ -303,7 +303,7 @@ jobs:
   # Job 4: E2E Tests
   # ============================================
   e2e:
-    name: 'E2E Tests'
+    name: "E2E Tests"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [build-test]
@@ -316,8 +316,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install Dependencies
         run: npm ci
@@ -339,12 +339,12 @@ jobs:
   # Job 5: Summary Report
   # ============================================
   summary:
-    name: 'Pipeline Summary'
+    name: "Pipeline Summary"
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: [deployment-checklist, validate-config, build-test, e2e]
     if: always()
-    
+
     steps:
       - name: Generate Summary
         run: |

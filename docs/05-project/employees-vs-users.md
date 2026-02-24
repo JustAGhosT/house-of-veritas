@@ -9,10 +9,10 @@ So persona = whose dashboard we're viewing; role = what nav they see. Dashboard 
 
 ## Distinction
 
-| | Users | Employees |
-| --- | ------- | ----------- |
-| **Source** | `lib/users` + PostgreSQL | Baserow (operational DB) |
-| **Purpose** | Platform access (login, roles, auth) | HR/operational roster (payroll, tasks, time, leave) |
+|              | Users                                  | Employees                                           |
+| ------------ | -------------------------------------- | --------------------------------------------------- |
+| **Source**   | `lib/users` + PostgreSQL               | Baserow (operational DB)                            |
+| **Purpose**  | Platform access (login, roles, auth)   | HR/operational roster (payroll, tasks, time, leave) |
 | **Used for** | Authentication, RBAC, dashboard access | Task assignment, time clock, expenses, vehicle logs |
 
 ## Overlap

@@ -12,7 +12,9 @@ export interface ErrorItem {
   cause?: unknown
 }
 
-function toErrorItem(e: Error | { message?: string; name?: string; stack?: string; cause?: unknown }): ErrorItem {
+function toErrorItem(
+  e: Error | { message?: string; name?: string; stack?: string; cause?: unknown }
+): ErrorItem {
   return {
     message: e?.message || "Unknown error",
     name: "name" in e ? e.name : undefined,
@@ -81,12 +83,7 @@ interface ErrorDisplayProps {
   className?: string
 }
 
-export function ErrorDisplay({
-  errors,
-  onRetry,
-  variant = "page",
-  className,
-}: ErrorDisplayProps) {
+export function ErrorDisplay({ errors, onRetry, variant = "page", className }: ErrorDisplayProps) {
   const isPage = variant === "page"
 
   return (
@@ -94,29 +91,24 @@ export function ErrorDisplay({
       className={cn(
         "flex flex-col",
         isPage
-          ? "min-h-screen bg-[#0a0a0f] items-center justify-center p-6"
-          : "min-h-[200px] p-6 rounded-lg border border-red-500/20 bg-red-500/5",
+          ? "min-h-screen items-center justify-center bg-[#0a0a0f] p-6"
+          : "min-h-[200px] rounded-lg border border-red-500/20 bg-red-500/5 p-6",
         className
       )}
     >
-      <div className={cn("text-center", isPage ? "max-w-2xl w-full" : "w-full")}>
+      <div className={cn("text-center", isPage ? "w-full max-w-2xl" : "w-full")}>
         <div
           className={cn(
-            "inline-flex items-center justify-center rounded-2xl bg-red-500/20 border border-red-500/30 mb-6",
-            isPage ? "w-16 h-16" : "w-12 h-12 mb-4"
+            "mb-6 inline-flex items-center justify-center rounded-2xl border border-red-500/30 bg-red-500/20",
+            isPage ? "h-16 w-16" : "mb-4 h-12 w-12"
           )}
         >
-          <AlertTriangle className={cn("text-red-400", isPage ? "w-8 h-8" : "w-6 h-6")} />
+          <AlertTriangle className={cn("text-red-400", isPage ? "h-8 w-8" : "h-6 w-6")} />
         </div>
-        <h1
-          className={cn(
-            "font-semibold text-white mb-2",
-            isPage ? "text-2xl" : "text-lg"
-          )}
-        >
+        <h1 className={cn("mb-2 font-semibold text-white", isPage ? "text-2xl" : "text-lg")}>
           Something went wrong
         </h1>
-        <p className="text-white/60 mb-4">
+        <p className="mb-4 text-white/60">
           {errors.length === 1
             ? errors[0]?.message || "An unexpected error occurred."
             : `${errors.length} errors occurred.`}
@@ -124,8 +116,8 @@ export function ErrorDisplay({
 
         {errors.length > 1 && (
           <div className="mb-4 text-left">
-            <p className="text-sm font-medium text-white/80 mb-2">Errors:</p>
-            <ul className="space-y-1 text-sm text-white/60 list-disc list-inside">
+            <p className="mb-2 text-sm font-medium text-white/80">Errors:</p>
+            <ul className="list-inside list-disc space-y-1 text-sm text-white/60">
               {errors.map((e, i) => (
                 <li key={i}>{e.message || "Unknown error"}</li>
               ))}
@@ -133,16 +125,16 @@ export function ErrorDisplay({
           </div>
         )}
 
-        <div className="text-left space-y-4 mb-6">
+        <div className="mb-6 space-y-4 text-left">
           {errors.map((error, idx) => (
             <ErrorDetails key={idx} error={error} index={idx} total={errors.length} />
           ))}
         </div>
 
         {errors.length > 0 && (
-          <div className="text-left mb-6">
-            <p className="text-sm font-medium text-white/80 mb-2">Suggestions:</p>
-            <ul className="space-y-1 text-sm text-white/60 list-disc list-inside">
+          <div className="mb-6 text-left">
+            <p className="mb-2 text-sm font-medium text-white/80">Suggestions:</p>
+            <ul className="list-inside list-disc space-y-1 text-sm text-white/60">
               {getHelpfulTips(errors[0]).map((tip, i) => (
                 <li key={i}>{tip}</li>
               ))}
@@ -152,7 +144,7 @@ export function ErrorDisplay({
 
         {onRetry && (
           <Button onClick={onRetry} className="inline-flex gap-2" size={isPage ? "default" : "sm"}>
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="h-4 w-4" />
             Try again
           </Button>
         )}
@@ -161,31 +153,23 @@ export function ErrorDisplay({
   )
 }
 
-function ErrorDetails({
-  error,
-  index,
-  total,
-}: {
-  error: ErrorItem
-  index: number
-  total: number
-}) {
+function ErrorDetails({ error, index, total }: { error: ErrorItem; index: number; total: number }) {
   const hasDetails =
     error.stack || error.name || error.digest || (error.cause && String(error.cause))
 
   if (!hasDetails) return null
 
   return (
-    <details className="group rounded-lg border border-white/10 bg-white/5 overflow-hidden">
-      <summary className="flex items-center gap-2 px-4 py-3 cursor-pointer text-sm text-white/80 hover:bg-white/5 list-none">
-        <ChevronRight className="w-4 h-4 transition-transform group-open:rotate-90" />
+    <details className="group overflow-hidden rounded-lg border border-white/10 bg-white/5">
+      <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm text-white/80 hover:bg-white/5">
+        <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
         <span>
           {total > 1 ? `Error ${index + 1}: ` : ""}
           {error.name || "Error"} — {error.message?.slice(0, 60)}
           {error.message && error.message.length > 60 ? "…" : ""}
         </span>
       </summary>
-      <div className="px-4 pb-4 pt-1 space-y-3 text-sm">
+      <div className="space-y-3 px-4 pt-1 pb-4 text-sm">
         {error.name && (
           <div>
             <span className="text-white/50">Type: </span>
@@ -195,13 +179,13 @@ function ErrorDetails({
         {error.digest && (
           <div>
             <span className="text-white/50">Digest: </span>
-            <code className="text-white/70 font-mono text-xs">{error.digest}</code>
+            <code className="font-mono text-xs text-white/70">{error.digest}</code>
           </div>
         )}
         {error.cause != null && (
           <div>
             <span className="text-white/50">Cause: </span>
-            <pre className="mt-1 p-2 rounded bg-black/30 text-white/70 overflow-x-auto text-xs">
+            <pre className="mt-1 overflow-x-auto rounded bg-black/30 p-2 text-xs text-white/70">
               {String(error.cause)}
             </pre>
           </div>
@@ -209,7 +193,7 @@ function ErrorDetails({
         {error.stack && (
           <div>
             <span className="text-white/50">Stack trace:</span>
-            <pre className="mt-1 p-3 rounded bg-black/30 text-white/60 overflow-x-auto text-xs font-mono whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
+            <pre className="mt-1 max-h-48 overflow-x-auto overflow-y-auto rounded bg-black/30 p-3 font-mono text-xs break-words whitespace-pre-wrap text-white/60">
               {error.stack}
             </pre>
           </div>

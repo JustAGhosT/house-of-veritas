@@ -1,21 +1,21 @@
-name: 'Terraform Destroy (Manual)'
+name: "Terraform Destroy (Manual)"
 
 on:
   workflow_dispatch:
     inputs:
       confirm_destroy:
-        description: 'Type DESTROY to confirm'
+        description: "Type DESTROY to confirm"
         required: true
 
 env:
-  WORKING_DIR: './terraform/environments/production'
+  WORKING_DIR: "./terraform/environments/production"
 
 jobs:
   terraform-destroy:
-    name: 'Terraform Destroy'
+    name: "Terraform Destroy"
     runs-on: [self-hosted, azure-vnet-ghost]
     environment: production
-    
+
     steps:
       - name: Validate Confirmation
         run: |
@@ -23,10 +23,10 @@ jobs:
             echo "Error: Must type DESTROY to confirm"
             exit 1
           fi
-      
+
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Verify Terraform
         run: |
           REQUIRED="1.5.0"
@@ -37,12 +37,12 @@ jobs:
             exit 1
           fi
           terraform version
-      
+
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+
       - name: Set Terraform ARM credentials
         run: |
           CREDS='${{ secrets.AZURE_CREDENTIALS }}'
@@ -50,7 +50,7 @@ jobs:
           echo "ARM_CLIENT_SECRET=$(echo $CREDS | jq -r .clientSecret)" >> $GITHUB_ENV
           echo "ARM_TENANT_ID=$(echo $CREDS | jq -r .tenantId)" >> $GITHUB_ENV
           echo "ARM_SUBSCRIPTION_ID=$(echo $CREDS | jq -r .subscriptionId)" >> $GITHUB_ENV
-      
+
       - name: Terraform Init
         working-directory: ${{ env.WORKING_DIR }}
         run: |
@@ -71,7 +71,7 @@ jobs:
             -var="ssl_certificate_data=${{ secrets.SSL_CERTIFICATE_DATA }}" \
             -var="ssl_certificate_password=${{ secrets.SSL_CERTIFICATE_PASSWORD }}" \
             -auto-approve
-      
+
       - name: Send Notification
         run: |
           echo "Infrastructure destroyed successfully!"

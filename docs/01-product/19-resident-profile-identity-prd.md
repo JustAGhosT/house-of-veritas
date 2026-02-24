@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | React/Next.js (resident profile dashboard, settings, cross-module panel) |
-| Backend | Baserow (central profile repository, role management, resident attributes), Azure Functions (privacy computation, data sync, notification logic, core orchestration) |
-| Storage | Secure Blob (ID, photos, verified documents, resident-related attachments) |
+| Layer    | Technology                                                                                                                                                           |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend | React/Next.js (resident profile dashboard, settings, cross-module panel)                                                                                             |
+| Backend  | Baserow (central profile repository, role management, resident attributes), Azure Functions (privacy computation, data sync, notification logic, core orchestration) |
+| Storage  | Secure Blob (ID, photos, verified documents, resident-related attachments)                                                                                           |
 
 ---
 
@@ -122,24 +122,24 @@ Guaranteeing data integrity and up-to-date attributes across modules and events,
 
 ## Measurable Objectives
 
-| Objective | Baseline | Target | Timeline |
-|-----------|----------|--------|----------|
-| Profile onboarding completeness | N/A | 100% <48h | 1 month |
-| Incomplete allergy/skill reports | >30% | 0% | 1 month |
-| Privacy/notification self-configure success | N/A | >95% | 2 months |
-| Owner/audit event trace coverage | <50% | >90% | 2 months |
+| Objective                                   | Baseline | Target    | Timeline |
+| ------------------------------------------- | -------- | --------- | -------- |
+| Profile onboarding completeness             | N/A      | 100% <48h | 1 month  |
+| Incomplete allergy/skill reports            | >30%     | 0%        | 1 month  |
+| Privacy/notification self-configure success | N/A      | >95%      | 2 months |
+| Owner/audit event trace coverage            | <50%     | >90%      | 2 months |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibility |
-|------|-----------------|
-| Residents | Primary data owners |
-| Admins | Profile, attributes, batch management |
-| Owners | Compliance, privacy, audit reporting/export |
-| HR/Certification Lead | Certification/allergy/incident updates |
-| Module Owners | Integration points for other services |
+| Role                  | Responsibility                              |
+| --------------------- | ------------------------------------------- |
+| Residents             | Primary data owners                         |
+| Admins                | Profile, attributes, batch management       |
+| Owners                | Compliance, privacy, audit reporting/export |
+| HR/Certification Lead | Certification/allergy/incident updates      |
+| Module Owners         | Integration points for other services       |
 
 ---
 
@@ -220,26 +220,26 @@ Guaranteeing data integrity and up-to-date attributes across modules and events,
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Profile/location edits | <2s response |
-| Platform parity | Desktop and mobile equal functionality |
-| Security | Data encrypted at rest and in transit |
-| Audit/export success rate | ≥99% |
-| Accessibility | ARIA-compliant forms and modals |
-| Bulk export | >10 records per minute |
-| Event/action log retention | ≥5 years |
+| Requirement                | Target                                 |
+| -------------------------- | -------------------------------------- |
+| Profile/location edits     | <2s response                           |
+| Platform parity            | Desktop and mobile equal functionality |
+| Security                   | Data encrypted at rest and in transit  |
+| Audit/export success rate  | ≥99%                                   |
+| Accessibility              | ARIA-compliant forms and modals        |
+| Bulk export                | >10 records per minute                 |
+| Event/action log retention | ≥5 years                               |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Component/Responsibility |
-|-------|--------------------------|
-| Frontend | SSO/login, resident profile UI, privacy/award UX |
-| Backend | Profile/role DB, admin sync/merge tool, audit/export logic |
-| Notification | Cross-module feed, inbox, alerting |
-| Storage | Skill/allergy documents, ID photos, award badges |
+| Layer        | Component/Responsibility                                   |
+| ------------ | ---------------------------------------------------------- |
+| Frontend     | SSO/login, resident profile UI, privacy/award UX           |
+| Backend      | Profile/role DB, admin sync/merge tool, audit/export logic |
+| Notification | Cross-module feed, inbox, alerting                         |
+| Storage      | Skill/allergy documents, ID photos, award badges           |
 
 ---
 
@@ -247,17 +247,17 @@ Guaranteeing data integrity and up-to-date attributes across modules and events,
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/profile | POST/GET | Create, get resident profiles |
-| /api/skill | POST/GET | Add, retrieve skill data |
-| /api/allergy | POST/GET | Record or fetch allergy info |
-| /api/award | POST/GET | Log or view awards |
-| /api/notify | POST/GET | Configure notifications |
-| /api/privacy/role | PATCH | Privacy setting and role toggling |
-| /api/audit/export | POST | Export audit logs |
-| /api/onboard | POST | Trigger onboarding flow |
-| /api/retire/merge | PATCH | Merge/retire profile operations |
+| Endpoint          | Method   | Purpose                           |
+| ----------------- | -------- | --------------------------------- |
+| /api/profile      | POST/GET | Create, get resident profiles     |
+| /api/skill        | POST/GET | Add, retrieve skill data          |
+| /api/allergy      | POST/GET | Record or fetch allergy info      |
+| /api/award        | POST/GET | Log or view awards                |
+| /api/notify       | POST/GET | Configure notifications           |
+| /api/privacy/role | PATCH    | Privacy setting and role toggling |
+| /api/audit/export | POST     | Export audit logs                 |
+| /api/onboard      | POST     | Trigger onboarding flow           |
+| /api/retire/merge | PATCH    | Merge/retire profile operations   |
 
 ### External Dependencies
 
@@ -272,13 +272,13 @@ Guaranteeing data integrity and up-to-date attributes across modules and events,
 
 ## Data Models
 
-| Model | Attributes |
-|-------|------------|
-| Profile | ID, name, email, estate, role, privacy, skills, allergy, notifications, awards, status/log |
-| Award | ProfileID, type, module, badge, date |
-| Skill | ProfileID, type, cert, expiry, verified |
-| Allergy | ProfileID, type, severity, expiry, documentation |
-| Audit/Consent | ProfileID, user, action, timestamp, policy/version |
+| Model         | Attributes                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------ |
+| Profile       | ID, name, email, estate, role, privacy, skills, allergy, notifications, awards, status/log |
+| Award         | ProfileID, type, module, badge, date                                                       |
+| Skill         | ProfileID, type, cert, expiry, verified                                                    |
+| Allergy       | ProfileID, type, severity, expiry, documentation                                           |
+| Audit/Consent | ProfileID, user, action, timestamp, policy/version                                         |
 
 ---
 
@@ -322,13 +322,13 @@ Guaranteeing data integrity and up-to-date attributes across modules and events,
 
 ### Key Metrics
 
-| Dimension | Metric |
-|-----------|--------|
-| Usability | Onboard/edit time per profile |
-| Data Completeness | Skills/allergy/award report rates |
-| Compliance | Privacy compliance audit pass/fail |
-| Efficiency | Admin batch success rate |
-| Auditability | Event/audit coverage breadth |
+| Dimension         | Metric                             |
+| ----------------- | ---------------------------------- |
+| Usability         | Onboard/edit time per profile      |
+| Data Completeness | Skills/allergy/award report rates  |
+| Compliance        | Privacy compliance audit pass/fail |
+| Efficiency        | Admin batch success rate           |
+| Auditability      | Event/audit coverage breadth       |
 
 ### Leading Indicators
 
@@ -355,11 +355,11 @@ Guaranteeing data integrity and up-to-date attributes across modules and events,
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target Date | Dependencies |
-|-------|-------|-------------|--------------|
-| 1 | Profile onboarding, creation, edit | Month 1–2 | SSO, UI/UX |
-| 2 | Admin batch tools, profile merge/retire | Month 3 | Backend, Baserow |
-| 3 | Cross-module event log, export, audit, SSO MFA | Month 4 | Notification, HR sync |
+| Phase | Scope                                          | Target Date | Dependencies          |
+| ----- | ---------------------------------------------- | ----------- | --------------------- |
+| 1     | Profile onboarding, creation, edit             | Month 1–2   | SSO, UI/UX            |
+| 2     | Admin batch tools, profile merge/retire        | Month 3     | Backend, Baserow      |
+| 3     | Cross-module event log, export, audit, SSO MFA | Month 4     | Notification, HR sync |
 
 ---
 
@@ -393,24 +393,24 @@ Guaranteeing data integrity and up-to-date attributes across modules and events,
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| SSO Functionality Failure | High | Med–High | Manual onboarding fallback |
-| Audit/Event Log Latency | Med | Medium | Admin override trigger, backup export |
-| Profile Data Loss | High | Low | File/archive backup, restore process |
-| Action Consent Error | Med | Low | Owner/manual check, consent prompts |
-| Privacy Breach | High | Low | Policy opt-in/opt-out, constant audit |
+| Risk                      | Impact | Probability | Mitigation                            |
+| ------------------------- | ------ | ----------- | ------------------------------------- |
+| SSO Functionality Failure | High   | Med–High    | Manual onboarding fallback            |
+| Audit/Event Log Latency   | Med    | Medium      | Admin override trigger, backup export |
+| Profile Data Loss         | High   | Low         | File/archive backup, restore process  |
+| Action Consent Error      | Med    | Low         | Owner/manual check, consent prompts   |
+| Privacy Breach            | High   | Low         | Policy opt-in/opt-out, constant audit |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target Date | Impact if not resolved |
-|----------|-------|-------------|------------------------|
-| Which SSO/IdP provider at MVP? | Tech Lead | End of Month | Impacts onboarding architecture |
-| Minimum required onboarding fields? | Product Lead | 2 weeks | Blocks UI/UX design finalization |
-| Owner edit or force retire allowed? | Compliance | 2 weeks | Legal/compliance review needed |
-| Should export to HR/insurance partners? | Project Lead | 1 month | Could affect data model/export |
+| Question                                | Owner        | Target Date  | Impact if not resolved           |
+| --------------------------------------- | ------------ | ------------ | -------------------------------- |
+| Which SSO/IdP provider at MVP?          | Tech Lead    | End of Month | Impacts onboarding architecture  |
+| Minimum required onboarding fields?     | Product Lead | 2 weeks      | Blocks UI/UX design finalization |
+| Owner edit or force retire allowed?     | Compliance   | 2 weeks      | Legal/compliance review needed   |
+| Should export to HR/insurance partners? | Project Lead | 1 month      | Could affect data model/export   |
 
 ---
 

@@ -68,16 +68,16 @@ All AI suggestion buttons use a **consistent loading pattern**:
 
 ## Implemented Suggestion APIs
 
-| API | Use Case |
-| ----- | ---------- |
-| `POST /api/ai/suggest-storage` | Asset storage location |
-| `POST /api/ai/suggest-category` | Asset category |
-| `POST /api/ai/suggest-project` | Task/expense project |
-| `POST /api/ai/suggest-project-from-photo` | Project from uploaded image |
-| `POST /api/ai/suggest-assignee` | Task assignee |
-| `POST /api/ai/suggest-project-member` | Project member (by responsibilities) |
-| `POST /api/ai/suggest-expense-category` | Expense category |
-| `POST /api/ai/suggest-priority` | Task priority |
+| API                                       | Use Case                             |
+| ----------------------------------------- | ------------------------------------ |
+| `POST /api/ai/suggest-storage`            | Asset storage location               |
+| `POST /api/ai/suggest-category`           | Asset category                       |
+| `POST /api/ai/suggest-project`            | Task/expense project                 |
+| `POST /api/ai/suggest-project-from-photo` | Project from uploaded image          |
+| `POST /api/ai/suggest-assignee`           | Task assignee                        |
+| `POST /api/ai/suggest-project-member`     | Project member (by responsibilities) |
+| `POST /api/ai/suggest-expense-category`   | Expense category                     |
+| `POST /api/ai/suggest-priority`           | Task priority                        |
 
 ---
 

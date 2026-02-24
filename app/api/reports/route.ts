@@ -23,7 +23,10 @@ export const GET = withRole("admin")(async (request) => {
     format: searchParams.get("format") || "json",
   })
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid query parameters", details: parsed.error.flatten() }, { status: 400 })
+    return NextResponse.json(
+      { error: "Invalid query parameters", details: parsed.error.flatten() },
+      { status: 400 }
+    )
   }
   const { type: reportType, userId, format } = parsed.data
 
@@ -53,7 +56,10 @@ export const GET = withRole("admin")(async (request) => {
   if (format === "csv") {
     if (reportType === "all") {
       return NextResponse.json(
-        { error: "CSV format is not supported for report type 'all'. Use 'expenses', 'tasks', or 'time'." },
+        {
+          error:
+            "CSV format is not supported for report type 'all'. Use 'expenses', 'tasks', or 'time'.",
+        },
         { status: 400 }
       )
     }
@@ -87,13 +93,20 @@ async function buildExpenseReport(userId?: string) {
     expenses: filtered,
     summary: {
       total,
-      approved: filtered.filter((e) => e.approvalStatus === "Approved").reduce((sum, e) => sum + e.amount, 0),
-      pending: filtered.filter((e) => e.approvalStatus === "Pending").reduce((sum, e) => sum + e.amount, 0),
+      approved: filtered
+        .filter((e) => e.approvalStatus === "Approved")
+        .reduce((sum, e) => sum + e.amount, 0),
+      pending: filtered
+        .filter((e) => e.approvalStatus === "Pending")
+        .reduce((sum, e) => sum + e.amount, 0),
       count: filtered.length,
-      byCategory: filtered.reduce((acc, e) => {
-        acc[e.category] = (acc[e.category] || 0) + e.amount
-        return acc
-      }, {} as Record<string, number>),
+      byCategory: filtered.reduce(
+        (acc, e) => {
+          acc[e.category] = (acc[e.category] || 0) + e.amount
+          return acc
+        },
+        {} as Record<string, number>
+      ),
     },
   }
 }
@@ -154,7 +167,9 @@ function generateCsv(reportType: string, data: Record<string, unknown>): string 
     const d = data as Awaited<ReturnType<typeof buildTaskReport>>
     let csv = "Title,Assignee,Status,Priority,Completed Date\n"
     csv += d.tasks
-      .map((t) => `"${t.title}",${t.assignedToName},${t.status},${t.priority},${t.completedDate || ""}`)
+      .map(
+        (t) => `"${t.title}",${t.assignedToName},${t.status},${t.priority},${t.completedDate || ""}`
+      )
       .join("\n")
     return csv
   }
@@ -162,7 +177,10 @@ function generateCsv(reportType: string, data: Record<string, unknown>): string 
     const d = data as Awaited<ReturnType<typeof buildTimeReport>>
     let csv = "Date,Employee,Clock In,Clock Out,Hours,Overtime\n"
     csv += d.entries
-      .map((e) => `${e.date},${e.employeeName},${e.clockIn || ""},${e.clockOut || ""},${e.totalHours || 0},${e.overtimeHours || 0}`)
+      .map(
+        (e) =>
+          `${e.date},${e.employeeName},${e.clockIn || ""},${e.clockOut || ""},${e.totalHours || 0},${e.overtimeHours || 0}`
+      )
       .join("\n")
     return csv
   }

@@ -1,23 +1,23 @@
-name: 'Terraform Plan'
+name: "Terraform Plan"
 
 on:
   pull_request:
     branches:
       - main
     paths:
-      - 'terraform/**'
-      - '.github/workflows/terraform-plan.yml'
+      - "terraform/**"
+      - ".github/workflows/terraform-plan.yml"
 
 permissions:
   contents: read
   pull-requests: write
 
 env:
-  WORKING_DIR: './terraform/environments/production'
+  WORKING_DIR: "./terraform/environments/production"
 
 jobs:
   terraform-plan:
-    name: 'Terraform Plan'
+    name: "Terraform Plan"
     runs-on: [self-hosted, azure-vnet-ghost]
     timeout-minutes: 30
     # Skip fork PRs: untrusted code would run in VNet-capable runner. Same-repo PRs only.
@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Verify Terraform
         run: |
           REQUIRED="1.5.0"
@@ -37,12 +37,12 @@ jobs:
             exit 1
           fi
           terraform version
-      
+
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+
       - name: Set Terraform ARM credentials
         run: |
           CREDS='${{ secrets.AZURE_CREDENTIALS }}'
@@ -50,7 +50,7 @@ jobs:
           echo "ARM_CLIENT_SECRET=$(echo $CREDS | jq -r .clientSecret)" >> $GITHUB_ENV
           echo "ARM_TENANT_ID=$(echo $CREDS | jq -r .tenantId)" >> $GITHUB_ENV
           echo "ARM_SUBSCRIPTION_ID=$(echo $CREDS | jq -r .subscriptionId)" >> $GITHUB_ENV
-      
+
       - name: Terraform Init
         working-directory: ${{ env.WORKING_DIR }}
         env:
@@ -64,11 +64,11 @@ jobs:
             -backend-config="storage_account_name=$TF_STATE_STORAGE_ACCOUNT" \
             -backend-config="container_name=$TF_STATE_CONTAINER" \
             -backend-config="key=$TF_STATE_KEY"
-      
+
       - name: Terraform Validate
         working-directory: ${{ env.WORKING_DIR }}
         run: terraform validate
-      
+
       - name: Terraform Format Check
         working-directory: ${{ env.WORKING_DIR }}
         run: terraform fmt -check -recursive
@@ -95,14 +95,14 @@ jobs:
             -out=tfplan \
             -no-color
         continue-on-error: true
-      
+
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
           path: ${{ env.WORKING_DIR }}/tfplan
           retention-days: 5
-      
+
       - name: Capture Plan Output
         id: show-plan
         working-directory: ${{ env.WORKING_DIR }}
@@ -112,7 +112,7 @@ jobs:
           echo "$plan" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
         continue-on-error: true
-      
+
       - name: Comment PR with Plan
         uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
@@ -123,17 +123,17 @@ jobs:
           script: |
             const marker = '#### Terraform Plan 📋';
             const output = `${marker}
-            
+
             <details><summary>Show Plan</summary>
-            
+
             \`\`\`terraform
             ${process.env.PLAN}
             \`\`\`
-            
+
             </details>
-            
+
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
-            
+
             const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,

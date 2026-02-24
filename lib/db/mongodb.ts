@@ -18,12 +18,16 @@ export async function getDatabase(): Promise<Db> {
     logger.info(`MongoDB connected to ${DB_NAME}`)
     return db
   } catch (error) {
-    logger.error("MongoDB connection error", { error: error instanceof Error ? error.message : String(error) })
+    logger.error("MongoDB connection error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
     throw error
   }
 }
 
-export async function getCollection<T extends { _id?: ObjectId }>(name: string): Promise<Collection<T>> {
+export async function getCollection<T extends { _id?: ObjectId }>(
+  name: string
+): Promise<Collection<T>> {
   const database = await getDatabase()
   return database.collection<T>(name)
 }
@@ -38,7 +42,9 @@ export async function closeConnection(): Promise<void> {
 }
 
 // Helper to convert MongoDB _id to string id
-export function sanitizeDocument<T extends { _id?: ObjectId }>(doc: T): Omit<T, "_id"> & { id: string } {
+export function sanitizeDocument<T extends { _id?: ObjectId }>(
+  doc: T
+): Omit<T, "_id"> & { id: string } {
   const { _id, ...rest } = doc
   return {
     ...rest,
@@ -47,6 +53,8 @@ export function sanitizeDocument<T extends { _id?: ObjectId }>(doc: T): Omit<T, 
 }
 
 // Helper to sanitize multiple documents
-export function sanitizeDocuments<T extends { _id?: ObjectId }>(docs: T[]): (Omit<T, "_id"> & { id: string })[] {
+export function sanitizeDocuments<T extends { _id?: ObjectId }>(
+  docs: T[]
+): (Omit<T, "_id"> & { id: string })[] {
   return docs.map(sanitizeDocument)
 }

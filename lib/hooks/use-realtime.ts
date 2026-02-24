@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { RealTimeEvent, EventType } from '@/lib/realtime/event-store'
-import { logger } from '@/lib/logger'
-import { apiFetch } from '@/lib/api-client'
+import { useState, useEffect, useCallback, useRef } from "react"
+import { RealTimeEvent, EventType } from "@/lib/realtime/event-store"
+import { logger } from "@/lib/logger"
+import { apiFetch } from "@/lib/api-client"
 
 interface UseRealTimeOptions {
   userId: string
@@ -66,17 +66,17 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
           const data = JSON.parse(event.data)
 
           // Handle different message types
-          if (data.type === 'connected') {
-            logger.info('Real-time connected', { listenerId: data.listenerId })
+          if (data.type === "connected") {
+            logger.info("Real-time connected", { listenerId: data.listenerId })
             return
           }
 
-          if (data.type === 'heartbeat') {
+          if (data.type === "heartbeat") {
             // Heartbeat received, connection is alive
             return
           }
 
-          if (data.type === 'history') {
+          if (data.type === "history") {
             // Received historical events
             setEvents((prev) => [...data.events, ...prev].slice(0, 50))
             return
@@ -92,21 +92,23 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
           setEvents((prev) => [realTimeEvent, ...prev].slice(0, 50))
           onEvent?.(realTimeEvent)
         } catch (err) {
-          logger.error('Error parsing SSE message', { error: err instanceof Error ? err.message : String(err) })
+          logger.error("Error parsing SSE message", {
+            error: err instanceof Error ? err.message : String(err),
+          })
         }
       }
 
       eventSource.onerror = (err) => {
-        logger.error('SSE error', { error: err })
+        logger.error("SSE error", { error: err })
         setIsConnected(false)
-        setError(new Error('Connection lost'))
-        onError?.(new Error('Connection lost'))
+        setError(new Error("Connection lost"))
+        onError?.(new Error("Connection lost"))
         onDisconnect?.()
 
         // Auto reconnect
         if (autoReconnect) {
           reconnectTimeoutRef.current = setTimeout(() => {
-            logger.info('Attempting to reconnect')
+            logger.info("Attempting to reconnect")
             connectRef.current()
           }, reconnectDelay)
         }
@@ -178,28 +180,23 @@ export function useRealTime(options: UseRealTimeOptions): UseRealTimeReturn {
 }
 
 // Hook for filtering events by type
-export function useFilteredEvents(
-  events: RealTimeEvent[],
-  types: EventType[]
-): RealTimeEvent[] {
+export function useFilteredEvents(events: RealTimeEvent[], types: EventType[]): RealTimeEvent[] {
   return events.filter((e) => types.includes(e.type as EventType))
 }
 
 // Hook for emitting events
 export function useEmitEvent() {
-  const emit = useCallback(async (
-    type: string,
-    data: any,
-    userId?: string
-  ) => {
+  const emit = useCallback(async (type: string, data: any, userId?: string) => {
     try {
-      return await apiFetch('/api/realtime/emit', {
-        method: 'POST',
+      return await apiFetch("/api/realtime/emit", {
+        method: "POST",
         body: { type, data, userId },
-        label: 'RealtimeEmit',
+        label: "RealtimeEmit",
       })
     } catch (error) {
-      logger.error('Error emitting event', { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Error emitting event", {
+        error: error instanceof Error ? error.message : String(error),
+      })
       throw error
     }
   }, [])

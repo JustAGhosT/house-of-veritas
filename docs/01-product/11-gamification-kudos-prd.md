@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (widgets, modals, leaderboard/profile screens) |
-| Backend | Baserow (points, badges, nominations), Azure Functions (scoring, streaks, rewards logic) |
-| Storage | Audit logs, nomination evidence, reward redemption records |
+| Layer    | Technology                                                                               |
+| -------- | ---------------------------------------------------------------------------------------- |
+| Frontend | Next.js/React (widgets, modals, leaderboard/profile screens)                             |
+| Backend  | Baserow (points, badges, nominations), Azure Functions (scoring, streaks, rewards logic) |
+| Storage  | Audit logs, nomination evidence, reward redemption records                               |
 
 ---
 
@@ -124,26 +124,26 @@ Provide universal, low-friction tracking and rewards across all modules, immune 
 
 ## Measurable Objectives
 
-| Objective | Target |
-|-----------|--------|
-| Residents awarded kudos/badges quarterly | 95%+ |
-| Active residents in recognition feed each month | 95% |
-| Recognition disputes | <10% |
-| Challenges per event | <5% |
-| Traceable drop in ignored/abandoned chores, projects, or event sign-ups | Yes |
-| Sustainable point/badge inflation management | Yes |
+| Objective                                                               | Target |
+| ----------------------------------------------------------------------- | ------ |
+| Residents awarded kudos/badges quarterly                                | 95%+   |
+| Active residents in recognition feed each month                         | 95%    |
+| Recognition disputes                                                    | <10%   |
+| Challenges per event                                                    | <5%    |
+| Traceable drop in ignored/abandoned chores, projects, or event sign-ups | Yes    |
+| Sustainable point/badge inflation management                            | Yes    |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibilities |
-|------|-------------------|
-| Resident | Earn/see/nominate/redeem recognition |
-| Admin | Monitor/configure/intervene/audit/batch-redeem |
-| Owner | Review/announce/reward/report |
-| Module Lead | Set award triggers, configure flows |
-| Support | Address user/admin feedback, support adoption |
+| Role        | Responsibilities                               |
+| ----------- | ---------------------------------------------- |
+| Resident    | Earn/see/nominate/redeem recognition           |
+| Admin       | Monitor/configure/intervene/audit/batch-redeem |
+| Owner       | Review/announce/reward/report                  |
+| Module Lead | Set award triggers, configure flows            |
+| Support     | Address user/admin feedback, support adoption  |
 
 ---
 
@@ -241,26 +241,26 @@ Monitor/audit → Intervene/debug → Award/reward/announce
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Leaderboard/rank update latency | Sub-1s |
-| Event logs | Encrypted |
-| Audit trail retention | Minimum 5 years |
-| Dashboard/feed data accuracy | 99% |
-| Accessibility | ARIA/WCAG compliance |
-| Notification volume | Throttling |
-| Capacity | >100 recognitions per week |
+| Requirement                     | Target                     |
+| ------------------------------- | -------------------------- |
+| Leaderboard/rank update latency | Sub-1s                     |
+| Event logs                      | Encrypted                  |
+| Audit trail retention           | Minimum 5 years            |
+| Dashboard/feed data accuracy    | 99%                        |
+| Accessibility                   | ARIA/WCAG compliance       |
+| Notification volume             | Throttling                 |
+| Capacity                        | >100 recognitions per week |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Component/Responsibility |
-|-------|--------------------------|
-| Frontend | UI for badges, leaderboards, profiles, nomination, reward redemption |
-| Backend | Points database, scoring/logic engine, event hooks |
-| Notification Layer | Real-time and batch push |
-| Storage | Audit logs, nomination/reward proof |
+| Layer              | Component/Responsibility                                             |
+| ------------------ | -------------------------------------------------------------------- |
+| Frontend           | UI for badges, leaderboards, profiles, nomination, reward redemption |
+| Backend            | Points database, scoring/logic engine, event hooks                   |
+| Notification Layer | Real-time and batch push                                             |
+| Storage            | Audit logs, nomination/reward proof                                  |
 
 ---
 
@@ -268,16 +268,16 @@ Monitor/audit → Intervene/debug → Award/reward/announce
 
 ### Required APIs
 
-| Endpoint | Purpose |
-|----------|---------|
-| POST/GET /api/points | Award/obtain points |
-| POST/GET /api/badge | Earn/view badges |
-| POST/GET /api/nominate | Nomination flow |
-| POST/GET /api/award/redeem | Redeem kudos for rewards |
-| GET /api/leaderboard | Live rankings |
-| PATCH /api/award/status | Admin override/hide/freeze |
-| PATCH /api/privacy/configure | User privacy |
-| GET /api/audit/logs | Admin/owner audit review |
+| Endpoint                     | Purpose                    |
+| ---------------------------- | -------------------------- |
+| POST/GET /api/points         | Award/obtain points        |
+| POST/GET /api/badge          | Earn/view badges           |
+| POST/GET /api/nominate       | Nomination flow            |
+| POST/GET /api/award/redeem   | Redeem kudos for rewards   |
+| GET /api/leaderboard         | Live rankings              |
+| PATCH /api/award/status      | Admin override/hide/freeze |
+| PATCH /api/privacy/configure | User privacy               |
+| GET /api/audit/logs          | Admin/owner audit review   |
 
 ### External Dependencies
 
@@ -291,14 +291,14 @@ Monitor/audit → Intervene/debug → Award/reward/announce
 
 ## Data Models
 
-| Model | Fields |
-|-------|--------|
+| Model        | Fields                                                            |
+| ------------ | ----------------------------------------------------------------- |
 | Points/Award | ID, user, module, action, value, timestamp, badge/streak, privacy |
-| Nomination | ID, from/to, reason, module/context, proof |
-| Leaderboard | UserID, rank, streak, opt-out flag |
-| Reward | ID, type, inventory, redeemed, expiry |
-| Audit | AwardID, action, actor, reason, appeal/status |
-| Event Log | actor, action, module, timestamp |
+| Nomination   | ID, from/to, reason, module/context, proof                        |
+| Leaderboard  | UserID, rank, streak, opt-out flag                                |
+| Reward       | ID, type, inventory, redeemed, expiry                             |
+| Audit        | AwardID, action, actor, reason, appeal/status                     |
+| Event Log    | actor, action, module, timestamp                                  |
 
 ---
 
@@ -372,10 +372,10 @@ Monitor/audit → Intervene/debug → Award/reward/announce
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target |
-|-------|-------|--------|
-| Phase 1 | Infrastructure for points/badges/leaderboards and module triggers | Q1 |
-| Phase 2 | Reward redemption, admin tools, privacy/event audit | Q2 |
+| Phase   | Scope                                                                   | Target     |
+| ------- | ----------------------------------------------------------------------- | ---------- |
+| Phase 1 | Infrastructure for points/badges/leaderboards and module triggers       | Q1         |
+| Phase 2 | Reward redemption, admin tools, privacy/event audit                     | Q2         |
 | Phase 3 | Advanced analytics, anti-gaming features, external partner integrations | Q3 onwards |
 
 ---
@@ -407,24 +407,24 @@ Monitor/audit → Intervene/debug → Award/reward/announce
 
 ## Risks & Mitigations
 
-| Risk | Mitigation Strategy |
-|------|---------------------|
-| Gaming/fraud | AI/peer review, nomination caps, audit trail |
-| Privacy abuse/breach | Opt-out controls, admin lock, audit review |
+| Risk                        | Mitigation Strategy                                  |
+| --------------------------- | ---------------------------------------------------- |
+| Gaming/fraud                | AI/peer review, nomination caps, audit trail         |
+| Privacy abuse/breach        | Opt-out controls, admin lock, audit review           |
 | Recognition dropout/fatigue | Rotate group/venue challenges, retune event triggers |
-| Points/badge inflation | Points TTL, badge scarcity, inflation controls |
-| Staff/volunteer lag | Maximize automation, reduce manual intervention |
+| Points/badge inflation      | Points TTL, badge scarcity, inflation controls       |
+| Staff/volunteer lag         | Maximize automation, reduce manual intervention      |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target Date | Impact if Unresolved |
-|----------|-------|-------------|---------------------|
-| Should points expire if unused? | Product Lead | Q2 | Inflation, engagement curves |
-| Admin/private vs. public announcements—who decides? | Owners/Admin | Q2 | User trust, transparency |
-| Which modules drive highest award triggers? | Analytics | Ongoing | Tuning gamification strategy |
-| Who can see/use audit logs (residents vs. admins)? | Legal/Admin | Q2 | Trust, privacy, transparency |
+| Question                                            | Owner        | Target Date | Impact if Unresolved         |
+| --------------------------------------------------- | ------------ | ----------- | ---------------------------- |
+| Should points expire if unused?                     | Product Lead | Q2          | Inflation, engagement curves |
+| Admin/private vs. public announcements—who decides? | Owners/Admin | Q2          | User trust, transparency     |
+| Which modules drive highest award triggers?         | Analytics    | Ongoing     | Tuning gamification strategy |
+| Who can see/use audit logs (residents vs. admins)?  | Legal/Admin  | Q2          | Trust, privacy, transparency |
 
 ---
 

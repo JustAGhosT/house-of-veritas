@@ -8,7 +8,7 @@ Read the agent definition at `.claude/agents/10-vertical-features.md` and trace 
 2. For each of the 11 features listed, check presence at every layer:
    - UI Component (page/form/display)
    - API Route (Next.js handler)
-   - Service Layer (lib/services/*)
+   - Service Layer (lib/services/\*)
    - Data/Storage (Baserow/Blob/PostgreSQL)
    - Azure Function (background processing)
    - Infrastructure (Terraform resource)

@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server"
-import { getKioskStore, sanitizeKioskDoc, sanitizeKioskDocs, type KioskRequestDoc } from "@/lib/db/kiosk-store"
+import {
+  getKioskStore,
+  sanitizeKioskDoc,
+  sanitizeKioskDocs,
+  type KioskRequestDoc,
+} from "@/lib/db/kiosk-store"
 import { sendNotification, NotificationChannel } from "@/lib/services/notification-service"
 import { withRole, withAuth } from "@/lib/auth/rbac"
 import { ObjectId } from "mongodb"
@@ -52,7 +57,9 @@ async function notifyEmployee(
     logger.info("Notification sent", { employeeName: request.employeeName, results })
     return results
   } catch (error) {
-    logger.error("Notification error", { error: error instanceof Error ? error.message : String(error) })
+    logger.error("Notification error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
     return []
   }
 }
@@ -94,7 +101,9 @@ async function notifyManager(request: KioskRequestDoc) {
       priority: d.urgency === "urgent" || d.issueType === "safety" ? "urgent" : "medium",
     })
   } catch (error) {
-    logger.error("Manager notification error", { error: error instanceof Error ? error.message : String(error) })
+    logger.error("Manager notification error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
   }
 }
 
@@ -132,11 +141,10 @@ export const GET = withAuth(async (request) => {
       storage: mode,
     })
   } catch (error) {
-    logger.error("GET kiosk requests error", { error: error instanceof Error ? error.message : String(error) })
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch requests" },
-      { status: 500 }
-    )
+    logger.error("GET kiosk requests error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return NextResponse.json({ success: false, error: "Failed to fetch requests" }, { status: 500 })
   }
 })
 
@@ -178,11 +186,10 @@ export const POST = withAuth(async (request) => {
       storage: mode,
     })
   } catch (error) {
-    logger.error("POST kiosk request error", { error: error instanceof Error ? error.message : String(error) })
-    return NextResponse.json(
-      { success: false, error: "Failed to create request" },
-      { status: 500 }
-    )
+    logger.error("POST kiosk request error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return NextResponse.json({ success: false, error: "Failed to create request" }, { status: 500 })
   }
 })
 
@@ -219,10 +226,7 @@ export const PATCH = withRole("admin")(async (request, context) => {
 
     const existingRequest = await store.findOne({ _id: objectId })
     if (!existingRequest) {
-      return NextResponse.json(
-        { success: false, error: "Request not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ success: false, error: "Request not found" }, { status: 404 })
     }
 
     const updateData = {
@@ -245,11 +249,10 @@ export const PATCH = withRole("admin")(async (request, context) => {
       storage: mode,
     })
   } catch (error) {
-    logger.error("PATCH kiosk request error", { error: error instanceof Error ? error.message : String(error) })
-    return NextResponse.json(
-      { success: false, error: "Failed to update request" },
-      { status: 500 }
-    )
+    logger.error("PATCH kiosk request error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return NextResponse.json({ success: false, error: "Failed to update request" }, { status: 500 })
   }
 })
 

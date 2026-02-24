@@ -15,11 +15,5 @@ export default function Error({
     logger.error("Application error", { error: error?.message, digest: error?.digest })
   }, [error])
 
-  return (
-    <ErrorDisplay
-      errors={flattenErrors(error)}
-      onRetry={reset}
-      variant="page"
-    />
-  )
+  return <ErrorDisplay errors={flattenErrors(error)} onRetry={reset} variant="page" />
 }

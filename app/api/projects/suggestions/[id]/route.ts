@@ -92,7 +92,9 @@ export const PATCH = withRole("admin")(async (request, context) => {
 
     return NextResponse.json({ suggestion: suggestions[idx] })
   } catch (err) {
-    logger.error("Failed to update suggestion", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Failed to update suggestion", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ error: "Failed to update suggestion" }, { status: 500 })
   }
 })

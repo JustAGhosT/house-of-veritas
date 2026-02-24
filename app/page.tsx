@@ -13,7 +13,7 @@ import { GridPattern } from "@/components/grid-pattern"
 export default function Home() {
   return (
     <SmoothScroll>
-      <main className="min-h-screen bg-zinc-950 relative">
+      <main className="relative min-h-screen bg-zinc-950">
         <GridPattern />
         <div className="relative z-10">
           <Navbar />

@@ -13,16 +13,16 @@ select from a list of options.
 
 ## Implemented
 
-| Feature | API | Use Case |
-| --------- | ----- | ---------- |
-| Storage location | `POST /api/ai/suggest-storage` | Suggest storage location when adding assets |
-| Asset category | `POST /api/ai/suggest-category` | Suggest category when adding assets |
-| Project | `POST /api/ai/suggest-project` | Suggest project for tasks/expenses |
-| Project from photo | `POST /api/ai/suggest-project-from-photo` | Suggest project from uploaded image |
-| Task assignee | `POST /api/ai/suggest-assignee` | Suggest team member for task assignment |
-| Project member | `POST /api/ai/suggest-project-member` | Suggest member by responsibilities/specialty |
-| Expense category | `POST /api/ai/suggest-expense-category` | Suggest category from vendor/description |
-| Task priority | `POST /api/ai/suggest-priority` | Suggest priority from task description |
+| Feature            | API                                       | Use Case                                     |
+| ------------------ | ----------------------------------------- | -------------------------------------------- |
+| Storage location   | `POST /api/ai/suggest-storage`            | Suggest storage location when adding assets  |
+| Asset category     | `POST /api/ai/suggest-category`           | Suggest category when adding assets          |
+| Project            | `POST /api/ai/suggest-project`            | Suggest project for tasks/expenses           |
+| Project from photo | `POST /api/ai/suggest-project-from-photo` | Suggest project from uploaded image          |
+| Task assignee      | `POST /api/ai/suggest-assignee`           | Suggest team member for task assignment      |
+| Project member     | `POST /api/ai/suggest-project-member`     | Suggest member by responsibilities/specialty |
+| Expense category   | `POST /api/ai/suggest-expense-category`   | Suggest category from vendor/description     |
+| Task priority      | `POST /api/ai/suggest-priority`           | Suggest priority from task description       |
 
 ## Configuration
 
@@ -36,10 +36,10 @@ Without these, the APIs return the first option from the list (no AI).
 
 ## Other Opportunities
 
-| Area | Options | AI Use |
-| ------ | --------- | -------- |
-| Document type | Contract, Invoice, etc. | Classify from document content |
-| Vehicle selection | Fleet list | Suggest vehicle for trip type |
+| Area              | Options                 | AI Use                         |
+| ----------------- | ----------------------- | ------------------------------ |
+| Document type     | Contract, Invoice, etc. | Classify from document content |
+| Vehicle selection | Fleet list              | Suggest vehicle for trip type  |
 
 ## Adding New AI Suggestions
 

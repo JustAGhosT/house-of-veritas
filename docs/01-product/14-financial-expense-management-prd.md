@@ -8,12 +8,12 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (expense entry, project dashboards, approval workflows, receipt handling, alerts) |
-| Backend | Baserow (expense, budget, approval storage), Azure Functions (real-time reimburse/notify, fraud/flag automation) |
-| Storage | Azure Blob (receipts, supporting documents) |
-| Mesh Integration | Chore, project, events, renovation, maintenance, notification/analytics, document locker, compliance/incident |
+| Layer            | Technology                                                                                                       |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Frontend         | Next.js/React (expense entry, project dashboards, approval workflows, receipt handling, alerts)                  |
+| Backend          | Baserow (expense, budget, approval storage), Azure Functions (real-time reimburse/notify, fraud/flag automation) |
+| Storage          | Azure Blob (receipts, supporting documents)                                                                      |
+| Mesh Integration | Chore, project, events, renovation, maintenance, notification/analytics, document locker, compliance/incident    |
 
 ---
 
@@ -133,23 +133,23 @@ Deliver robust compliance and approval for project/task/estate/asset spend, whil
 
 ## Measurable Objectives
 
-| Objective | Baseline | Target | Timeline |
-|-----------|----------|--------|----------|
-| Receipts submitted electronically | <40% | 90% | 3 months |
-| Approve/deny cycle time | ~60h | <24h | 6 months |
-| Project budget sync (with expenses) | Manual/ad hoc | 80%+ | 3 months |
-| Owner/compliance audit satisfaction | <75% | 95%+ | 6 months |
+| Objective                           | Baseline      | Target | Timeline |
+| ----------------------------------- | ------------- | ------ | -------- |
+| Receipts submitted electronically   | <40%          | 90%    | 3 months |
+| Approve/deny cycle time             | ~60h          | <24h   | 6 months |
+| Project budget sync (with expenses) | Manual/ad hoc | 80%+   | 3 months |
+| Owner/compliance audit satisfaction | <75%          | 95%+   | 6 months |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibilities |
-|------|------------------|
-| Residents | Submit, share, and approve expenses; receive status and reconciliation |
-| Admin | Manage budgets, approvals, overrides, and audit/reports |
-| Owner/Treasurer/Auditor | Set policy, run audits, manage export/analytics |
-| Project Lead | Tag, track, and alert on project-related spend |
+| Role                    | Responsibilities                                                       |
+| ----------------------- | ---------------------------------------------------------------------- |
+| Residents               | Submit, share, and approve expenses; receive status and reconciliation |
+| Admin                   | Manage budgets, approvals, overrides, and audit/reports                |
+| Owner/Treasurer/Auditor | Set policy, run audits, manage export/analytics                        |
+| Project Lead            | Tag, track, and alert on project-related spend                         |
 
 ---
 
@@ -229,25 +229,25 @@ Deliver robust compliance and approval for project/task/estate/asset spend, whil
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Mobile-first UX | OCR processing in under 5 seconds per upload |
-| Approval/denial cycle | Within 12 hours on average |
-| Security | End-to-end encryption, full event audit log |
-| Scalability | Thousands of receipts per year |
-| Compliance | Accessibility (ARIA), 7-year retention/export |
-| Batch operations | Bulk events/exports supported |
+| Requirement           | Target                                        |
+| --------------------- | --------------------------------------------- |
+| Mobile-first UX       | OCR processing in under 5 seconds per upload  |
+| Approval/denial cycle | Within 12 hours on average                    |
+| Security              | End-to-end encryption, full event audit log   |
+| Scalability           | Thousands of receipts per year                |
+| Compliance            | Accessibility (ARIA), 7-year retention/export |
+| Batch operations      | Bulk events/exports supported                 |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Components Involved | Responsibilities |
-|-------|---------------------|------------------|
-| Frontend | Expense entry, split/share, approval | User interaction, status, export/history |
-| Backend | Expense/Budget DB, fraud/approval logic | Logic, workflow, compliance, notifications |
-| Storage | Blob/document logs | Receipts, export archives |
-| Integration | Chore/project/incident modules | Sync, alerts, compliance vault |
+| Layer       | Components Involved                     | Responsibilities                           |
+| ----------- | --------------------------------------- | ------------------------------------------ |
+| Frontend    | Expense entry, split/share, approval    | User interaction, status, export/history   |
+| Backend     | Expense/Budget DB, fraud/approval logic | Logic, workflow, compliance, notifications |
+| Storage     | Blob/document logs                      | Receipts, export archives                  |
+| Integration | Chore/project/incident modules          | Sync, alerts, compliance vault             |
 
 ---
 
@@ -255,18 +255,18 @@ Deliver robust compliance and approval for project/task/estate/asset spend, whil
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/expense/add | POST/GET | Create and retrieve expenses |
-| /api/expense/split | POST | Manage shared/split expenses |
-| /api/expense/status | GET | Fetch approval/payment status |
-| /api/expense/approve | POST | Approval step |
-| /api/expense/deny | POST | Denial step |
-| /api/expense/fraudflag | POST | Fraud/dispute workflow |
-| /api/report/export | GET | Audit and budget exports |
-| /api/budget | GET/POST | Get/set budgets |
-| /api/notify | POST | Real-time communications |
-| API hooks | — | Cross-module integration |
+| Endpoint               | Method   | Purpose                       |
+| ---------------------- | -------- | ----------------------------- |
+| /api/expense/add       | POST/GET | Create and retrieve expenses  |
+| /api/expense/split     | POST     | Manage shared/split expenses  |
+| /api/expense/status    | GET      | Fetch approval/payment status |
+| /api/expense/approve   | POST     | Approval step                 |
+| /api/expense/deny      | POST     | Denial step                   |
+| /api/expense/fraudflag | POST     | Fraud/dispute workflow        |
+| /api/report/export     | GET      | Audit and budget exports      |
+| /api/budget            | GET/POST | Get/set budgets               |
+| /api/notify            | POST     | Real-time communications      |
+| API hooks              | —        | Cross-module integration      |
 
 ### External Dependencies
 
@@ -281,12 +281,12 @@ Deliver robust compliance and approval for project/task/estate/asset spend, whil
 
 ## Data Models
 
-| Model | Fields |
-|-------|--------|
-| Expense | ID, amount, date, user, payer/approved, split/share mapping, project/module tie, status/log, scanned receipt, notes, fraud/dispute flags |
-| Approval | ExpenseID, user, timestamp, status, admin override |
-| Budget | Project/estate, amount, spent, threshold, over/under, alerts |
-| Audit | ExpenseID, actor, action, timestamp, notes, export link |
+| Model    | Fields                                                                                                                                   |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Expense  | ID, amount, date, user, payer/approved, split/share mapping, project/module tie, status/log, scanned receipt, notes, fraud/dispute flags |
+| Approval | ExpenseID, user, timestamp, status, admin override                                                                                       |
+| Budget   | Project/estate, amount, spent, threshold, over/under, alerts                                                                             |
+| Audit    | ExpenseID, actor, action, timestamp, notes, export link                                                                                  |
 
 ---
 
@@ -327,13 +327,13 @@ Deliver robust compliance and approval for project/task/estate/asset spend, whil
 
 ### Key Metrics
 
-| Metric | Description |
-|--------|-------------|
-| Approval/reconcile time | Average time per approval cycle |
-| Over/under budget trend | Frequency and size of budget variance |
-| Flagged/disputed count | Number of disputes/fraud flags |
-| Audit trail completeness | % audit-ready periods and logs |
-| Admin lift | Effort savings for financial controls |
+| Metric                   | Description                           |
+| ------------------------ | ------------------------------------- |
+| Approval/reconcile time  | Average time per approval cycle       |
+| Over/under budget trend  | Frequency and size of budget variance |
+| Flagged/disputed count   | Number of disputes/fraud flags        |
+| Audit trail completeness | % audit-ready periods and logs        |
+| Admin lift               | Effort savings for financial controls |
 
 ### Leading Indicators
 
@@ -360,10 +360,10 @@ Deliver robust compliance and approval for project/task/estate/asset spend, whil
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target Date |
-|-------|-------|-------------|
-| 1 | Core upload/approval, split/share, status/history | Day 0–60 |
-| 2 | Fraud/dispute/flag, budget analytics/export, API-connectors | Day 61–120 |
+| Phase | Scope                                                       | Target Date |
+| ----- | ----------------------------------------------------------- | ----------- |
+| 1     | Core upload/approval, split/share, status/history           | Day 0–60    |
+| 2     | Fraud/dispute/flag, budget analytics/export, API-connectors | Day 61–120  |
 
 ---
 
@@ -394,23 +394,23 @@ Deliver robust compliance and approval for project/task/estate/asset spend, whil
 
 ## Risks & Mitigations
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Late/missing approvals | Delayed payments | Auto escalation after defined window |
-| Expense spam/fraud | Reporting delay | Smart flagging, frequency limits, audits |
-| Multi-currency error | Financial disputes | Forcing manual review for outlier entries |
-| Batch export failures | Audit/compliance gap | Manual trigger and owner notification |
+| Risk                   | Impact               | Mitigation                                |
+| ---------------------- | -------------------- | ----------------------------------------- |
+| Late/missing approvals | Delayed payments     | Auto escalation after defined window      |
+| Expense spam/fraud     | Reporting delay      | Smart flagging, frequency limits, audits  |
+| Multi-currency error   | Financial disputes   | Forcing manual review for outlier entries |
+| Batch export failures  | Audit/compliance gap | Manual trigger and owner notification     |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target Resolution | Impact |
-|----------|-------|-------------------|--------|
-| Multi-level approval required for over-budget? | Product | Prior to MVP | Compliance/UX |
-| Recurring/auto-pay support in workflow? | Eng/PM | Next sprint plan | User/automation demands |
-| Expense visibility: All users vs project-only? | Product | Design review | Transparency vs privacy |
-| Payroll/ERP webhook at MVP or post-launch? | Eng/Product | Go-live review | Export/integration timing |
+| Question                                       | Owner       | Target Resolution | Impact                    |
+| ---------------------------------------------- | ----------- | ----------------- | ------------------------- |
+| Multi-level approval required for over-budget? | Product     | Prior to MVP      | Compliance/UX             |
+| Recurring/auto-pay support in workflow?        | Eng/PM      | Next sprint plan  | User/automation demands   |
+| Expense visibility: All users vs project-only? | Product     | Design review     | Transparency vs privacy   |
+| Payroll/ERP webhook at MVP or post-launch?     | Eng/Product | Go-live review    | Export/integration timing |
 
 ---
 

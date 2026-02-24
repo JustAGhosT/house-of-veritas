@@ -22,10 +22,7 @@ async function saveProjects(projects: Project[]): Promise<void> {
   await writeFile(PROJECTS_PATH, JSON.stringify(projects, null, 2), "utf-8")
 }
 
-export async function GET(
-  _request: Request,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params
   try {
     const projects = await loadProjects()
@@ -33,7 +30,9 @@ export async function GET(
     if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 })
     return NextResponse.json({ project })
   } catch (err) {
-    logger.error("Failed to load project", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Failed to load project", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ error: "Failed to load project" }, { status: 500 })
   }
 }
@@ -59,7 +58,9 @@ export const PATCH = withRole("admin")(async (request, context) => {
     await saveProjects(projects)
     return NextResponse.json({ project: projects[idx] })
   } catch (err) {
-    logger.error("Failed to update project", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Failed to update project", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ error: "Failed to update project" }, { status: 500 })
   }
 })
@@ -77,7 +78,9 @@ export const DELETE = withRole("admin")(async (_request, context) => {
     await saveProjects(filtered)
     return NextResponse.json({ success: true })
   } catch (err) {
-    logger.error("Failed to delete project", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Failed to delete project", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ error: "Failed to delete project" }, { status: 500 })
   }
 })

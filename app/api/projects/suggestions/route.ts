@@ -59,7 +59,9 @@ export const GET = withAuth(async (request: Request) => {
     const filtered = status ? suggestions.filter((s) => s.status === status) : suggestions
     return NextResponse.json({ suggestions: filtered })
   } catch (err) {
-    logger.error("Failed to load suggestions", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Failed to load suggestions", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ error: "Failed to load suggestions" }, { status: 500 })
   }
 })
@@ -90,7 +92,9 @@ export const POST = withAuth(async (request: Request) => {
     await saveSuggestions(suggestions)
     return NextResponse.json({ suggestion })
   } catch (err) {
-    logger.error("Failed to create suggestion", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Failed to create suggestion", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ error: "Failed to create suggestion" }, { status: 500 })
   }
 })

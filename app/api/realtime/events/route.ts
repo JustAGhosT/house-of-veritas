@@ -1,11 +1,11 @@
-import { eventStore, RealTimeEvent } from '@/lib/realtime/event-store'
-import { logger } from '@/lib/logger'
+import { eventStore, RealTimeEvent } from "@/lib/realtime/event-store"
+import { logger } from "@/lib/logger"
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const userId = searchParams.get('userId') || 'hans'
+  const userId = searchParams.get("userId") || "hans"
 
   // Create a unique listener ID for this connection
   const listenerId = `sse_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -17,8 +17,8 @@ export async function GET(request: Request) {
 
       // Send initial connection message
       const connectMessage = `data: ${JSON.stringify({
-        type: 'connected',
-        message: 'Real-time connection established',
+        type: "connected",
+        message: "Real-time connection established",
         listenerId,
         timestamp: new Date().toISOString(),
       })}\n\n`
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
       const recentEvents = eventStore.getEventsForUser(userId, 10)
       if (recentEvents.length > 0) {
         const historyMessage = `data: ${JSON.stringify({
-          type: 'history',
+          type: "history",
           events: recentEvents,
         })}\n\n`
         controller.enqueue(encoder.encode(historyMessage))
@@ -37,12 +37,14 @@ export async function GET(request: Request) {
       // Subscribe to new events
       const unsubscribe = eventStore.subscribe(listenerId, (event: RealTimeEvent) => {
         // Only send events meant for this user or all users
-        if (!event.userId || event.userId === userId || userId === 'hans') {
+        if (!event.userId || event.userId === userId || userId === "hans") {
           try {
             const message = `data: ${JSON.stringify(event)}\n\n`
             controller.enqueue(encoder.encode(message))
           } catch (error) {
-            logger.error('Error sending SSE event', { error: error instanceof Error ? error.message : String(error) })
+            logger.error("Error sending SSE event", {
+              error: error instanceof Error ? error.message : String(error),
+            })
           }
         }
       })
@@ -51,7 +53,7 @@ export async function GET(request: Request) {
       const heartbeatInterval = setInterval(() => {
         try {
           const heartbeat = `data: ${JSON.stringify({
-            type: 'heartbeat',
+            type: "heartbeat",
             timestamp: new Date().toISOString(),
           })}\n\n`
           controller.enqueue(encoder.encode(heartbeat))
@@ -63,7 +65,7 @@ export async function GET(request: Request) {
       }, 30000)
 
       // Cleanup on close
-      request.signal.addEventListener('abort', () => {
+      request.signal.addEventListener("abort", () => {
         clearInterval(heartbeatInterval)
         unsubscribe()
         eventStore.unsubscribe(listenerId)
@@ -73,10 +75,10 @@ export async function GET(request: Request) {
 
   return new Response(stream, {
     headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache, no-transform',
-      'Connection': 'keep-alive',
-      'X-Accel-Buffering': 'no', // Disable nginx buffering
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache, no-transform",
+      Connection: "keep-alive",
+      "X-Accel-Buffering": "no", // Disable nginx buffering
     },
   })
 }

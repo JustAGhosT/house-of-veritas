@@ -2,6 +2,7 @@
 
 import { motion, useInView } from "framer-motion"
 import { useRef, useEffect, useState } from "react"
+import Link from "next/link"
 import { TrendingUp, CheckCircle2, AlertCircle, Clock } from "lucide-react"
 import { apiFetchSafe } from "@/lib/api-client"
 
@@ -20,32 +21,36 @@ interface ContractorData {
   }
 }
 
-const EMPTY_CONTRACTORS: ContractorData = { contractors: [], summary: { totalPaid: 0, totalRemaining: 0, averageProgress: 0 } }
+const EMPTY_CONTRACTORS: ContractorData = {
+  contractors: [],
+  summary: { totalPaid: 0, totalRemaining: 0, averageProgress: 0 },
+}
 
 function ContractorMilestones() {
   const [data, setData] = useState<ContractorData | null>(null)
 
   useEffect(() => {
-    apiFetchSafe<ContractorData>("/api/contractors", EMPTY_CONTRACTORS, { label: "Contractors" })
-      .then((d) => setData(Array.isArray(d?.contractors) ? d : EMPTY_CONTRACTORS))
+    apiFetchSafe<ContractorData>("/api/contractors", EMPTY_CONTRACTORS, {
+      label: "Contractors",
+    }).then((d) => setData(Array.isArray(d?.contractors) ? d : EMPTY_CONTRACTORS))
   }, [])
 
-  if (!data) return <div className="text-zinc-500 text-sm">Loading...</div>
+  if (!data) return <div className="text-sm text-zinc-500">Loading...</div>
 
   const contractors = Array.isArray(data.contractors) ? data.contractors : []
-  if (!contractors.length) return <div className="text-zinc-500 text-sm">—</div>
+  if (!contractors.length) return <div className="text-sm text-zinc-500">—</div>
   return (
     <div className="space-y-3">
       {contractors.slice(0, 3).map((contractor, i) => (
-        <div key={i} className="p-3 bg-zinc-900/50 rounded-lg border border-zinc-800">
-          <div className="flex justify-between items-start mb-2">
+        <div key={i} className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
+          <div className="mb-2 flex items-start justify-between">
             <div>
               <div className="text-sm font-semibold text-white">{contractor.name}</div>
               <div className="text-xs text-zinc-500">{contractor.project}</div>
             </div>
             <div className="text-xs text-green-400">{contractor.progress}%</div>
           </div>
-          <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+          <div className="h-1.5 overflow-hidden rounded-full bg-zinc-800">
             <motion.div
               className="h-full bg-green-500"
               initial={{ width: 0 }}
@@ -53,9 +58,13 @@ function ContractorMilestones() {
               transition={{ duration: 1, delay: i * 0.2 }}
             />
           </div>
-          <div className="flex justify-between mt-2 text-xs">
-            <span className="text-zinc-500">Paid: R{(contractor.totalPaid / 1000).toFixed(1)}k</span>
-            <span className="text-zinc-400">Remaining: R{(contractor.remaining / 1000).toFixed(1)}k</span>
+          <div className="mt-2 flex justify-between text-xs">
+            <span className="text-zinc-500">
+              Paid: R{(contractor.totalPaid / 1000).toFixed(1)}k
+            </span>
+            <span className="text-zinc-400">
+              Remaining: R{(contractor.remaining / 1000).toFixed(1)}k
+            </span>
           </div>
         </div>
       ))}
@@ -74,7 +83,11 @@ function QuickStats() {
   useEffect(() => {
     Promise.all([
       apiFetchSafe<{ budget?: { percentage?: number } }>("/api/stats", {}, { label: "Stats" }),
-      apiFetchSafe<{ summary?: { completed?: number; total?: number } }>("/api/tasks", {}, { label: "Tasks" }),
+      apiFetchSafe<{ summary?: { completed?: number; total?: number } }>(
+        "/api/tasks",
+        {},
+        { label: "Tasks" }
+      ),
       apiFetchSafe<Array<{ expiryDays?: number }>>("/api/documents", [], { label: "Documents" }),
     ]).then(([statsData, tasksData, docsData]) => {
       const tasksSummary = tasksData?.summary
@@ -83,7 +96,7 @@ function QuickStats() {
         tasksCompleted: tasksSummary?.completed ?? 0,
         tasksTotal: tasksSummary?.total ?? 0,
         docsExpiringSoon: docs.filter((d) => (d?.expiryDays ?? 999) < 60).length,
-        budgetUsed: statsData?.budget?.percentage ?? 0
+        budgetUsed: statsData?.budget?.percentage ?? 0,
       })
     })
   }, [])
@@ -91,29 +104,29 @@ function QuickStats() {
   if (!stats) return null
 
   const metrics = [
-    { 
-      icon: CheckCircle2, 
-      label: "Tasks Completed", 
+    {
+      icon: CheckCircle2,
+      label: "Tasks Completed",
       value: `${stats.tasksCompleted}/${stats.tasksTotal}`,
-      color: "text-green-400"
+      color: "text-green-400",
     },
-    { 
-      icon: AlertCircle, 
-      label: "Docs Expiring Soon", 
+    {
+      icon: AlertCircle,
+      label: "Docs Expiring Soon",
       value: stats.docsExpiringSoon,
-      color: "text-orange-400"
+      color: "text-orange-400",
     },
-    { 
-      icon: TrendingUp, 
-      label: "Budget Used", 
+    {
+      icon: TrendingUp,
+      label: "Budget Used",
       value: `${stats.budgetUsed}%`,
-      color: "text-blue-400"
+      color: "text-blue-400",
     },
-    { 
-      icon: Clock, 
-      label: "Hours This Week", 
+    {
+      icon: Clock,
+      label: "Hours This Week",
       value: "86.5",
-      color: "text-emerald-400"
+      color: "text-emerald-400",
     },
   ]
 
@@ -127,9 +140,9 @@ function QuickStats() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.1 }}
-            className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800"
+            className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4"
           >
-            <Icon className={`w-5 h-5 ${metric.color} mb-2`} />
+            <Icon className={`h-5 w-5 ${metric.color} mb-2`} />
             <div className="text-2xl font-bold text-white">{metric.value}</div>
             <div className="text-xs text-zinc-500">{metric.label}</div>
           </motion.div>
@@ -143,20 +156,25 @@ function DocumentExpiry() {
   const [docs, setDocs] = useState<any[]>([])
 
   useEffect(() => {
-    apiFetchSafe<unknown[]>("/api/documents", [], { label: "Documents" })
-      .then((data) => setDocs(Array.isArray(data) ? data.slice(0, 5) : []))
+    apiFetchSafe<unknown[]>("/api/documents", [], { label: "Documents" }).then((data) =>
+      setDocs(Array.isArray(data) ? data.slice(0, 5) : [])
+    )
   }, [])
 
   return (
     <div className="space-y-2">
       {docs.map((doc, i) => (
-        <div key={i} className="flex items-center justify-between p-2 bg-zinc-900/30 rounded">
+        <div key={i} className="flex items-center justify-between rounded bg-zinc-900/30 p-2">
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${
-              doc.urgency === 'green' ? 'bg-green-500' :
-              doc.urgency === 'yellow' ? 'bg-yellow-500' :
-              'bg-orange-500'
-            }`} />
+            <div
+              className={`h-2 w-2 rounded-full ${
+                doc.urgency === "green"
+                  ? "bg-green-500"
+                  : doc.urgency === "yellow"
+                    ? "bg-yellow-500"
+                    : "bg-orange-500"
+              }`}
+            />
             <span className="text-sm text-zinc-300">{doc.name}</span>
           </div>
           <span className="text-xs text-zinc-500">{doc.expiryDays}d</span>
@@ -171,21 +189,21 @@ export function DashboardPreview() {
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   return (
-    <section id="dashboard" className="py-24 px-4 bg-zinc-950/50">
-      <div className="max-w-6xl mx-auto">
+    <section id="dashboard" className="bg-zinc-950/50 px-4 py-24">
+      <div className="mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="mb-12 text-center"
         >
           <h2
-            className="text-3xl sm:text-4xl font-bold text-white mb-4"
+            className="mb-4 text-3xl font-bold text-white sm:text-4xl"
             style={{ fontFamily: "var(--font-inter)" }}
           >
             Hans&apos; Admin Dashboard
           </h2>
-          <p className="text-zinc-400 max-w-2xl mx-auto">
+          <p className="mx-auto max-w-2xl text-zinc-400">
             Real-time visibility into all operations, compliance status, and financial tracking.
             Everything you need at a glance.
           </p>
@@ -196,40 +214,42 @@ export function DashboardPreview() {
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative p-8 rounded-3xl bg-linear-to-br from-zinc-900 to-zinc-950 border border-zinc-800 shadow-2xl"
+          className="relative rounded-3xl border border-zinc-800 bg-linear-to-br from-zinc-900 to-zinc-950 p-8 shadow-2xl"
         >
           {/* Dashboard Header */}
-          <div className="flex justify-between items-center mb-8 pb-4 border-b border-zinc-800">
+          <div className="mb-8 flex items-center justify-between border-b border-zinc-800 pb-4">
             <div>
               <h3 className="text-2xl font-bold text-white">Overview Dashboard</h3>
               <p className="text-sm text-zinc-500">Real-time operational metrics</p>
             </div>
             <div className="flex gap-2">
-              <span className="px-3 py-1.5 text-xs bg-green-900/30 text-green-400 rounded-full border border-green-800/50">
+              <span className="rounded-full border border-green-800/50 bg-green-900/30 px-3 py-1.5 text-xs text-green-400">
                 All Systems Operational
               </span>
             </div>
           </div>
 
           {/* Dashboard Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Quick Stats */}
             <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Quick Stats</h4>
+              <h4 className="text-sm font-semibold tracking-wider text-zinc-400 uppercase">
+                Quick Stats
+              </h4>
               <QuickStats />
             </div>
 
             {/* Contractor Milestones */}
             <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">
+              <h4 className="text-sm font-semibold tracking-wider text-zinc-400 uppercase">
                 Contractor Milestones
               </h4>
               <ContractorMilestones />
             </div>
 
             {/* Document Expiry */}
-            <div className="lg:col-span-2 space-y-4">
-              <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">
+            <div className="space-y-4 lg:col-span-2">
+              <h4 className="text-sm font-semibold tracking-wider text-zinc-400 uppercase">
                 Document Expiry Tracking
               </h4>
               <DocumentExpiry />
@@ -237,16 +257,25 @@ export function DashboardPreview() {
           </div>
 
           {/* Bottom Actions */}
-          <div className="mt-8 pt-6 border-t border-zinc-800 flex flex-wrap gap-3">
-            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors">
+          <div className="mt-8 flex flex-wrap gap-3 border-t border-zinc-800 pt-6">
+            <Link
+              href="/login"
+              className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
+            >
               View Full Dashboard
-            </button>
-            <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm rounded-lg transition-colors">
+            </Link>
+            <Link
+              href="/login"
+              className="cursor-pointer rounded-lg bg-zinc-800 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-700"
+            >
               Export Report
-            </button>
-            <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm rounded-lg transition-colors">
+            </Link>
+            <Link
+              href="/login"
+              className="cursor-pointer rounded-lg bg-zinc-800 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-700"
+            >
               Manage Alerts
-            </button>
+            </Link>
           </div>
         </motion.div>
       </div>

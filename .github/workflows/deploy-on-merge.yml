@@ -1,0 +1,130 @@
+name: "Deploy on Merge"
+
+# Auto-deploy after PR merge to main. Infra deploys only when terraform changes
+# (terraform-apply.yml). Functions deploy only when function code changes
+# (deploy-functions.yml). This workflow deploys the web app when app code changes.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "app/**"
+      - "components/**"
+      - "lib/**"
+      - "hooks/**"
+      - "public/**"
+      - "styles/**"
+      - "next.config.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "tailwind.config*"
+      - "postcss.config*"
+      - "instrumentation.ts"
+      - ".github/workflows/deploy-on-merge.yml"
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AZURE_RESOURCE_GROUP: "nl-prod-hov-rg-san"
+  AZURE_ENV: "prod"
+
+jobs:
+  build:
+    name: "Build Application"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      MONGODB_URI: mongodb://localhost:27017/house_of_veritas_test
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run Unit Tests
+        run: npm test
+
+      - name: Build Application
+        run: npm run build
+
+      - name: Prepare Standalone for Deployment
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+          jq '.scripts = ((.scripts // {}) + {"start": "node server.js"})' .next/standalone/package.json > .next/standalone/package.json.tmp && mv .next/standalone/package.json.tmp .next/standalone/package.json
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-build
+          path: .next/standalone
+          include-hidden-files: true
+          retention-days: 7
+
+  deploy-webapp:
+    name: "Deploy Web App"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [build]
+    environment: production
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nextjs-build
+
+      - name: Verify artifact contains .next
+        run: |
+          test -d .next && test -f .next/BUILD_ID || (echo "ERROR: .next or BUILD_ID missing from artifact"; exit 1)
+          echo "Artifact verified: .next/BUILD_ID present"
+
+      - name: Create deployment package
+        run: zip -r deploy.zip . -x "*.git*"
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.WEBAPP_NAME || 'nl-prod-hov-app-san' }}
+          package: deploy.zip
+
+      - name: Verify Web App Health
+        run: |
+          APP_URL="https://${{ vars.WEBAPP_NAME || 'nl-prod-hov-app-san' }}.azurewebsites.net"
+          for i in {1..10}; do
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL" || echo "000")
+            if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "302" ]; then
+              echo "Web App is healthy (HTTP $HTTP_STATUS)"
+              break
+            fi
+            echo "Waiting for Web App... (attempt $i/10, got HTTP $HTTP_STATUS)"
+            sleep 15
+          done

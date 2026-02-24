@@ -10,7 +10,9 @@ export function ConnectionStatus() {
   useEffect(() => {
     async function check() {
       try {
-        const data = await apiFetchSafe<{ dataSource?: string } | null>("/api/stats", null, { label: "Stats" })
+        const data = await apiFetchSafe<{ dataSource?: string } | null>("/api/stats", null, {
+          label: "Stats",
+        })
         setStatus(!data ? "error" : data.dataSource === "live" ? "connected" : "mock")
       } catch {
         setStatus("error")
@@ -27,10 +29,10 @@ export function ConnectionStatus() {
 
   return (
     <div
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
+      className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium ${
         status === "mock"
-          ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-          : "bg-red-500/10 text-red-400 border border-red-500/20"
+          ? "border border-amber-500/20 bg-amber-500/10 text-amber-400"
+          : "border border-red-500/20 bg-red-500/10 text-red-400"
       }`}
     >
       {status === "error" ? (

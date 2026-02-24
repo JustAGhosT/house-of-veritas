@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (mobile & desktop web) |
-| Backend | Baserow (chore/task data), Azure Functions (rotation logic, swap, notification/analytics) |
-| Storage | Event/action logs, photo evidence, streak tracking |
+| Layer    | Technology                                                                                |
+| -------- | ----------------------------------------------------------------------------------------- |
+| Frontend | Next.js/React (mobile & desktop web)                                                      |
+| Backend  | Baserow (chore/task data), Azure Functions (rotation logic, swap, notification/analytics) |
+| Storage  | Event/action logs, photo evidence, streak tracking                                        |
 
 ---
 
@@ -116,25 +116,25 @@ Demand for equitable division of labor, transparency, and individual recognition
 
 ## Measurable Objectives
 
-| Metric | Baseline | Target | Timeline |
-|--------|----------|--------|----------|
-| Tracked task completion | 55% | >95% | 3 months |
-| On-time completion | 68% | >85% | 3 months |
-| Admin allocation/rotation time | High | -70% | 2 months |
-| Residents w/ streaks/points | 18% | >70% | 2 months |
-| Resident satisfaction | — | Baseline +10% | Quarterly |
+| Metric                         | Baseline | Target        | Timeline  |
+| ------------------------------ | -------- | ------------- | --------- |
+| Tracked task completion        | 55%      | >95%          | 3 months  |
+| On-time completion             | 68%      | >85%          | 3 months  |
+| Admin allocation/rotation time | High     | -70%          | 2 months  |
+| Residents w/ streaks/points    | 18%      | >70%          | 2 months  |
+| Resident satisfaction          | —        | Baseline +10% | Quarterly |
 
 ---
 
 ## Stakeholders
 
-| Stakeholder | Role |
-|-------------|------|
-| Residents | Assignment recipients, volunteers, swappers |
-| Admin | Schedule oversight, approval/escalation |
-| Maintenance/Support Staff | Update & report on incidents/tasks |
-| Owners/Analysts | Review, reporting, audit |
-| Gamification Lead | Points/recognition system management |
+| Stakeholder               | Role                                        |
+| ------------------------- | ------------------------------------------- |
+| Residents                 | Assignment recipients, volunteers, swappers |
+| Admin                     | Schedule oversight, approval/escalation     |
+| Maintenance/Support Staff | Update & report on incidents/tasks          |
+| Owners/Analysts           | Review, reporting, audit                    |
+| Gamification Lead         | Points/recognition system management        |
 
 ---
 
@@ -224,24 +224,24 @@ Demand for equitable division of labor, transparency, and individual recognition
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Responsive | Mobile-first design |
-| Performance | Instant dashboard/status updates |
-| Feedback latency | <2 seconds |
-| Audit retention | Event log/audit retention for 3 years |
-| Security | Data encryption at rest and transit |
-| Accessibility | Full ARIA/WCAG 2.1 AA compliance |
+| Requirement      | Target                                |
+| ---------------- | ------------------------------------- |
+| Responsive       | Mobile-first design                   |
+| Performance      | Instant dashboard/status updates      |
+| Feedback latency | <2 seconds                            |
+| Audit retention  | Event log/audit retention for 3 years |
+| Security         | Data encryption at rest and transit   |
+| Accessibility    | Full ARIA/WCAG 2.1 AA compliance      |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Component/Responsibility |
-|-------|--------------------------|
+| Layer    | Component/Responsibility                                      |
+| -------- | ------------------------------------------------------------- |
 | Frontend | Chore/project board, swap/volunteer/feedback, streaks, badges |
-| Backend | Scheduler logic, notification engine, audit log, gamification |
-| Storage | Proof uploads, event/actions, streaks log |
+| Backend  | Scheduler logic, notification engine, audit log, gamification |
+| Storage  | Proof uploads, event/actions, streaks log                     |
 
 ---
 
@@ -249,14 +249,14 @@ Demand for equitable division of labor, transparency, and individual recognition
 
 ### Required APIs
 
-| Endpoint | Purpose |
-|----------|---------|
-| /api/chore | CRUD chore assignment |
-| /api/project | CRUD special project |
-| /api/swap | Propose/accept swap |
-| /api/feedback | Submit/view feedback |
-| /api/notify | Trigger notifications |
-| /api/leaderboard | Gamification data |
+| Endpoint            | Purpose               |
+| ------------------- | --------------------- |
+| /api/chore          | CRUD chore assignment |
+| /api/project        | CRUD special project  |
+| /api/swap           | Propose/accept swap   |
+| /api/feedback       | Submit/view feedback  |
+| /api/notify         | Trigger notifications |
+| /api/leaderboard    | Gamification data     |
 | /api/chore/escalate | Escalation management |
 
 ### External Dependencies
@@ -273,14 +273,14 @@ Demand for equitable division of labor, transparency, and individual recognition
 
 ## Data Models
 
-| Entity | Key Fields |
-|--------|------------|
-| Chore | ID, type, assigned, due, status, completed, proof, points, streak, feedback link |
-| Project | ID, description, volunteers, deadline, approval, reward, feedback |
-| Swap | ChoreID, from/to, status, proof, admin approval |
-| Feedback | ChoreID, rating, notes, dispute |
-| Streaks | UserID, days/tasks/points |
-| Audit/Event | Action, by, when, details |
+| Entity      | Key Fields                                                                       |
+| ----------- | -------------------------------------------------------------------------------- |
+| Chore       | ID, type, assigned, due, status, completed, proof, points, streak, feedback link |
+| Project     | ID, description, volunteers, deadline, approval, reward, feedback                |
+| Swap        | ChoreID, from/to, status, proof, admin approval                                  |
+| Feedback    | ChoreID, rating, notes, dispute                                                  |
+| Streaks     | UserID, days/tasks/points                                                        |
+| Audit/Event | Action, by, when, details                                                        |
 
 ---
 
@@ -347,11 +347,11 @@ Demand for equitable division of labor, transparency, and individual recognition
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target | Dependencies |
-|-------|-------|--------|--------------|
-| Phase 1 | Recurring chores/auto-rotation | Month 1 | Notification infra, DB |
-| Phase 2 | One-off/hero project | Month 2 | Task scheduler complete |
-| Phase 3 | Gamification/analytics | Month 3 | Full data/event flows |
+| Phase   | Scope                          | Target  | Dependencies            |
+| ------- | ------------------------------ | ------- | ----------------------- |
+| Phase 1 | Recurring chores/auto-rotation | Month 1 | Notification infra, DB  |
+| Phase 2 | One-off/hero project           | Month 2 | Task scheduler complete |
+| Phase 3 | Gamification/analytics         | Month 3 | Full data/event flows   |
 
 ---
 
@@ -381,24 +381,24 @@ Demand for equitable division of labor, transparency, and individual recognition
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Task backlog during peak times | High | Med | Auto-reminders, admin escalation, incentives |
-| Resident dropout | Med | Med-High | Gamification points, flexible swaps, group credit |
-| Swap abuse/system gaming | Med | Med | Audit logs, admin veto, swap limits |
-| Proof/photo upload loss | Med | Low | Redundant storage, nudge for resubmission |
-| Calendar/time zone misalignment | Med | Med | Localized reminders, explicit due timestamp |
-| Admin intervention lag | Low | Low | Dashboard alerts, escalation prioritization |
+| Risk                            | Impact | Probability | Mitigation                                        |
+| ------------------------------- | ------ | ----------- | ------------------------------------------------- |
+| Task backlog during peak times  | High   | Med         | Auto-reminders, admin escalation, incentives      |
+| Resident dropout                | Med    | Med-High    | Gamification points, flexible swaps, group credit |
+| Swap abuse/system gaming        | Med    | Med         | Audit logs, admin veto, swap limits               |
+| Proof/photo upload loss         | Med    | Low         | Redundant storage, nudge for resubmission         |
+| Calendar/time zone misalignment | Med    | Med         | Localized reminders, explicit due timestamp       |
+| Admin intervention lag          | Low    | Low         | Dashboard alerts, escalation prioritization       |
 
 ---
 
 ## Open Questions
 
-| Question | Impact |
-|----------|--------|
-| Should one-off projects be volunteer-only or allow admin-assigned participation? | |
-| Should chore schedules and swap histories be public to all, or private? | |
-| Will anonymous but justified swap/trade be allowed, and under what constraints? | |
+| Question                                                                         | Impact |
+| -------------------------------------------------------------------------------- | ------ |
+| Should one-off projects be volunteer-only or allow admin-assigned participation? |        |
+| Should chore schedules and swap histories be public to all, or private?          |        |
+| Will anonymous but justified swap/trade be allowed, and under what constraints?  |        |
 
 ---
 

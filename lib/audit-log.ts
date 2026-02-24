@@ -1,11 +1,6 @@
 // Audit Log Types and Store
 import { getCollection } from "@/lib/db/mongodb"
-import {
-  isPostgresConfigured,
-  query,
-  withClient,
-  ensureSchema,
-} from "@/lib/db/postgres"
+import { isPostgresConfigured, query, withClient, ensureSchema } from "@/lib/db/postgres"
 import { logger } from "@/lib/logger"
 
 export type AuditAction =
@@ -88,7 +83,9 @@ async function getLogsFromMongo(options?: {
   endDate?: Date
   limit?: number
 }): Promise<AuditLogEntry[]> {
-  const coll = await getCollection<AuditLogEntry & { _id?: import("mongodb").ObjectId }>("audit_logs")
+  const coll = await getCollection<AuditLogEntry & { _id?: import("mongodb").ObjectId }>(
+    "audit_logs"
+  )
   const filter: Record<string, unknown> = {}
   if (options?.userId) filter.userId = options.userId
   if (options?.action) filter.action = options.action
@@ -106,7 +103,10 @@ async function getLogsFromMongo(options?: {
     .toArray()
   return docs.map((d) => {
     const { _id, ...rest } = d
-    return { ...rest, timestamp: rest.timestamp instanceof Date ? rest.timestamp : new Date(rest.timestamp) } as AuditLogEntry
+    return {
+      ...rest,
+      timestamp: rest.timestamp instanceof Date ? rest.timestamp : new Date(rest.timestamp),
+    } as AuditLogEntry
   })
 }
 
@@ -208,9 +208,7 @@ class AuditLogStore {
 
     if (process.env.MONGODB_URI || process.env.MONGO_URL) {
       getCollection("audit_logs")
-        .then((coll) =>
-          coll.insertOne(fullEntry as unknown as Record<string, unknown>)
-        )
+        .then((coll) => coll.insertOne(fullEntry as unknown as Record<string, unknown>))
         .catch((err) =>
           logger.warn("Audit log MongoDB persist failed", {
             error: err instanceof Error ? err.message : String(err),
@@ -238,14 +236,10 @@ class AuditLogStore {
       filtered = filtered.filter((log) => log.action === options.action)
     }
     if (options?.resourceType) {
-      filtered = filtered.filter(
-        (log) => log.resourceType === options.resourceType
-      )
+      filtered = filtered.filter((log) => log.resourceType === options.resourceType)
     }
     if (options?.startDate) {
-      filtered = filtered.filter(
-        (log) => log.timestamp >= options.startDate!
-      )
+      filtered = filtered.filter((log) => log.timestamp >= options.startDate!)
     }
     if (options?.endDate) {
       filtered = filtered.filter((log) => log.timestamp <= options.endDate!)
@@ -280,8 +274,7 @@ class AuditLogStore {
 
   getLogsByResource(resourceType: string, resourceId: string): AuditLogEntry[] {
     return this.logs.filter(
-      (log) =>
-        log.resourceType === resourceType && log.resourceId === resourceId
+      (log) => log.resourceType === resourceType && log.resourceId === resourceId
     )
   }
 
@@ -289,15 +282,11 @@ class AuditLogStore {
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - days)
 
-    return this.logs.filter(
-      (log) => log.userId === userId && log.timestamp >= startDate
-    )
+    return this.logs.filter((log) => log.userId === userId && log.timestamp >= startDate)
   }
 
   getActivitySummary(userId?: string): Record<AuditAction, number> {
-    const logs = userId
-      ? this.logs.filter((log) => log.userId === userId)
-      : this.logs
+    const logs = userId ? this.logs.filter((log) => log.userId === userId) : this.logs
 
     const summary: Partial<Record<AuditAction, number>> = {}
 
@@ -308,9 +297,7 @@ class AuditLogStore {
     return summary as Record<AuditAction, number>
   }
 
-  async getActivitySummaryAsync(
-    userId?: string
-  ): Promise<Record<AuditAction, number>> {
+  async getActivitySummaryAsync(userId?: string): Promise<Record<AuditAction, number>> {
     if (isPostgresConfigured()) {
       const logs = await getLogsFromPG({ userId, limit: 10000 })
       const summary: Partial<Record<AuditAction, number>> = {}
@@ -365,12 +352,9 @@ class AuditLogStore {
       JSON.stringify(log.details || {}),
     ])
 
-    return [
-      headers.join(","),
-      ...rows.map((row) =>
-        row.map((cell) => `"${cell}"`).join(",")
-      ),
-    ].join("\n")
+    return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join(
+      "\n"
+    )
   }
 
   async exportToCSVAsync(options?: {

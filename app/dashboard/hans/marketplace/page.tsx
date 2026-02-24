@@ -107,13 +107,13 @@ export default function MarketplacePage() {
   const [summary, setSummary] = useState<any>(null)
   const [assetsForSale, setAssetsForSale] = useState<Asset[]>([])
   const [loading, setLoading] = useState(true)
-  
+
   // Dialog states
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false)
   const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState(false)
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null)
   const [generatedListing, setGeneratedListing] = useState<any>(null)
-  
+
   // Form states
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["gumtree"])
   const [listingTitle, setListingTitle] = useState("")
@@ -123,9 +123,15 @@ export default function MarketplacePage() {
   const fetchListings = useCallback(async () => {
     try {
       const [listingsData, platformsData, assetsData] = await Promise.all([
-        apiFetch<{ listings?: MarketplaceListing[]; summary?: unknown }>("/api/marketplace", { label: "Marketplace" }),
-        apiFetch<{ platforms?: Record<string, Platform> }>("/api/marketplace?action=platforms", { label: "Platforms" }),
-        apiFetch<{ assets?: Asset[] }>("/api/assets/enhanced?saleStatus=for_sale", { label: "AssetsForSale" }),
+        apiFetch<{ listings?: MarketplaceListing[]; summary?: unknown }>("/api/marketplace", {
+          label: "Marketplace",
+        }),
+        apiFetch<{ platforms?: Record<string, Platform> }>("/api/marketplace?action=platforms", {
+          label: "Platforms",
+        }),
+        apiFetch<{ assets?: Asset[] }>("/api/assets/enhanced?saleStatus=for_sale", {
+          label: "AssetsForSale",
+        }),
       ])
 
       setListings(listingsData?.listings ?? [])
@@ -133,7 +139,9 @@ export default function MarketplacePage() {
       setPlatforms(platformsData?.platforms ?? {})
       setAssetsForSale(assetsData?.assets ?? [])
     } catch (error) {
-      logger.error("Failed to fetch data", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to fetch data", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setLoading(false)
     }
@@ -147,7 +155,10 @@ export default function MarketplacePage() {
     if (!selectedAsset) return
 
     try {
-      const data = await apiFetch<{ success?: boolean; generated?: { title?: string; description?: string; suggestedPrice?: number } }>("/api/marketplace", {
+      const data = await apiFetch<{
+        success?: boolean
+        generated?: { title?: string; description?: string; suggestedPrice?: number }
+      }>("/api/marketplace", {
         method: "POST",
         body: {
           action: "generate-listing",
@@ -171,7 +182,9 @@ export default function MarketplacePage() {
         setIsPublishDialogOpen(true)
       }
     } catch (error) {
-      logger.error("Failed to generate listing", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to generate listing", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
@@ -200,7 +213,9 @@ export default function MarketplacePage() {
         resetForm()
       }
     } catch (error) {
-      logger.error("Failed to publish", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to publish", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
@@ -220,77 +235,79 @@ export default function MarketplacePage() {
 
   return (
     <DashboardLayout persona="hans">
-      <div className="space-y-6 relative z-10">
+      <div className="relative z-10 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+            <h1 className="flex items-center gap-3 text-2xl font-bold text-white sm:text-3xl">
               <Store className="h-8 w-8 text-amber-400" />
               Marketplace
             </h1>
-            <p className="text-white/60 mt-1">Publish and manage asset listings across platforms</p>
+            <p className="mt-1 text-white/60">Publish and manage asset listings across platforms</p>
           </div>
           <Button
             className="bg-amber-600 hover:bg-amber-700"
             onClick={() => setIsGenerateDialogOpen(true)}
             data-testid="new-listing-btn"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Create Listing
           </Button>
         </div>
 
         {/* Summary Cards */}
         {summary && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-white/5 border-white/10">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <Card className="border-white/10 bg-white/5">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-amber-500/20">
+                  <div className="rounded-xl bg-amber-500/20 p-3">
                     <Store className="h-6 w-6 text-amber-400" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-sm">Total Listings</p>
+                    <p className="text-sm text-white/60">Total Listings</p>
                     <p className="text-2xl font-bold text-white">{summary.total}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-white/5 border-white/10">
+            <Card className="border-white/10 bg-white/5">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-green-500/20">
+                  <div className="rounded-xl bg-green-500/20 p-3">
                     <CheckCircle className="h-6 w-6 text-green-400" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-sm">Active</p>
+                    <p className="text-sm text-white/60">Active</p>
                     <p className="text-2xl font-bold text-white">{summary.active}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-white/5 border-white/10">
+            <Card className="border-white/10 bg-white/5">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-blue-500/20">
+                  <div className="rounded-xl bg-blue-500/20 p-3">
                     <Eye className="h-6 w-6 text-blue-400" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-sm">Total Views</p>
+                    <p className="text-sm text-white/60">Total Views</p>
                     <p className="text-2xl font-bold text-white">{summary.totalViews}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-white/5 border-white/10">
+            <Card className="border-white/10 bg-white/5">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-purple-500/20">
+                  <div className="rounded-xl bg-purple-500/20 p-3">
                     <DollarSign className="h-6 w-6 text-purple-400" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-sm">Potential Revenue</p>
-                    <p className="text-2xl font-bold text-white">{formatCurrency(summary.potentialRevenue)}</p>
+                    <p className="text-sm text-white/60">Potential Revenue</p>
+                    <p className="text-2xl font-bold text-white">
+                      {formatCurrency(summary.potentialRevenue)}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -301,61 +318,79 @@ export default function MarketplacePage() {
         {/* Listings Grid */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500/30 border-t-amber-500" />
           </div>
         ) : listings.length === 0 ? (
-          <Card className="bg-white/5 border-white/10">
+          <Card className="border-white/10 bg-white/5">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <Store className="h-12 w-12 text-white/20 mb-4" />
-              <p className="text-white/60 text-lg">No listings yet</p>
-              <p className="text-white/40 text-sm mb-4">Create your first listing to start selling</p>
-              <Button onClick={() => setIsGenerateDialogOpen(true)} className="bg-amber-600 hover:bg-amber-700">
-                <Plus className="h-4 w-4 mr-2" />
+              <Store className="mb-4 h-12 w-12 text-white/20" />
+              <p className="text-lg text-white/60">No listings yet</p>
+              <p className="mb-4 text-sm text-white/40">
+                Create your first listing to start selling
+              </p>
+              <Button
+                onClick={() => setIsGenerateDialogOpen(true)}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                <Plus className="mr-2 h-4 w-4" />
                 Create Listing
               </Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {listings.map((listing) => (
-              <Card key={listing.id} className="bg-white/5 border-white/10 hover:bg-white/7 transition-colors" data-testid={`listing-${listing.id}`}>
+              <Card
+                key={listing.id}
+                className="border-white/10 bg-white/5 transition-colors hover:bg-white/7"
+                data-testid={`listing-${listing.id}`}
+              >
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex items-center gap-2">
                         <span className="text-xl">{PLATFORM_ICONS[listing.platform] || "📦"}</span>
-                        <Badge className={STATUS_COLORS[listing.status]} data-testid={`listing-status-${listing.id}`}>
+                        <Badge
+                          className={STATUS_COLORS[listing.status]}
+                          data-testid={`listing-status-${listing.id}`}
+                        >
                           {listing.status}
                         </Badge>
                       </div>
-                      <CardTitle className="text-white text-lg line-clamp-2">{listing.title}</CardTitle>
+                      <CardTitle className="line-clamp-2 text-lg text-white">
+                        {listing.title}
+                      </CardTitle>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-white/50 text-sm line-clamp-2">{listing.description}</p>
-                  
+                  <p className="line-clamp-2 text-sm text-white/50">{listing.description}</p>
+
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white/40 text-xs">Price</p>
-                      <p className="text-white text-xl font-bold">{formatCurrency(listing.price)}</p>
+                      <p className="text-xs text-white/40">Price</p>
+                      <p className="text-xl font-bold text-white">
+                        {formatCurrency(listing.price)}
+                      </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-white/40 text-xs">Platform</p>
-                      <p className="text-white capitalize">{platforms[listing.platform]?.name || listing.platform}</p>
+                      <p className="text-xs text-white/40">Platform</p>
+                      <p className="text-white capitalize">
+                        {platforms[listing.platform]?.name || listing.platform}
+                      </p>
                     </div>
                   </div>
 
                   {(listing.views || listing.inquiries) && (
-                    <div className="flex items-center gap-4 pt-2 border-t border-white/10">
+                    <div className="flex items-center gap-4 border-t border-white/10 pt-2">
                       {listing.views !== undefined && (
-                        <div className="flex items-center gap-1 text-white/60 text-sm">
+                        <div className="flex items-center gap-1 text-sm text-white/60">
                           <Eye className="h-4 w-4" />
                           {listing.views} views
                         </div>
                       )}
                       {listing.inquiries !== undefined && (
-                        <div className="flex items-center gap-1 text-white/60 text-sm">
+                        <div className="flex items-center gap-1 text-sm text-white/60">
                           <MessageSquare className="h-4 w-4" />
                           {listing.inquiries} inquiries
                         </div>
@@ -366,7 +401,7 @@ export default function MarketplacePage() {
                   {listing.listingUrl && (
                     <Button variant="outline" className="w-full border-white/10" asChild>
                       <a href={listing.listingUrl} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4 mr-2" />
+                        <ExternalLink className="mr-2 h-4 w-4" />
                         View Listing
                       </a>
                     </Button>
@@ -379,7 +414,7 @@ export default function MarketplacePage() {
 
         {/* Assets For Sale Section */}
         {assetsForSale.length > 0 && (
-          <Card className="bg-white/5 border-white/10">
+          <Card className="border-white/10 bg-white/5">
             <CardHeader>
               <CardTitle className="text-white">Assets Ready to List</CardTitle>
               <CardDescription className="text-white/60">
@@ -387,22 +422,34 @@ export default function MarketplacePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {assetsForSale.filter(a => !listings.some(l => l.assetId === a.id)).map((asset) => (
-                  <div key={asset.id} className="p-4 bg-white/5 rounded-lg border border-white/10">
-                    <p className="text-white font-medium truncate">{asset.name}</p>
-                    <p className="text-white/40 text-sm capitalize">{asset.category.replace(/_/g, " ")}</p>
-                    <p className="text-green-400 font-semibold mt-2">{formatCurrency(asset.salePrice)}</p>
-                    <Button
-                      size="sm"
-                      className="w-full mt-3 bg-amber-600 hover:bg-amber-700"
-                      onClick={() => { setSelectedAsset(asset); setIsGenerateDialogOpen(true) }}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {assetsForSale
+                  .filter((a) => !listings.some((l) => l.assetId === a.id))
+                  .map((asset) => (
+                    <div
+                      key={asset.id}
+                      className="rounded-lg border border-white/10 bg-white/5 p-4"
                     >
-                      <Sparkles className="h-3 w-3 mr-1" />
-                      Generate Listing
-                    </Button>
-                  </div>
-                ))}
+                      <p className="truncate font-medium text-white">{asset.name}</p>
+                      <p className="text-sm text-white/40 capitalize">
+                        {asset.category.replace(/_/g, " ")}
+                      </p>
+                      <p className="mt-2 font-semibold text-green-400">
+                        {formatCurrency(asset.salePrice)}
+                      </p>
+                      <Button
+                        size="sm"
+                        className="mt-3 w-full bg-amber-600 hover:bg-amber-700"
+                        onClick={() => {
+                          setSelectedAsset(asset)
+                          setIsGenerateDialogOpen(true)
+                        }}
+                      >
+                        <Sparkles className="mr-1 h-3 w-3" />
+                        Generate Listing
+                      </Button>
+                    </div>
+                  ))}
               </div>
             </CardContent>
           </Card>
@@ -410,7 +457,7 @@ export default function MarketplacePage() {
 
         {/* Generate Listing Dialog */}
         <Dialog open={isGenerateDialogOpen} onOpenChange={setIsGenerateDialogOpen}>
-          <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-lg">
+          <DialogContent className="max-w-lg border-white/10 bg-[#0d0d12] text-white">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-amber-400" />
@@ -425,9 +472,11 @@ export default function MarketplacePage() {
                 <Label>Select Asset</Label>
                 <Select
                   value={selectedAsset?.id || ""}
-                  onValueChange={(id) => setSelectedAsset(assetsForSale.find(a => a.id === id) || null)}
+                  onValueChange={(id) =>
+                    setSelectedAsset(assetsForSale.find((a) => a.id === id) || null)
+                  }
                 >
-                  <SelectTrigger className="bg-white/5 border-white/10">
+                  <SelectTrigger className="border-white/10 bg-white/5">
                     <SelectValue placeholder="Choose an asset" />
                   </SelectTrigger>
                   <SelectContent>
@@ -440,10 +489,10 @@ export default function MarketplacePage() {
                 </Select>
               </div>
               {selectedAsset && (
-                <div className="p-4 bg-white/5 rounded-lg">
-                  <p className="text-white font-medium">{selectedAsset.name}</p>
-                  <p className="text-white/60 text-sm mt-1">{selectedAsset.description}</p>
-                  <div className="flex gap-4 mt-2 text-sm">
+                <div className="rounded-lg bg-white/5 p-4">
+                  <p className="font-medium text-white">{selectedAsset.name}</p>
+                  <p className="mt-1 text-sm text-white/60">{selectedAsset.description}</p>
+                  <div className="mt-2 flex gap-4 text-sm">
                     <span className="text-white/40">Brand: {selectedAsset.brand || "—"}</span>
                     <span className="text-white/40">Condition: {selectedAsset.condition}</span>
                   </div>
@@ -451,9 +500,15 @@ export default function MarketplacePage() {
               )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsGenerateDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleGenerateListing} disabled={!selectedAsset} className="bg-amber-600 hover:bg-amber-700">
-                <Sparkles className="h-4 w-4 mr-2" />
+              <Button variant="outline" onClick={() => setIsGenerateDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleGenerateListing}
+                disabled={!selectedAsset}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
                 Generate
               </Button>
             </DialogFooter>
@@ -462,7 +517,7 @@ export default function MarketplacePage() {
 
         {/* Publish Dialog */}
         <Dialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
-          <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto border-white/10 bg-[#0d0d12] text-white">
             <DialogHeader>
               <DialogTitle>Publish to Marketplaces</DialogTitle>
               <DialogDescription className="text-white/60">
@@ -473,26 +528,26 @@ export default function MarketplacePage() {
               {/* Platform Selection */}
               <div className="space-y-2">
                 <Label>Select Platforms</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {Object.entries(platforms).map(([key, platform]) => (
                     <label
                       key={key}
-                      className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                      className={`flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors ${
                         selectedPlatforms.includes(key)
-                          ? "bg-amber-500/20 border-amber-500"
-                          : "bg-white/5 border-white/10 hover:border-white/20"
+                          ? "border-amber-500 bg-amber-500/20"
+                          : "border-white/10 bg-white/5 hover:border-white/20"
                       }`}
                     >
                       <Checkbox
                         checked={selectedPlatforms.includes(key)}
                         onCheckedChange={(checked) => {
-                          setSelectedPlatforms(prev =>
-                            checked ? [...prev, key] : prev.filter(p => p !== key)
+                          setSelectedPlatforms((prev) =>
+                            checked ? [...prev, key] : prev.filter((p) => p !== key)
                           )
                         }}
                       />
                       <span className="text-xl">{PLATFORM_ICONS[key]}</span>
-                      <span className="text-white text-sm">{platform.name}</span>
+                      <span className="text-sm text-white">{platform.name}</span>
                     </label>
                   ))}
                 </div>
@@ -504,7 +559,7 @@ export default function MarketplacePage() {
                 <Input
                   value={listingTitle}
                   onChange={(e) => setListingTitle(e.target.value)}
-                  className="bg-white/5 border-white/10"
+                  className="border-white/10 bg-white/5"
                   data-testid="listing-title-input"
                 />
               </div>
@@ -515,7 +570,7 @@ export default function MarketplacePage() {
                 <Textarea
                   value={listingDescription}
                   onChange={(e) => setListingDescription(e.target.value)}
-                  className="bg-white/5 border-white/10"
+                  className="border-white/10 bg-white/5"
                   rows={6}
                 />
               </div>
@@ -527,12 +582,18 @@ export default function MarketplacePage() {
                   type="number"
                   value={listingPrice}
                   onChange={(e) => setListingPrice(e.target.value)}
-                  className="bg-white/5 border-white/10"
+                  className="border-white/10 bg-white/5"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => { setIsPublishDialogOpen(false); resetForm() }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsPublishDialogOpen(false)
+                  resetForm()
+                }}
+              >
                 Cancel
               </Button>
               <Button
@@ -541,8 +602,9 @@ export default function MarketplacePage() {
                 className="bg-amber-600 hover:bg-amber-700"
                 data-testid="publish-listing-btn"
               >
-                <Store className="h-4 w-4 mr-2" />
-                Publish to {selectedPlatforms.length} Platform{selectedPlatforms.length !== 1 ? "s" : ""}
+                <Store className="mr-2 h-4 w-4" />
+                Publish to {selectedPlatforms.length} Platform
+                {selectedPlatforms.length !== 1 ? "s" : ""}
               </Button>
             </DialogFooter>
           </DialogContent>

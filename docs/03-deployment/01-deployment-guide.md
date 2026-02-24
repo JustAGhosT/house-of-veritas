@@ -6,16 +6,16 @@ This guide covers end-to-end deployment of the House of Veritas platform on Azur
 
 ### Platform Components
 
-| Component | Purpose | Azure Service |
-|-----------|---------|---------------|
-| DocuSeal | Document signing & templates | Container Instance |
-| Baserow | Operational tracking & data | Container Instance |
-| PostgreSQL | Application databases | Flexible Server |
-| Blob Storage | Documents, backups, asset photos | Storage Account |
-| Document Intelligence | OCR scanning for documents | Cognitive Services |
-| Application Gateway | SSL termination, WAF, routing | App Gateway WAF v2 |
-| Key Vault | Secrets management | Key Vault |
-| DNS | Domain routing | Azure DNS |
+| Component             | Purpose                          | Azure Service      |
+| --------------------- | -------------------------------- | ------------------ |
+| DocuSeal              | Document signing & templates     | Container Instance |
+| Baserow               | Operational tracking & data      | Container Instance |
+| PostgreSQL            | Application databases            | Flexible Server    |
+| Blob Storage          | Documents, backups, asset photos | Storage Account    |
+| Document Intelligence | OCR scanning for documents       | Cognitive Services |
+| Application Gateway   | SSL termination, WAF, routing    | App Gateway WAF v2 |
+| Key Vault             | Secrets management               | Key Vault          |
+| DNS                   | Domain routing                   | Azure DNS          |
 
 ### Architecture
 
@@ -148,25 +148,25 @@ All secrets live in **`.env.local`** at the project root. This file is gitignore
 
 The file contains all credentials needed for local Terraform runs:
 
-| Variable | Purpose |
-|----------|---------|
-| `ARM_CLIENT_ID` | Service Principal App ID |
-| `ARM_CLIENT_SECRET` | Service Principal Password |
-| `ARM_TENANT_ID` | Azure AD Tenant ID |
-| `ARM_SUBSCRIPTION_ID` | Azure Subscription ID |
-| `TF_STATE_RESOURCE_GROUP` | Terraform state resource group |
-| `TF_STATE_STORAGE_ACCOUNT` | Terraform state storage account |
-| `TF_STATE_CONTAINER` | Terraform state container |
-| `TF_STATE_KEY` | Terraform state blob key |
-| `TF_STATE_STORAGE_KEY` | Storage account access key |
-| `DB_ADMIN_PASSWORD` | PostgreSQL admin password |
-| `DOMAIN_NAME` | Active domain (`nexamesh.ai`) |
-| `SMTP_HOST` | SMTP server host |
-| `SMTP_PORT` | SMTP server port |
-| `SMTP_USERNAME` | SMTP username |
-| `SMTP_PASSWORD` | SMTP password / API key |
-| `SSL_CERTIFICATE_DATA` | Base64-encoded PFX (empty until configured) |
-| `SSL_CERTIFICATE_PASSWORD` | PFX password (empty until configured) |
+| Variable                   | Purpose                                     |
+| -------------------------- | ------------------------------------------- |
+| `ARM_CLIENT_ID`            | Service Principal App ID                    |
+| `ARM_CLIENT_SECRET`        | Service Principal Password                  |
+| `ARM_TENANT_ID`            | Azure AD Tenant ID                          |
+| `ARM_SUBSCRIPTION_ID`      | Azure Subscription ID                       |
+| `TF_STATE_RESOURCE_GROUP`  | Terraform state resource group              |
+| `TF_STATE_STORAGE_ACCOUNT` | Terraform state storage account             |
+| `TF_STATE_CONTAINER`       | Terraform state container                   |
+| `TF_STATE_KEY`             | Terraform state blob key                    |
+| `TF_STATE_STORAGE_KEY`     | Storage account access key                  |
+| `DB_ADMIN_PASSWORD`        | PostgreSQL admin password                   |
+| `DOMAIN_NAME`              | Active domain (`nexamesh.ai`)               |
+| `SMTP_HOST`                | SMTP server host                            |
+| `SMTP_PORT`                | SMTP server port                            |
+| `SMTP_USERNAME`            | SMTP username                               |
+| `SMTP_PASSWORD`            | SMTP password / API key                     |
+| `SSL_CERTIFICATE_DATA`     | Base64-encoded PFX (empty until configured) |
+| `SSL_CERTIFICATE_PASSWORD` | PFX password (empty until configured)       |
 
 ### terraform.tfvars (Terraform variable overrides)
 
@@ -186,27 +186,27 @@ Mirror `.env.local` values into GitHub. Navigate to: **Settings → Secrets and 
 
 #### Secrets
 
-| Secret | Source in `.env.local` |
-|--------|----------------------|
-| `AZURE_CREDENTIALS` | Full JSON from `azure-credentials.json` |
-| `ARM_CLIENT_ID` | `ARM_CLIENT_ID` |
-| `ARM_CLIENT_SECRET` | `ARM_CLIENT_SECRET` |
-| `ARM_TENANT_ID` | `ARM_TENANT_ID` |
-| `ARM_SUBSCRIPTION_ID` | `ARM_SUBSCRIPTION_ID` |
-| `DB_ADMIN_PASSWORD` | `DB_ADMIN_PASSWORD` |
-| `SMTP_USERNAME` | `SMTP_USERNAME` |
-| `SMTP_PASSWORD` | `SMTP_PASSWORD` |
-| `SSL_CERTIFICATE_DATA` | `SSL_CERTIFICATE_DATA` |
-| `SSL_CERTIFICATE_PASSWORD` | `SSL_CERTIFICATE_PASSWORD` |
-| `TF_STATE_RESOURCE_GROUP` | `TF_STATE_RESOURCE_GROUP` |
-| `TF_STATE_STORAGE_ACCOUNT` | `TF_STATE_STORAGE_ACCOUNT` |
-| `TF_STATE_CONTAINER` | `TF_STATE_CONTAINER` |
-| `TF_STATE_KEY` | `TF_STATE_KEY` |
+| Secret                     | Source in `.env.local`                  |
+| -------------------------- | --------------------------------------- |
+| `AZURE_CREDENTIALS`        | Full JSON from `azure-credentials.json` |
+| `ARM_CLIENT_ID`            | `ARM_CLIENT_ID`                         |
+| `ARM_CLIENT_SECRET`        | `ARM_CLIENT_SECRET`                     |
+| `ARM_TENANT_ID`            | `ARM_TENANT_ID`                         |
+| `ARM_SUBSCRIPTION_ID`      | `ARM_SUBSCRIPTION_ID`                   |
+| `DB_ADMIN_PASSWORD`        | `DB_ADMIN_PASSWORD`                     |
+| `SMTP_USERNAME`            | `SMTP_USERNAME`                         |
+| `SMTP_PASSWORD`            | `SMTP_PASSWORD`                         |
+| `SSL_CERTIFICATE_DATA`     | `SSL_CERTIFICATE_DATA`                  |
+| `SSL_CERTIFICATE_PASSWORD` | `SSL_CERTIFICATE_PASSWORD`              |
+| `TF_STATE_RESOURCE_GROUP`  | `TF_STATE_RESOURCE_GROUP`               |
+| `TF_STATE_STORAGE_ACCOUNT` | `TF_STATE_STORAGE_ACCOUNT`              |
+| `TF_STATE_CONTAINER`       | `TF_STATE_CONTAINER`                    |
+| `TF_STATE_KEY`             | `TF_STATE_KEY`                          |
 
 #### Variables (non-sensitive)
 
-| Variable | Value | Description |
-|----------|-------|-------------|
+| Variable      | Value         | Description                    |
+| ------------- | ------------- | ------------------------------ |
 | `DOMAIN_NAME` | `nexamesh.ai` | Active domain for the platform |
 
 ---
@@ -229,17 +229,17 @@ terraform plan -var-file="terraform.tfvars" -out=tfplan
 
 Expected resources (~42):
 
-| Category | Resources | Count |
-|----------|-----------|-------|
-| Network | VNet, 3 subnets, 3 NSGs, 3 associations | 10 |
-| Storage | Storage account, 4 containers, lifecycle policy | 6 |
-| Security | Key Vault, access policies, 4 secrets | 6 |
-| Database | PostgreSQL server, 2 databases, DNS zone, configs | 7 |
-| Compute | 2 container groups, 2 file shares, 2 KV policies | 6 |
-| Gateway | Application Gateway, public IP | 2 |
-| Cognitive | Document Intelligence account | 1 |
-| DNS | 3 A records (docs, ops, root) | 3 |
-| Other | Random passwords | 2 |
+| Category  | Resources                                         | Count |
+| --------- | ------------------------------------------------- | ----- |
+| Network   | VNet, 3 subnets, 3 NSGs, 3 associations           | 10    |
+| Storage   | Storage account, 4 containers, lifecycle policy   | 6     |
+| Security  | Key Vault, access policies, 4 secrets             | 6     |
+| Database  | PostgreSQL server, 2 databases, DNS zone, configs | 7     |
+| Compute   | 2 container groups, 2 file shares, 2 KV policies  | 6     |
+| Gateway   | Application Gateway, public IP                    | 2     |
+| Cognitive | Document Intelligence account                     | 1     |
+| DNS       | 3 A records (docs, ops, root)                     | 3     |
+| Other     | Random passwords                                  | 2     |
 
 ### Apply
 
@@ -260,11 +260,11 @@ terraform output storage_blob_endpoint
 
 DNS records are automatically created by the DNS Terraform module pointing to the Application Gateway IP:
 
-| Record | Type | Target |
-|--------|------|--------|
-| `docs.nexamesh.ai` | A | Application Gateway IP |
-| `ops.nexamesh.ai` | A | Application Gateway IP |
-| `nexamesh.ai` | A | Application Gateway IP |
+| Record             | Type | Target                 |
+| ------------------ | ---- | ---------------------- |
+| `docs.nexamesh.ai` | A    | Application Gateway IP |
+| `ops.nexamesh.ai`  | A    | Application Gateway IP |
+| `nexamesh.ai`      | A    | Application Gateway IP |
 
 ### Verify DNS Propagation
 
@@ -355,10 +355,10 @@ terraform output -raw document_intelligence_key
 
 **App configuration keys:**
 
-| Key | Source |
-|-----|--------|
+| Key                 | Source                                            |
+| ------------------- | ------------------------------------------------- |
 | `AZURE_DI_ENDPOINT` | `terraform output document_intelligence_endpoint` |
-| `AZURE_DI_KEY` | `terraform output -raw document_intelligence_key` |
+| `AZURE_DI_KEY`      | `terraform output -raw document_intelligence_key` |
 
 **Usage (Python example):**
 
@@ -389,12 +389,12 @@ terraform output -raw storage_connection_string
 
 **App configuration keys:**
 
-| Key | Source |
-|-----|--------|
-| `AZURE_STORAGE_ACCOUNT` | `nlprodhovstsan` |
+| Key                               | Source                                            |
+| --------------------------------- | ------------------------------------------------- |
+| `AZURE_STORAGE_ACCOUNT`           | `nlprodhovstsan`                                  |
 | `AZURE_STORAGE_CONNECTION_STRING` | `terraform output -raw storage_connection_string` |
-| `AZURE_STORAGE_CONTAINER_ASSETS` | `asset-uploads` |
-| `AZURE_STORAGE_CONTAINER_DOCS` | `documents` |
+| `AZURE_STORAGE_CONTAINER_ASSETS`  | `asset-uploads`                                   |
+| `AZURE_STORAGE_CONTAINER_DOCS`    | `documents`                                       |
 
 **Usage (Python example):**
 
@@ -410,12 +410,12 @@ container.upload_blob(name=filename, data=file_data, overwrite=True)
 
 ### 7.3 Storage Containers Summary
 
-| Container | Purpose | Lifecycle |
-|-----------|---------|-----------|
-| `documents` | Signed documents from DocuSeal | Cool at 90d, Archive at 365d |
-| `backups` | Database and config backups | Cool at 7d, Delete at 30d |
-| `asset-uploads` | Asset registry photos | No auto-tiering |
-| `tfstate` | Terraform state files | Versioned |
+| Container       | Purpose                        | Lifecycle                    |
+| --------------- | ------------------------------ | ---------------------------- |
+| `documents`     | Signed documents from DocuSeal | Cool at 90d, Archive at 365d |
+| `backups`       | Database and config backups    | Cool at 7d, Delete at 30d    |
+| `asset-uploads` | Asset registry photos          | No auto-tiering              |
+| `tfstate`       | Terraform state files          | Versioned                    |
 
 ---
 
@@ -423,14 +423,14 @@ container.upload_blob(name=filename, data=file_data, overwrite=True)
 
 ### Workflows
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `terraform-plan.yml` | PR to `main` | Validates Terraform, comments plan on PR |
-| `terraform-apply.yml` | Push to `main` (terraform/ changes) | Applies infrastructure changes |
-| `deploy.yml` | Manual / Release tag | Full deployment (build, infra, containers, verify) |
-| `deploy-functions.yml` | Manual | Deploys Azure Functions |
-| `terraform-destroy.yml` | Manual (requires "DESTROY" input) | Tears down infrastructure |
-| `deployment-checklist.yml` | PR / Push / Schedule | Validates infrastructure health |
+| Workflow                   | Trigger                             | Purpose                                            |
+| -------------------------- | ----------------------------------- | -------------------------------------------------- |
+| `terraform-plan.yml`       | PR to `main`                        | Validates Terraform, comments plan on PR           |
+| `terraform-apply.yml`      | Push to `main` (terraform/ changes) | Applies infrastructure changes                     |
+| `deploy.yml`               | Manual / Release tag                | Full deployment (build, infra, containers, verify) |
+| `deploy-functions.yml`     | Manual                              | Deploys Azure Functions                            |
+| `terraform-destroy.yml`    | Manual (requires "DESTROY" input)   | Tears down infrastructure                          |
+| `deployment-checklist.yml` | PR / Push / Schedule                | Validates infrastructure health                    |
 
 ### Pipeline Flow
 
@@ -520,12 +520,12 @@ Invoke-RestMethod -Uri "$DOCUSEAL_URL/api/webhooks" `
 
 ### User Accounts
 
-| User | Email | Role | Access |
-|------|-------|------|--------|
-| Hans | <hans@nexamesh.ai> | Administrator | Full access |
-| Charl | <charl@nexamesh.ai> | Workshop Operator | Tasks, Assets, Time |
-| Lucky | <lucky@nexamesh.ai> | Gardener | Tasks, Expenses, Vehicles |
-| Irma | <irma@nexamesh.ai> | Household | Tasks, Documents |
+| User  | Email               | Role              | Access                    |
+| ----- | ------------------- | ----------------- | ------------------------- |
+| Hans  | <hans@nexamesh.ai>  | Administrator     | Full access               |
+| Charl | <charl@nexamesh.ai> | Workshop Operator | Tasks, Assets, Time       |
+| Lucky | <lucky@nexamesh.ai> | Gardener          | Tasks, Expenses, Vehicles |
+| Irma  | <irma@nexamesh.ai>  | Household         | Tasks, Documents          |
 
 ### Go-Live Checklist
 
@@ -562,35 +562,35 @@ az cognitiveservices account show `
 
 ### Terraform Variables
 
-| Variable | Default | Source |
-|----------|---------|--------|
-| `domain_name` | `nexamesh.ai` | tfvars |
-| `db_admin_password` | — | tfvars (sensitive) |
-| `smtp_password` | — | tfvars (sensitive) |
-| `ssl_certificate_data` | `""` | tfvars (sensitive, optional) |
-| `ssl_certificate_password` | `""` | tfvars (sensitive, optional) |
-| `dns_zone_name` | `nexamesh.ai` | default |
-| `dns_zone_resource_group` | `nl-prod-nexamesh-rg-san` | default |
-| `document_intelligence_name` | `nl-prod-hov-di-san` | default |
-| `storage_account_name` | `nlprodhovstsan` | default |
-| `key_vault_name` | `nl-prod-hov-kv-san` | default |
-| `db_server_name` | `nl-prod-hov-pg-san` | default |
-| `resource_group_name` | `nl-prod-hov-rg-san` | default |
+| Variable                     | Default                   | Source                       |
+| ---------------------------- | ------------------------- | ---------------------------- |
+| `domain_name`                | `nexamesh.ai`             | tfvars                       |
+| `db_admin_password`          | —                         | tfvars (sensitive)           |
+| `smtp_password`              | —                         | tfvars (sensitive)           |
+| `ssl_certificate_data`       | `""`                      | tfvars (sensitive, optional) |
+| `ssl_certificate_password`   | `""`                      | tfvars (sensitive, optional) |
+| `dns_zone_name`              | `nexamesh.ai`             | default                      |
+| `dns_zone_resource_group`    | `nl-prod-nexamesh-rg-san` | default                      |
+| `document_intelligence_name` | `nl-prod-hov-di-san`      | default                      |
+| `storage_account_name`       | `nlprodhovstsan`          | default                      |
+| `key_vault_name`             | `nl-prod-hov-kv-san`      | default                      |
+| `db_server_name`             | `nl-prod-hov-pg-san`      | default                      |
+| `resource_group_name`        | `nl-prod-hov-rg-san`      | default                      |
 
 ### Terraform Outputs (post-deploy)
 
-| Output | Purpose |
-|--------|---------|
-| `application_gateway_public_ip` | Public entry point IP |
-| `document_intelligence_endpoint` | OCR API endpoint |
-| `document_intelligence_key` | OCR API key (sensitive) |
-| `storage_connection_string` | Blob storage connection (sensitive) |
-| `storage_blob_endpoint` | Blob endpoint URL |
-| `asset_uploads_container` | Container name for photos |
-| `key_vault_uri` | Key Vault URI |
-| `database_server_fqdn` | PostgreSQL FQDN |
-| `docuseal_url` | `https://docs.nexamesh.ai` |
-| `baserow_url` | `https://ops.nexamesh.ai` |
+| Output                           | Purpose                             |
+| -------------------------------- | ----------------------------------- |
+| `application_gateway_public_ip`  | Public entry point IP               |
+| `document_intelligence_endpoint` | OCR API endpoint                    |
+| `document_intelligence_key`      | OCR API key (sensitive)             |
+| `storage_connection_string`      | Blob storage connection (sensitive) |
+| `storage_blob_endpoint`          | Blob endpoint URL                   |
+| `asset_uploads_container`        | Container name for photos           |
+| `key_vault_uri`                  | Key Vault URI                       |
+| `database_server_fqdn`           | PostgreSQL FQDN                     |
+| `docuseal_url`                   | `https://docs.nexamesh.ai`          |
+| `baserow_url`                    | `https://ops.nexamesh.ai`           |
 
 ---
 

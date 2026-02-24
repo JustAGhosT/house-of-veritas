@@ -22,7 +22,11 @@ interface VehiclesPageProps {
   showAll?: boolean
 }
 
-export function VehiclesPage({ personaId, title = "Vehicle Log", showAll = false }: VehiclesPageProps) {
+export function VehiclesPage({
+  personaId,
+  title = "Vehicle Log",
+  showAll = false,
+}: VehiclesPageProps) {
   const [logs, setLogs] = useState<VehicleLog[]>([])
   const [summary, setSummary] = useState<{ total: number; totalDistance: number } | null>(null)
   const [loading, setLoading] = useState(true)
@@ -31,14 +35,16 @@ export function VehiclesPage({ personaId, title = "Vehicle Log", showAll = false
     try {
       const params = new URLSearchParams()
       if (!showAll) params.set("personaId", personaId)
-      const data = await apiFetch<{ logs?: VehicleLog[]; summary?: { total: number; totalDistance: number } }>(
-        `/api/vehicles?${params}`,
-        { label: "Vehicles" }
-      )
+      const data = await apiFetch<{
+        logs?: VehicleLog[]
+        summary?: { total: number; totalDistance: number }
+      }>(`/api/vehicles?${params}`, { label: "Vehicles" })
       setLogs(data?.logs || [])
       setSummary(data?.summary || null)
     } catch (error) {
-      logger.error("Failed to fetch vehicles", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to fetch vehicles", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setLoading(false)
     }
@@ -51,33 +57,33 @@ export function VehiclesPage({ personaId, title = "Vehicle Log", showAll = false
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
+        <h1 className="flex items-center gap-2 text-2xl font-semibold text-white">
           <Car className="h-7 w-7" />
           {title}
         </h1>
-        <p className="text-white/60 mt-1">
-          {showAll ? "All vehicle logs" : "Your vehicle usage"}
-        </p>
+        <p className="mt-1 text-white/60">{showAll ? "All vehicle logs" : "Your vehicle usage"}</p>
       </div>
 
       {summary && (
         <div className="grid grid-cols-2 gap-4">
-          <Card className="bg-white/5 border-white/10">
+          <Card className="border-white/10 bg-white/5">
             <CardContent className="pt-4">
-              <p className="text-white/50 text-sm">Total Trips</p>
+              <p className="text-sm text-white/50">Total Trips</p>
               <p className="text-2xl font-semibold text-white">{summary.total}</p>
             </CardContent>
           </Card>
-          <Card className="bg-white/5 border-white/10">
+          <Card className="border-white/10 bg-white/5">
             <CardContent className="pt-4">
-              <p className="text-white/50 text-sm">Total Distance</p>
-              <p className="text-2xl font-semibold text-white">{summary.totalDistance?.toLocaleString() || 0} km</p>
+              <p className="text-sm text-white/50">Total Distance</p>
+              <p className="text-2xl font-semibold text-white">
+                {summary.totalDistance?.toLocaleString() || 0} km
+              </p>
             </CardContent>
           </Card>
         </div>
       )}
 
-      <Card className="bg-[#0d0d12]/80 border-white/10">
+      <Card className="border-white/10 bg-[#0d0d12]/80">
         <CardHeader>
           <CardTitle className="text-white">Vehicle Log</CardTitle>
           <CardDescription className="text-white/60">
@@ -90,31 +96,29 @@ export function VehiclesPage({ personaId, title = "Vehicle Log", showAll = false
               <Loader2 className="h-8 w-8 animate-spin text-white/40" />
             </div>
           ) : logs.length === 0 ? (
-            <p className="text-white/50 text-center py-8">No vehicle logs found.</p>
+            <p className="py-8 text-center text-white/50">No vehicle logs found.</p>
           ) : (
             <div className="space-y-3">
               {logs.map((log) => (
                 <div
                   key={log.id}
-                  className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10"
+                  className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4"
                 >
                   <div>
-                    <p className="text-white font-medium">{log.vehicleName || "Vehicle"}</p>
-                    <p className="text-white/50 text-sm">
+                    <p className="font-medium text-white">{log.vehicleName || "Vehicle"}</p>
+                    <p className="text-sm text-white/50">
                       {log.dateOut} → {log.dateIn || "In progress"}
                       {log.driverName && showAll && ` · ${log.driverName}`}
                     </p>
                   </div>
-                  {log.distance != null && (
-                    <span className="text-white/70">{log.distance} km</span>
-                  )}
+                  {log.distance != null && <span className="text-white/70">{log.distance} km</span>}
                 </div>
               ))}
             </div>
           )}
           <div className="mt-4">
             <Button variant="outline" className="border-white/10" onClick={fetchLogs}>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
           </div>

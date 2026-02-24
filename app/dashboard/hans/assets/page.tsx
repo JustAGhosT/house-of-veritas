@@ -166,15 +166,18 @@ export default function AssetsPage() {
       if (selectedSaleStatus !== "all") params.append("saleStatus", selectedSaleStatus)
       if (searchTerm) params.append("search", searchTerm)
 
-      const data = await apiFetch<{ assets?: Asset[]; summary?: AssetSummary | null; storageOptions?: string[] }>(
-        `/api/assets/enhanced?${params}`,
-        { label: "Assets" }
-      )
+      const data = await apiFetch<{
+        assets?: Asset[]
+        summary?: AssetSummary | null
+        storageOptions?: string[]
+      }>(`/api/assets/enhanced?${params}`, { label: "Assets" })
       setAssets(data?.assets || [])
       setSummary(data?.summary ?? null)
       if (data?.storageOptions?.length) setStorageOptions(data.storageOptions)
     } catch (error) {
-      logger.error("Failed to fetch assets", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to fetch assets", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setLoading(false)
     }
@@ -192,7 +195,10 @@ export default function AssetsPage() {
         purchasePrice: formData.purchasePrice ? parseFloat(formData.purchasePrice) : undefined,
         currentValue: formData.currentValue ? parseFloat(formData.currentValue) : undefined,
         salePrice: formData.salePrice ? parseFloat(formData.salePrice) : undefined,
-        tags: formData.tags.split(",").map(t => t.trim()).filter(Boolean),
+        tags: formData.tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
         location: formData.storageOption || formData.location,
         storageOption: formData.storageOption || formData.location,
         ...(editingAsset ? { id: editingAsset.id } : {}),
@@ -208,7 +214,9 @@ export default function AssetsPage() {
       setEditingAsset(null)
       resetForm()
     } catch (error) {
-      logger.error("Failed to save asset", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to save asset", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
@@ -218,7 +226,9 @@ export default function AssetsPage() {
       await apiFetch(`/api/assets/enhanced?id=${id}`, { method: "DELETE", label: "DeleteAsset" })
       fetchAssets()
     } catch (error) {
-      logger.error("Failed to delete asset", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to delete asset", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
@@ -255,7 +265,8 @@ export default function AssetsPage() {
         },
         label: "SuggestStorage",
       })
-      if (data?.suggested) setFormData((p) => ({ ...p, storageOption: data.suggested!, location: data.suggested! }))
+      if (data?.suggested)
+        setFormData((p) => ({ ...p, storageOption: data.suggested!, location: data.suggested! }))
     } finally {
       setSuggestingStorage(false)
     }
@@ -302,12 +313,16 @@ export default function AssetsPage() {
   }
 
   const getConditionBadge = (condition: string) => {
-    const c = CONDITIONS.find(x => x.value === condition)
-    return <Badge variant="outline" className={c?.color}>{c?.label || condition}</Badge>
+    const c = CONDITIONS.find((x) => x.value === condition)
+    return (
+      <Badge variant="outline" className={c?.color}>
+        {c?.label || condition}
+      </Badge>
+    )
   }
 
   const getSaleStatusBadge = (status: string) => {
-    const s = SALE_STATUS.find(x => x.value === status)
+    const s = SALE_STATUS.find((x) => x.value === status)
     return <Badge className={s?.color}>{s?.label || status}</Badge>
   }
 
@@ -318,55 +333,68 @@ export default function AssetsPage() {
 
   return (
     <DashboardLayout persona="hans">
-      <div className="space-y-6 relative z-10">
+      <div className="relative z-10 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+            <h1 className="flex items-center gap-3 text-2xl font-bold text-white sm:text-3xl">
               <Package className="h-8 w-8 text-blue-400" />
               Asset Management
             </h1>
-            <p className="text-white/60 mt-1">Track, manage, and sell estate assets</p>
+            <p className="mt-1 text-white/60">Track, manage, and sell estate assets</p>
           </div>
-          <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
-            setIsAddDialogOpen(open)
-            if (!open) { setEditingAsset(null); resetForm() }
-          }}>
+          <Dialog
+            open={isAddDialogOpen}
+            onOpenChange={(open) => {
+              setIsAddDialogOpen(open)
+              if (!open) {
+                setEditingAsset(null)
+                resetForm()
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button className="bg-blue-600 hover:bg-blue-700" data-testid="add-asset-btn">
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="mr-2 h-4 w-4" />
                 Add Asset
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0d0d12] border-white/10 text-white">
+            <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto border-white/10 bg-[#0d0d12] text-white">
               <DialogHeader>
                 <DialogTitle>{editingAsset ? "Edit Asset" : "Add New Asset"}</DialogTitle>
                 <DialogDescription className="text-white/60">
-                  {editingAsset ? "Update the asset details" : "Enter the details for the new asset"}
+                  {editingAsset
+                    ? "Update the asset details"
+                    : "Enter the details for the new asset"}
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label>Name *</Label>
                     <Input
                       value={formData.name}
-                      onChange={(e) => setFormData(p => ({ ...p, name: e.target.value }))}
+                      onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
                       required
-                      className="bg-white/5 border-white/10"
+                      className="border-white/10 bg-white/5"
                       data-testid="asset-name-input"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Category *</Label>
                     <div className="flex gap-2">
-                      <Select value={formData.category} onValueChange={(v) => setFormData(p => ({ ...p, category: v }))}>
-                        <SelectTrigger className="flex-1 bg-white/5 border-white/10">
+                      <Select
+                        value={formData.category}
+                        onValueChange={(v) => setFormData((p) => ({ ...p, category: v }))}
+                      >
+                        <SelectTrigger className="flex-1 border-white/10 bg-white/5">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           {Object.entries(ASSET_CATEGORIES).map(([key, cat]) => (
-                            <SelectItem key={key} value={key}>{cat.label}</SelectItem>
+                            <SelectItem key={key} value={key}>
+                              {cat.label}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -387,8 +415,8 @@ export default function AssetsPage() {
                     <Label>Description</Label>
                     <Textarea
                       value={formData.description}
-                      onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))}
-                      className="bg-white/5 border-white/10"
+                      onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                      className="border-white/10 bg-white/5"
                       rows={2}
                     />
                   </div>
@@ -396,35 +424,40 @@ export default function AssetsPage() {
                     <Label>Brand</Label>
                     <Input
                       value={formData.brand}
-                      onChange={(e) => setFormData(p => ({ ...p, brand: e.target.value }))}
-                      className="bg-white/5 border-white/10"
+                      onChange={(e) => setFormData((p) => ({ ...p, brand: e.target.value }))}
+                      className="border-white/10 bg-white/5"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Model</Label>
                     <Input
                       value={formData.model}
-                      onChange={(e) => setFormData(p => ({ ...p, model: e.target.value }))}
-                      className="bg-white/5 border-white/10"
+                      onChange={(e) => setFormData((p) => ({ ...p, model: e.target.value }))}
+                      className="border-white/10 bg-white/5"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Serial Number</Label>
                     <Input
                       value={formData.serialNumber}
-                      onChange={(e) => setFormData(p => ({ ...p, serialNumber: e.target.value }))}
-                      className="bg-white/5 border-white/10"
+                      onChange={(e) => setFormData((p) => ({ ...p, serialNumber: e.target.value }))}
+                      className="border-white/10 bg-white/5"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Condition</Label>
-                    <Select value={formData.condition} onValueChange={(v) => setFormData(p => ({ ...p, condition: v }))}>
-                      <SelectTrigger className="bg-white/5 border-white/10">
+                    <Select
+                      value={formData.condition}
+                      onValueChange={(v) => setFormData((p) => ({ ...p, condition: v }))}
+                    >
+                      <SelectTrigger className="border-white/10 bg-white/5">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {CONDITIONS.map((c) => (
-                          <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                          <SelectItem key={c.value} value={c.value}>
+                            {c.label}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -433,15 +466,34 @@ export default function AssetsPage() {
                     <Label>Storage Location *</Label>
                     <div className="flex gap-2">
                       <Select
-                        value={formData.storageOption || formData.location || (storageOptions[0] ?? "")}
-                        onValueChange={(v) => setFormData(p => ({ ...p, storageOption: v, location: v }))}
+                        value={
+                          formData.storageOption || formData.location || (storageOptions[0] ?? "")
+                        }
+                        onValueChange={(v) =>
+                          setFormData((p) => ({ ...p, storageOption: v, location: v }))
+                        }
                       >
-                        <SelectTrigger className="flex-1 bg-white/5 border-white/10">
+                        <SelectTrigger className="flex-1 border-white/10 bg-white/5">
                           <SelectValue placeholder="Select storage" />
                         </SelectTrigger>
                         <SelectContent>
-                          {(storageOptions.length ? storageOptions : ["kitchen", "storeroom", "garage", "workshop", "garden shed", "main lounge", "patio", "office", "basement"]).map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          {(storageOptions.length
+                            ? storageOptions
+                            : [
+                                "kitchen",
+                                "storeroom",
+                                "garage",
+                                "workshop",
+                                "garden shed",
+                                "main lounge",
+                                "patio",
+                                "office",
+                                "basement",
+                              ]
+                          ).map((opt) => (
+                            <SelectItem key={opt} value={opt}>
+                              {opt}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -463,8 +515,8 @@ export default function AssetsPage() {
                     <Input
                       type="date"
                       value={formData.purchaseDate}
-                      onChange={(e) => setFormData(p => ({ ...p, purchaseDate: e.target.value }))}
-                      className="bg-white/5 border-white/10"
+                      onChange={(e) => setFormData((p) => ({ ...p, purchaseDate: e.target.value }))}
+                      className="border-white/10 bg-white/5"
                     />
                   </div>
                   <div className="space-y-2">
@@ -472,8 +524,10 @@ export default function AssetsPage() {
                     <Input
                       type="number"
                       value={formData.purchasePrice}
-                      onChange={(e) => setFormData(p => ({ ...p, purchasePrice: e.target.value }))}
-                      className="bg-white/5 border-white/10"
+                      onChange={(e) =>
+                        setFormData((p) => ({ ...p, purchasePrice: e.target.value }))
+                      }
+                      className="border-white/10 bg-white/5"
                     />
                   </div>
                   <div className="space-y-2">
@@ -481,19 +535,24 @@ export default function AssetsPage() {
                     <Input
                       type="number"
                       value={formData.currentValue}
-                      onChange={(e) => setFormData(p => ({ ...p, currentValue: e.target.value }))}
-                      className="bg-white/5 border-white/10"
+                      onChange={(e) => setFormData((p) => ({ ...p, currentValue: e.target.value }))}
+                      className="border-white/10 bg-white/5"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Sale Status</Label>
-                    <Select value={formData.saleStatus} onValueChange={(v) => setFormData(p => ({ ...p, saleStatus: v }))}>
-                      <SelectTrigger className="bg-white/5 border-white/10">
+                    <Select
+                      value={formData.saleStatus}
+                      onValueChange={(v) => setFormData((p) => ({ ...p, saleStatus: v }))}
+                    >
+                      <SelectTrigger className="border-white/10 bg-white/5">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {SALE_STATUS.map((s) => (
-                          <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                          <SelectItem key={s.value} value={s.value}>
+                            {s.label}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -504,8 +563,8 @@ export default function AssetsPage() {
                       <Input
                         type="number"
                         value={formData.salePrice}
-                        onChange={(e) => setFormData(p => ({ ...p, salePrice: e.target.value }))}
-                        className="bg-white/5 border-white/10"
+                        onChange={(e) => setFormData((p) => ({ ...p, salePrice: e.target.value }))}
+                        className="border-white/10 bg-white/5"
                       />
                     </div>
                   )}
@@ -513,17 +572,29 @@ export default function AssetsPage() {
                     <Label>Tags (comma separated)</Label>
                     <Input
                       value={formData.tags}
-                      onChange={(e) => setFormData(p => ({ ...p, tags: e.target.value }))}
+                      onChange={(e) => setFormData((p) => ({ ...p, tags: e.target.value }))}
                       placeholder="e.g. outdoor, premium, work"
-                      className="bg-white/5 border-white/10"
+                      className="border-white/10 bg-white/5"
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => { setIsAddDialogOpen(false); setEditingAsset(null); resetForm() }}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsAddDialogOpen(false)
+                      setEditingAsset(null)
+                      resetForm()
+                    }}
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" className="bg-blue-600 hover:bg-blue-700" data-testid="save-asset-btn">
+                  <Button
+                    type="submit"
+                    className="bg-blue-600 hover:bg-blue-700"
+                    data-testid="save-asset-btn"
+                  >
                     {editingAsset ? "Update Asset" : "Create Asset"}
                   </Button>
                 </DialogFooter>
@@ -534,54 +605,56 @@ export default function AssetsPage() {
 
         {/* Summary Cards */}
         {summary && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-white/5 border-white/10">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <Card className="border-white/10 bg-white/5">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-blue-500/20">
+                  <div className="rounded-xl bg-blue-500/20 p-3">
                     <Package className="h-6 w-6 text-blue-400" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-sm">Total Assets</p>
+                    <p className="text-sm text-white/60">Total Assets</p>
                     <p className="text-2xl font-bold text-white">{summary.total}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-white/5 border-white/10">
+            <Card className="border-white/10 bg-white/5">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-green-500/20">
+                  <div className="rounded-xl bg-green-500/20 p-3">
                     <DollarSign className="h-6 w-6 text-green-400" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-sm">Total Value</p>
-                    <p className="text-2xl font-bold text-white">{formatCurrency(summary.totalValue)}</p>
+                    <p className="text-sm text-white/60">Total Value</p>
+                    <p className="text-2xl font-bold text-white">
+                      {formatCurrency(summary.totalValue)}
+                    </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-white/5 border-white/10">
+            <Card className="border-white/10 bg-white/5">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-amber-500/20">
+                  <div className="rounded-xl bg-amber-500/20 p-3">
                     <Store className="h-6 w-6 text-amber-400" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-sm">For Sale</p>
+                    <p className="text-sm text-white/60">For Sale</p>
                     <p className="text-2xl font-bold text-white">{summary.forSale}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-white/5 border-white/10">
+            <Card className="border-white/10 bg-white/5">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-red-500/20">
+                  <div className="rounded-xl bg-red-500/20 p-3">
                     <AlertTriangle className="h-6 w-6 text-red-400" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-sm">Needs Attention</p>
+                    <p className="text-sm text-white/60">Needs Attention</p>
                     <p className="text-2xl font-bold text-white">{summary.needsAttention}</p>
                   </div>
                 </div>
@@ -591,49 +664,55 @@ export default function AssetsPage() {
         )}
 
         {/* Filters */}
-        <Card className="bg-white/5 border-white/10">
+        <Card className="border-white/10 bg-white/5">
           <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/40" />
                 <Input
                   placeholder="Search assets..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white/5 border-white/10"
+                  className="border-white/10 bg-white/5 pl-10"
                   data-testid="asset-search-input"
                 />
               </div>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full sm:w-[180px] bg-white/5 border-white/10">
+                <SelectTrigger className="w-full border-white/10 bg-white/5 sm:w-[180px]">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
                   {Object.entries(ASSET_CATEGORIES).map(([key, cat]) => (
-                    <SelectItem key={key} value={key}>{cat.label}</SelectItem>
+                    <SelectItem key={key} value={key}>
+                      {cat.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select value={selectedCondition} onValueChange={setSelectedCondition}>
-                <SelectTrigger className="w-full sm:w-[160px] bg-white/5 border-white/10">
+                <SelectTrigger className="w-full border-white/10 bg-white/5 sm:w-[160px]">
                   <SelectValue placeholder="Condition" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Conditions</SelectItem>
                   {CONDITIONS.map((c) => (
-                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select value={selectedSaleStatus} onValueChange={setSelectedSaleStatus}>
-                <SelectTrigger className="w-full sm:w-[160px] bg-white/5 border-white/10">
+                <SelectTrigger className="w-full border-white/10 bg-white/5 sm:w-[160px]">
                   <SelectValue placeholder="Sale Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   {SALE_STATUS.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -644,34 +723,53 @@ export default function AssetsPage() {
         {/* Assets Grid */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
           </div>
         ) : assets.length === 0 ? (
-          <Card className="bg-white/5 border-white/10">
+          <Card className="border-white/10 bg-white/5">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <Package className="h-12 w-12 text-white/20 mb-4" />
-              <p className="text-white/60 text-lg">No assets found</p>
-              <p className="text-white/40 text-sm">Try adjusting your filters or add a new asset</p>
+              <Package className="mb-4 h-12 w-12 text-white/20" />
+              <p className="text-lg text-white/60">No assets found</p>
+              <p className="text-sm text-white/40">Try adjusting your filters or add a new asset</p>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {assets.map((asset) => (
-              <Card key={asset.id} className="bg-white/5 border-white/10 hover:bg-white/7 transition-colors group" data-testid={`asset-card-${asset.id}`}>
+              <Card
+                key={asset.id}
+                className="group border-white/10 bg-white/5 transition-colors hover:bg-white/7"
+                data-testid={`asset-card-${asset.id}`}
+              >
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-white text-lg truncate">{asset.name}</CardTitle>
-                      <CardDescription className="text-white/50 mt-1 flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${ASSET_CATEGORIES[asset.category as keyof typeof ASSET_CATEGORIES]?.color || 'bg-gray-500'}`} />
-                        {ASSET_CATEGORIES[asset.category as keyof typeof ASSET_CATEGORIES]?.label || asset.category}
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="truncate text-lg text-white">{asset.name}</CardTitle>
+                      <CardDescription className="mt-1 flex items-center gap-2 text-white/50">
+                        <span
+                          className={`h-2 w-2 rounded-full ${ASSET_CATEGORIES[asset.category as keyof typeof ASSET_CATEGORIES]?.color || "bg-gray-500"}`}
+                        />
+                        {ASSET_CATEGORIES[asset.category as keyof typeof ASSET_CATEGORIES]?.label ||
+                          asset.category}
                       </CardDescription>
                     </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEditDialog(asset)} data-testid={`edit-asset-${asset.id}`}>
+                    <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        onClick={() => openEditDialog(asset)}
+                        data-testid={`edit-asset-${asset.id}`}
+                      >
                         <Edit className="h-4 w-4 text-white/60" />
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDelete(asset.id)} data-testid={`delete-asset-${asset.id}`}>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        onClick={() => handleDelete(asset.id)}
+                        data-testid={`delete-asset-${asset.id}`}
+                      >
                         <Trash2 className="h-4 w-4 text-red-400" />
                       </Button>
                     </div>
@@ -679,17 +777,23 @@ export default function AssetsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Photo placeholder */}
-                  <div className="aspect-video bg-white/5 rounded-lg flex items-center justify-center border border-white/10 relative">
+                  <div className="relative flex aspect-video items-center justify-center rounded-lg border border-white/10 bg-white/5">
                     {asset.photos.length > 0 ? (
-                      <Image src={asset.photos[0]} alt={asset.name} fill className="object-cover rounded-lg" unoptimized />
+                      <Image
+                        src={asset.photos[0]}
+                        alt={asset.name}
+                        fill
+                        className="rounded-lg object-cover"
+                        unoptimized
+                      />
                     ) : (
                       <div className="text-center">
-                        <ImageIcon className="h-8 w-8 text-white/20 mx-auto mb-2" />
-                        <p className="text-white/30 text-xs">No photo</p>
+                        <ImageIcon className="mx-auto mb-2 h-8 w-8 text-white/20" />
+                        <p className="text-xs text-white/30">No photo</p>
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       {getConditionBadge(asset.condition)}
@@ -704,25 +808,29 @@ export default function AssetsPage() {
                     </div>
                     <div className="flex items-center gap-2 text-white/60">
                       <User className="h-3.5 w-3.5" />
-                      <span className="capitalize truncate">{asset.responsiblePerson}</span>
+                      <span className="truncate capitalize">{asset.responsiblePerson}</span>
                     </div>
                   </div>
 
                   {asset.brand && (
-                    <p className="text-white/50 text-sm">
+                    <p className="text-sm text-white/50">
                       {asset.brand} {asset.model && `• ${asset.model}`}
                     </p>
                   )}
 
-                  <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                  <div className="flex items-center justify-between border-t border-white/10 pt-2">
                     <div>
-                      <p className="text-white/40 text-xs">Current Value</p>
-                      <p className="text-white font-semibold">{formatCurrency(asset.currentValue)}</p>
+                      <p className="text-xs text-white/40">Current Value</p>
+                      <p className="font-semibold text-white">
+                        {formatCurrency(asset.currentValue)}
+                      </p>
                     </div>
                     {asset.saleStatus === "for_sale" && asset.salePrice && (
                       <div className="text-right">
-                        <p className="text-white/40 text-xs">Sale Price</p>
-                        <p className="text-green-400 font-semibold">{formatCurrency(asset.salePrice)}</p>
+                        <p className="text-xs text-white/40">Sale Price</p>
+                        <p className="font-semibold text-green-400">
+                          {formatCurrency(asset.salePrice)}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -730,12 +838,12 @@ export default function AssetsPage() {
                   {asset.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {asset.tags.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant="outline" className="text-xs bg-white/5">
+                        <Badge key={tag} variant="outline" className="bg-white/5 text-xs">
                           {tag}
                         </Badge>
                       ))}
                       {asset.tags.length > 3 && (
-                        <Badge variant="outline" className="text-xs bg-white/5">
+                        <Badge variant="outline" className="bg-white/5 text-xs">
                           +{asset.tags.length - 3}
                         </Badge>
                       )}

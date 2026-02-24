@@ -11,7 +11,7 @@ interface PlaceholderPageProps {
 
 export function PlaceholderPage({ title, description, icon: Icon }: PlaceholderPageProps) {
   return (
-    <Card className="bg-[#0d0d12]/80 border-white/10">
+    <Card className="border-white/10 bg-[#0d0d12]/80">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-white">
           {Icon && <Icon className="h-6 w-6" />}
@@ -22,7 +22,7 @@ export function PlaceholderPage({ title, description, icon: Icon }: PlaceholderP
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-white/40 text-sm">Content will be available in a future release.</p>
+        <p className="text-sm text-white/40">Content will be available in a future release.</p>
       </CardContent>
     </Card>
   )

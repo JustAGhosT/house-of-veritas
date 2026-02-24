@@ -59,7 +59,7 @@ export const isDocuSealConfigured = (): boolean => {
 // Get all document templates
 export async function getTemplates(): Promise<DocumentTemplate[]> {
   const config = getConfig()
-  
+
   if (!config.apiKey) {
     // Return mock data when not configured
     return getMockTemplates()
@@ -80,7 +80,9 @@ export async function getTemplates(): Promise<DocumentTemplate[]> {
 
     return await response.json()
   } catch (error) {
-    logger.error("DocuSeal getTemplates error", { error: error instanceof Error ? error.message : String(error) })
+    logger.error("DocuSeal getTemplates error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
     return getMockTemplates()
   }
 }
@@ -129,7 +131,9 @@ export async function createSubmission(
       createdAt: new Date(),
     }
   } catch (error) {
-    logger.error("DocuSeal createSubmission error", { error: error instanceof Error ? error.message : String(error) })
+    logger.error("DocuSeal createSubmission error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
     return createMockSubmission(request)
   }
 }
@@ -172,7 +176,9 @@ export async function getSubmissionStatus(
       documentUrl: data.document_url,
     }
   } catch (error) {
-    logger.error("DocuSeal getSubmissionStatus error", { error: error instanceof Error ? error.message : String(error) })
+    logger.error("DocuSeal getSubmissionStatus error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
     return getMockSubmissionStatus(submissionId)
   }
 }
@@ -246,9 +252,7 @@ function getMockSubmissionStatus(submissionId: string): SignatureSubmission {
   return {
     id: submissionId,
     templateId: "tpl_employment_contract",
-    recipients: [
-      { email: "user@houseofv.com", name: "User", role: "signer" },
-    ],
+    recipients: [{ email: "user@houseofv.com", name: "User", role: "signer" }],
     status: isCompleted ? "completed" : "pending",
     createdAt: new Date(Date.now() - 86400000), // Yesterday
     completedAt: isCompleted ? new Date() : undefined,

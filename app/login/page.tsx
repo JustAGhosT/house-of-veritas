@@ -2,7 +2,17 @@
 
 import { useState } from "react"
 import { useAuth } from "@/lib/auth-context"
-import { Lock, Mail, Eye, EyeOff, ArrowRight, Shield, Phone, Smartphone, ArrowLeft } from "lucide-react"
+import {
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Shield,
+  Phone,
+  Smartphone,
+  ArrowLeft,
+} from "lucide-react"
 
 export default function LoginPage() {
   const { login, isLoading: authLoading } = useAuth()
@@ -69,14 +79,14 @@ export default function LoginPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex flex-col">
+    <div className="flex min-h-screen flex-col bg-[#0a0a0f]">
       {/* Background Pattern */}
       <div className="fixed inset-0 -z-10 bg-linear-to-br from-blue-950/30 via-[#0a0a0f] to-purple-950/20" />
       <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(59,130,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-[size:50px_50px]" />
@@ -85,47 +95,50 @@ export default function LoginPage() {
       <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-600 to-blue-800 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">HV</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 to-blue-800">
+              <span className="text-lg font-bold text-white">HV</span>
             </div>
             <div>
-              <h1 className="text-white font-semibold">House of Veritas</h1>
-              <p className="text-white/50 text-xs">Digital Governance Platform</p>
+              <h1 className="font-semibold text-white">House of Veritas</h1>
+              <p className="text-xs text-white/50">Digital Governance Platform</p>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-6 py-12">
+      <main className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           {/* Login View */}
           {view === "login" && (
-            <div className="bg-[#0d0d12]/80 border border-white/10 rounded-2xl p-8 backdrop-blur-xl" data-testid="login-card">
+            <div
+              className="rounded-2xl border border-white/10 bg-[#0d0d12]/80 p-8 backdrop-blur-xl"
+              data-testid="login-card"
+            >
               {/* Header */}
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500/20 border border-blue-500/30 mb-4">
-                  <Shield className="w-8 h-8 text-blue-400" />
+              <div className="mb-8 text-center">
+                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-500/30 bg-blue-500/20">
+                  <Shield className="h-8 w-8 text-blue-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
+                <h2 className="mb-2 text-2xl font-bold text-white">Welcome Back</h2>
                 <p className="text-white/60">Sign in to access your dashboard</p>
               </div>
 
               {/* Form */}
               <form onSubmit={handleLogin} className="space-y-5" data-testid="login-form">
                 <div>
-                  <label htmlFor="email" className="block text-white/80 text-sm font-medium mb-2">
+                  <label htmlFor="email" className="mb-2 block text-sm font-medium text-white/80">
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                    <Mail className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-white/40" />
                     <input
                       id="email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@houseofv.com"
-                      className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pr-4 pl-12 text-white placeholder-white/40 transition-all focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
                       data-testid="email-input"
                       required
                     />
@@ -133,34 +146,40 @@ export default function LoginPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-white/80 text-sm font-medium mb-2">
+                  <label
+                    htmlFor="password"
+                    className="mb-2 block text-sm font-medium text-white/80"
+                  >
                     Password
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                    <Lock className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-white/40" />
                     <input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
-                      className="w-full pl-12 pr-12 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pr-12 pl-12 text-white placeholder-white/40 transition-all focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
                       data-testid="password-input"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors"
+                      className="absolute top-1/2 right-4 -translate-y-1/2 text-white/40 transition-colors hover:text-white/60"
                       data-testid="toggle-password"
                     >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
                 </div>
 
                 {error && (
-                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm" data-testid="login-error">
+                  <div
+                    className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400"
+                    data-testid="login-error"
+                  >
                     {error}
                   </div>
                 )}
@@ -168,19 +187,19 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading || !email || !password}
-                  className={`w-full py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
+                  className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium transition-all ${
                     isLoading || !email || !password
-                      ? "bg-white/10 text-white/40 cursor-not-allowed"
+                      ? "cursor-not-allowed bg-white/10 text-white/40"
                       : "bg-linear-to-r from-blue-600 to-blue-700 text-white hover:from-blue-500 hover:to-blue-600"
                   }`}
                   data-testid="login-submit"
                 >
                   {isLoading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                   ) : (
                     <>
                       <span>Sign In</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="h-4 w-4" />
                     </>
                   )}
                 </button>
@@ -192,7 +211,7 @@ export default function LoginPage() {
                     setError("")
                     setResetEmail(email)
                   }}
-                  className="w-full text-center text-white/50 hover:text-white text-sm transition-colors"
+                  className="w-full text-center text-sm text-white/50 transition-colors hover:text-white"
                   data-testid="forgot-password"
                 >
                   Forgot your password?
@@ -200,8 +219,8 @@ export default function LoginPage() {
               </form>
 
               {/* Demo Credentials */}
-              <div className="mt-8 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                <p className="text-amber-400 text-sm font-medium mb-2">Demo Credentials</p>
+              <div className="mt-8 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
+                <p className="mb-2 text-sm font-medium text-amber-400">Demo Credentials</p>
                 <div className="grid grid-cols-2 gap-2 text-xs text-white/60">
                   <div>hans@houseofv.com</div>
                   <div className="text-white/40">hans123</div>
@@ -218,7 +237,10 @@ export default function LoginPage() {
 
           {/* Password Reset View */}
           {view === "reset" && (
-            <div className="bg-[#0d0d12]/80 border border-white/10 rounded-2xl p-8 backdrop-blur-xl" data-testid="reset-card">
+            <div
+              className="rounded-2xl border border-white/10 bg-[#0d0d12]/80 p-8 backdrop-blur-xl"
+              data-testid="reset-card"
+            >
               {/* Back Button */}
               <button
                 onClick={() => {
@@ -226,36 +248,41 @@ export default function LoginPage() {
                   setResetSuccess(null)
                   setError("")
                 }}
-                className="flex items-center gap-2 text-white/60 hover:text-white mb-6 transition-colors"
+                className="mb-6 flex items-center gap-2 text-white/60 transition-colors hover:text-white"
                 data-testid="back-to-login"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="h-4 w-4" />
                 <span>Back to login</span>
               </button>
 
               {/* Header */}
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-500/30 mb-4">
-                  <Lock className="w-8 h-8 text-amber-400" />
+              <div className="mb-8 text-center">
+                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/20">
+                  <Lock className="h-8 w-8 text-amber-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2">Reset Password</h2>
-                <p className="text-white/60">We&apos;ll send a new password to your phone or email</p>
+                <h2 className="mb-2 text-2xl font-bold text-white">Reset Password</h2>
+                <p className="text-white/60">
+                  We&apos;ll send a new password to your phone or email
+                </p>
               </div>
 
               {/* Email Input */}
               <div className="mb-6">
-                <label htmlFor="reset-email" className="block text-white/80 text-sm font-medium mb-2">
+                <label
+                  htmlFor="reset-email"
+                  className="mb-2 block text-sm font-medium text-white/80"
+                >
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <Mail className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-white/40" />
                   <input
                     id="reset-email"
                     type="email"
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
                     placeholder="you@houseofv.com"
-                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pr-4 pl-12 text-white placeholder-white/40 transition-all focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 focus:outline-none"
                     data-testid="reset-email-input"
                     required
                   />
@@ -263,85 +290,111 @@ export default function LoginPage() {
               </div>
 
               {/* Reset Method Selection */}
-              <div className="space-y-3 mb-6" data-testid="reset-method-selection">
-                <p className="text-white/60 text-sm mb-2">Delivery method:</p>
+              <div className="mb-6 space-y-3" data-testid="reset-method-selection">
+                <p className="mb-2 text-sm text-white/60">Delivery method:</p>
                 <button
                   type="button"
                   onClick={() => setResetMethod("sms")}
-                  className={`w-full p-4 rounded-xl border flex items-center gap-4 transition-all ${
+                  className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${
                     resetMethod === "sms"
-                      ? "bg-blue-500/10 border-blue-500/30"
-                      : "bg-white/5 border-white/10 hover:border-white/20"
+                      ? "border-blue-500/30 bg-blue-500/10"
+                      : "border-white/10 bg-white/5 hover:border-white/20"
                   }`}
                   data-testid="reset-method-sms"
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    resetMethod === "sms" ? "bg-blue-500/20" : "bg-white/10"
-                  }`}>
-                    <Smartphone className={`w-5 h-5 ${resetMethod === "sms" ? "text-blue-400" : "text-white/60"}`} />
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                      resetMethod === "sms" ? "bg-blue-500/20" : "bg-white/10"
+                    }`}
+                  >
+                    <Smartphone
+                      className={`h-5 w-5 ${resetMethod === "sms" ? "text-blue-400" : "text-white/60"}`}
+                    />
                   </div>
                   <div className="flex-1 text-left">
-                    <p className={`font-medium ${resetMethod === "sms" ? "text-white" : "text-white/80"}`}>SMS</p>
-                    <p className="text-white/50 text-sm">Send to registered cellphone</p>
+                    <p
+                      className={`font-medium ${resetMethod === "sms" ? "text-white" : "text-white/80"}`}
+                    >
+                      SMS
+                    </p>
+                    <p className="text-sm text-white/50">Send to registered cellphone</p>
                   </div>
-                  <div className={`w-4 h-4 rounded-full border-2 ${
-                    resetMethod === "sms" ? "border-blue-400 bg-blue-400" : "border-white/30"
-                  }`} />
+                  <div
+                    className={`h-4 w-4 rounded-full border-2 ${
+                      resetMethod === "sms" ? "border-blue-400 bg-blue-400" : "border-white/30"
+                    }`}
+                  />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setResetMethod("email")}
-                  className={`w-full p-4 rounded-xl border flex items-center gap-4 transition-all ${
+                  className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${
                     resetMethod === "email"
-                      ? "bg-blue-500/10 border-blue-500/30"
-                      : "bg-white/5 border-white/10 hover:border-white/20"
+                      ? "border-blue-500/30 bg-blue-500/10"
+                      : "border-white/10 bg-white/5 hover:border-white/20"
                   }`}
                   data-testid="reset-method-email"
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    resetMethod === "email" ? "bg-blue-500/20" : "bg-white/10"
-                  }`}>
-                    <Mail className={`w-5 h-5 ${resetMethod === "email" ? "text-blue-400" : "text-white/60"}`} />
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                      resetMethod === "email" ? "bg-blue-500/20" : "bg-white/10"
+                    }`}
+                  >
+                    <Mail
+                      className={`h-5 w-5 ${resetMethod === "email" ? "text-blue-400" : "text-white/60"}`}
+                    />
                   </div>
                   <div className="flex-1 text-left">
-                    <p className={`font-medium ${resetMethod === "email" ? "text-white" : "text-white/80"}`}>Email</p>
-                    <p className="text-white/50 text-sm">Send to registered email</p>
+                    <p
+                      className={`font-medium ${resetMethod === "email" ? "text-white" : "text-white/80"}`}
+                    >
+                      Email
+                    </p>
+                    <p className="text-sm text-white/50">Send to registered email</p>
                   </div>
-                  <div className={`w-4 h-4 rounded-full border-2 ${
-                    resetMethod === "email" ? "border-blue-400 bg-blue-400" : "border-white/30"
-                  }`} />
+                  <div
+                    className={`h-4 w-4 rounded-full border-2 ${
+                      resetMethod === "email" ? "border-blue-400 bg-blue-400" : "border-white/30"
+                    }`}
+                  />
                 </button>
               </div>
 
               {error && (
-                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-6" data-testid="reset-error">
+                <div
+                  className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400"
+                  data-testid="reset-error"
+                >
                   {error}
                 </div>
               )}
 
               {resetSuccess && (
-                <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 mb-6" data-testid="reset-success">
-                  <p className="text-green-400 font-medium">{resetSuccess}</p>
+                <div
+                  className="mb-6 rounded-xl border border-green-500/20 bg-green-500/10 p-4"
+                  data-testid="reset-success"
+                >
+                  <p className="font-medium text-green-400">{resetSuccess}</p>
                 </div>
               )}
 
               <button
                 onClick={handleResetPassword}
                 disabled={isLoading || !resetEmail}
-                className={`w-full py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
+                className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium transition-all ${
                   isLoading || !resetEmail
-                    ? "bg-white/10 text-white/40 cursor-not-allowed"
+                    ? "cursor-not-allowed bg-white/10 text-white/40"
                     : "bg-linear-to-r from-amber-600 to-amber-700 text-white hover:from-amber-500 hover:to-amber-600"
                 }`}
                 data-testid="reset-submit"
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 ) : (
                   <>
                     <span>Send New Password</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="h-4 w-4" />
                   </>
                 )}
               </button>
@@ -352,7 +405,7 @@ export default function LoginPage() {
                     setView("login")
                     setResetSuccess(null)
                   }}
-                  className="w-full mt-4 py-3 px-4 rounded-xl font-medium bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all border border-blue-500/30"
+                  className="mt-4 w-full rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 font-medium text-blue-400 transition-all hover:bg-blue-500/20"
                   data-testid="return-to-login"
                 >
                   Return to Login
@@ -366,9 +419,7 @@ export default function LoginPage() {
       {/* Footer */}
       <footer className="border-t border-white/10 py-6">
         <div className="container mx-auto px-6 text-center">
-          <p className="text-white/40 text-sm">
-            © 2026 House of Veritas. All rights reserved.
-          </p>
+          <p className="text-sm text-white/40">© 2026 House of Veritas. All rights reserved.</p>
         </div>
       </footer>
     </div>

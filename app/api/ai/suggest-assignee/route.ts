@@ -18,7 +18,9 @@ export const POST = withAuth(async (request: Request) => {
     const userDetails = users.map((u) => ({
       id: u.id,
       name: u.name,
-      responsibilities: u.responsibilities?.length ? u.responsibilities : getDefaultResponsibilities(u.role),
+      responsibilities: u.responsibilities?.length
+        ? u.responsibilities
+        : getDefaultResponsibilities(u.role),
       specialty: u.specialty,
     }))
 

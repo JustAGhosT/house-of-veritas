@@ -87,7 +87,9 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
       const data = await apiFetch<{ projects?: Project[] }>("/api/projects", { label: "Projects" })
       setProjects(data?.projects || [])
     } catch (error) {
-      logger.error("Failed to fetch projects", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to fetch projects", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setLoading(false)
     }
@@ -96,7 +98,10 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
   const fetchSuggestions = useCallback(async () => {
     if (!isAdmin) return
     try {
-      const data = await apiFetch<{ suggestions?: ProjectSuggestion[] }>("/api/projects/suggestions?status=pending", { label: "ProjectSuggestions" })
+      const data = await apiFetch<{ suggestions?: ProjectSuggestion[] }>(
+        "/api/projects/suggestions?status=pending",
+        { label: "ProjectSuggestions" }
+      )
       setSuggestions(data?.suggestions || [])
     } catch {
       setSuggestions([])
@@ -140,7 +145,9 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
         }))
       }
     } catch (error) {
-      logger.error("AI suggest from photo failed", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("AI suggest from photo failed", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setAiLoading(false)
     }
@@ -161,7 +168,9 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
       })
       if (data?.refined) setFormData((p) => ({ ...p, description: data.refined! }))
     } catch (error) {
-      logger.error("Refine description failed", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Refine description failed", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setRefineLoading(false)
     }
@@ -182,7 +191,9 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
       resetForm()
       fetchProjects()
     } catch (error) {
-      logger.error("Failed to create project", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to create project", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
@@ -203,7 +214,9 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
       resetForm()
       fetchSuggestions()
     } catch (error) {
-      logger.error("Failed to suggest project", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to suggest project", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
@@ -217,7 +230,9 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
       fetchSuggestions()
       fetchProjects()
     } catch (error) {
-      logger.error("Failed to approve", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to approve", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
@@ -230,7 +245,9 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
       })
       fetchSuggestions()
     } catch (error) {
-      logger.error("Failed to reject", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to reject", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
@@ -250,7 +267,9 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
       })
       if (data?.suggested) await handleAddMember(projectId, data.suggested, "contributor")
     } catch (error) {
-      logger.error("Suggest member failed", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Suggest member failed", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setSuggestMemberLoading(null)
     }
@@ -265,15 +284,17 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
       })
       fetchProjects()
     } catch (error) {
-      logger.error("Failed to add member", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to add member", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
   const formFields = (
     <>
-      <div className="rounded-lg border border-dashed border-white/20 p-4 space-y-2">
+      <div className="space-y-2 rounded-lg border border-dashed border-white/20 p-4">
         <Label className="text-white/80">Suggest from photo (AI)</Label>
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           <input
             ref={fileInputRef}
             type="file"
@@ -288,7 +309,7 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
             className="border-white/20"
             onClick={() => fileInputRef.current?.click()}
           >
-            <ImagePlus className="h-4 w-4 mr-2" />
+            <ImagePlus className="mr-2 h-4 w-4" />
             Upload photo
           </Button>
           {photoPreview && (
@@ -305,7 +326,7 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
           )}
         </div>
         {photoPreview && (
-          <div className="mt-2 relative w-24 h-24 rounded overflow-hidden bg-white/5">
+          <div className="relative mt-2 h-24 w-24 overflow-hidden rounded bg-white/5">
             <Image src={photoPreview} alt="Preview" fill className="object-cover" unoptimized />
           </div>
         )}
@@ -316,7 +337,7 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
           value={formData.type}
           onValueChange={(v) => setFormData((p) => ({ ...p, type: v as "major" | "subproject" }))}
         >
-          <SelectTrigger className="bg-white/5 border-white/10 mt-1">
+          <SelectTrigger className="mt-1 border-white/10 bg-white/5">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -332,12 +353,14 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
             value={formData.parentId}
             onValueChange={(v) => setFormData((p) => ({ ...p, parentId: v }))}
           >
-            <SelectTrigger className="bg-white/5 border-white/10 mt-1">
+            <SelectTrigger className="mt-1 border-white/10 bg-white/5">
               <SelectValue placeholder="Select parent" />
             </SelectTrigger>
             <SelectContent>
               {majorProjects.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -348,7 +371,7 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
         <Input
           value={formData.name}
           onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
-          className="bg-white/5 border-white/10 mt-1"
+          className="mt-1 border-white/10 bg-white/5"
           placeholder="e.g. Kitchen Cupboards"
           required
         />
@@ -360,7 +383,7 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
             type="button"
             variant="ghost"
             size="sm"
-            className="text-blue-400 hover:text-blue-300 h-7"
+            className="h-7 text-blue-400 hover:text-blue-300"
             onClick={handleRefineDescription}
             disabled={refineLoading || !formData.name}
           >
@@ -371,7 +394,7 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
         <Textarea
           value={formData.description}
           onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
-          className="bg-white/5 border-white/10 mt-1"
+          className="mt-1 border-white/10 bg-white/5"
           rows={2}
         />
       </div>
@@ -382,7 +405,7 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
             value={formData.status}
             onValueChange={(v) => setFormData((p) => ({ ...p, status: v }))}
           >
-            <SelectTrigger className="bg-white/5 border-white/10 mt-1">
+            <SelectTrigger className="mt-1 border-white/10 bg-white/5">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -399,13 +422,13 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start flex-wrap gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
             <FolderKanban className="h-8 w-8 text-blue-400" />
             Projects
           </h1>
-          <p className="text-white/60 mt-1">
+          <p className="mt-1 text-white/60">
             {isAdmin
               ? "Major projects and subprojects (House Revamp, Zeerust Arming, etc.)"
               : "View projects and suggest new ones"}
@@ -413,21 +436,27 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
         </div>
         <div className="flex gap-2">
           {isAdmin && (
-            <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm() }}>
+            <Dialog
+              open={dialogOpen}
+              onOpenChange={(o) => {
+                setDialogOpen(o)
+                if (!o) resetForm()
+              }}
+            >
               <DialogTrigger asChild>
                 <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="mr-2 h-4 w-4" />
                   Add Project
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-md max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto border-white/10 bg-[#0d0d12] text-white">
                 <DialogHeader>
                   <DialogTitle>Add Project</DialogTitle>
                   <DialogDescription className="text-white/60">
                     Create a major project or subproject. Use a photo for AI suggestions.
                   </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleCreate} className="space-y-4 mt-4">
+                <form onSubmit={handleCreate} className="mt-4 space-y-4">
                   {formFields}
                   <DialogFooter>
                     <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
@@ -441,24 +470,37 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
               </DialogContent>
             </Dialog>
           )}
-          <Dialog open={suggestDialogOpen} onOpenChange={(o) => { setSuggestDialogOpen(o); if (!o) resetForm() }}>
+          <Dialog
+            open={suggestDialogOpen}
+            onOpenChange={(o) => {
+              setSuggestDialogOpen(o)
+              if (!o) resetForm()
+            }}
+          >
             <DialogTrigger asChild>
-              <Button variant={isAdmin ? "outline" : "default"} className={!isAdmin ? "bg-blue-600 hover:bg-blue-700" : "border-white/20"}>
-                <Sparkles className="h-4 w-4 mr-2" />
+              <Button
+                variant={isAdmin ? "outline" : "default"}
+                className={!isAdmin ? "bg-blue-600 hover:bg-blue-700" : "border-white/20"}
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
                 Suggest Project
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-md max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto border-white/10 bg-[#0d0d12] text-white">
               <DialogHeader>
                 <DialogTitle>Suggest a Project</DialogTitle>
                 <DialogDescription className="text-white/60">
                   Propose a new project or subproject. Admins will review and approve.
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleSuggest} className="space-y-4 mt-4">
+              <form onSubmit={handleSuggest} className="mt-4 space-y-4">
                 {formFields}
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setSuggestDialogOpen(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setSuggestDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
@@ -472,33 +514,43 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
       </div>
 
       {isAdmin && suggestions.length > 0 && (
-        <Card className="bg-amber-500/10 border-amber-500/30">
+        <Card className="border-amber-500/30 bg-amber-500/10">
           <CardHeader>
             <CardTitle className="text-amber-400">Pending suggestions</CardTitle>
             <CardDescription className="text-white/60">
-              {suggestions.length} project suggestion{suggestions.length !== 1 ? "s" : ""} awaiting review
+              {suggestions.length} project suggestion{suggestions.length !== 1 ? "s" : ""} awaiting
+              review
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             {suggestions.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10"
+                className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3"
               >
                 <div>
-                  <p className="text-white font-medium">{s.name}</p>
-                  {s.description && <p className="text-white/60 text-sm mt-1">{s.description}</p>}
-                  <p className="text-white/40 text-xs mt-1">
+                  <p className="font-medium text-white">{s.name}</p>
+                  {s.description && <p className="mt-1 text-sm text-white/60">{s.description}</p>}
+                  <p className="mt-1 text-xs text-white/40">
                     Suggested by {PERSONA_INFO[s.suggestedBy] || s.suggestedBy}
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => handleApproveSuggestion(s.id)}>
-                    <Check className="h-4 w-4 mr-1" />
+                  <Button
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700"
+                    onClick={() => handleApproveSuggestion(s.id)}
+                  >
+                    <Check className="mr-1 h-4 w-4" />
                     Approve
                   </Button>
-                  <Button size="sm" variant="outline" className="border-red-500/50 text-red-400" onClick={() => handleRejectSuggestion(s.id)}>
-                    <X className="h-4 w-4 mr-1" />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-red-500/50 text-red-400"
+                    onClick={() => handleRejectSuggestion(s.id)}
+                  >
+                    <X className="mr-1 h-4 w-4" />
                     Reject
                   </Button>
                 </div>
@@ -519,7 +571,7 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
             const isExpanded = expandedMajor.has(major.id)
 
             return (
-              <Card key={major.id} className="bg-white/5 border-white/10">
+              <Card key={major.id} className="border-white/10 bg-white/5">
                 <CardHeader
                   className="cursor-pointer"
                   onClick={() =>
@@ -545,65 +597,74 @@ export function ProjectsPageContent({ persona, isAdmin }: ProjectsPageContentPro
                         {major.status.replace("_", " ")}
                       </Badge>
                     </div>
-                    <span className="text-white/50 text-sm">{subs.length} subprojects</span>
+                    <span className="text-sm text-white/50">{subs.length} subprojects</span>
                   </div>
                   {major.description && (
                     <CardDescription className="text-white/60">{major.description}</CardDescription>
                   )}
                 </CardHeader>
                 {isExpanded && subs.length > 0 && (
-                  <CardContent className="pt-0 space-y-2">
+                  <CardContent className="space-y-2 pt-0">
                     {subs.map((sub) => (
                       <div
                         key={sub.id}
-                        className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10"
+                        className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3"
                       >
                         <div>
-                          <p className="text-white font-medium">{sub.name}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge className={STATUS_COLORS[sub.status] || STATUS_COLORS.planned} variant="outline">
+                          <p className="font-medium text-white">{sub.name}</p>
+                          <div className="mt-1 flex items-center gap-2">
+                            <Badge
+                              className={STATUS_COLORS[sub.status] || STATUS_COLORS.planned}
+                              variant="outline"
+                            >
                               {sub.status.replace("_", " ")}
                             </Badge>
                             {sub.members?.length ? (
-                              <span className="text-white/50 text-sm flex items-center gap-1">
+                              <span className="flex items-center gap-1 text-sm text-white/50">
                                 <Users className="h-3 w-3" />
-                                {sub.members.map((m) => PERSONA_INFO[m.userId] || m.userId).join(", ")}
+                                {sub.members
+                                  .map((m) => PERSONA_INFO[m.userId] || m.userId)
+                                  .join(", ")}
                               </span>
                             ) : null}
                           </div>
                         </div>
-                        {isAdmin && (() => {
-                          const available = ["hans", "charl", "lucky", "irma"].filter(
-                            (id) => !sub.members?.some((m) => m.userId === id)
-                          )
-                          if (available.length === 0) return <span className="text-white/40 text-sm">All assigned</span>
-                          const loading = suggestMemberLoading === sub.id
-                          return (
-                            <div className="flex items-center gap-2">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="text-blue-400 hover:text-blue-300"
-                                onClick={() => handleSuggestMember(sub.id, sub.name)}
-                                disabled={loading}
-                              >
-                                <AiSuggestIcon loading={loading} size="md" />
-                              </Button>
-                              <Select onValueChange={(v) => handleAddMember(sub.id, v, "contributor")}>
-                                <SelectTrigger className="w-36 bg-white/5 border-white/10">
-                                  <SelectValue placeholder="Add member" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {available.map((id) => (
-                                    <SelectItem key={id} value={id}>
-                                      Add {PERSONA_INFO[id]}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )
-                        })()}
+                        {isAdmin &&
+                          (() => {
+                            const available = ["hans", "charl", "lucky", "irma"].filter(
+                              (id) => !sub.members?.some((m) => m.userId === id)
+                            )
+                            if (available.length === 0)
+                              return <span className="text-sm text-white/40">All assigned</span>
+                            const loading = suggestMemberLoading === sub.id
+                            return (
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-blue-400 hover:text-blue-300"
+                                  onClick={() => handleSuggestMember(sub.id, sub.name)}
+                                  disabled={loading}
+                                >
+                                  <AiSuggestIcon loading={loading} size="md" />
+                                </Button>
+                                <Select
+                                  onValueChange={(v) => handleAddMember(sub.id, v, "contributor")}
+                                >
+                                  <SelectTrigger className="w-36 border-white/10 bg-white/5">
+                                    <SelectValue placeholder="Add member" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {available.map((id) => (
+                                      <SelectItem key={id} value={id}>
+                                        Add {PERSONA_INFO[id]}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )
+                          })()}
                       </div>
                     ))}
                   </CardContent>

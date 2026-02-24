@@ -25,7 +25,7 @@
     "type": "subproject",
     "parentId": "house-revamp",
     "status": "in_progress",
-    "members": [{"userId": "charl", "role": "lead", "allocationPercent": 60}],
+    "members": [{ "userId": "charl", "role": "lead", "allocationPercent": 60 }],
     "createdAt": "2026-01-01T00:00:00Z",
     "updatedAt": "2026-02-21T00:00:00Z"
   },
@@ -35,7 +35,7 @@
     "type": "subproject",
     "parentId": "house-revamp",
     "status": "planned",
-    "members": [{"userId": "lucky", "role": "lead", "allocationPercent": 50}],
+    "members": [{ "userId": "lucky", "role": "lead", "allocationPercent": 50 }],
     "createdAt": "2026-01-01T00:00:00Z",
     "updatedAt": "2026-02-21T00:00:00Z"
   },
@@ -55,7 +55,7 @@
     "type": "subproject",
     "parentId": "house-revamp",
     "status": "in_progress",
-    "members": [{"userId": "lucky", "role": "lead", "allocationPercent": 80}],
+    "members": [{ "userId": "lucky", "role": "lead", "allocationPercent": 80 }],
     "createdAt": "2026-01-01T00:00:00Z",
     "updatedAt": "2026-02-21T00:00:00Z"
   }

@@ -8,12 +8,12 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React |
-| Backend | Baserow (issues/assets), Azure Functions (AI routing, notification processing) |
-| Storage | Azure Blob (photos, documents) |
-| Integration | Map/Spatial Overlay (estate pin or area selection) |
+| Layer       | Technology                                                                     |
+| ----------- | ------------------------------------------------------------------------------ |
+| Frontend    | Next.js/React                                                                  |
+| Backend     | Baserow (issues/assets), Azure Functions (AI routing, notification processing) |
+| Storage     | Azure Blob (photos, documents)                                                 |
+| Integration | Map/Spatial Overlay (estate pin or area selection)                             |
 
 ---
 
@@ -113,24 +113,24 @@ Rising user expectations for transparency, mounting maintenance complexity, and 
 
 ## Measurable Objectives
 
-| Metric | Baseline | Target | Timeline |
-|--------|----------|--------|----------|
-| Percentage of issues triaged same day | 70% | 99% | 1 month post-launch |
-| Percentage of issues assigned within 8h | 60% | 90% | 2 months |
-| Attribution rate | 80% | 95%+ | Immediate |
-| Admin overhead (vs. baseline) | 100% | <25% | 3 months |
-| Percentage of issues with 1st response within 24h | ~60% | 100% | 1 month |
+| Metric                                            | Baseline | Target | Timeline            |
+| ------------------------------------------------- | -------- | ------ | ------------------- |
+| Percentage of issues triaged same day             | 70%      | 99%    | 1 month post-launch |
+| Percentage of issues assigned within 8h           | 60%      | 90%    | 2 months            |
+| Attribution rate                                  | 80%      | 95%+   | Immediate           |
+| Admin overhead (vs. baseline)                     | 100%     | <25%   | 3 months            |
+| Percentage of issues with 1st response within 24h | ~60%     | 100%   | 1 month             |
 
 ---
 
 ## Stakeholders
 
-| Stakeholder | Role & Responsibilities |
-|-------------|--------------------------|
-| Residents | Report issues, receive updates, give feedback |
-| Admin/Maintenance Lead | Triage, assign, supervise, close issues |
+| Stakeholder            | Role & Responsibilities                                  |
+| ---------------------- | -------------------------------------------------------- |
+| Residents              | Report issues, receive updates, give feedback            |
+| Admin/Maintenance Lead | Triage, assign, supervise, close issues                  |
 | Onsite Staff/Repairers | Execute tasks, update status, upload completion evidence |
-| Estate Owner | Review analytics, audit logs, oversee compliance |
+| Estate Owner           | Review analytics, audit logs, oversee compliance         |
 
 ---
 
@@ -212,24 +212,24 @@ Staff:   See assignments → Update status → Upload completion proof → Mark 
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Responsive | Mobile-first design |
-| Performance | Reporting/viewing operations complete in <2 seconds |
-| Scalability | Support 5–10 concurrent reporters/admins |
-| Security | All images and log data secured at-rest and in transit |
-| Real-time | Dashboard refresh without manual reload |
+| Requirement | Target                                                 |
+| ----------- | ------------------------------------------------------ |
+| Responsive  | Mobile-first design                                    |
+| Performance | Reporting/viewing operations complete in <2 seconds    |
+| Scalability | Support 5–10 concurrent reporters/admins               |
+| Security    | All images and log data secured at-rest and in transit |
+| Real-time   | Dashboard refresh without manual reload                |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Components |
-|------|------------|
-| Frontend | Report UI (anywhere), Dashboard, Notifications overlay |
-| Backend | Baserow (issues/assets/tasks), Assignment logic, Audit log, Notification processing |
-| Storage | Azure Blob for all images/docs |
-| Integration | Map overlays (pin, area, or room selection), Task/Chore scheduler module |
+| Layer       | Components                                                                          |
+| ----------- | ----------------------------------------------------------------------------------- |
+| Frontend    | Report UI (anywhere), Dashboard, Notifications overlay                              |
+| Backend     | Baserow (issues/assets/tasks), Assignment logic, Audit log, Notification processing |
+| Storage     | Azure Blob for all images/docs                                                      |
+| Integration | Map overlays (pin, area, or room selection), Task/Chore scheduler module            |
 
 ---
 
@@ -237,14 +237,14 @@ Staff:   See assignments → Update status → Upload completion proof → Mark 
 
 ### Required APIs
 
-| Endpoint | Purpose |
-|----------|---------|
-| POST /api/issue/report | Submit new issue (location/type/photo) |
-| GET/POST /api/issues | List/filter issues (for dashboard/staff) |
+| Endpoint                    | Purpose                                   |
+| --------------------------- | ----------------------------------------- |
+| POST /api/issue/report      | Submit new issue (location/type/photo)    |
+| GET/POST /api/issues        | List/filter issues (for dashboard/staff)  |
 | PATCH /api/issue/:id/status | Update status (progress, block, complete) |
-| POST /api/issue/assign | Assign staff/admin to issue |
-| Notification endpoints | Send push/email on status/assignment |
-| Baserow CRUD | Sync issues, assets, action logs |
+| POST /api/issue/assign      | Assign staff/admin to issue               |
+| Notification endpoints      | Send push/email on status/assignment      |
+| Baserow CRUD                | Sync issues, assets, action logs          |
 
 ### External Dependencies
 
@@ -258,10 +258,10 @@ Staff:   See assignments → Update status → Upload completion proof → Mark 
 
 ## Data Models
 
-| Entity | Fields |
-|--------|--------|
-| Issue | ID, type, location/ref, description, photo(s), status, assigned, reporter (attributed), linked asset/room/map, timestamps |
-| Action Log | Issue ID, user, action, timestamp |
+| Entity     | Fields                                                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Issue      | ID, type, location/ref, description, photo(s), status, assigned, reporter (attributed), linked asset/room/map, timestamps |
+| Action Log | Issue ID, user, action, timestamp                                                                                         |
 
 ---
 
@@ -321,10 +321,10 @@ Fully accessible UI (WCAG 2.1 AA): alt tags, labeled map/data, keyboard/tab navi
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target |
-|-------|-------|--------|
-| 1 | Core reporting, admin dashboard, photo status | +1 month |
-| 2 | Map pinning, AI/duplication, feedback loop | +2–3 months |
+| Phase | Scope                                         | Target      |
+| ----- | --------------------------------------------- | ----------- |
+| 1     | Core reporting, admin dashboard, photo status | +1 month    |
+| 2     | Map pinning, AI/duplication, feedback loop    | +2–3 months |
 
 **Dependencies:** Asset/room mapping, notification integration, Task/Chore connection, owner buy-in
 
@@ -354,22 +354,22 @@ Fully accessible UI (WCAG 2.1 AA): alt tags, labeled map/data, keyboard/tab navi
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|--------------|------------|
-| Spam/fake issues | Admin overload, trust | Medium | Require attribution, log all actions, AI grouping |
-| Staff lag on assignments | Delayed resolutions | Medium | Auto-reminders, admin escalation route |
-| Partial/late asset mapping | Gaps in coverage | High | Fallback to freeform reporting, mark for mapping |
-| Notification failures | Missed updates | Medium | Fallback email/SMS, escalate repetitive failures |
+| Risk                       | Impact                | Probability | Mitigation                                        |
+| -------------------------- | --------------------- | ----------- | ------------------------------------------------- |
+| Spam/fake issues           | Admin overload, trust | Medium      | Require attribution, log all actions, AI grouping |
+| Staff lag on assignments   | Delayed resolutions   | Medium      | Auto-reminders, admin escalation route            |
+| Partial/late asset mapping | Gaps in coverage      | High        | Fallback to freeform reporting, mark for mapping  |
+| Notification failures      | Missed updates        | Medium      | Fallback email/SMS, escalate repetitive failures  |
 
 ---
 
 ## Open Questions
 
-| Question | Owner |
-|----------|-------|
-| Should certain issue types require a severity (priority) rating? | Owner/Admin |
-| Will image AI be used to pre-fill type/context? | Research/technical feasibility |
-| Do we record non-issue (preventive/regular) maintenance within the same flow? | Scope decision |
+| Question                                                                      | Owner                          |
+| ----------------------------------------------------------------------------- | ------------------------------ |
+| Should certain issue types require a severity (priority) rating?              | Owner/Admin                    |
+| Will image AI be used to pre-fill type/context?                               | Research/technical feasibility |
+| Do we record non-issue (preventive/regular) maintenance within the same flow? | Scope decision                 |
 
 ---
 
@@ -446,22 +446,22 @@ Few property/estate platforms support map-native and photo-based reporting anywh
 
 ### Event Flow Table
 
-| Step | Frontend Action | API Endpoint | System Logic | User Feedback |
-|------|-----------------|--------------|--------------|---------------|
-| Select area/asset | Pin/asset UI | - | - | Show "Is this mapped?" |
-| Describe issue | Freeform/structured | - | - | Typed input required |
-| Photo upload | Minimum 1 enforced | - | - | Required for submit |
-| Duplicate check | Pre-submit debounce | /api/issue/check-dup | If match, suggest merge/redirect | "Similar issue exists" popup |
-| Submit | Button (photo req'd) | /api/issue/report | Store in Baserow, photo in Blob | Confirmation/status |
+| Step              | Frontend Action      | API Endpoint         | System Logic                     | User Feedback                |
+| ----------------- | -------------------- | -------------------- | -------------------------------- | ---------------------------- |
+| Select area/asset | Pin/asset UI         | -                    | -                                | Show "Is this mapped?"       |
+| Describe issue    | Freeform/structured  | -                    | -                                | Typed input required         |
+| Photo upload      | Minimum 1 enforced   | -                    | -                                | Required for submit          |
+| Duplicate check   | Pre-submit debounce  | /api/issue/check-dup | If match, suggest merge/redirect | "Similar issue exists" popup |
+| Submit            | Button (photo req'd) | /api/issue/report    | Store in Baserow, photo in Blob  | Confirmation/status          |
 
 ### Submission Edge Cases
 
-| Scenario | System Response | UX/Engineering Notes |
-|----------|-----------------|------------------------|
-| Missing asset mapping | "Other asset" mode; additional field rendered, flagged in Baserow | Logs admin task to map asset |
-| Duplicate detected | Warns, link to matching issue, option to merge/continue as separate | Related in Baserow (parent/child) |
-| Bad photo upload | Retry + error, submission held, persistent failure triggers admin alert | Ensure Blob resilience |
-| Submission timeout | Save as draft, retry on reconnect | Indexed in browser local storage |
+| Scenario              | System Response                                                         | UX/Engineering Notes              |
+| --------------------- | ----------------------------------------------------------------------- | --------------------------------- |
+| Missing asset mapping | "Other asset" mode; additional field rendered, flagged in Baserow       | Logs admin task to map asset      |
+| Duplicate detected    | Warns, link to matching issue, option to merge/continue as separate     | Related in Baserow (parent/child) |
+| Bad photo upload      | Retry + error, submission held, persistent failure triggers admin alert | Ensure Blob resilience            |
+| Submission timeout    | Save as draft, retry on reconnect                                       | Indexed in browser local storage  |
 
 ---
 
@@ -505,22 +505,22 @@ Few property/estate platforms support map-native and photo-based reporting anywh
 
 ### Assignment Event Table
 
-| Action | API Endpoint | System Update | Notification(s) | Log Entry |
-|--------|--------------|---------------|-----------------|-----------|
-| Assign | POST /api/issue/assign | Updates assignedTo, SLA timer starts | Push/email to staff | Yes |
-| Bulk close | POST /api/issue/bulk-close | Mark many as closed | Batched notification | Yes |
-| Merge dupes | POST /api/issue/merge | Parents/children grouped, all linked | - | Yes |
-| Escalation | PATCH /api/issue/escalate | Status escalated, owner alerted | Admin/owner notified | Yes |
+| Action      | API Endpoint               | System Update                        | Notification(s)      | Log Entry |
+| ----------- | -------------------------- | ------------------------------------ | -------------------- | --------- |
+| Assign      | POST /api/issue/assign     | Updates assignedTo, SLA timer starts | Push/email to staff  | Yes       |
+| Bulk close  | POST /api/issue/bulk-close | Mark many as closed                  | Batched notification | Yes       |
+| Merge dupes | POST /api/issue/merge      | Parents/children grouped, all linked | -                    | Yes       |
+| Escalation  | PATCH /api/issue/escalate  | Status escalated, owner alerted      | Admin/owner notified | Yes       |
 
 ### Triage Edge Cases
 
-| Edge Condition | System Behavior |
-|----------------|-----------------|
-| Asset not mapped | Groups "Other asset", sends admin to mapping queue |
-| Staff refuses | Immediate admin alert, requires reassign/override |
-| Duplicate after assign | Prompts admin to merge or leave separate |
-| Overdue issue (>SLAs) | Auto-flag, escalation email/push |
-| Bulk action canceled | No state change, instance logged |
+| Edge Condition         | System Behavior                                    |
+| ---------------------- | -------------------------------------------------- |
+| Asset not mapped       | Groups "Other asset", sends admin to mapping queue |
+| Staff refuses          | Immediate admin alert, requires reassign/override  |
+| Duplicate after assign | Prompts admin to merge or leave separate           |
+| Overdue issue (>SLAs)  | Auto-flag, escalation email/push                   |
+| Bulk action canceled   | No state change, instance logged                   |
 
 ---
 
@@ -563,15 +563,15 @@ Few property/estate platforms support map-native and photo-based reporting anywh
 
 ### Notification & Escalation Event Table
 
-| Trigger | Target | Notification Mode | Conditions for Escalation |
-|---------|--------|-------------------|---------------------------|
-| New issue | Admin | Push/email | None |
-| Assignment | Staff | Push/SMS/email | Unopened in 1h → resend |
-| SLA breach (assign/response) | Staff, Admin | Push/email | 2 consecutive → escalate |
-| Issue closed (by staff/admin) | Reporter | Push/email | - |
-| Feedback prompt overdue | Reporter | Reminder push/email | - |
-| Bulk close | All affected Reporters | Batched email | - |
-| Audit/Owner review | Admin, Owner | - | Manual audit/analysis |
+| Trigger                       | Target                 | Notification Mode   | Conditions for Escalation |
+| ----------------------------- | ---------------------- | ------------------- | ------------------------- |
+| New issue                     | Admin                  | Push/email          | None                      |
+| Assignment                    | Staff                  | Push/SMS/email      | Unopened in 1h → resend   |
+| SLA breach (assign/response)  | Staff, Admin           | Push/email          | 2 consecutive → escalate  |
+| Issue closed (by staff/admin) | Reporter               | Push/email          | -                         |
+| Feedback prompt overdue       | Reporter               | Reminder push/email | -                         |
+| Bulk close                    | All affected Reporters | Batched email       | -                         |
+| Audit/Owner review            | Admin, Owner           | -                   | Manual audit/analysis     |
 
 ---
 
@@ -607,41 +607,41 @@ Few property/estate platforms support map-native and photo-based reporting anywh
 
 ### Data Model Edge Cases
 
-| Edge/Scenario | Data Model Handling |
-|---------------|---------------------|
-| Asset unmapped | AssetID null, assetDesc string populated |
-| Duplicate issues | childIssues[] links, parentIssueID for master |
-| Bulk close | ActionLog: ENTRY per closed issue |
-| Feedback attached | Issue.feedbackResponse (object, timestamped) |
+| Edge/Scenario     | Data Model Handling                             |
+| ----------------- | ----------------------------------------------- |
+| Asset unmapped    | AssetID null, assetDesc string populated        |
+| Duplicate issues  | childIssues[] links, parentIssueID for master   |
+| Bulk close        | ActionLog: ENTRY per closed issue               |
+| Feedback attached | Issue.feedbackResponse (object, timestamped)    |
 | Photo upload fail | issue.photos[i].status=FAILED; trigger retry UI |
 
 ---
 
 ## 5. Full API Reference
 
-| Endpoint | Method | Input | Downstream Action | Notification | Audit Log |
-|----------|--------|-------|-------------------|--------------|-----------|
-| /api/issue/report | POST | json:issue, photo | Create Baserow row, Blob photo | Notify Admin | Yes |
-| /api/issue/check-dup | POST | json:location/type | Query open issues, suggest merge; see algorithm below | - | No |
-| /api/issue/:id/status | PATCH | status | Update status, fire webhooks | Notify Reporter | Yes |
-| /api/issue/assign | POST | id, staff_id | Update assignment, SLA start | Notify Staff | Yes |
-| /api/issue/bulk-close | POST | [ids] | Close multiple, trigger summary | Notify Batch | Yes |
-| /api/issue/feedback | POST | id, rating, notes | Save feedback, update analytics | - | Yes |
-| /api/assets/unmapped | GET | - | Return unmapped for admin queue | - | No |
-| /api/issue/merge | POST | parent, children | Link/group issues, update log | - | Yes |
-| /api/issue/escalate | PATCH | id, reason | Update state, notify owner/admin | Notify Owner | Yes |
+| Endpoint              | Method | Input              | Downstream Action                                     | Notification    | Audit Log |
+| --------------------- | ------ | ------------------ | ----------------------------------------------------- | --------------- | --------- |
+| /api/issue/report     | POST   | json:issue, photo  | Create Baserow row, Blob photo                        | Notify Admin    | Yes       |
+| /api/issue/check-dup  | POST   | json:location/type | Query open issues, suggest merge; see algorithm below | -               | No        |
+| /api/issue/:id/status | PATCH  | status             | Update status, fire webhooks                          | Notify Reporter | Yes       |
+| /api/issue/assign     | POST   | id, staff_id       | Update assignment, SLA start                          | Notify Staff    | Yes       |
+| /api/issue/bulk-close | POST   | [ids]              | Close multiple, trigger summary                       | Notify Batch    | Yes       |
+| /api/issue/feedback   | POST   | id, rating, notes  | Save feedback, update analytics                       | -               | Yes       |
+| /api/assets/unmapped  | GET    | -                  | Return unmapped for admin queue                       | -               | No        |
+| /api/issue/merge      | POST   | parent, children   | Link/group issues, update log                         | -               | Yes       |
+| /api/issue/escalate   | PATCH  | id, reason         | Update state, notify owner/admin                      | Notify Owner    | Yes       |
 
 ### /api/issue/check-dup Algorithm
 
 Duplicates are detected by: (a) spatial proximity within 10 meters, (b) same issue type or same asset ID, and (c) a computed `similarityScore` with threshold 0.8 (80%). Response fields:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| similarityScore | number | 0–1; weighted combination of spatial, type, and asset match |
-| spatialDistanceMeters | number | Distance to nearest candidate issue |
-| typeMatch | boolean | True if issue type matches |
-| assetMatch | boolean | True if asset ID matches |
-| isDuplicate | boolean | True when `similarityScore >= 0.8` AND (`spatialDistanceMeters <= 10` OR `assetMatch == true`) |
+| Field                 | Type    | Description                                                                                    |
+| --------------------- | ------- | ---------------------------------------------------------------------------------------------- |
+| similarityScore       | number  | 0–1; weighted combination of spatial, type, and asset match                                    |
+| spatialDistanceMeters | number  | Distance to nearest candidate issue                                                            |
+| typeMatch             | boolean | True if issue type matches                                                                     |
+| assetMatch            | boolean | True if asset ID matches                                                                       |
+| isDuplicate           | boolean | True when `similarityScore >= 0.8` AND (`spatialDistanceMeters <= 10` OR `assetMatch == true`) |
 
 ---
 
@@ -694,15 +694,15 @@ Duplicates are detected by: (a) spatial proximity within 10 meters, (b) same iss
 
 ### Corner Case Clarifications
 
-| Situation/Case | System Behavior |
-|----------------|-----------------|
-| Bulk submission (network loss) | Save locally, retry post-reconnect, notify user of recover/save status |
-| Asset unmapped (recurring) | After 3x "Other asset" at same location, triggers auto-admin mapping alert |
-| Escalation loop (no action) | After 2 escalations, issue triggers "urgent" state, pings owner/admin SMS |
-| Non-photo completion attempt | API blocks, frontend prompts for required photo; audit logs refusal |
-| Feedback not given post-close | Single auto-reminder at 24h, flags in analytics dashboard as "missing" |
-| Blob persistently fails | Notify admin for manual remediation. All other fields retained; "photo-missing" flag |
-| Merge-related issues | Children issues get "resolved via merge" status + link to feeder |
+| Situation/Case                 | System Behavior                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------ |
+| Bulk submission (network loss) | Save locally, retry post-reconnect, notify user of recover/save status               |
+| Asset unmapped (recurring)     | After 3x "Other asset" at same location, triggers auto-admin mapping alert           |
+| Escalation loop (no action)    | After 2 escalations, issue triggers "urgent" state, pings owner/admin SMS            |
+| Non-photo completion attempt   | API blocks, frontend prompts for required photo; audit logs refusal                  |
+| Feedback not given post-close  | Single auto-reminder at 24h, flags in analytics dashboard as "missing"               |
+| Blob persistently fails        | Notify admin for manual remediation. All other fields retained; "photo-missing" flag |
+| Merge-related issues           | Children issues get "resolved via merge" status + link to feeder                     |
 
 ---
 

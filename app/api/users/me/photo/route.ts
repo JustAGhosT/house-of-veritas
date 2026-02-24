@@ -30,7 +30,10 @@ export const POST = withAuth(async (request, context) => {
     }
 
     if (!ALLOWED.includes(file.type)) {
-      return NextResponse.json({ error: "Invalid file type. Use JPEG, PNG, WebP, or GIF." }, { status: 400 })
+      return NextResponse.json(
+        { error: "Invalid file type. Use JPEG, PNG, WebP, or GIF." },
+        { status: 400 }
+      )
     }
 
     if (file.size > MAX_SIZE) {
