@@ -135,6 +135,13 @@ jobs:
         run: |
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public
+          node -e "
+            const fs = require('fs');
+            const p = '.next/standalone/package.json';
+            const pkg = JSON.parse(fs.readFileSync(p, 'utf8'));
+            (pkg.scripts = pkg.scripts || {}).start = 'node server.js';
+            fs.writeFileSync(p, JSON.stringify(pkg, null, 2));
+          "
       
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
