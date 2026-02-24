@@ -280,7 +280,7 @@ resource "azurerm_application_gateway" "main" {
   }
 
   # Gateway-level SSL policy (AppGwSslPolicy20150501 deprecated Aug 2025)
-  # CustomV2 with TLS 1.2 minimum bypasses deprecated default; listener ssl_profile refines per-listener
+  # CustomV2 with TLS 1.3 minimum bypasses deprecated default; listener ssl_profile refines per-listener
   dynamic "ssl_policy" {
     for_each = local.has_ssl ? [1] : []
     content {
