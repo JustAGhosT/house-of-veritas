@@ -143,7 +143,7 @@ Deliver a mobile-first user interface for estate operations that is resilient to
 
 **Offline Resident/Staff**
 
-- Frequently operate in low or no connectivity environments. Motivated by the need for fast, simple reporting with reliable delivery. Pain points include data loss and unclear status for submissions.
+- Frequently operate in low- or no-connectivity environments. Motivated by the need for fast, simple reporting with reliable delivery. Pain points include data loss and unclear status for submissions.
 
 **Admin/Queue/Audit Lead**
 
