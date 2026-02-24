@@ -127,7 +127,7 @@ resource "azurerm_application_gateway" "main" {
   }
 
   # HTTPS listeners (only when SSL cert is provided)
-  # No ssl_profile — listeners inherit gateway-level ssl_policy (AppGwSslPolicy20220101 = TLS 1.2+1.3)
+  # No ssl_profile — listeners inherit gateway-level ssl_policy (AppGwSslPolicy20220101 = TLS 1.2 and 1.3)
   dynamic "http_listener" {
     for_each = local.has_ssl ? [1] : []
     content {
