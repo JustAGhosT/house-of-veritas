@@ -6,13 +6,13 @@ This document describes how to roll back deployments when a release introduces c
 
 ## Overview
 
-| Component | Rollback Method | RTO (approx.) |
-| ----------- | ----------------- | --------------- |
-| Next.js Web App | Redeploy previous release tag | 5–10 min |
-| Azure Functions | Redeploy from previous commit | 5–10 min |
-| Terraform (Infrastructure) | Restore state + apply | 15–30 min |
-| DocuSeal / Baserow | Restart or redeploy container | 5–15 min |
-| PostgreSQL | Point-in-time restore | 30–60 min |
+| Component                  | Rollback Method               | RTO (approx.) |
+| -------------------------- | ----------------------------- | ------------- |
+| Next.js Web App            | Redeploy previous release tag | 5–10 min      |
+| Azure Functions            | Redeploy from previous commit | 5–10 min      |
+| Terraform (Infrastructure) | Restore state + apply         | 15–30 min     |
+| DocuSeal / Baserow         | Restart or redeploy container | 5–15 min      |
+| PostgreSQL                 | Point-in-time restore         | 30–60 min     |
 
 ---
 
@@ -205,13 +205,13 @@ az container show --resource-group nl-prod-hov-rg-san --name aci-baserow --query
 
 ## Quick Reference
 
-| Scenario | Command |
-| ---------- | --------- |
-| Roll back Web App | `gh workflow run deploy.yml -r <last-good-tag>` |
+| Scenario            | Command                                                       |
+| ------------------- | ------------------------------------------------------------- |
+| Roll back Web App   | `gh workflow run deploy.yml -r <last-good-tag>`               |
 | Roll back Functions | `gh workflow run deploy-functions.yml` (from reverted branch) |
-| Roll back Terraform | Restore state blob version, then `terraform apply` |
-| Restart containers | `az container restart -g nl-prod-hov-rg-san -n aci-docuseal` |
-| DB restore | `az postgres flexible-server restore ...` |
+| Roll back Terraform | Restore state blob version, then `terraform apply`            |
+| Restart containers  | `az container restart -g nl-prod-hov-rg-san -n aci-docuseal`  |
+| DB restore          | `az postgres flexible-server restore ...`                     |
 
 ---
 

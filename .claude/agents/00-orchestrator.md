@@ -7,18 +7,18 @@ identifies cross-cutting concerns, and produces a unified assessment with priori
 
 ## Agents Under Coordination
 
-| ID | Agent | Focus |
-| ---- | ----- | ------ |
-| 01 | CI/CD | GitHub Actions, deployment pipelines |
-| 02 | Infrastructure | Terraform, Azure resources, security |
-| 03 | Testing | Test coverage, quality, frameworks |
-| 04 | API/Functions | Next.js routes, Azure Functions |
-| 05 | Database | Data layer, storage, integrations |
-| 06 | UI Layer | Components, pages, accessibility, UX |
-| 07 | Architecture | System design, patterns, scalability |
-| 08 | Refactoring | SOLID, DRY, code smells, patterns |
-| 09 | Bugs & Features | Bug detection, feature gaps, enhancements |
-| 10 | Vertical Features | Cross-stack feature completeness |
+| ID  | Agent             | Focus                                     |
+| --- | ----------------- | ----------------------------------------- |
+| 01  | CI/CD             | GitHub Actions, deployment pipelines      |
+| 02  | Infrastructure    | Terraform, Azure resources, security      |
+| 03  | Testing           | Test coverage, quality, frameworks        |
+| 04  | API/Functions     | Next.js routes, Azure Functions           |
+| 05  | Database          | Data layer, storage, integrations         |
+| 06  | UI Layer          | Components, pages, accessibility, UX      |
+| 07  | Architecture      | System design, patterns, scalability      |
+| 08  | Refactoring       | SOLID, DRY, code smells, patterns         |
+| 09  | Bugs & Features   | Bug detection, feature gaps, enhancements |
+| 10  | Vertical Features | Cross-stack feature completeness          |
 
 ## Orchestration Protocol
 
@@ -71,18 +71,23 @@ Write the master report to `.claude/reports/orchestrator-summary.md` with:
 # Team Assessment Summary
 
 ## Overall Health Score
+
 [A-F grade per domain]
 
 ## Critical Findings
+
 [P0 items requiring immediate attention]
 
 ## Action Plan
+
 [Prioritized backlog with effort estimates]
 
 ## Cross-Cutting Concerns
+
 [Issues spanning multiple domains]
 
 ## Agent Reports
+
 [Links to individual reports]
 ```
 

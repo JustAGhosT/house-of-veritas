@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (incident report, checklist, logs, mobile emergency flows) |
-| Backend | Baserow (incident/event/trend/tracker), Azure Functions (alert, escalation, analytics, reminder) |
-| Storage | Azure Blob (photos, reports, attachments) |
+| Layer    | Technology                                                                                       |
+| -------- | ------------------------------------------------------------------------------------------------ |
+| Frontend | Next.js/React (incident report, checklist, logs, mobile emergency flows)                         |
+| Backend  | Baserow (incident/event/trend/tracker), Azure Functions (alert, escalation, analytics, reminder) |
+| Storage  | Azure Blob (photos, reports, attachments)                                                        |
 
 ---
 
@@ -122,23 +122,23 @@ Enable easy and safe reporting; direct linkage to maintenance/tasks; admin and o
 
 ## Measurable Objectives
 
-| Objective | Baseline | Target | Timeline |
-|-----------|----------|--------|----------|
-| Percentage of events captured in real-time | <40% | >99% | 3 months |
-| Incidents/actions closed within 24h | <50% | >90% | 3 months |
-| First feedback delivered in <1 day | <70% | 100% | Launch |
-| Allergy/recurrence flags reported | Spotty | 100% | Ongoing |
-| Missed on-call/first-aider alerts | Often | Zero | 1 month |
+| Objective                                  | Baseline | Target | Timeline |
+| ------------------------------------------ | -------- | ------ | -------- |
+| Percentage of events captured in real-time | <40%     | >99%   | 3 months |
+| Incidents/actions closed within 24h        | <50%     | >90%   | 3 months |
+| First feedback delivered in <1 day         | <70%     | 100%   | Launch   |
+| Allergy/recurrence flags reported          | Spotty   | 100%   | Ongoing  |
+| Missed on-call/first-aider alerts          | Often    | Zero   | 1 month  |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibilities |
-|------|------------------|
-| Residents | Report, track, and receive feedback on incidents/wellness events |
-| Admins/Safety | Triage, escalate cases, close events, maintain audit trails |
-| First Aiders | Respond, log actions, track & close medical cases |
+| Role          | Responsibilities                                                 |
+| ------------- | ---------------------------------------------------------------- |
+| Residents     | Report, track, and receive feedback on incidents/wellness events |
+| Admins/Safety | Triage, escalate cases, close events, maintain audit trails      |
+| First Aiders  | Respond, log actions, track & close medical cases                |
 | Owner/Auditor | Review logs, ensure compliance, escalate, onboard credits/resets |
 
 ---
@@ -248,26 +248,26 @@ Audit/review exported logs → Approve credits/trigger drills
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| UX | Mobile-first responsive input and alert flows |
-| Response time | Sub-2 second for all core actions |
-| Security | End-to-end encryption, GDPR/POPIA compliance |
-| Audit retention | 5 years immutable audit log retention |
-| Concurrency | All residents/admins simultaneously |
-| Accessibility | Full ARIA compliance for dashboards/reports |
+| Requirement     | Target                                        |
+| --------------- | --------------------------------------------- |
+| UX              | Mobile-first responsive input and alert flows |
+| Response time   | Sub-2 second for all core actions             |
+| Security        | End-to-end encryption, GDPR/POPIA compliance  |
+| Audit retention | 5 years immutable audit log retention         |
+| Concurrency     | All residents/admins simultaneously           |
+| Accessibility   | Full ARIA compliance for dashboards/reports   |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Components | Responsibilities |
-|-------|-------------|------------------|
-| Frontend | Incident entry, status tracking, dashboard, feedback, alert | User interaction |
-| Backend | Incident/event log, trend/tracker, feedback, escalation logic, analytics | Logic, persistence |
-| Storage | Photos, supporting documents, logs, export files | Evidence, archives |
-| Notification | Incident/action status alerts | Real-time communication |
-| Integration | Maintenance/task/asset management, owner/incident export utility | Cross-module sync |
+| Layer        | Components                                                               | Responsibilities        |
+| ------------ | ------------------------------------------------------------------------ | ----------------------- |
+| Frontend     | Incident entry, status tracking, dashboard, feedback, alert              | User interaction        |
+| Backend      | Incident/event log, trend/tracker, feedback, escalation logic, analytics | Logic, persistence      |
+| Storage      | Photos, supporting documents, logs, export files                         | Evidence, archives      |
+| Notification | Incident/action status alerts                                            | Real-time communication |
+| Integration  | Maintenance/task/asset management, owner/incident export utility         | Cross-module sync       |
 
 ---
 
@@ -275,15 +275,15 @@ Audit/review exported logs → Approve credits/trigger drills
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/incident/report | POST/GET | Submit, view incident log |
-| /api/incident/feedback | POST/GET | Admin/first-aider feedback & status |
-| /api/incident/escalate | POST/GET | Escalate event to owner/on-call |
-| /api/audit/export | POST/GET | Export/batch audit logs |
-| /api/incident/allergy | POST/GET | Submit/view allergy/recurrence |
-| /api/notify | POST/GET | Trigger incident/alert notification |
-| /api/trend/analytics | GET | Provide incident/event trend analytics |
+| Endpoint               | Method   | Purpose                                |
+| ---------------------- | -------- | -------------------------------------- |
+| /api/incident/report   | POST/GET | Submit, view incident log              |
+| /api/incident/feedback | POST/GET | Admin/first-aider feedback & status    |
+| /api/incident/escalate | POST/GET | Escalate event to owner/on-call        |
+| /api/audit/export      | POST/GET | Export/batch audit logs                |
+| /api/incident/allergy  | POST/GET | Submit/view allergy/recurrence         |
+| /api/notify            | POST/GET | Trigger incident/alert notification    |
+| /api/trend/analytics   | GET      | Provide incident/event trend analytics |
 
 ### External Dependencies
 
@@ -297,13 +297,13 @@ Audit/review exported logs → Approve credits/trigger drills
 
 ## Data Models
 
-| Entity | Fields/Relations |
-|--------|-------------------|
-| Incident | ID, type, priority, location, anon, timestamp, reporter, assigned, feedback, linked maintenance/owner, status, notes, trend, audit |
-| Feedback | IncidentID, user, status, comment, closure, rating |
-| Allergy | IncidentID, user, type, recurrence, closure, flag |
-| Escalation | IncidentID, from/to, when, status |
-| Audit | IncidentID, action, by, time, prior, export |
+| Entity     | Fields/Relations                                                                                                                   |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Incident   | ID, type, priority, location, anon, timestamp, reporter, assigned, feedback, linked maintenance/owner, status, notes, trend, audit |
+| Feedback   | IncidentID, user, status, comment, closure, rating                                                                                 |
+| Allergy    | IncidentID, user, type, recurrence, closure, flag                                                                                  |
+| Escalation | IncidentID, from/to, when, status                                                                                                  |
+| Audit      | IncidentID, action, by, time, prior, export                                                                                        |
 
 ---
 
@@ -362,11 +362,11 @@ Audit/review exported logs → Approve credits/trigger drills
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target | Dependencies |
-|-------|-------|--------|--------------|
-| 1 | Incident log, admin triage, feedback loop, export | Month 1–2 | Baserow, Next.js, Azure |
-| 2 | Analytics, maintenance/task cross-link | Month 3 | Notification, task integration |
-| 3 | Owner audit, insurer SLA, mobile/offline | Month 4–6 | Compliance, mobile dev |
+| Phase | Scope                                             | Target    | Dependencies                   |
+| ----- | ------------------------------------------------- | --------- | ------------------------------ |
+| 1     | Incident log, admin triage, feedback loop, export | Month 1–2 | Baserow, Next.js, Azure        |
+| 2     | Analytics, maintenance/task cross-link            | Month 3   | Notification, task integration |
+| 3     | Owner audit, insurer SLA, mobile/offline          | Month 4–6 | Compliance, mobile dev         |
 
 ---
 
@@ -396,22 +396,22 @@ Audit/review exported logs → Approve credits/trigger drills
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Missed/hidden reports | High | Medium | Mobile-first UI, reminders, owner audits |
-| Unresponsive admin escalation | High | Medium | Auto-escalate after timeout |
-| Lost photo/evidence uploads | Medium | Low | Redundancy, manual retrain/upload process |
-| Compliance override/abuse | High | Low | Admin/owner signature & justification logging |
+| Risk                          | Impact | Probability | Mitigation                                    |
+| ----------------------------- | ------ | ----------- | --------------------------------------------- |
+| Missed/hidden reports         | High   | Medium      | Mobile-first UI, reminders, owner audits      |
+| Unresponsive admin escalation | High   | Medium      | Auto-escalate after timeout                   |
+| Lost photo/evidence uploads   | Medium | Low         | Redundancy, manual retrain/upload process     |
+| Compliance override/abuse     | High   | Low         | Admin/owner signature & justification logging |
 
 ---
 
 ## Open Questions
 
-| Question | Impact |
-|----------|--------|
-| What degree of privacy/anon logging is required at MVP launch? | |
-| Should trend analytics be visible to all, or owner-only? | |
-| What level of insurer/legal alert integration is required out-of-the-box? | |
+| Question                                                                  | Impact |
+| ------------------------------------------------------------------------- | ------ |
+| What degree of privacy/anon logging is required at MVP launch?            |        |
+| Should trend analytics be visible to all, or owner-only?                  |        |
+| What level of insurer/legal alert integration is required out-of-the-box? |        |
 
 ---
 

@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (project planner, timeline, ROI builder, dependency map) |
-| Backend | Azure Functions (project state, analytics, alert), Baserow (project/phase/tracker) |
-| Storage | Azure Blob (docs, budget, certificates, reports) |
+| Layer    | Technology                                                                         |
+| -------- | ---------------------------------------------------------------------------------- |
+| Frontend | Next.js/React (project planner, timeline, ROI builder, dependency map)             |
+| Backend  | Azure Functions (project state, analytics, alert), Baserow (project/phase/tracker) |
+| Storage  | Azure Blob (docs, budget, certificates, reports)                                   |
 
 ---
 
@@ -124,24 +124,24 @@ Modern estates increasingly require demonstrable cost control, future-proofing, 
 
 ## Measurable Objectives
 
-| Objective | Target |
-|-----------|--------|
-| Overrun on tracked projects | Less than 10% |
-| Approval log/board/cert phase capture | 99% |
-| Late/owner/compliance event failures | Zero |
+| Objective                             | Target        |
+| ------------------------------------- | ------------- |
+| Overrun on tracked projects           | Less than 10% |
+| Approval log/board/cert phase capture | 99%           |
+| Late/owner/compliance event failures  | Zero          |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibility |
-|------|----------------|
-| Owner/Board | Creation, approval, export, and oversight |
-| Project Manager | Setup, tracking, reporting, risk/action management |
-| Admin | Assignment, alerts, and support |
-| Resident | Status, feedback |
-| Maintenance/Asset | Phase/task execution, closure |
-| Auditor/Financier | Audit/export for compliance and risk review |
+| Role                | Responsibility                                     |
+| ------------------- | -------------------------------------------------- |
+| Owner/Board         | Creation, approval, export, and oversight          |
+| Project Manager     | Setup, tracking, reporting, risk/action management |
+| Admin               | Assignment, alerts, and support                    |
+| Resident            | Status, feedback                                   |
+| Maintenance/Asset   | Phase/task execution, closure                      |
+| Auditor/Financier   | Audit/export for compliance and risk review        |
 | Compliance/Doc Lead | Documentation, certification, regulatory reporting |
 
 ---
@@ -206,23 +206,23 @@ Modern estates increasingly require demonstrable cost control, future-proofing, 
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Gantt/schedule load and render | Under 1 second |
-| Security | All files and exports encrypted in cloud storage |
-| Event/archive retention | >7 years; batch export support |
-| Accessibility | ARIA timeline/alert features; accessible color/role charting |
-| Concurrency | Multi-team/phase; support for high report burst volumes |
+| Requirement                    | Target                                                       |
+| ------------------------------ | ------------------------------------------------------------ |
+| Gantt/schedule load and render | Under 1 second                                               |
+| Security                       | All files and exports encrypted in cloud storage             |
+| Event/archive retention        | >7 years; batch export support                               |
+| Accessibility                  | ARIA timeline/alert features; accessible color/role charting |
+| Concurrency                    | Multi-team/phase; support for high report burst volumes      |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Components | Roles/Responsibilities |
-|-------|------------|------------------------|
-| Frontend | Planner, timeline | Visual planning, schedule/event builder, feedback/export |
-| Backend | Project DB, events | Tracking phase/milestone, budget, analytics |
-| Storage | Blob/archive | Document/photos/certificates, event logs, approvals |
+| Layer    | Components         | Roles/Responsibilities                                   |
+| -------- | ------------------ | -------------------------------------------------------- |
+| Frontend | Planner, timeline  | Visual planning, schedule/event builder, feedback/export |
+| Backend  | Project DB, events | Tracking phase/milestone, budget, analytics              |
+| Storage  | Blob/archive       | Document/photos/certificates, event logs, approvals      |
 
 ---
 
@@ -230,17 +230,17 @@ Modern estates increasingly require demonstrable cost control, future-proofing, 
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/project | POST/GET | Create, retrieve projects |
-| /api/phase | POST/GET | Create, retrieve phases |
-| /api/task | POST/GET | Create, retrieve tasks |
-| /api/approve | POST | Approval workflow |
-| /api/schedule | POST | Schedule management |
-| /api/timeline | GET | Timeline/Gantt data |
-| /api/export | POST | Export reports |
-| /api/audit | POST | Audit logging |
-| /api/owner/role | PATCH | Owner/role assignment |
+| Endpoint        | Method   | Purpose                   |
+| --------------- | -------- | ------------------------- |
+| /api/project    | POST/GET | Create, retrieve projects |
+| /api/phase      | POST/GET | Create, retrieve phases   |
+| /api/task       | POST/GET | Create, retrieve tasks    |
+| /api/approve    | POST     | Approval workflow         |
+| /api/schedule   | POST     | Schedule management       |
+| /api/timeline   | GET      | Timeline/Gantt data       |
+| /api/export     | POST     | Export reports            |
+| /api/audit      | POST     | Audit logging             |
+| /api/owner/role | PATCH    | Owner/role assignment     |
 
 ### External Dependencies
 
@@ -256,12 +256,12 @@ Modern estates increasingly require demonstrable cost control, future-proofing, 
 
 ## Data Models
 
-| Entity | Key Fields |
-|--------|------------|
+| Entity  | Key Fields                                                                                       |
+| ------- | ------------------------------------------------------------------------------------------------ |
 | Project | ID, name, scope, owner, team, phases, budget, timeline, docs, status, event/audit/export/archive |
-| Phase | ProjectID, name, status, tasks, budget, docs, close/approve/log, alerts, events |
-| Task | PhaseID, desc, assigned, budget, due, docs, status, expense, approval/log |
-| Audit | ProjectID, event, action, actor, time, export, archive/cert |
+| Phase   | ProjectID, name, status, tasks, budget, docs, close/approve/log, alerts, events                  |
+| Task    | PhaseID, desc, assigned, budget, due, docs, status, expense, approval/log                        |
+| Audit   | ProjectID, event, action, actor, time, export, archive/cert                                      |
 
 ---
 
@@ -304,14 +304,14 @@ Modern estates increasingly require demonstrable cost control, future-proofing, 
 
 ## Success Metrics
 
-| Metric | Target |
-|--------|--------|
-| Milestone/board completion % | >90% |
-| Schedule/cost deviation | <10% |
-| Approval log/cert phase capture | >99% |
-| Event log closure | 100% |
-| Audit/export accuracy | >90% |
-| Zero doc/event loss | 100% compliance |
+| Metric                          | Target          |
+| ------------------------------- | --------------- |
+| Milestone/board completion %    | >90%            |
+| Schedule/cost deviation         | <10%            |
+| Approval log/cert phase capture | >99%            |
+| Event log closure               | 100%            |
+| Audit/export accuracy           | >90%            |
+| Zero doc/event loss             | 100% compliance |
 
 ### Leading Indicators
 
@@ -339,11 +339,11 @@ Modern estates increasingly require demonstrable cost control, future-proofing, 
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target Date |
-|-------|-------|-------------|
-| Phase 1 | Project/phase/task/schedule, approval/audit/log | Q3 2025 |
-| Phase 2 | Budget/analytics/Gantt, alert/milestone/event | Q4 2025 |
-| Phase 3 | Compliance/export/feedback/report/day/incident | Q1 2026 |
+| Phase   | Scope                                           | Target Date |
+| ------- | ----------------------------------------------- | ----------- |
+| Phase 1 | Project/phase/task/schedule, approval/audit/log | Q3 2025     |
+| Phase 2 | Budget/analytics/Gantt, alert/milestone/event   | Q4 2025     |
+| Phase 3 | Compliance/export/feedback/report/day/incident  | Q1 2026     |
 
 ---
 
@@ -372,25 +372,25 @@ Modern estates increasingly require demonstrable cost control, future-proofing, 
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Approval/report/event lag | Missed milestones, audit gaps | Medium | Automated reminders, escalation |
-| Export/archive failure | Compliance/audit deficiency | Low | Redundant storage, export tests |
-| Board drift/overrun | Delayed/overbudget projects | High | Real-time analytics/alerting |
-| Event/audit record loss | Regulatory/audit failure | Low | Multi-layer backup |
-| Feedback/action gaps | Loss of owner/trust, actionability | Medium | Mandatory feedback phases |
+| Risk                      | Impact                             | Probability | Mitigation                      |
+| ------------------------- | ---------------------------------- | ----------- | ------------------------------- |
+| Approval/report/event lag | Missed milestones, audit gaps      | Medium      | Automated reminders, escalation |
+| Export/archive failure    | Compliance/audit deficiency        | Low         | Redundant storage, export tests |
+| Board drift/overrun       | Delayed/overbudget projects        | High        | Real-time analytics/alerting    |
+| Event/audit record loss   | Regulatory/audit failure           | Low         | Multi-layer backup              |
+| Feedback/action gaps      | Loss of owner/trust, actionability | Medium      | Mandatory feedback phases       |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target Date | Impact if Unresolved |
-|----------|-------|-------------|---------------------|
-| Gantt/schedule builder at MVP? | Product Lead | Q2 2024 | Delay in timeline value |
-| Is audit/event/export phased w/ MVP? | Product Lead | Q2 2024 | Post-launch patch needed |
-| Feedback/history/phase sequence design? | UX/PM | Q3 2024 | Integration slip |
-| Incident feedback loop, how deep at launch? | Engineering | Q3 2024 | Limits board trust |
-| Budget/event/export completeness? | QA/Compliance | Q3 2024 | Audit holes |
+| Question                                    | Owner         | Target Date | Impact if Unresolved     |
+| ------------------------------------------- | ------------- | ----------- | ------------------------ |
+| Gantt/schedule builder at MVP?              | Product Lead  | Q2 2024     | Delay in timeline value  |
+| Is audit/event/export phased w/ MVP?        | Product Lead  | Q2 2024     | Post-launch patch needed |
+| Feedback/history/phase sequence design?     | UX/PM         | Q3 2024     | Integration slip         |
+| Incident feedback loop, how deep at launch? | Engineering   | Q3 2024     | Limits board trust       |
+| Budget/event/export completeness?           | QA/Compliance | Q3 2024     | Audit holes              |
 
 ---
 

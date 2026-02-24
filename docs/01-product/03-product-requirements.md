@@ -104,7 +104,6 @@ governance and estate management platform for an entity called "House of Veritas
 - **Integration Services Created:**
   - `/app/lib/services/docuseal.ts` - DocuSeal API integration
   - `/app/lib/services/baserow.ts` - Baserow API integration
-  
 - **API Endpoints Updated:**
   - `GET /api/integration/status` - Check all service connections
   - `GET/POST /api/documents/templates` - Document templates
@@ -198,7 +197,6 @@ TWILIO_PHONE_NUMBER=+1234567890
   - `/app/lib/realtime/event-store.ts` - In-memory event store
   - `/app/lib/hooks/use-realtime.ts` - React hook for SSE
   - `/app/components/realtime-indicator.tsx` - Connection status + toast notifications
-  
 - **Features:**
   - Real-time connection indicator (Live/Offline status)
   - Automatic reconnection on disconnect

@@ -118,134 +118,134 @@ User Browser → Application Gateway (SSL/WAF)
 
 #### 1. Employees
 
-| Field | Type | Notes |
-| ------ | ---- | ----- |
-| ID | Auto | Primary key |
-| Full Name | Text | |
-| ID Number | Text | Unique |
-| Role | Single Select | Owner, Employee, Resident |
-| Employment Start Date | Date | |
-| Probation Status | Single Select | |
-| Contract Ref | URL | Link to DocuSeal |
-| Leave Balance | Number | Days |
-| Email, Phone | Text | |
-| Photo | File | |
+| Field                 | Type          | Notes                     |
+| --------------------- | ------------- | ------------------------- |
+| ID                    | Auto          | Primary key               |
+| Full Name             | Text          |                           |
+| ID Number             | Text          | Unique                    |
+| Role                  | Single Select | Owner, Employee, Resident |
+| Employment Start Date | Date          |                           |
+| Probation Status      | Single Select |                           |
+| Contract Ref          | URL           | Link to DocuSeal          |
+| Leave Balance         | Number        | Days                      |
+| Email, Phone          | Text          |                           |
+| Photo                 | File          |                           |
 
 #### 2. Assets
 
-| Field | Type | Notes |
-| ------ | ---- | ----- |
-| ID | Auto | Primary key |
-| Asset ID | Text | Unique (e.g., WS-001) |
-| Type | Single Select | Tool, Vehicle, Equipment, Household |
-| Description | Long Text | |
-| Purchase Date | Date | |
-| Price | Number | |
-| Condition | Single Select | Excellent, Good, Fair, Poor |
-| Location | Single Select | Workshop, Garden, etc. |
-| Checked Out By | Link | To Employees |
-| Check Out Date | Date | |
-| Photo | File | |
+| Field          | Type          | Notes                               |
+| -------------- | ------------- | ----------------------------------- |
+| ID             | Auto          | Primary key                         |
+| Asset ID       | Text          | Unique (e.g., WS-001)               |
+| Type           | Single Select | Tool, Vehicle, Equipment, Household |
+| Description    | Long Text     |                                     |
+| Purchase Date  | Date          |                                     |
+| Price          | Number        |                                     |
+| Condition      | Single Select | Excellent, Good, Fair, Poor         |
+| Location       | Single Select | Workshop, Garden, etc.              |
+| Checked Out By | Link          | To Employees                        |
+| Check Out Date | Date          |                                     |
+| Photo          | File          |                                     |
 
 #### 3. Tasks
 
-| Field | Type | Notes |
-| ------ | ---- | ----- |
-| ID | Auto | Primary key |
-| Title | Text | |
-| Description | Long Text | |
-| Assigned To | Link | To Employees |
-| Due Date | Date | |
-| Priority | Single Select | Low, Medium, High |
-| Status | Single Select | Not Started, In Progress, Completed |
-| Time Spent | Number | Hours |
-| Completion Notes | Long Text | |
-| Related Asset | Link | To Assets |
-| Project | Text | |
-| Created Date | Date | |
-| Completed Date | Date | |
+| Field            | Type          | Notes                               |
+| ---------------- | ------------- | ----------------------------------- |
+| ID               | Auto          | Primary key                         |
+| Title            | Text          |                                     |
+| Description      | Long Text     |                                     |
+| Assigned To      | Link          | To Employees                        |
+| Due Date         | Date          |                                     |
+| Priority         | Single Select | Low, Medium, High                   |
+| Status           | Single Select | Not Started, In Progress, Completed |
+| Time Spent       | Number        | Hours                               |
+| Completion Notes | Long Text     |                                     |
+| Related Asset    | Link          | To Assets                           |
+| Project          | Text          |                                     |
+| Created Date     | Date          |                                     |
+| Completed Date   | Date          |                                     |
 
 #### 4. Time Clock Entries
 
-| Field | Type | Notes |
-| ------ | ---- | ----- |
-| ID | Auto | Primary key |
-| Employee | Link | To Employees |
-| Date | Date | |
-| Clock In | Time | |
-| Clock Out | Time | |
-| Break Duration | Number | Minutes |
-| Total Hours | Formula | Auto-calculated |
-| Overtime Hours | Formula | >9/day, >45/week (BCEA) |
+| Field           | Type          | Notes                       |
+| --------------- | ------------- | --------------------------- |
+| ID              | Auto          | Primary key                 |
+| Employee        | Link          | To Employees                |
+| Date            | Date          |                             |
+| Clock In        | Time          |                             |
+| Clock Out       | Time          |                             |
+| Break Duration  | Number        | Minutes                     |
+| Total Hours     | Formula       | Auto-calculated             |
+| Overtime Hours  | Formula       | >9/day, >45/week (BCEA)     |
 | Approval Status | Single Select | Pending, Approved, Rejected |
-| Notes | Text | |
+| Notes           | Text          |                             |
 
 #### 5. Incidents
 
-| Field | Type | Notes |
-| ------ | ---- | ----- |
-| ID | Auto | Primary key |
-| Type | Single Select | Safety, Equipment, Vehicle, Household |
-| Date/Time | Date + Time | |
-| Location | Text | |
-| Reporter | Link | To Employees |
-| Description | Long Text | |
-| Witnesses | Text | |
-| Severity | Single Select | Low, Medium, High |
-| Status | Single Select | Pending, In Progress, Resolved |
-| Investigation Notes | Long Text | |
-| Actions Taken | Long Text | |
-| Related Employee | Link | To Employees |
-| Photo | File | |
+| Field               | Type          | Notes                                 |
+| ------------------- | ------------- | ------------------------------------- |
+| ID                  | Auto          | Primary key                           |
+| Type                | Single Select | Safety, Equipment, Vehicle, Household |
+| Date/Time           | Date + Time   |                                       |
+| Location            | Text          |                                       |
+| Reporter            | Link          | To Employees                          |
+| Description         | Long Text     |                                       |
+| Witnesses           | Text          |                                       |
+| Severity            | Single Select | Low, Medium, High                     |
+| Status              | Single Select | Pending, In Progress, Resolved        |
+| Investigation Notes | Long Text     |                                       |
+| Actions Taken       | Long Text     |                                       |
+| Related Employee    | Link          | To Employees                          |
+| Photo               | File          |                                       |
 
 #### 6. Vehicle Logs
 
-| Field | Type | Notes |
-| ------ | ---- | ----- |
-| ID | Auto | Primary key |
-| Driver | Link | To Employees |
-| Vehicle | Link | To Assets (filtered by type=Vehicle) |
-| Date Out/In | Date | |
-| Odometer Start/End | Number | |
-| Distance | Formula | End - Start |
-| Fuel Added | Number | Liters |
-| Fuel Cost | Number | Rand |
-| Child Passenger | Checkbox | Compliance |
-| Notes | Text | |
+| Field              | Type     | Notes                                |
+| ------------------ | -------- | ------------------------------------ |
+| ID                 | Auto     | Primary key                          |
+| Driver             | Link     | To Employees                         |
+| Vehicle            | Link     | To Assets (filtered by type=Vehicle) |
+| Date Out/In        | Date     |                                      |
+| Odometer Start/End | Number   |                                      |
+| Distance           | Formula  | End - Start                          |
+| Fuel Added         | Number   | Liters                               |
+| Fuel Cost          | Number   | Rand                                 |
+| Child Passenger    | Checkbox | Compliance                           |
+| Notes              | Text     |                                      |
 
 #### 7. Expenses
 
-| Field | Type | Notes |
-| ------ | ---- | ----- |
-| ID | Auto | Primary key |
-| Requester | Link | To Employees |
-| Type | Single Select | Request, Post-Hoc |
-| Category | Single Select | Materials, Labor, Fuel, etc. (10 categories) |
-| Amount | Number | |
-| Vendor | Text | |
-| Date | Date | |
-| Approval Status | Single Select | Pending, Approved, Rejected, Post-Hoc |
-| Receipt | File | |
-| Project | Text | |
-| Milestone | Text | Deposit, Stage 1/2/3, Final |
-| Notes | Long Text | |
-| Approver | Link | To Employees (Hans) |
-| Approval Date | Date | |
+| Field           | Type          | Notes                                        |
+| --------------- | ------------- | -------------------------------------------- |
+| ID              | Auto          | Primary key                                  |
+| Requester       | Link          | To Employees                                 |
+| Type            | Single Select | Request, Post-Hoc                            |
+| Category        | Single Select | Materials, Labor, Fuel, etc. (10 categories) |
+| Amount          | Number        |                                              |
+| Vendor          | Text          |                                              |
+| Date            | Date          |                                              |
+| Approval Status | Single Select | Pending, Approved, Rejected, Post-Hoc        |
+| Receipt         | File          |                                              |
+| Project         | Text          |                                              |
+| Milestone       | Text          | Deposit, Stage 1/2/3, Final                  |
+| Notes           | Long Text     |                                              |
+| Approver        | Link          | To Employees (Hans)                          |
+| Approval Date   | Date          |                                              |
 
 #### 8. Document Expiry
 
-| Field | Type | Notes |
-| ------ | ---- | ----- |
-| ID | Auto | Primary key |
-| Doc Name | Text | |
-| Type | Single Select | Governance, HR, Safety, Operations |
-| Party Responsible | Link | To Employees |
-| Last Review | Date | |
-| Next Review | Date | |
-| Renewal Cycle | Text | Annual, 3-year, etc. |
-| Alert Schedule | Text | 60d/30d/7d |
-| Status | Single Select | Active, Review Due, Overdue |
-| DocuSeal Ref | URL | Link to signed document |
+| Field             | Type          | Notes                              |
+| ----------------- | ------------- | ---------------------------------- |
+| ID                | Auto          | Primary key                        |
+| Doc Name          | Text          |                                    |
+| Type              | Single Select | Governance, HR, Safety, Operations |
+| Party Responsible | Link          | To Employees                       |
+| Last Review       | Date          |                                    |
+| Next Review       | Date          |                                    |
+| Renewal Cycle     | Text          | Annual, 3-year, etc.               |
+| Alert Schedule    | Text          | 60d/30d/7d                         |
+| Status            | Single Select | Active, Review Due, Overdue        |
+| DocuSeal Ref      | URL           | Link to signed document            |
 
 ### Indexing Strategy
 
@@ -682,13 +682,13 @@ VNet: 10.0.0.0/16
 
 ### Monthly Baseline: R950
 
-| Service | Cost |
-| -------- | ---- |
+| Service                    | Cost |
+| -------------------------- | ---- |
 | PostgreSQL Flexible Server | R400 |
-| Container Instances (2x) | R300 |
-| Blob Storage | R50 |
-| Application Gateway | R150 |
-| Key Vault + NAT Gateway | R50 |
+| Container Instances (2x)   | R300 |
+| Blob Storage               | R50  |
+| Application Gateway        | R150 |
+| Key Vault + NAT Gateway    | R50  |
 
 ### Variable Costs
 

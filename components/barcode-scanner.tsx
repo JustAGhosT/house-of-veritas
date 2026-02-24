@@ -62,27 +62,30 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
   const scannerRef = useRef<any>(null)
   const videoRef = useRef<HTMLDivElement>(null)
 
-  const lookupItem = useCallback(async (code: string) => {
-    setLoading(true)
-    try {
-      const data = await apiFetch<{ items?: InventoryItem[] }>(
-        `/api/inventory?barcode=${encodeURIComponent(code)}`,
-        { label: "InventoryLookup" }
-      )
-      if (data?.items && data.items.length > 0) {
-        setFoundItem(data.items[0])
-        onScanComplete?.(data.items[0], code)
-      } else {
+  const lookupItem = useCallback(
+    async (code: string) => {
+      setLoading(true)
+      try {
+        const data = await apiFetch<{ items?: InventoryItem[] }>(
+          `/api/inventory?barcode=${encodeURIComponent(code)}`,
+          { label: "InventoryLookup" }
+        )
+        if (data?.items && data.items.length > 0) {
+          setFoundItem(data.items[0])
+          onScanComplete?.(data.items[0], code)
+        } else {
+          setFoundItem(null)
+          onScanComplete?.(null, code)
+        }
+      } catch (err) {
+        logger.error("Lookup error", { error: err instanceof Error ? err.message : String(err) })
         setFoundItem(null)
-        onScanComplete?.(null, code)
+      } finally {
+        setLoading(false)
       }
-    } catch (err) {
-      logger.error("Lookup error", { error: err instanceof Error ? err.message : String(err) })
-      setFoundItem(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [onScanComplete])
+    },
+    [onScanComplete]
+  )
 
   const startScanner = useCallback(async () => {
     if (!videoRef.current) return
@@ -90,7 +93,7 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
     try {
       // Dynamic import to avoid SSR issues
       const { Html5Qrcode } = await import("html5-qrcode")
-      
+
       const scanner = new Html5Qrcode("barcode-reader")
       scannerRef.current = scanner
 
@@ -113,7 +116,7 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
             timestamp: new Date(),
           }
           setScanResult(result)
-          
+
           // Stop scanner after successful scan
           await scanner.stop()
           setIsScanning(false)
@@ -179,17 +182,23 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
 
   const getModeColor = () => {
     switch (mode) {
-      case "consume": return "text-orange-400"
-      case "restock": return "text-green-400"
-      default: return "text-blue-400"
+      case "consume":
+        return "text-orange-400"
+      case "restock":
+        return "text-green-400"
+      default:
+        return "text-blue-400"
     }
   }
 
   const getModeLabel = () => {
     switch (mode) {
-      case "consume": return "Consume Stock"
-      case "restock": return "Restock Item"
-      default: return "Lookup Item"
+      case "consume":
+        return "Consume Stock"
+      case "restock":
+        return "Restock Item"
+      default:
+        return "Lookup Item"
     }
   }
 
@@ -199,17 +208,12 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ScanLine className={`h-5 w-5 ${getModeColor()}`} />
-          <span className="text-white font-medium">{getModeLabel()}</span>
+          <span className="font-medium text-white">{getModeLabel()}</span>
         </div>
         <div className="flex items-center gap-2">
           {isScanning && (
             <>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={toggleTorch}
-                className="text-white/60"
-              >
+              <Button size="sm" variant="ghost" onClick={toggleTorch} className="text-white/60">
                 <Flashlight className={`h-4 w-4 ${torchOn ? "text-yellow-400" : ""}`} />
               </Button>
             </>
@@ -227,24 +231,24 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
         <div
           id="barcode-reader"
           ref={videoRef}
-          className="w-full aspect-video bg-black/50 rounded-lg overflow-hidden"
+          className="aspect-video w-full overflow-hidden rounded-lg bg-black/50"
         />
-        
+
         {/* Scanning Overlay */}
         {isScanning && (
-          <div className="absolute inset-0 pointer-events-none">
+          <div className="pointer-events-none absolute inset-0">
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-64 h-40 border-2 border-blue-500 rounded-lg relative">
-                <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-blue-400 rounded-tl" />
-                <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-blue-400 rounded-tr" />
-                <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-blue-400 rounded-bl" />
-                <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-blue-400 rounded-br" />
+              <div className="relative h-40 w-64 rounded-lg border-2 border-blue-500">
+                <div className="absolute top-0 left-0 h-4 w-4 rounded-tl border-t-2 border-l-2 border-blue-400" />
+                <div className="absolute top-0 right-0 h-4 w-4 rounded-tr border-t-2 border-r-2 border-blue-400" />
+                <div className="absolute bottom-0 left-0 h-4 w-4 rounded-bl border-b-2 border-l-2 border-blue-400" />
+                <div className="absolute right-0 bottom-0 h-4 w-4 rounded-br border-r-2 border-b-2 border-blue-400" />
                 {/* Scanning line animation */}
-                <div className="absolute inset-x-2 h-0.5 bg-red-500 animate-scan-line" />
+                <div className="animate-scan-line absolute inset-x-2 h-0.5 bg-red-500" />
               </div>
             </div>
-            <div className="absolute bottom-4 inset-x-0 text-center">
-              <p className="text-white/80 text-sm">Position barcode within the frame</p>
+            <div className="absolute inset-x-0 bottom-4 text-center">
+              <p className="text-sm text-white/80">Position barcode within the frame</p>
             </div>
           </div>
         )}
@@ -252,11 +256,11 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
         {/* Error State */}
         {error && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-            <div className="text-center p-4">
-              <CameraOff className="h-12 w-12 text-red-400 mx-auto mb-3" />
-              <p className="text-red-400 font-medium">{error}</p>
+            <div className="p-4 text-center">
+              <CameraOff className="mx-auto mb-3 h-12 w-12 text-red-400" />
+              <p className="font-medium text-red-400">{error}</p>
               <Button onClick={startScanner} className="mt-4" variant="outline">
-                <Camera className="h-4 w-4 mr-2" />
+                <Camera className="mr-2 h-4 w-4" />
                 Retry
               </Button>
             </div>
@@ -266,12 +270,12 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
 
       {/* Scan Result */}
       {scanResult && (
-        <Card className="bg-white/5 border-white/10">
+        <Card className="border-white/10 bg-white/5">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-white text-lg flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-lg text-white">
                 {loading ? (
-                  <div className="w-5 h-5 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
                 ) : foundItem ? (
                   <CheckCircle className="h-5 w-5 text-green-400" />
                 ) : (
@@ -280,32 +284,36 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
                 {loading ? "Looking up..." : foundItem ? "Item Found" : "Not Found"}
               </CardTitle>
               <Button size="sm" variant="ghost" onClick={resetScanner}>
-                <RotateCcw className="h-4 w-4 mr-1" />
+                <RotateCcw className="mr-1 h-4 w-4" />
                 Scan Again
               </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {/* Scanned Code Info */}
-            <div className="flex items-center justify-between p-2 bg-white/5 rounded-lg">
+            <div className="flex items-center justify-between rounded-lg bg-white/5 p-2">
               <div>
-                <p className="text-white/40 text-xs">Scanned Code</p>
-                <p className="text-white font-mono">{scanResult.code}</p>
+                <p className="text-xs text-white/40">Scanned Code</p>
+                <p className="font-mono text-white">{scanResult.code}</p>
               </div>
               <Badge variant="outline">{scanResult.format}</Badge>
             </div>
 
             {/* Found Item Details */}
             {foundItem && (
-              <div className="space-y-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+              <div className="space-y-2 rounded-lg border border-green-500/30 bg-green-500/10 p-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-white font-medium">{foundItem.name}</p>
-                    <p className="text-white/60 text-sm capitalize">
+                    <p className="font-medium text-white">{foundItem.name}</p>
+                    <p className="text-sm text-white/60 capitalize">
                       {foundItem.category.replace(/_/g, " ")}
                     </p>
                   </div>
-                  <Badge variant={foundItem.currentStock <= foundItem.minStock ? "destructive" : "outline"}>
+                  <Badge
+                    variant={
+                      foundItem.currentStock <= foundItem.minStock ? "destructive" : "outline"
+                    }
+                  >
                     {foundItem.currentStock} {foundItem.unit}
                   </Badge>
                 </div>
@@ -324,8 +332,8 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
 
             {/* Not Found Message */}
             {!loading && !foundItem && (
-              <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                <p className="text-yellow-300 text-sm">
+              <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3">
+                <p className="text-sm text-yellow-300">
                   No inventory item found with this barcode. You can add a new item with this code.
                 </p>
               </div>
@@ -336,7 +344,7 @@ export function BarcodeScanner({ onScanComplete, onClose, mode = "lookup" }: Bar
 
       {/* Instructions */}
       {!scanResult && !error && (
-        <div className="text-center text-white/50 text-sm">
+        <div className="text-center text-sm text-white/50">
           <p>Supported: QR Code, EAN-13, EAN-8, UPC-A, UPC-E, Code 128, Code 39</p>
         </div>
       )}
@@ -352,7 +360,12 @@ interface ScannerButtonProps {
   className?: string
 }
 
-export function ScannerButton({ onItemFound, onCodeScanned, mode = "lookup", className }: ScannerButtonProps) {
+export function ScannerButton({
+  onItemFound,
+  onCodeScanned,
+  mode = "lookup",
+  className,
+}: ScannerButtonProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   const handleScanComplete = (item: InventoryItem | null, code: string) => {
@@ -365,21 +378,24 @@ export function ScannerButton({ onItemFound, onCodeScanned, mode = "lookup", cla
 
   const getModeColor = () => {
     switch (mode) {
-      case "consume": return "bg-orange-600 hover:bg-orange-700"
-      case "restock": return "bg-green-600 hover:bg-green-700"
-      default: return "bg-blue-600 hover:bg-blue-700"
+      case "consume":
+        return "bg-orange-600 hover:bg-orange-700"
+      case "restock":
+        return "bg-green-600 hover:bg-green-700"
+      default:
+        return "bg-blue-600 hover:bg-blue-700"
     }
   }
 
   return (
     <>
       <Button onClick={() => setIsOpen(true)} className={`${getModeColor()} ${className}`}>
-        <ScanLine className="h-4 w-4 mr-2" />
+        <ScanLine className="mr-2 h-4 w-4" />
         Scan Barcode
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-lg">
+        <DialogContent className="max-w-lg border-white/10 bg-[#0d0d12] text-white">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ScanLine className="h-5 w-5" />

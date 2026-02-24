@@ -1,11 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { apiFetch, apiFetchSafe, ApiError } from "@/lib/api-client"
 
-function mockResponse(
-  body: string,
-  status: number,
-  headers?: Record<string, string>
-): Response {
+function mockResponse(body: string, status: number, headers?: Record<string, string>): Response {
   return new Response(body, {
     status,
     statusText: status === 200 ? "OK" : "Error",
@@ -45,7 +41,7 @@ describe("apiFetch", () => {
 
   it("throws ApiError with JSON body on non-ok response", async () => {
     fetchMock.mockResolvedValue(mockResponse('{"message":"not found"}', 404))
-    const err = await apiFetch("/api/test").catch((e) => e) as ApiError
+    const err = (await apiFetch("/api/test").catch((e) => e)) as ApiError
     expect(err).toBeInstanceOf(ApiError)
     expect(err.status).toBe(404)
     expect(err.body).toEqual({ message: "not found" })
@@ -53,7 +49,7 @@ describe("apiFetch", () => {
 
   it("throws ApiError with text body when non-ok response has invalid JSON", async () => {
     fetchMock.mockResolvedValue(mockResponse("plain error text", 500))
-    const err = await apiFetch("/api/test").catch((e) => e) as ApiError
+    const err = (await apiFetch("/api/test").catch((e) => e)) as ApiError
     expect(err).toBeInstanceOf(ApiError)
     expect(err.status).toBe(500)
     expect(err.body).toBe("plain error text")
@@ -61,7 +57,7 @@ describe("apiFetch", () => {
 
   it("throws ApiError with empty body when non-ok response has no body", async () => {
     fetchMock.mockResolvedValue(mockResponse("", 401))
-    const err = await apiFetch("/api/test").catch((e) => e) as ApiError
+    const err = (await apiFetch("/api/test").catch((e) => e)) as ApiError
     expect(err).toBeInstanceOf(ApiError)
     expect(err.status).toBe(401)
     expect(err.body).toBe("")
@@ -69,14 +65,14 @@ describe("apiFetch", () => {
 
   it("throws ApiError on invalid JSON in ok response", async () => {
     fetchMock.mockResolvedValue(mockResponse("not json", 200))
-    const err = await apiFetch("/api/test").catch((e) => e) as ApiError
+    const err = (await apiFetch("/api/test").catch((e) => e)) as ApiError
     expect(err).toBeInstanceOf(ApiError)
     expect(err.message).toBe("Invalid JSON response")
   })
 
   it("rethrows network error", async () => {
     fetchMock.mockRejectedValue(new TypeError("Failed to fetch"))
-    const err = await apiFetch("/api/test").catch((e) => e) as TypeError
+    const err = (await apiFetch("/api/test").catch((e) => e)) as TypeError
     expect(err).toBeInstanceOf(TypeError)
     expect(err.message).toBe("Failed to fetch")
   })

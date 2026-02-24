@@ -97,7 +97,9 @@ export default function ApprovalsPage() {
       setRequests(data?.requests || [])
       setSummary(data?.summary ?? null)
     } catch (error) {
-      logger.error("Failed to fetch requests", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to fetch requests", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setLoading(false)
     }
@@ -128,7 +130,9 @@ export default function ApprovalsPage() {
       setActionNotes("")
       setSelectedRequest(null)
     } catch (error) {
-      logger.error("Failed to update request", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to update request", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setProcessing(false)
     }
@@ -195,7 +199,11 @@ export default function ApprovalsPage() {
 
   const getUrgencyBadge = (urgency: string) => {
     if (urgency === "urgent") {
-      return <Badge variant="destructive" className="ml-2">Urgent</Badge>
+      return (
+        <Badge variant="destructive" className="ml-2">
+          Urgent
+        </Badge>
+      )
     }
     return null
   }
@@ -217,75 +225,75 @@ export default function ApprovalsPage() {
 
   return (
     <DashboardLayout persona="hans">
-      <div className="space-y-6 relative z-10">
+      <div className="relative z-10 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+            <h1 className="flex items-center gap-3 text-2xl font-bold text-white sm:text-3xl">
               <CheckSquare className="h-8 w-8 text-blue-400" />
               Approval Center
               {pendingCount > 0 && (
                 <Badge className="bg-yellow-500 text-lg">{pendingCount} pending</Badge>
               )}
             </h1>
-            <p className="text-white/60 mt-1">Review and approve employee requests</p>
+            <p className="mt-1 text-white/60">Review and approve employee requests</p>
           </div>
           <Button variant="outline" onClick={() => fetchRequests()} className="border-white/10">
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
         </div>
 
         {/* Summary Cards */}
         {summary && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-white/5 border-white/10">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <Card className="border-white/10 bg-white/5">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-yellow-500/20">
+                  <div className="rounded-xl bg-yellow-500/20 p-3">
                     <Clock className="h-6 w-6 text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-sm">Pending</p>
+                    <p className="text-sm text-white/60">Pending</p>
                     <p className="text-2xl font-bold text-white">{summary.pending}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-white/5 border-white/10">
+            <Card className="border-white/10 bg-white/5">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-blue-500/20">
+                  <div className="rounded-xl bg-blue-500/20 p-3">
                     <ShoppingCart className="h-6 w-6 text-blue-400" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-sm">Stock Orders</p>
+                    <p className="text-sm text-white/60">Stock Orders</p>
                     <p className="text-2xl font-bold text-white">{summary.byType.stock_order}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-white/5 border-white/10">
+            <Card className="border-white/10 bg-white/5">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-yellow-500/20">
+                  <div className="rounded-xl bg-yellow-500/20 p-3">
                     <Banknote className="h-6 w-6 text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-sm">Advances</p>
+                    <p className="text-sm text-white/60">Advances</p>
                     <p className="text-2xl font-bold text-white">{summary.byType.salary_advance}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-white/5 border-white/10">
+            <Card className="border-white/10 bg-white/5">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-rose-500/20">
+                  <div className="rounded-xl bg-rose-500/20 p-3">
                     <Wrench className="h-6 w-6 text-rose-400" />
                   </div>
                   <div>
-                    <p className="text-white/60 text-sm">Issues</p>
+                    <p className="text-sm text-white/60">Issues</p>
                     <p className="text-2xl font-bold text-white">{summary.byType.issue_report}</p>
                   </div>
                 </div>
@@ -295,21 +303,21 @@ export default function ApprovalsPage() {
         )}
 
         {/* Filters */}
-        <Card className="bg-white/5 border-white/10">
+        <Card className="border-white/10 bg-white/5">
           <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/40" />
                 <Input
                   placeholder="Search by employee, item, or description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white/5 border-white/10"
+                  className="border-white/10 bg-white/5 pl-10"
                   data-testid="approval-search-input"
                 />
               </div>
               <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="w-full sm:w-[180px] bg-white/5 border-white/10">
+                <SelectTrigger className="w-full border-white/10 bg-white/5 sm:w-[180px]">
                   <SelectValue placeholder="Request Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -320,7 +328,7 @@ export default function ApprovalsPage() {
                 </SelectContent>
               </Select>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-full sm:w-[150px] bg-white/5 border-white/10">
+                <SelectTrigger className="w-full border-white/10 bg-white/5 sm:w-[150px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -337,14 +345,14 @@ export default function ApprovalsPage() {
         {/* Requests List */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
           </div>
         ) : filteredRequests.length === 0 ? (
-          <Card className="bg-white/5 border-white/10">
+          <Card className="border-white/10 bg-white/5">
             <CardContent className="py-12 text-center">
-              <CheckCircle className="h-12 w-12 text-green-400 mx-auto mb-4" />
-              <p className="text-white text-lg">No requests to review</p>
-              <p className="text-white/60 mt-1">All caught up! No pending approvals.</p>
+              <CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-400" />
+              <p className="text-lg text-white">No requests to review</p>
+              <p className="mt-1 text-white/60">All caught up! No pending approvals.</p>
             </CardContent>
           </Card>
         ) : (
@@ -352,33 +360,31 @@ export default function ApprovalsPage() {
             {filteredRequests.map((request) => (
               <Card
                 key={request.id}
-                className={`bg-white/5 border-white/10 hover:bg-white/[0.07] transition-colors ${
+                className={`border-white/10 bg-white/5 transition-colors hover:bg-white/[0.07] ${
                   request.status === "pending" ? "border-l-4 border-l-yellow-500" : ""
                 }`}
                 data-testid={`request-card-${request.id}`}
               >
                 <CardContent className="pt-6">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                     {/* Request Info */}
-                    <div className="flex items-start gap-4 flex-1">
-                      <div className="p-3 rounded-xl bg-white/5">
-                        {getTypeIcon(request.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-white font-medium">
+                    <div className="flex flex-1 items-start gap-4">
+                      <div className="rounded-xl bg-white/5 p-3">{getTypeIcon(request.type)}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-medium text-white">
                             {getTypeLabel(request.type)}
                           </span>
                           {getStatusBadge(request.status)}
                           {request.data?.urgency && getUrgencyBadge(request.data.urgency)}
                           {request.data?.issueType === "safety" && (
                             <Badge variant="destructive" className="ml-1">
-                              <AlertTriangle className="h-3 w-3 mr-1" />
+                              <AlertTriangle className="mr-1 h-3 w-3" />
                               Safety
                             </Badge>
                           )}
                         </div>
-                        <div className="mt-1 text-white/60 text-sm">
+                        <div className="mt-1 text-sm text-white/60">
                           {request.type === "stock_order" && (
                             <span>
                               {request.data.quantity}x {request.data.itemName}
@@ -393,7 +399,7 @@ export default function ApprovalsPage() {
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-4 mt-2 text-white/40 text-xs">
+                        <div className="mt-2 flex items-center gap-4 text-xs text-white/40">
                           <span className="flex items-center gap-1">
                             <User className="h-3 w-3" />
                             {request.employeeName}
@@ -404,7 +410,7 @@ export default function ApprovalsPage() {
                           </span>
                         </div>
                         {request.notes && request.status !== "pending" && (
-                          <div className="mt-2 p-2 bg-white/5 rounded text-sm text-white/60">
+                          <div className="mt-2 rounded bg-white/5 p-2 text-sm text-white/60">
                             <span className="text-white/40">Note:</span> {request.notes}
                           </div>
                         )}
@@ -433,7 +439,7 @@ export default function ApprovalsPage() {
                             onClick={() => openActionDialog(request, "approve")}
                             data-testid={`approve-${request.id}`}
                           >
-                            <Check className="h-4 w-4 mr-1" />
+                            <Check className="mr-1 h-4 w-4" />
                             Approve
                           </Button>
                           <Button
@@ -442,7 +448,7 @@ export default function ApprovalsPage() {
                             onClick={() => openActionDialog(request, "reject")}
                             data-testid={`reject-${request.id}`}
                           >
-                            <X className="h-4 w-4 mr-1" />
+                            <X className="mr-1 h-4 w-4" />
                             Reject
                           </Button>
                         </>
@@ -457,7 +463,7 @@ export default function ApprovalsPage() {
 
         {/* Detail Dialog */}
         <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
-          <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-lg">
+          <DialogContent className="max-w-lg border-white/10 bg-[#0d0d12] text-white">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 {selectedRequest && getTypeIcon(selectedRequest.type)}
@@ -467,13 +473,13 @@ export default function ApprovalsPage() {
             {selectedRequest && (
               <div className="space-y-4">
                 {/* Employee Info */}
-                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <div className="flex items-center gap-3 rounded-lg bg-white/5 p-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600">
                     <User className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-white font-medium">{selectedRequest.employeeName}</p>
-                    <p className="text-white/60 text-sm">{formatDate(selectedRequest.timestamp)}</p>
+                    <p className="font-medium text-white">{selectedRequest.employeeName}</p>
+                    <p className="text-sm text-white/60">{formatDate(selectedRequest.timestamp)}</p>
                   </div>
                   <div className="ml-auto">{getStatusBadge(selectedRequest.status)}</div>
                 </div>
@@ -484,7 +490,9 @@ export default function ApprovalsPage() {
                     <>
                       <div className="flex justify-between">
                         <span className="text-white/60">Item</span>
-                        <span className="text-white font-medium">{selectedRequest.data.itemName}</span>
+                        <span className="font-medium text-white">
+                          {selectedRequest.data.itemName}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-white/60">Quantity</span>
@@ -492,12 +500,16 @@ export default function ApprovalsPage() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-white/60">Urgency</span>
-                        <span className="text-white capitalize">{selectedRequest.data.urgency}</span>
+                        <span className="text-white capitalize">
+                          {selectedRequest.data.urgency}
+                        </span>
                       </div>
                       {selectedRequest.data.notes && (
                         <div>
-                          <span className="text-white/60 block mb-1">Notes</span>
-                          <p className="text-white bg-white/5 p-2 rounded">{selectedRequest.data.notes}</p>
+                          <span className="mb-1 block text-white/60">Notes</span>
+                          <p className="rounded bg-white/5 p-2 text-white">
+                            {selectedRequest.data.notes}
+                          </p>
                         </div>
                       )}
                     </>
@@ -507,7 +519,7 @@ export default function ApprovalsPage() {
                     <>
                       <div className="flex justify-between">
                         <span className="text-white/60">Amount</span>
-                        <span className="text-white font-medium text-xl">
+                        <span className="text-xl font-medium text-white">
                           R {selectedRequest.data.amount?.toLocaleString()}
                         </span>
                       </div>
@@ -517,13 +529,15 @@ export default function ApprovalsPage() {
                           {selectedRequest.data.repaymentPlan === "1month"
                             ? "Full next month"
                             : selectedRequest.data.repaymentPlan === "2months"
-                            ? "2 months"
-                            : "3 months"}
+                              ? "2 months"
+                              : "3 months"}
                         </span>
                       </div>
                       <div>
-                        <span className="text-white/60 block mb-1">Reason</span>
-                        <p className="text-white bg-white/5 p-2 rounded">{selectedRequest.data.reason}</p>
+                        <span className="mb-1 block text-white/60">Reason</span>
+                        <p className="rounded bg-white/5 p-2 text-white">
+                          {selectedRequest.data.reason}
+                        </p>
                       </div>
                     </>
                   )}
@@ -532,7 +546,9 @@ export default function ApprovalsPage() {
                     <>
                       <div className="flex justify-between">
                         <span className="text-white/60">Asset</span>
-                        <span className="text-white font-medium">{selectedRequest.data.assetName}</span>
+                        <span className="font-medium text-white">
+                          {selectedRequest.data.assetName}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-white/60">Issue Type</span>
@@ -541,8 +557,8 @@ export default function ApprovalsPage() {
                             selectedRequest.data.issueType === "safety"
                               ? "bg-red-500"
                               : selectedRequest.data.issueType === "broken"
-                              ? "bg-orange-500"
-                              : "bg-blue-500"
+                                ? "bg-orange-500"
+                                : "bg-blue-500"
                           }
                         >
                           {selectedRequest.data.issueType}
@@ -555,8 +571,10 @@ export default function ApprovalsPage() {
                         </div>
                       )}
                       <div>
-                        <span className="text-white/60 block mb-1">Description</span>
-                        <p className="text-white bg-white/5 p-2 rounded">{selectedRequest.data.description}</p>
+                        <span className="mb-1 block text-white/60">Description</span>
+                        <p className="rounded bg-white/5 p-2 text-white">
+                          {selectedRequest.data.description}
+                        </p>
                       </div>
                     </>
                   )}
@@ -564,14 +582,14 @@ export default function ApprovalsPage() {
 
                 {/* Review Info */}
                 {selectedRequest.reviewedBy && (
-                  <div className="pt-4 border-t border-white/10">
-                    <p className="text-white/40 text-sm">
+                  <div className="border-t border-white/10 pt-4">
+                    <p className="text-sm text-white/40">
                       {selectedRequest.status === "approved" ? "Approved" : "Rejected"} by{" "}
                       <span className="text-white">{selectedRequest.reviewedBy}</span> on{" "}
                       {selectedRequest.reviewedAt && formatDate(selectedRequest.reviewedAt)}
                     </p>
                     {selectedRequest.notes && (
-                      <p className="text-white/60 mt-2 p-2 bg-white/5 rounded text-sm">
+                      <p className="mt-2 rounded bg-white/5 p-2 text-sm text-white/60">
                         {selectedRequest.notes}
                       </p>
                     )}
@@ -580,7 +598,11 @@ export default function ApprovalsPage() {
               </div>
             )}
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowDetailDialog(false)} className="border-white/10">
+              <Button
+                variant="outline"
+                onClick={() => setShowDetailDialog(false)}
+                className="border-white/10"
+              >
                 Close
               </Button>
               {selectedRequest?.status === "pending" && (
@@ -592,7 +614,7 @@ export default function ApprovalsPage() {
                       openActionDialog(selectedRequest, "approve")
                     }}
                   >
-                    <Check className="h-4 w-4 mr-2" />
+                    <Check className="mr-2 h-4 w-4" />
                     Approve
                   </Button>
                   <Button
@@ -602,7 +624,7 @@ export default function ApprovalsPage() {
                       openActionDialog(selectedRequest, "reject")
                     }}
                   >
-                    <X className="h-4 w-4 mr-2" />
+                    <X className="mr-2 h-4 w-4" />
                     Reject
                   </Button>
                 </>
@@ -613,7 +635,7 @@ export default function ApprovalsPage() {
 
         {/* Action Confirmation Dialog */}
         <Dialog open={showActionDialog} onOpenChange={setShowActionDialog}>
-          <DialogContent className="bg-[#0d0d12] border-white/10 text-white max-w-md">
+          <DialogContent className="max-w-md border-white/10 bg-[#0d0d12] text-white">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 {actionType === "approve" ? (
@@ -631,20 +653,20 @@ export default function ApprovalsPage() {
             </DialogHeader>
             {selectedRequest && (
               <div className="space-y-4 py-2">
-                <div className="p-3 bg-white/5 rounded-lg">
+                <div className="rounded-lg bg-white/5 p-3">
                   <div className="flex items-center gap-2">
                     {getTypeIcon(selectedRequest.type)}
-                    <span className="text-white font-medium">
+                    <span className="font-medium text-white">
                       {getTypeLabel(selectedRequest.type)}
                     </span>
                   </div>
-                  <p className="text-white/60 text-sm mt-1">
-                    From: {selectedRequest.employeeName}
-                  </p>
+                  <p className="mt-1 text-sm text-white/60">From: {selectedRequest.employeeName}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>{actionType === "approve" ? "Notes (optional)" : "Rejection Reason *"}</Label>
+                  <Label>
+                    {actionType === "approve" ? "Notes (optional)" : "Rejection Reason *"}
+                  </Label>
                   <Textarea
                     value={actionNotes}
                     onChange={(e) => setActionNotes(e.target.value)}
@@ -653,16 +675,16 @@ export default function ApprovalsPage() {
                         ? "Add any notes for the employee..."
                         : "Please explain why this request is being rejected..."
                     }
-                    className="bg-white/5 border-white/10 min-h-[100px]"
+                    className="min-h-[100px] border-white/10 bg-white/5"
                     data-testid="action-notes-input"
                   />
                 </div>
 
                 {actionType === "approve" && selectedRequest.type === "salary_advance" && (
-                  <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-sm text-yellow-300">
-                    <AlertTriangle className="h-4 w-4 inline mr-2" />
-                    This will authorize R {selectedRequest.data.amount?.toLocaleString()} to be advanced to{" "}
-                    {selectedRequest.employeeName}.
+                  <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3 text-sm text-yellow-300">
+                    <AlertTriangle className="mr-2 inline h-4 w-4" />
+                    This will authorize R {selectedRequest.data.amount?.toLocaleString()} to be
+                    advanced to {selectedRequest.employeeName}.
                   </div>
                 )}
               </div>
@@ -679,15 +701,19 @@ export default function ApprovalsPage() {
               <Button
                 onClick={handleAction}
                 disabled={processing || (actionType === "reject" && !actionNotes.trim())}
-                className={actionType === "approve" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+                className={
+                  actionType === "approve"
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-red-600 hover:bg-red-700"
+                }
                 data-testid="confirm-action-btn"
               >
                 {processing ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : actionType === "approve" ? (
-                  <Check className="h-4 w-4 mr-2" />
+                  <Check className="mr-2 h-4 w-4" />
                 ) : (
-                  <X className="h-4 w-4 mr-2" />
+                  <X className="mr-2 h-4 w-4" />
                 )}
                 {actionType === "approve" ? "Approve" : "Reject"}
               </Button>

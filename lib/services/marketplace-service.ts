@@ -1,11 +1,11 @@
 /**
  * House of Veritas - Marketplace Integration Service
- * 
+ *
  * Integrates with South African marketplaces:
  * - Gumtree (via unofficial API / web automation)
  * - Facebook Marketplace (via Graph API)
  * - OLX (via unofficial API)
- * 
+ *
  * Note: Some platforms don't have official APIs, so we use
  * web automation or unofficial endpoints where necessary.
  */
@@ -101,10 +101,10 @@ export class GumtreeService {
   async createListing(listing: MarketplaceListing): Promise<ListingResult> {
     // Gumtree doesn't have an official API, so we provide manual instructions
     // In production, you could use Puppeteer/Playwright for automation
-    
+
     const category = CATEGORY_MAPPINGS.gumtree[listing.category] || "other"
     const postUrl = `${this.baseUrl}/post?category=${category}`
-    
+
     // Generate pre-filled URL with parameters
     const params = new URLSearchParams({
       title: listing.title,
@@ -211,7 +211,7 @@ Note: For automated posting, configure Facebook Page access token.
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.accessToken}`,
+          Authorization: `Bearer ${this.accessToken}`,
         },
         body: JSON.stringify({
           name: listing.title,
@@ -221,7 +221,7 @@ Note: For automated posting, configure Facebook Page access token.
           condition: listing.condition.toUpperCase(),
           availability: "IN_STOCK",
           category: CATEGORY_MAPPINGS.facebook[listing.category],
-          images: listing.images.map(url => ({ url })),
+          images: listing.images.map((url) => ({ url })),
         }),
       })
 
@@ -257,7 +257,7 @@ Note: For automated posting, configure Facebook Page access token.
       const response = await fetch(
         `${this.graphApiUrl}/${listingId}/insights?metric=post_impressions,post_engagements`,
         {
-          headers: { "Authorization": `Bearer ${this.accessToken}` },
+          headers: { Authorization: `Bearer ${this.accessToken}` },
         }
       )
       return await response.json()
@@ -411,7 +411,7 @@ export class MarketplaceService {
 
   constructor(configs?: MarketplaceConfig[]) {
     this.configs = new Map()
-    configs?.forEach(c => this.configs.set(c.platform, c))
+    configs?.forEach((c) => this.configs.set(c.platform, c))
 
     this.gumtree = new GumtreeService(this.configs.get("gumtree"))
     this.facebook = new FacebookMarketplaceService(this.configs.get("facebook"))
@@ -513,10 +513,11 @@ export class MarketplaceService {
     const condition = assetDetails.condition || "Good"
     const brand = assetDetails.brand || ""
     const model = assetDetails.model || ""
-    
-    const title = brand && model 
-      ? `${brand} ${model} - ${condition} Condition`
-      : `${assetName} - ${condition} Condition`
+
+    const title =
+      brand && model
+        ? `${brand} ${model} - ${condition} Condition`
+        : `${assetName} - ${condition} Condition`
 
     const description = `
 ${assetName} for sale.

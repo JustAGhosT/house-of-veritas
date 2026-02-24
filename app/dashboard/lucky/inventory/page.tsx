@@ -16,14 +16,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import {
-  Boxes,
-  Search,
-  AlertTriangle,
-  Package,
-  ArrowDown,
-  Leaf,
-} from "lucide-react"
+import { Boxes, Search, AlertTriangle, Package, ArrowDown, Leaf } from "lucide-react"
 import { logger } from "@/lib/logger"
 import { apiFetch } from "@/lib/api-client"
 
@@ -54,10 +47,15 @@ export default function LuckyInventoryPage() {
   const fetchInventory = useCallback(async () => {
     try {
       // Fetch only garden supplies for Lucky
-      const data = await apiFetch<{ items?: InventoryItem[] }>("/api/inventory?category=garden_supplies", { label: "Inventory" })
+      const data = await apiFetch<{ items?: InventoryItem[] }>(
+        "/api/inventory?category=garden_supplies",
+        { label: "Inventory" }
+      )
       setItems(data?.items || [])
     } catch (error) {
-      logger.error("Failed to fetch inventory", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to fetch inventory", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setLoading(false)
     }
@@ -86,7 +84,9 @@ export default function LuckyInventoryPage() {
       setConsumeQuantity("")
       setConsumePurpose("")
     } catch (error) {
-      logger.error("Failed to consume", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to consume", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
   }
 
@@ -96,32 +96,32 @@ export default function LuckyInventoryPage() {
     return { color: "bg-green-500", label: "Good" }
   }
 
-  const filteredItems = items.filter(item =>
+  const filteredItems = items.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   return (
     <DashboardLayout persona="lucky">
-      <div className="space-y-6 relative z-10">
+      <div className="relative z-10 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+          <h1 className="flex items-center gap-3 text-2xl font-bold text-white sm:text-3xl">
             <Leaf className="h-8 w-8 text-green-400" />
             Garden Inventory
           </h1>
-          <p className="text-white/60 mt-1">Track and use garden supplies</p>
+          <p className="mt-1 text-white/60">Track and use garden supplies</p>
         </div>
 
         {/* Search */}
-        <Card className="bg-white/5 border-white/10">
+        <Card className="border-white/10 bg-white/5">
           <CardContent className="pt-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+              <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/40" />
               <Input
                 placeholder="Search supplies..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white/5 border-white/10"
+                className="border-white/10 bg-white/5 pl-10"
               />
             </div>
           </CardContent>
@@ -130,50 +130,60 @@ export default function LuckyInventoryPage() {
         {/* Inventory List */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-2 border-green-500/30 border-t-green-500 rounded-full animate-spin" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-green-500/30 border-t-green-500" />
           </div>
         ) : filteredItems.length === 0 ? (
-          <Card className="bg-white/5 border-white/10">
+          <Card className="border-white/10 bg-white/5">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <Boxes className="h-12 w-12 text-white/20 mb-4" />
-              <p className="text-white/60 text-lg">No garden supplies found</p>
+              <Boxes className="mb-4 h-12 w-12 text-white/20" />
+              <p className="text-lg text-white/60">No garden supplies found</p>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {filteredItems.map((item) => {
               const stockLevel = getStockLevel(item)
               const percentage = Math.min((item.currentStock / item.maxStock) * 100, 100)
               return (
-                <Card key={item.id} className="bg-white/5 border-white/10">
-                  <CardContent className="pt-6 space-y-4">
+                <Card key={item.id} className="border-white/10 bg-white/5">
+                  <CardContent className="space-y-4 pt-6">
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="text-white font-medium">{item.name}</p>
-                        <p className="text-white/40 text-sm">{item.location}</p>
+                        <p className="font-medium text-white">{item.name}</p>
+                        <p className="text-sm text-white/40">{item.location}</p>
                       </div>
-                      <Badge variant="outline" className={
-                        stockLevel.color === 'bg-red-500' ? 'border-red-500 text-red-400' :
-                        stockLevel.color === 'bg-yellow-500' ? 'border-yellow-500 text-yellow-400' :
-                        'border-green-500 text-green-400'
-                      }>
+                      <Badge
+                        variant="outline"
+                        className={
+                          stockLevel.color === "bg-red-500"
+                            ? "border-red-500 text-red-400"
+                            : stockLevel.color === "bg-yellow-500"
+                              ? "border-yellow-500 text-yellow-400"
+                              : "border-green-500 text-green-400"
+                        }
+                      >
                         {stockLevel.label}
                       </Badge>
                     </div>
-                    
+
                     <div>
-                      <div className="flex justify-between text-sm mb-1">
+                      <div className="mb-1 flex justify-between text-sm">
                         <span className="text-white/60">Stock Level</span>
-                        <span className="text-white">{item.currentStock} / {item.maxStock} {item.unit}</span>
+                        <span className="text-white">
+                          {item.currentStock} / {item.maxStock} {item.unit}
+                        </span>
                       </div>
                       <Progress value={percentage} className={`h-2 ${stockLevel.color}`} />
                     </div>
 
                     <Button
                       className="w-full bg-green-600 hover:bg-green-700"
-                      onClick={() => { setSelectedItem(item); setIsConsumeDialogOpen(true) }}
+                      onClick={() => {
+                        setSelectedItem(item)
+                        setIsConsumeDialogOpen(true)
+                      }}
                     >
-                      <ArrowDown className="h-4 w-4 mr-2" />
+                      <ArrowDown className="mr-2 h-4 w-4" />
                       Use Stock
                     </Button>
                   </CardContent>
@@ -185,12 +195,10 @@ export default function LuckyInventoryPage() {
 
         {/* Consume Dialog */}
         <Dialog open={isConsumeDialogOpen} onOpenChange={setIsConsumeDialogOpen}>
-          <DialogContent className="bg-[#0d0d12] border-white/10 text-white">
+          <DialogContent className="border-white/10 bg-[#0d0d12] text-white">
             <DialogHeader>
               <DialogTitle>Use Stock</DialogTitle>
-              <DialogDescription className="text-white/60">
-                {selectedItem?.name}
-              </DialogDescription>
+              <DialogDescription className="text-white/60">{selectedItem?.name}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -200,9 +208,11 @@ export default function LuckyInventoryPage() {
                   value={consumeQuantity}
                   onChange={(e) => setConsumeQuantity(e.target.value)}
                   max={selectedItem?.currentStock}
-                  className="bg-white/5 border-white/10"
+                  className="border-white/10 bg-white/5"
                 />
-                <p className="text-white/40 text-xs">Available: {selectedItem?.currentStock} {selectedItem?.unit}</p>
+                <p className="text-xs text-white/40">
+                  Available: {selectedItem?.currentStock} {selectedItem?.unit}
+                </p>
               </div>
               <div className="space-y-2">
                 <Label>Purpose</Label>
@@ -210,12 +220,14 @@ export default function LuckyInventoryPage() {
                   value={consumePurpose}
                   onChange={(e) => setConsumePurpose(e.target.value)}
                   placeholder="e.g. Front garden, Lawn treatment"
-                  className="bg-white/5 border-white/10"
+                  className="border-white/10 bg-white/5"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsConsumeDialogOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setIsConsumeDialogOpen(false)}>
+                Cancel
+              </Button>
               <Button onClick={handleConsume} className="bg-green-600 hover:bg-green-700">
                 Confirm Usage
               </Button>

@@ -42,17 +42,12 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       if (this.props.fallback) return this.props.fallback
 
-      const errors = this.state.errors.length > 0
-        ? this.state.errors.flatMap(flattenErrors)
-        : flattenErrors(new Error("An unexpected error occurred"))
+      const errors =
+        this.state.errors.length > 0
+          ? this.state.errors.flatMap(flattenErrors)
+          : flattenErrors(new Error("An unexpected error occurred"))
 
-      return (
-        <ErrorDisplay
-          errors={errors}
-          onRetry={this.handleRetry}
-          variant="inline"
-        />
-      )
+      return <ErrorDisplay errors={errors} onRetry={this.handleRetry} variant="inline" />
     }
 
     return this.props.children

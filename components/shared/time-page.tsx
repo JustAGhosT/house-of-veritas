@@ -14,8 +14,13 @@ interface TimePageProps {
 }
 
 export function TimePage({ personaId, title = "Time Clock", showAll = false }: TimePageProps) {
-  const [entries, setEntries] = useState<{ id: number; date: string; clockIn?: string; clockOut?: string; employeeName?: string }[]>([])
-  const [summary, setSummary] = useState<{ todayClockedIn: number; totalHoursToday: number } | null>(null)
+  const [entries, setEntries] = useState<
+    { id: number; date: string; clockIn?: string; clockOut?: string; employeeName?: string }[]
+  >([])
+  const [summary, setSummary] = useState<{
+    todayClockedIn: number
+    totalHoursToday: number
+  } | null>(null)
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState(false)
   const [clockedIn, setClockedIn] = useState(false)
@@ -24,15 +29,27 @@ export function TimePage({ personaId, title = "Time Clock", showAll = false }: T
     try {
       const params = new URLSearchParams()
       if (!showAll) params.set("personaId", personaId)
-      const data = await apiFetch<{ entries?: { id: number; date: string; clockIn?: string; clockOut?: string; employeeName?: string }[]; summary?: { todayClockedIn?: number; totalHoursToday?: number } | null }>(
-        `/api/time?${params}`,
-        { label: "Time" }
-      )
+      const data = await apiFetch<{
+        entries?: {
+          id: number
+          date: string
+          clockIn?: string
+          clockOut?: string
+          employeeName?: string
+        }[]
+        summary?: { todayClockedIn?: number; totalHoursToday?: number } | null
+      }>(`/api/time?${params}`, { label: "Time" })
       setEntries(data?.entries || [])
       const sum = data?.summary
-      setSummary(sum ? { todayClockedIn: sum.todayClockedIn ?? 0, totalHoursToday: sum.totalHoursToday ?? 0 } : null)
+      setSummary(
+        sum
+          ? { todayClockedIn: sum.todayClockedIn ?? 0, totalHoursToday: sum.totalHoursToday ?? 0 }
+          : null
+      )
     } catch (error) {
-      logger.error("Failed to fetch time", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Failed to fetch time", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setLoading(false)
     }
@@ -53,7 +70,9 @@ export function TimePage({ personaId, title = "Time Clock", showAll = false }: T
       await apiFetch("/api/time", { method: "POST", body, label: "Time" })
       await fetchTime()
     } catch (error) {
-      logger.error("Clock failed", { error: error instanceof Error ? error.message : String(error) })
+      logger.error("Clock failed", {
+        error: error instanceof Error ? error.message : String(error),
+      })
     } finally {
       setProcessing(false)
     }
@@ -64,27 +83,29 @@ export function TimePage({ personaId, title = "Time Clock", showAll = false }: T
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
+        <h1 className="flex items-center gap-2 text-2xl font-semibold text-white">
           <Clock className="h-7 w-7" />
           {title}
         </h1>
-        <p className="text-white/60 mt-1">
-          {showAll ? "All time entries" : "Clock in and out"}
-        </p>
+        <p className="mt-1 text-white/60">{showAll ? "All time entries" : "Clock in and out"}</p>
       </div>
 
       {!showAll && (
-        <Card className="bg-[#0d0d12]/80 border-white/10">
+        <Card className="border-white/10 bg-[#0d0d12]/80">
           <CardHeader>
             <CardTitle className="text-white">Today</CardTitle>
             <CardDescription className="text-white/60">
-              {summary?.totalHoursToday != null ? `${summary.totalHoursToday.toFixed(1)} hours today` : "Clock in to start"}
+              {summary?.totalHoursToday != null
+                ? `${summary.totalHoursToday.toFixed(1)} hours today`
+                : "Clock in to start"}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button
               size="lg"
-              className={clockedIn ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
+              className={
+                clockedIn ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"
+              }
               onClick={handleClock}
               disabled={processing}
             >
@@ -92,12 +113,12 @@ export function TimePage({ personaId, title = "Time Clock", showAll = false }: T
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : clockedIn ? (
                 <>
-                  <Square className="h-5 w-5 mr-2" />
+                  <Square className="mr-2 h-5 w-5" />
                   Clock Out
                 </>
               ) : (
                 <>
-                  <Play className="h-5 w-5 mr-2" />
+                  <Play className="mr-2 h-5 w-5" />
                   Clock In
                 </>
               )}
@@ -106,7 +127,7 @@ export function TimePage({ personaId, title = "Time Clock", showAll = false }: T
         </Card>
       )}
 
-      <Card className="bg-[#0d0d12]/80 border-white/10">
+      <Card className="border-white/10 bg-[#0d0d12]/80">
         <CardHeader>
           <CardTitle className="text-white">Recent Entries</CardTitle>
           <CardDescription className="text-white/60">
@@ -119,20 +140,20 @@ export function TimePage({ personaId, title = "Time Clock", showAll = false }: T
               <Loader2 className="h-8 w-8 animate-spin text-white/40" />
             </div>
           ) : entries.length === 0 ? (
-            <p className="text-white/50 text-center py-8">No time entries found.</p>
+            <p className="py-8 text-center text-white/50">No time entries found.</p>
           ) : (
             <div className="space-y-2">
               {entries.slice(0, 10).map((e) => (
                 <div
                   key={e.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10"
+                  className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3"
                 >
                   <span className="text-white/80">{e.date}</span>
                   <span className="text-white/60">
                     {e.clockIn || "-"} → {e.clockOut || "-"}
                   </span>
                   {e.employeeName && showAll && (
-                    <span className="text-white/40 text-sm">{e.employeeName}</span>
+                    <span className="text-sm text-white/40">{e.employeeName}</span>
                   )}
                 </div>
               ))}
@@ -140,7 +161,7 @@ export function TimePage({ personaId, title = "Time Clock", showAll = false }: T
           )}
           <div className="mt-4">
             <Button variant="outline" className="border-white/10" onClick={fetchTime}>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
           </div>

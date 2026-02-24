@@ -5,10 +5,26 @@ import { withRole, withAuth } from "@/lib/auth/rbac"
 import { toISODateString } from "@/lib/utils"
 
 const auditActions = [
-  "login", "logout", "task_created", "task_updated", "task_completed", "task_deleted",
-  "expense_submitted", "expense_approved", "expense_rejected", "document_signed", "document_viewed",
-  "clock_in", "clock_out", "profile_updated", "password_reset", "file_uploaded", "file_deleted",
-  "settings_changed", "user_created", "permission_changed",
+  "login",
+  "logout",
+  "task_created",
+  "task_updated",
+  "task_completed",
+  "task_deleted",
+  "expense_submitted",
+  "expense_approved",
+  "expense_rejected",
+  "document_signed",
+  "document_viewed",
+  "clock_in",
+  "clock_out",
+  "profile_updated",
+  "password_reset",
+  "file_uploaded",
+  "file_deleted",
+  "settings_changed",
+  "user_created",
+  "permission_changed",
 ] as const
 
 const auditPostSchema = z.object({
@@ -24,11 +40,11 @@ const auditPostSchema = z.object({
 
 export const GET = withRole("admin")(async (request) => {
   const { searchParams } = new URL(request.url)
-  const userId = searchParams.get('userId')
-  const action = searchParams.get('action') as AuditAction | null
-  const resourceType = searchParams.get('resourceType')
-  const limit = parseInt(searchParams.get('limit') || '100')
-  const format = searchParams.get('format')
+  const userId = searchParams.get("userId")
+  const action = searchParams.get("action") as AuditAction | null
+  const resourceType = searchParams.get("resourceType")
+  const limit = parseInt(searchParams.get("limit") || "100")
+  const format = searchParams.get("format")
 
   const opts = {
     userId: userId || undefined,
@@ -37,12 +53,12 @@ export const GET = withRole("admin")(async (request) => {
     limit,
   }
 
-  if (format === 'csv') {
+  if (format === "csv") {
     const csv = await auditLog.exportToCSVAsync(opts)
     return new NextResponse(csv, {
       headers: {
-        'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="audit-log-${toISODateString()}.csv"`,
+        "Content-Type": "text/csv",
+        "Content-Disposition": `attachment; filename="audit-log-${toISODateString()}.csv"`,
       },
     })
   }
@@ -67,7 +83,8 @@ export const POST = withAuth(async (request) => {
         { status: 400 }
       )
     }
-    const { userId, userName, action, resourceType, resourceId, resourceName, details, success } = parsed.data
+    const { userId, userName, action, resourceType, resourceId, resourceName, details, success } =
+      parsed.data
 
     const entry = logActivity(userId, userName, action, resourceType, {
       resourceId,
@@ -78,6 +95,6 @@ export const POST = withAuth(async (request) => {
 
     return NextResponse.json({ success: true, entry })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create audit log entry' }, { status: 500 })
+    return NextResponse.json({ error: "Failed to create audit log entry" }, { status: 500 })
   }
 })

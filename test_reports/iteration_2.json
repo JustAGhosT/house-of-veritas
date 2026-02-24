@@ -8,7 +8,10 @@
     "ui_bugs": [],
     "integration_issues": [],
     "design_issues": [
-      {"screen": "Footer", "issues": ["Footer shows '© 2025' instead of '© 2026' - minor date inconsistency"]}
+      {
+        "screen": "Footer",
+        "issues": ["Footer shows '© 2025' instead of '© 2026' - minor date inconsistency"]
+      }
     ]
   },
   "test_report_links": [
@@ -20,18 +23,21 @@
     "Password storage is in-memory only - passwords reset during runtime will be lost on server restart (expected for demo)",
     "All external integrations (DocuSeal, Baserow, Twilio) are MOCKED - returning simulated data"
   ],
-  "updated_files": [
-    "/app/backend/tests/test_hov_api.py"
-  ],
+  "updated_files": ["/app/backend/tests/test_hov_api.py"],
   "success_rate": {
     "backend": "100% (24/24 tests passed)",
     "frontend": "100% (all UI flows working)"
   },
   "test_credentials": {
-    "hans": {"email": "hans@houseofv.com", "password": "hans123", "role": "admin", "can_view_all": true},
-    "charl": {"email": "charl@houseofv.com", "password": "charl123", "role": "employee"},
-    "lucky": {"email": "lucky@houseofv.com", "password": "lucky123", "role": "employee"},
-    "irma": {"email": "irma@houseofv.com", "password": "irma123", "role": "resident"}
+    "hans": {
+      "email": "hans@houseofv.com",
+      "password": "hans123",
+      "role": "admin",
+      "can_view_all": true
+    },
+    "charl": { "email": "charl@houseofv.com", "password": "charl123", "role": "employee" },
+    "lucky": { "email": "lucky@houseofv.com", "password": "lucky123", "role": "employee" },
+    "irma": { "email": "irma@houseofv.com", "password": "irma123", "role": "resident" }
   },
   "seed_data_creation": "Mock data seeded via baserow.ts and notification-context.tsx",
   "retest_needed": false,

@@ -1,22 +1,22 @@
 // Notification Service Types and Implementation
 // Supports SMS (Twilio), WhatsApp (Twilio), Email, and Push notifications
 
-import twilio from 'twilio'
-import { logger } from '@/lib/logger'
+import twilio from "twilio"
+import { logger } from "@/lib/logger"
 
-export type NotificationChannel = 'sms' | 'whatsapp' | 'email' | 'push' | 'in_app'
+export type NotificationChannel = "sms" | "whatsapp" | "email" | "push" | "in_app"
 
-export type NotificationType = 
-  | 'approval_required'
-  | 'expense_approved'
-  | 'expense_rejected'
-  | 'task_assigned'
-  | 'task_due'
-  | 'document_expiry'
-  | 'password_reset'
-  | 'system_alert'
-  | 'daily_digest'
-  | 'weekly_summary'
+export type NotificationType =
+  | "approval_required"
+  | "expense_approved"
+  | "expense_rejected"
+  | "task_assigned"
+  | "task_due"
+  | "document_expiry"
+  | "password_reset"
+  | "system_alert"
+  | "daily_digest"
+  | "weekly_summary"
 
 export interface NotificationPayload {
   type: NotificationType
@@ -25,7 +25,7 @@ export interface NotificationPayload {
   message: string
   channels: NotificationChannel[]
   data?: Record<string, any>
-  priority?: 'low' | 'medium' | 'high' | 'urgent'
+  priority?: "low" | "medium" | "high" | "urgent"
   scheduledFor?: Date
   usePreference?: boolean // Use user's saved preference
 }
@@ -74,18 +74,18 @@ export function isTwilioConfigured(): boolean {
 
 // User phone numbers (in production, fetch from database)
 const USER_PHONES: Record<string, string> = {
-  hans: '+27692381255',
-  charl: '+27711488390',
-  lucky: '+27794142410',
-  irma: '+27711488390',
+  hans: "+27692381255",
+  charl: "+27711488390",
+  lucky: "+27794142410",
+  irma: "+27711488390",
 }
 
 // User emails (in production, fetch from database)
 const USER_EMAILS: Record<string, string> = {
-  hans: 'hans@houseofv.com',
-  charl: 'charl@houseofv.com',
-  lucky: 'lucky@houseofv.com',
-  irma: 'irma@houseofv.com',
+  hans: "hans@houseofv.com",
+  charl: "charl@houseofv.com",
+  lucky: "lucky@houseofv.com",
+  irma: "irma@houseofv.com",
 }
 
 // Send SMS via Twilio
@@ -94,30 +94,33 @@ export async function sendSMS(
   message: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const client = getTwilioClient()
-  
+
   if (!client || !TWILIO_CONFIG.fromNumber) {
-    logger.info('Twilio not configured, simulating SMS', { to })
-    logger.debug('SMS simulated', { to, message })
-    return { 
-      success: true, 
+    logger.info("Twilio not configured, simulating SMS", { to })
+    logger.debug("SMS simulated", { to, message })
+    return {
+      success: true,
       messageId: `sim_sms_${Date.now()}`,
     }
   }
 
   try {
-    logger.info('Sending SMS via Twilio', { to })
+    logger.info("Sending SMS via Twilio", { to })
     const result = await client.messages.create({
       body: message,
       from: TWILIO_CONFIG.fromNumber,
       to: to,
     })
-    logger.info('SMS sent successfully', { sid: result.sid })
+    logger.info("SMS sent successfully", { sid: result.sid })
     return { success: true, messageId: result.sid }
   } catch (error) {
-    logger.error('SMS Error', { error: error instanceof Error ? error.message : String(error) })
-    const code = error && typeof error === 'object' && 'code' in error ? (error as { code: number }).code : undefined
+    logger.error("SMS Error", { error: error instanceof Error ? error.message : String(error) })
+    const code =
+      error && typeof error === "object" && "code" in error
+        ? (error as { code: number }).code
+        : undefined
     if (code === 21608 || code === 21211 || code === 21614) {
-      logger.info('Twilio error, simulating delivery', { code, to })
+      logger.info("Twilio error, simulating delivery", { code, to })
       return { success: true, messageId: `test_sms_${Date.now()}`, error: `Twilio: ${code}` }
     }
     return { success: false, error: error instanceof Error ? error.message : String(error) }
@@ -130,36 +133,41 @@ export async function sendWhatsApp(
   message: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const client = getTwilioClient()
-  
+
   if (!client || !TWILIO_CONFIG.whatsappNumber) {
-    logger.info('Twilio WhatsApp not configured, simulating', { to })
-    logger.debug('WhatsApp simulated', { to, message })
-    return { 
-      success: true, 
+    logger.info("Twilio WhatsApp not configured, simulating", { to })
+    logger.debug("WhatsApp simulated", { to, message })
+    return {
+      success: true,
       messageId: `sim_wa_${Date.now()}`,
     }
   }
 
   try {
     // WhatsApp numbers need whatsapp: prefix
-    const whatsappTo = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`
-    const whatsappFrom = TWILIO_CONFIG.whatsappNumber.startsWith('whatsapp:') 
-      ? TWILIO_CONFIG.whatsappNumber 
+    const whatsappTo = to.startsWith("whatsapp:") ? to : `whatsapp:${to}`
+    const whatsappFrom = TWILIO_CONFIG.whatsappNumber.startsWith("whatsapp:")
+      ? TWILIO_CONFIG.whatsappNumber
       : `whatsapp:${TWILIO_CONFIG.whatsappNumber}`
-    
-    logger.info('Sending WhatsApp via Twilio', { to: whatsappTo })
+
+    logger.info("Sending WhatsApp via Twilio", { to: whatsappTo })
     const result = await client.messages.create({
       body: message,
       from: whatsappFrom,
       to: whatsappTo,
     })
-    logger.info('WhatsApp sent successfully', { sid: result.sid })
+    logger.info("WhatsApp sent successfully", { sid: result.sid })
     return { success: true, messageId: result.sid }
   } catch (error) {
-    logger.error('WhatsApp Error', { error: error instanceof Error ? error.message : String(error) })
-    const code = error && typeof error === 'object' && 'code' in error ? (error as { code: number }).code : undefined
+    logger.error("WhatsApp Error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
+    const code =
+      error && typeof error === "object" && "code" in error
+        ? (error as { code: number }).code
+        : undefined
     if (code) {
-      logger.info('Twilio WhatsApp error, simulating delivery', { code, to })
+      logger.info("Twilio WhatsApp error, simulating delivery", { code, to })
       return { success: true, messageId: `test_wa_${Date.now()}`, error: `Twilio: ${code}` }
     }
     return { success: false, error: error instanceof Error ? error.message : String(error) }
@@ -173,10 +181,10 @@ export async function sendEmail(
   body: string,
   html?: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  logger.info('Email simulated', { to, subject })
+  logger.info("Email simulated", { to, subject })
   // In production, integrate with SendGrid, Resend, or SES
-  return { 
-    success: true, 
+  return {
+    success: true,
     messageId: `email_${Date.now()}`,
   }
 }
@@ -190,13 +198,17 @@ async function getUserPreference(userId: string): Promise<{
   email?: string
 } | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/notifications/preferences?userId=${userId}`)
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/notifications/preferences?userId=${userId}`
+    )
     if (response.ok) {
       const data = await response.json()
       return data.preference
     }
   } catch (error) {
-    logger.error('Failed to fetch user preference', { error: error instanceof Error ? error.message : String(error) })
+    logger.error("Failed to fetch user preference", {
+      error: error instanceof Error ? error.message : String(error),
+    })
   }
   return null
 }
@@ -217,7 +229,7 @@ export async function sendNotification(
     preference = await getUserPreference(payload.userId)
     if (preference?.preferredChannel) {
       const preferred = preference.preferredChannel
-      channels = [preferred, ...(preference.fallbackOrder || []).filter(c => c !== preferred)]
+      channels = [preferred, ...(preference.fallbackOrder || []).filter((c) => c !== preferred)]
     }
   }
 
@@ -225,45 +237,45 @@ export async function sendNotification(
     let result: NotificationResult
 
     switch (channel) {
-      case 'sms':
+      case "sms":
         const phoneForSms = preference?.phoneNumber || userPhone
         if (phoneForSms) {
           const smsResult = await sendSMS(phoneForSms, `${payload.title}\n${payload.message}`)
-          result = { channel: 'sms', ...smsResult }
+          result = { channel: "sms", ...smsResult }
         } else {
-          result = { channel: 'sms', success: false, error: 'No phone number for user' }
+          result = { channel: "sms", success: false, error: "No phone number for user" }
         }
         break
 
-      case 'whatsapp':
+      case "whatsapp":
         const phoneForWa = preference?.whatsappNumber || preference?.phoneNumber || userPhone
         if (phoneForWa) {
           const waResult = await sendWhatsApp(phoneForWa, `*${payload.title}*\n${payload.message}`)
-          result = { channel: 'whatsapp', ...waResult }
+          result = { channel: "whatsapp", ...waResult }
         } else {
-          result = { channel: 'whatsapp', success: false, error: 'No WhatsApp number for user' }
+          result = { channel: "whatsapp", success: false, error: "No WhatsApp number for user" }
         }
         break
 
-      case 'email':
+      case "email":
         const emailForUser = preference?.email || userEmail
         const emailResult = await sendEmail(emailForUser, payload.title, payload.message)
-        result = { channel: 'email', ...emailResult }
+        result = { channel: "email", ...emailResult }
         break
 
-      case 'push':
+      case "push":
         // Push notification would be handled by service worker
-        logger.info('Push notification simulated', { title: payload.title })
-        result = { channel: 'push', success: true, messageId: `push_${Date.now()}` }
+        logger.info("Push notification simulated", { title: payload.title })
+        result = { channel: "push", success: true, messageId: `push_${Date.now()}` }
         break
 
-      case 'in_app':
+      case "in_app":
         // In-app notifications are handled by the real-time system
-        result = { channel: 'in_app', success: true, messageId: `inapp_${Date.now()}` }
+        result = { channel: "in_app", success: true, messageId: `inapp_${Date.now()}` }
         break
 
       default:
-        result = { channel, success: false, error: 'Unknown channel' }
+        result = { channel, success: false, error: "Unknown channel" }
     }
 
     results.push(result)
@@ -278,9 +290,7 @@ export async function sendNotification(
 }
 
 // Send notification with automatic fallback on failure
-export async function sendNotificationWithFallback(
-  payload: NotificationPayload
-): Promise<{
+export async function sendNotificationWithFallback(payload: NotificationPayload): Promise<{
   results: NotificationResult[]
   deliveryStatus: DeliveryStatus
   fallbackSuggestion?: {
@@ -289,11 +299,11 @@ export async function sendNotificationWithFallback(
   }
 }> {
   const results = await sendNotification({ ...payload, usePreference: true })
-  
+
   // Check if primary delivery succeeded
   const primaryResult = results[0]
   const success = primaryResult?.success && !primaryResult?.error
-  
+
   // Build delivery status
   const deliveryStatus: DeliveryStatus = {
     channel: primaryResult?.channel || payload.channels[0],
@@ -305,10 +315,11 @@ export async function sendNotificationWithFallback(
   // If failed, suggest fallback options
   let fallbackSuggestion
   if (!success) {
-    const triedChannels = results.map(r => r.channel)
-    const remainingChannels = (['sms', 'whatsapp', 'email'] as NotificationChannel[])
-      .filter(c => !triedChannels.includes(c))
-    
+    const triedChannels = results.map((r) => r.channel)
+    const remainingChannels = (["sms", "whatsapp", "email"] as NotificationChannel[]).filter(
+      (c) => !triedChannels.includes(c)
+    )
+
     if (remainingChannels.length > 0) {
       fallbackSuggestion = {
         message: `Didn't receive via ${primaryResult?.channel}? Try another option:`,
@@ -322,54 +333,57 @@ export async function sendNotificationWithFallback(
 }
 
 // Notification templates
-export const NOTIFICATION_TEMPLATES: Record<NotificationType, (data: any) => { title: string; message: string }> = {
+export const NOTIFICATION_TEMPLATES: Record<
+  NotificationType,
+  (data: any) => { title: string; message: string }
+> = {
   approval_required: (data) => ({
-    title: 'Approval Required',
-    message: `${data.type} from ${data.submittedBy} requires your approval: ${data.description || 'View details in dashboard'}`,
+    title: "Approval Required",
+    message: `${data.type} from ${data.submittedBy} requires your approval: ${data.description || "View details in dashboard"}`,
   }),
-  
+
   expense_approved: (data) => ({
-    title: 'Expense Approved',
+    title: "Expense Approved",
     message: `Your expense "${data.description}" for R${data.amount} has been approved.`,
   }),
-  
+
   expense_rejected: (data) => ({
-    title: 'Expense Rejected',
-    message: `Your expense "${data.description}" has been rejected. Reason: ${data.reason || 'Contact admin for details'}`,
+    title: "Expense Rejected",
+    message: `Your expense "${data.description}" has been rejected. Reason: ${data.reason || "Contact admin for details"}`,
   }),
-  
+
   task_assigned: (data) => ({
-    title: 'New Task Assigned',
-    message: `You have been assigned: "${data.title}". Due: ${data.dueDate || 'See dashboard'}`,
+    title: "New Task Assigned",
+    message: `You have been assigned: "${data.title}". Due: ${data.dueDate || "See dashboard"}`,
   }),
-  
+
   task_due: (data) => ({
-    title: 'Task Due Soon',
+    title: "Task Due Soon",
     message: `Task "${data.title}" is due ${data.dueIn}. Please complete it on time.`,
   }),
-  
+
   document_expiry: (data) => ({
-    title: 'Document Expiring',
+    title: "Document Expiring",
     message: `Document "${data.documentName}" expires in ${data.daysLeft} days. Please review and renew.`,
   }),
-  
+
   password_reset: (data) => ({
-    title: 'Password Reset',
+    title: "Password Reset",
     message: `Your temporary password is: ${data.tempPassword}. Please change it after logging in.`,
   }),
-  
+
   system_alert: (data) => ({
-    title: data.alertTitle || 'System Alert',
-    message: data.alertMessage || 'Please check the dashboard for important updates.',
+    title: data.alertTitle || "System Alert",
+    message: data.alertMessage || "Please check the dashboard for important updates.",
   }),
-  
+
   daily_digest: (data) => ({
-    title: 'Daily Summary',
+    title: "Daily Summary",
     message: `Today: ${data.tasksCompleted} tasks done, ${data.tasksPending} pending. ${data.notifications} new notifications.`,
   }),
-  
+
   weekly_summary: (data) => ({
-    title: 'Weekly Report',
+    title: "Weekly Report",
     message: `This week: ${data.totalHours}h worked, ${data.expensesTotal} expenses, ${data.tasksCompleted} tasks completed.`,
   }),
 }
@@ -379,7 +393,7 @@ export async function sendTemplatedNotification(
   type: NotificationType,
   userId: string,
   data: Record<string, any>,
-  channels: NotificationChannel[] = ['in_app']
+  channels: NotificationChannel[] = ["in_app"]
 ): Promise<NotificationResult[]> {
   const template = NOTIFICATION_TEMPLATES[type]
   const { title, message } = template(data)

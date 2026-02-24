@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server"
 import { withRole } from "@/lib/auth/rbac"
-import {
-  getUserWithManagement,
-  updateUserManagement,
-} from "@/lib/user-management"
+import { getUserWithManagement, updateUserManagement } from "@/lib/user-management"
 
 export const GET = withRole("admin")(async (_request, context) => {
   const params = await context.params
@@ -27,7 +24,10 @@ export const PATCH = withRole("admin")(async (request, context) => {
     if (responsibilities != null) updates.responsibilities = responsibilities
     if (onboardingStatus != null) updates.onboardingStatus = onboardingStatus
     if (offboardingStatus != null) updates.offboardingStatus = offboardingStatus
-    const user = await updateUserManagement(id, updates as Parameters<typeof updateUserManagement>[1])
+    const user = await updateUserManagement(
+      id,
+      updates as Parameters<typeof updateUserManagement>[1]
+    )
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 })
     return NextResponse.json({ user })
   } catch (err) {

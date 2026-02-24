@@ -8,12 +8,12 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (marketplace discovery, listing creation, user profile management) |
-| Backend | Baserow (directory/listings, review/rating logic, transactional logs) |
-| Compute/Logic | Azure Functions (provider matching, notifications, analytics) |
-| Storage | Azure Blob (secure photos, documents, review storage) |
+| Layer         | Technology                                                                       |
+| ------------- | -------------------------------------------------------------------------------- |
+| Frontend      | Next.js/React (marketplace discovery, listing creation, user profile management) |
+| Backend       | Baserow (directory/listings, review/rating logic, transactional logs)            |
+| Compute/Logic | Azure Functions (provider matching, notifications, analytics)                    |
+| Storage       | Azure Blob (secure photos, documents, review storage)                            |
 
 ---
 
@@ -127,23 +127,23 @@ Curate a transparent, fair marketplace where listings are precisely matched to r
 
 ## Measurable Objectives
 
-| Metric | Target | Timeline |
-|--------|-------|----------|
-| Transaction time per booking | <3 min | Per transaction |
-| Booking/feedback coverage | >90% | Monthly review |
-| Incident or negative event rate | <5% | Per quarter |
+| Metric                            | Target  | Timeline        |
+| --------------------------------- | ------- | --------------- |
+| Transaction time per booking      | <3 min  | Per transaction |
+| Booking/feedback coverage         | >90%    | Monthly review  |
+| Incident or negative event rate   | <5%     | Per quarter     |
 | Audit/export time for full report | <7 days | Compliance test |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibility |
-|------|----------------|
-| Residents/Providers | Manage/offer/request services, feedback, dispute/report |
-| Admins | Listing approval/moderation, dispute and incident resolution, manage logs/exports |
-| Owners | Approve providers/partners, oversee audits and compliance, monitor KPIs |
-| Auditors | Independently trace, export, and review incidents and moderator actions |
+| Role                | Responsibility                                                                    |
+| ------------------- | --------------------------------------------------------------------------------- |
+| Residents/Providers | Manage/offer/request services, feedback, dispute/report                           |
+| Admins              | Listing approval/moderation, dispute and incident resolution, manage logs/exports |
+| Owners              | Approve providers/partners, oversee audits and compliance, monitor KPIs           |
+| Auditors            | Independently trace, export, and review incidents and moderator actions           |
 
 ---
 
@@ -230,25 +230,25 @@ Curate a transparent, fair marketplace where listings are precisely matched to r
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Listing/search/approval actions | <3 seconds |
-| Accessibility | Full ARIA compliance |
-| Platform parity | Mobile/desktop feature parity |
-| Security | Encrypted logs and transactions |
-| Data retention | 5-year ops/data backup |
-| Export formats | Compatible for compliance |
-| Lost/unresolved reports rate | <1% |
+| Requirement                     | Target                          |
+| ------------------------------- | ------------------------------- |
+| Listing/search/approval actions | <3 seconds                      |
+| Accessibility                   | Full ARIA compliance            |
+| Platform parity                 | Mobile/desktop feature parity   |
+| Security                        | Encrypted logs and transactions |
+| Data retention                  | 5-year ops/data backup          |
+| Export formats                  | Compatible for compliance       |
+| Lost/unresolved reports rate    | <1%                             |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Component/Role |
-|-------|----------------|
-| Frontend | Marketplace search/listing, profile, booking, feedback, dashboard |
-| Backend | Service/list DB, reviews/feedback, notification, moderation/admin, audit log/export |
-| Storage | Secure photo, document, archive, proof of service, incident report |
+| Layer    | Component/Role                                                                      |
+| -------- | ----------------------------------------------------------------------------------- |
+| Frontend | Marketplace search/listing, profile, booking, feedback, dashboard                   |
+| Backend  | Service/list DB, reviews/feedback, notification, moderation/admin, audit log/export |
+| Storage  | Secure photo, document, archive, proof of service, incident report                  |
 
 ---
 
@@ -256,15 +256,15 @@ Curate a transparent, fair marketplace where listings are precisely matched to r
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/listing | POST/GET | Create/list services |
-| /api/approve | PATCH | Admin approval of offers |
-| /api/search | GET | Service/user discovery |
-| /api/book | POST/GET | Manage bookings |
-| /api/feedback | POST/GET | Ratings and reviews |
-| /api/incident/report | POST/GET | Incident/dispute |
-| /api/audit/export | GET | Compliance reports |
+| Endpoint             | Method   | Purpose                  |
+| -------------------- | -------- | ------------------------ |
+| /api/listing         | POST/GET | Create/list services     |
+| /api/approve         | PATCH    | Admin approval of offers |
+| /api/search          | GET      | Service/user discovery   |
+| /api/book            | POST/GET | Manage bookings          |
+| /api/feedback        | POST/GET | Ratings and reviews      |
+| /api/incident/report | POST/GET | Incident/dispute         |
+| /api/audit/export    | GET      | Compliance reports       |
 
 ### External Dependencies
 
@@ -279,12 +279,12 @@ Curate a transparent, fair marketplace where listings are precisely matched to r
 
 ## Data Models
 
-| Entity | Key Fields |
-|--------|------------|
-| Service | ID, Name, Type, Provider/Resident, Pricing, Availability, Photos/Docs, Rating, Status, History, Incident/Report, Proof of Delivery, Audit Records |
-| Booking | BookingID, ServiceID, Buyer, Date/Time, Status, Feedback, Incident/Report, Notification Flag |
-| Feedback | BookingID, Stars, Comment, User, Date, Alert Flag |
-| Audit | ServiceID, Action/By/Time/Reason, Export/Dispute Flag |
+| Entity   | Key Fields                                                                                                                                        |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Service  | ID, Name, Type, Provider/Resident, Pricing, Availability, Photos/Docs, Rating, Status, History, Incident/Report, Proof of Delivery, Audit Records |
+| Booking  | BookingID, ServiceID, Buyer, Date/Time, Status, Feedback, Incident/Report, Notification Flag                                                      |
+| Feedback | BookingID, Stars, Comment, User, Date, Alert Flag                                                                                                 |
+| Audit    | ServiceID, Action/By/Time/Reason, Export/Dispute Flag                                                                                             |
 
 ---
 
@@ -354,11 +354,11 @@ Curate a transparent, fair marketplace where listings are precisely matched to r
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target Date |
-|-------|-------|-------------|
-| Phase 1 | Core: List/approve/book/feedback/audit | Month 1–2 |
-| Phase 2 | Alerts/reports/incidents/disputes | Month 3 |
-| Phase 3 | Awards, rating export, full mobile support | Month 4–5 |
+| Phase   | Scope                                      | Target Date |
+| ------- | ------------------------------------------ | ----------- |
+| Phase 1 | Core: List/approve/book/feedback/audit     | Month 1–2   |
+| Phase 2 | Alerts/reports/incidents/disputes          | Month 3     |
+| Phase 3 | Awards, rating export, full mobile support | Month 4–5   |
 
 ---
 
@@ -394,13 +394,13 @@ Curate a transparent, fair marketplace where listings are precisely matched to r
 
 ## Risks & Mitigations
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Fraud/list manipulation | Medium/High | Multi-factor review, duplicate detection, audit |
-| Overbooking/list drift | Medium | Slot enforcement, listing expiry, audit routine |
-| Role change/provider exit | Medium | Auto-delist and notify, reassign incident review |
-| Mobile/search performance | Medium | Incremental search, lightweight list, async load |
-| Export/incident error | Medium | Automated failover, audit alert, redundancy |
+| Risk                      | Impact      | Mitigation                                       |
+| ------------------------- | ----------- | ------------------------------------------------ |
+| Fraud/list manipulation   | Medium/High | Multi-factor review, duplicate detection, audit  |
+| Overbooking/list drift    | Medium      | Slot enforcement, listing expiry, audit routine  |
+| Role change/provider exit | Medium      | Auto-delist and notify, reassign incident review |
+| Mobile/search performance | Medium      | Incremental search, lightweight list, async load |
+| Export/incident error     | Medium      | Automated failover, audit alert, redundancy      |
 
 ---
 

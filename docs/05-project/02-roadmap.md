@@ -10,14 +10,14 @@
 
 ## 📋 Enhancement Categories
 
-| Category | Priority | Timeline | Investment |
-|----------|----------|----------|------------|
-| Mobile Applications | High | 6-12 months | Medium |
-| Advanced Analytics & Reporting | High | 6-12 months | Low |
-| Third-Party Integrations | Medium | 12-18 months | Medium |
-| AI & Automation | Medium | 12-24 months | High |
-| Scale & Performance | Low | 18-24 months | High |
-| Advanced Features | Medium | 12-36 months | Varies |
+| Category                       | Priority | Timeline     | Investment |
+| ------------------------------ | -------- | ------------ | ---------- |
+| Mobile Applications            | High     | 6-12 months  | Medium     |
+| Advanced Analytics & Reporting | High     | 6-12 months  | Low        |
+| Third-Party Integrations       | Medium   | 12-18 months | Medium     |
+| AI & Automation                | Medium   | 12-24 months | High       |
+| Scale & Performance            | Low      | 18-24 months | High       |
+| Advanced Features              | Medium   | 12-36 months | Varies     |
 
 ---
 
@@ -67,10 +67,12 @@
 - **Sync:** Background sync service
 
 #### Success Metrics
+
 >
-- >80% mobile usage for field workers
+
+- > 80% mobile usage for field workers
 - <5s average task completion time
-- >95% offline success rate
+- > 95% offline success rate
 
 ---
 
@@ -827,13 +829,13 @@
 
 ### Evaluation Criteria
 
-| Criterion | Weight | Score (1-5) |
-|-----------|--------|-------------|
-| Business Value | 30% | ROI, efficiency gains |
-| User Demand | 25% | Requested by users |
-| Implementation Cost | 20% | Dev time + licensing |
-| Technical Complexity | 15% | Risk, dependencies |
-| Strategic Alignment | 10% | Fits long-term vision |
+| Criterion            | Weight | Score (1-5)           |
+| -------------------- | ------ | --------------------- |
+| Business Value       | 30%    | ROI, efficiency gains |
+| User Demand          | 25%    | Requested by users    |
+| Implementation Cost  | 20%    | Dev time + licensing  |
+| Technical Complexity | 15%    | Risk, dependencies    |
+| Strategic Alignment  | 10%    | Fits long-term vision |
 
 ### Prioritization Matrix
 

@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | React Native (iOS, Android), PWA (fallback) |
-| Backend | Baserow (synchronization/operations), Azure Functions (offline-action queue, sync/merge logic) |
-| Storage | Secure Blob (photos/receipts, encrypted local cache) |
+| Layer    | Technology                                                                                     |
+| -------- | ---------------------------------------------------------------------------------------------- |
+| Frontend | React Native (iOS, Android), PWA (fallback)                                                    |
+| Backend  | Baserow (synchronization/operations), Azure Functions (offline-action queue, sync/merge logic) |
+| Storage  | Secure Blob (photos/receipts, encrypted local cache)                                           |
 
 ---
 
@@ -116,24 +116,24 @@ Deliver a mobile-first user interface for estate operations that is resilient to
 
 ## Measurable Objectives
 
-| Metric | Baseline | Target | Timeline |
-|--------|----------|--------|----------|
-| Action queue recovery after reconnect | n/a | <1 hour | 90 days |
-| Mobile-originated reports/chores in target groups | 20% | 95%+ | 6 months |
-| Tasks/incidents reported within 2h | 60% | 90% | 3 months |
-| Unrecoverable signal/sync failure rate | — | <2% | Ongoing |
+| Metric                                            | Baseline | Target  | Timeline |
+| ------------------------------------------------- | -------- | ------- | -------- |
+| Action queue recovery after reconnect             | n/a      | <1 hour | 90 days  |
+| Mobile-originated reports/chores in target groups | 20%      | 95%+    | 6 months |
+| Tasks/incidents reported within 2h                | 60%      | 90%     | 3 months |
+| Unrecoverable signal/sync failure rate            | —        | <2%     | Ongoing  |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibility |
-|------|----------------|
-| Residents | Input and feedback |
-| Field Staff | Chores, incident, and remote reporting |
-| Admins | Queue/merge/alert management |
-| Site Owners | Audit and compliance visibility |
-| IT/Support | Device, sync, and error resolution support |
+| Role        | Responsibility                             |
+| ----------- | ------------------------------------------ |
+| Residents   | Input and feedback                         |
+| Field Staff | Chores, incident, and remote reporting     |
+| Admins      | Queue/merge/alert management               |
+| Site Owners | Audit and compliance visibility            |
+| IT/Support  | Device, sync, and error resolution support |
 
 ---
 
@@ -211,25 +211,25 @@ Deliver a mobile-first user interface for estate operations that is resilient to
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Queue entry latency | <5s |
-| Sync on reconnect | <3s |
-| Local offline cache | ≥30 days |
-| Security | Secure/encrypted local data |
-| Reliability | Zero data loss or silent failure |
-| Queue size | Support >100 actions per user |
-| Accessibility | Full ARIA compliance, mobile-native UI, error retry/recovery |
+| Requirement         | Target                                                       |
+| ------------------- | ------------------------------------------------------------ |
+| Queue entry latency | <5s                                                          |
+| Sync on reconnect   | <3s                                                          |
+| Local offline cache | ≥30 days                                                     |
+| Security            | Secure/encrypted local data                                  |
+| Reliability         | Zero data loss or silent failure                             |
+| Queue size          | Support >100 actions per user                                |
+| Accessibility       | Full ARIA compliance, mobile-native UI, error retry/recovery |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Components | Responsibilities |
-|-------|-------------|------------------|
-| Frontend | React Native, PWA, Camera/Input, Queue Status | User actions, offline queue/storage, feedback |
-| Backend | Baserow, Azure Functions | Queue/sync agent, merge/conflict admin, export |
-| Storage | Secure Blob, Local Encrypted Cache | Photos, logs, queues, admin tools |
+| Layer    | Components                                    | Responsibilities                               |
+| -------- | --------------------------------------------- | ---------------------------------------------- |
+| Frontend | React Native, PWA, Camera/Input, Queue Status | User actions, offline queue/storage, feedback  |
+| Backend  | Baserow, Azure Functions                      | Queue/sync agent, merge/conflict admin, export |
+| Storage  | Secure Blob, Local Encrypted Cache            | Photos, logs, queues, admin tools              |
 
 ---
 
@@ -237,14 +237,14 @@ Deliver a mobile-first user interface for estate operations that is resilient to
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
+| Endpoint            | Method   | Purpose                         |
+| ------------------- | -------- | ------------------------------- |
 | /api/offline/action | POST/GET | Create/retrieve offline actions |
-| /api/queue | POST/GET | Queue management |
-| /api/sync | POST | Start queue sync with server |
-| /api/merge | PATCH | Conflict resolution |
-| /api/admin/error | POST | Error log/report |
-| /api/log/audit | GET | Export/audit metric retrieval |
+| /api/queue          | POST/GET | Queue management                |
+| /api/sync           | POST     | Start queue sync with server    |
+| /api/merge          | PATCH    | Conflict resolution             |
+| /api/admin/error    | POST     | Error log/report                |
+| /api/log/audit      | GET      | Export/audit metric retrieval   |
 
 ### External Dependencies
 
@@ -258,12 +258,12 @@ Deliver a mobile-first user interface for estate operations that is resilient to
 
 ## Data Models
 
-| Entity | Key Fields |
-|--------|------------|
+| Entity        | Key Fields                                                             |
+| ------------- | ---------------------------------------------------------------------- |
 | OfflineAction | ID, module, user, time, data/photo/ref, syncStatus, attempt, error/log |
-| Queue | ID, user/device, actionRefs, status, time |
-| Merge | ID, action/server, status, result, error |
-| Audit | action, user/admin, timestamp, error/result, exportRef |
+| Queue         | ID, user/device, actionRefs, status, time                              |
+| Merge         | ID, action/server, status, result, error                               |
+| Audit         | action, user/admin, timestamp, error/result, exportRef                 |
 
 ---
 
@@ -328,22 +328,22 @@ Deliver a mobile-first user interface for estate operations that is resilient to
 
 ### Measurement Plan
 
-| Activity | Method | Frequency |
-|----------|--------|-----------|
-| Action/queue log review | Automated | Continuous |
-| Error/retry/merge metrics | Dashboard | Weekly |
-| Admin audit/export checks | Manual | Weekly |
-| User/admin feedback review | Survey/CSAT | Monthly |
+| Activity                   | Method      | Frequency  |
+| -------------------------- | ----------- | ---------- |
+| Action/queue log review    | Automated   | Continuous |
+| Error/retry/merge metrics  | Dashboard   | Weekly     |
+| Admin audit/export checks  | Manual      | Weekly     |
+| User/admin feedback review | Survey/CSAT | Monthly    |
 
 ---
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target Date |
-|-------|-------|-------------|
-| 1 | Mobile/PWA offline, camera/queue core | Month 1–2 |
-| 2 | Sync conflict/resume, admin merge | Month 2–3 |
-| 3 | Error/recover, ARIA/voice, cross-device | Month 4+ |
+| Phase | Scope                                   | Target Date |
+| ----- | --------------------------------------- | ----------- |
+| 1     | Mobile/PWA offline, camera/queue core   | Month 1–2   |
+| 2     | Sync conflict/resume, admin merge       | Month 2–3   |
+| 3     | Error/recover, ARIA/voice, cross-device | Month 4+    |
 
 ---
 
@@ -374,23 +374,23 @@ Deliver a mobile-first user interface for estate operations that is resilient to
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Action/photo loss/state miss | High | Medium | Alert/requeue, retry queue logic |
-| User/device abandonment before sync | Medium | Medium | Auto-clear/export, periodic backup |
-| Sync/merge conflict or failure | Medium | Medium | Admin review/conflict tools |
-| Device loss post-offline action | High | Low | Backup/export/rollover process |
+| Risk                                | Impact | Probability | Mitigation                         |
+| ----------------------------------- | ------ | ----------- | ---------------------------------- |
+| Action/photo loss/state miss        | High   | Medium      | Alert/requeue, retry queue logic   |
+| User/device abandonment before sync | Medium | Medium      | Auto-clear/export, periodic backup |
+| Sync/merge conflict or failure      | Medium | Medium      | Admin review/conflict tools        |
+| Device loss post-offline action     | High   | Low         | Backup/export/rollover process     |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Deadline | Impact if Unresolved |
-|----------|-------|----------|----------------------|
-| Is PWA/mobile feature parity required MVP? | Product Lead | 2 weeks | Scope, time-to-launch |
-| What is the max queue length/time-offline? | Tech Lead | 1 month | Device support limits |
-| Camera/scan-only vs. manual entry fallback? | UX Lead | 2 weeks | Accessibility, inclusion |
-| Is cross-device merge/export required? | Architect | 1 month | User data portability |
+| Question                                    | Owner        | Deadline | Impact if Unresolved     |
+| ------------------------------------------- | ------------ | -------- | ------------------------ |
+| Is PWA/mobile feature parity required MVP?  | Product Lead | 2 weeks  | Scope, time-to-launch    |
+| What is the max queue length/time-offline?  | Tech Lead    | 1 month  | Device support limits    |
+| Camera/scan-only vs. manual entry fallback? | UX Lead      | 2 weeks  | Accessibility, inclusion |
+| Is cross-device merge/export required?      | Architect    | 1 month  | User data portability    |
 
 ---
 

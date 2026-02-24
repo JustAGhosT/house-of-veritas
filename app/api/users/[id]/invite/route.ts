@@ -7,9 +7,10 @@ export const POST = withRole("admin")(async (_request, context) => {
   const id = params?.id
   if (!id) return NextResponse.json({ error: "User ID required" }, { status: 400 })
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL
-    || (process.env.AZURE_WEBAPP_URL ? `https://${process.env.AZURE_WEBAPP_URL}` : null)
-    || "http://localhost:3000"
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.AZURE_WEBAPP_URL ? `https://${process.env.AZURE_WEBAPP_URL}` : null) ||
+    "http://localhost:3000"
   const url = baseUrl.startsWith("http") ? baseUrl : `https://${baseUrl}`
 
   const result = await sendInvite(id, url)

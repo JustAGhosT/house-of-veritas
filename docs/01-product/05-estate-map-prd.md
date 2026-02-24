@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
+| Layer    | Technology                                               |
+| -------- | -------------------------------------------------------- |
 | Frontend | Next.js/React, geospatial libraries (Mapbox/Leaflet/SVG) |
-| Backend | Baserow, Azure Functions |
-| Storage | Azure Blob (map images and overlays) |
+| Backend  | Baserow, Azure Functions                                 |
+| Storage  | Azure Blob (map images and overlays)                     |
 
 ---
 
@@ -124,24 +124,24 @@ All estate structure is managed using lists, spreadsheets, or basic tables, whic
 
 ## Measurable Objectives
 
-| Objective | Baseline | Target | Timeline |
-|-----------|----------|--------|----------|
-| Rooms/areas mapped in week 1 | 0% | ≥90% | 1 week |
-| Navigation from map (vs lists) | 0% | >60% start rate | 2 weeks |
-| User task success rate | Unknown | >95% | Launch |
-| Admin overlay setup time | N/A | <10 min/property | Launch |
+| Objective                      | Baseline | Target           | Timeline |
+| ------------------------------ | -------- | ---------------- | -------- |
+| Rooms/areas mapped in week 1   | 0%       | ≥90%             | 1 week   |
+| Navigation from map (vs lists) | 0%       | >60% start rate  | 2 weeks  |
+| User task success rate         | Unknown  | >95%             | Launch   |
+| Admin overlay setup time       | N/A      | <10 min/property | Launch   |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibility |
-|------|-----------------|
-| Admins | Map setup and edit, data curation |
-| Residents/Owners | Day-to-day navigation, quick actions |
-| Dev Team | Data model, APIs, geospatial and UI/UX |
-| Support | Onboarding assistance |
-| Compliance | Privacy and data safety review |
+| Role             | Responsibility                         |
+| ---------------- | -------------------------------------- |
+| Admins           | Map setup and edit, data curation      |
+| Residents/Owners | Day-to-day navigation, quick actions   |
+| Dev Team         | Data model, APIs, geospatial and UI/UX |
+| Support          | Onboarding assistance                  |
+| Compliance       | Privacy and data safety review         |
 
 ---
 
@@ -281,27 +281,27 @@ Overlay-to-module links are persisted as a map of [module_type, endpoint], store
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Responsive | Mobile/desktop |
-| Performance | Full overlay/map image set loads in <2s |
-| Security | Secure image/overlay storage with permissions |
-| Privacy | Room/overlay privacy and visibility controls |
+| Requirement   | Target                                                              |
+| ------------- | ------------------------------------------------------------------- |
+| Responsive    | Mobile/desktop                                                      |
+| Performance   | Full overlay/map image set loads in <2s                             |
+| Security      | Secure image/overlay storage with permissions                       |
+| Privacy       | Room/overlay privacy and visibility controls                        |
 | Accessibility | Popover and drawing tools accessible via keyboard and screen reader |
-| Fallback | Tabular/list navigation if map or overlays fail |
+| Fallback      | Tabular/list navigation if map or overlays fail                     |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Components/Responsibilities |
-|-------|-----------------------------|
-| UI/Frontend | Map rendering (Mapbox/Leaflet/SVG), Drawing Tools, Popover UI, Overlay editor (admin), Quick Actions Panel, Mobile bottom sheet |
-| Backend | Overlay CRUD, Property CRUD, Overlay-to-Module mapping, Audit log |
-| Storage | Azure Blob (images, overlay GeoJSON/SVG), Baserow tables |
-| API Gateway | Auth, Permission checks, Request routing |
-| Notification/Task | Link action triggers to Renovation, Incident, Asset, Docs |
-| Event Engine | Overlay-clicked, action-initiated, area-selected emit events |
+| Layer             | Components/Responsibilities                                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| UI/Frontend       | Map rendering (Mapbox/Leaflet/SVG), Drawing Tools, Popover UI, Overlay editor (admin), Quick Actions Panel, Mobile bottom sheet |
+| Backend           | Overlay CRUD, Property CRUD, Overlay-to-Module mapping, Audit log                                                               |
+| Storage           | Azure Blob (images, overlay GeoJSON/SVG), Baserow tables                                                                        |
+| API Gateway       | Auth, Permission checks, Request routing                                                                                        |
+| Notification/Task | Link action triggers to Renovation, Incident, Asset, Docs                                                                       |
+| Event Engine      | Overlay-clicked, action-initiated, area-selected emit events                                                                    |
 
 ### Overlay-to-Module Data Flow
 
@@ -313,11 +313,11 @@ Overlay-to-module links are persisted as a map of [module_type, endpoint], store
 
 ### Event Flow Example
 
-| Initiator | Trigger | Event | Consumed By | Result |
-|-----------|---------|-------|-------------|--------|
-| Admin | Save overlay | overlay:created | Backend, FE, Audit | Overlay is stored, timeline updated |
-| Resident | Click overlay | overlay:selected | FE, API | Popover fetched, quick actions loaded |
-| Owner | Action in popover | module:action_initiated | API/Event Engine | Module deep link, audit log updated |
+| Initiator | Trigger           | Event                   | Consumed By        | Result                                |
+| --------- | ----------------- | ----------------------- | ------------------ | ------------------------------------- |
+| Admin     | Save overlay      | overlay:created         | Backend, FE, Audit | Overlay is stored, timeline updated   |
+| Resident  | Click overlay     | overlay:selected        | FE, API            | Popover fetched, quick actions loaded |
+| Owner     | Action in popover | module:action_initiated | API/Event Engine   | Module deep link, audit log updated   |
 
 ---
 
@@ -325,14 +325,14 @@ Overlay-to-module links are persisted as a map of [module_type, endpoint], store
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/map/upload` | POST | Upload, calibrate map images; returns image_uri and mapping metadata |
-| `/api/overlays` (polygons, lines, points) | GET/POST/PATCH | CRUD for overlay geometry and attribute elements |
-| `/api/property/list` | GET | List all properties/estates with status/image references |
-| `/api/overlay/:id/attributes` | PATCH | Update overlay label, status, feature type, module/action links |
-| `/api/module-links` | GET | List quick-actionable modules for overlay by role/resource |
-| `/api/overlay/:id/event` | POST | Post overlay-level events (select, edit, action) |
+| Endpoint                                  | Method         | Purpose                                                              |
+| ----------------------------------------- | -------------- | -------------------------------------------------------------------- |
+| `/api/map/upload`                         | POST           | Upload, calibrate map images; returns image_uri and mapping metadata |
+| `/api/overlays` (polygons, lines, points) | GET/POST/PATCH | CRUD for overlay geometry and attribute elements                     |
+| `/api/property/list`                      | GET            | List all properties/estates with status/image references             |
+| `/api/overlay/:id/attributes`             | PATCH          | Update overlay label, status, feature type, module/action links      |
+| `/api/module-links`                       | GET            | List quick-actionable modules for overlay by role/resource           |
+| `/api/overlay/:id/event`                  | POST           | Post overlay-level events (select, edit, action)                     |
 
 ### External Dependencies
 
@@ -347,34 +347,34 @@ Overlay-to-module links are persisted as a map of [module_type, endpoint], store
 
 ### Property
 
-| Field | Type |
-|-------|------|
-| id | UUID |
-| name | String |
+| Field     | Type   |
+| --------- | ------ |
+| id        | UUID   |
+| name      | String |
 | image_uri | String |
 
 ### Overlay
 
-| Field | Type |
-|-------|------|
-| id | UUID |
-| property_id | UUID |
-| coordinates | GeoJSON (polygon/point/line) |
-| type | Enum (polygon, point, line) |
-| feature_type | Enum (room, wall, door, etc.) |
-| label | String |
-| linkedActions | Map[module, url] |
-| attributes | JSON (status, areaId, lastActivity, hiRisk, color, etc.) |
-| layer | String (building/floor/purpose) |
+| Field         | Type                                                     |
+| ------------- | -------------------------------------------------------- |
+| id            | UUID                                                     |
+| property_id   | UUID                                                     |
+| coordinates   | GeoJSON (polygon/point/line)                             |
+| type          | Enum (polygon, point, line)                              |
+| feature_type  | Enum (room, wall, door, etc.)                            |
+| label         | String                                                   |
+| linkedActions | Map[module, url]                                         |
+| attributes    | JSON (status, areaId, lastActivity, hiRisk, color, etc.) |
+| layer         | String (building/floor/purpose)                          |
 
 ### Module Link (in Overlay)
 
-| Field | Description |
-|-------|-------------|
-| module_type | Module identifier |
-| deep_link_url | Target URL |
-| enabled | Boolean |
-| shown_to_roles | Role filter |
+| Field          | Description       |
+| -------------- | ----------------- |
+| module_type    | Module identifier |
+| deep_link_url  | Target URL        |
+| enabled        | Boolean           |
+| shown_to_roles | Role filter       |
 
 ---
 
@@ -438,11 +438,11 @@ Overlay-to-module links are persisted as a map of [module_type, endpoint], store
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target | Dependencies |
-|-------|-------|--------|--------------|
-| 1 | Map upload, draw/save room overlays, Renovation module link | 2 weeks | Overlay CRUD API, UI design |
-| 2 | Door/wall/window features, multi-property switch | 3 weeks | Advanced drawing, property selector |
-| 3 | Full quick action panel (all modules), mobile UX, accessibility | 2 weeks | Integration logic, mobile QA |
+| Phase | Scope                                                           | Target  | Dependencies                        |
+| ----- | --------------------------------------------------------------- | ------- | ----------------------------------- |
+| 1     | Map upload, draw/save room overlays, Renovation module link     | 2 weeks | Overlay CRUD API, UI design         |
+| 2     | Door/wall/window features, multi-property switch                | 3 weeks | Advanced drawing, property selector |
+| 3     | Full quick action panel (all modules), mobile UX, accessibility | 2 weeks | Integration logic, mobile QA        |
 
 ---
 
@@ -472,23 +472,23 @@ Overlay-to-module links are persisted as a map of [module_type, endpoint], store
 
 ## Risks & Mitigations
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| Licensing delays for map imagery | Medium | High | Engage legal/estates team early |
-| Admin errors in overlay setup | Medium | Medium | Undo, validation, preview features |
-| Overlay "drift" or scaling inaccuracies | Medium | Medium | Snap-to-grid, calibration wizard |
-| 3rd party browser incompatibility | Low | High | Cross-browser QA matrix |
-| Accidental data exposure (map privacy) | Medium | High | Strict RBAC, privacy audit |
+| Risk                                    | Probability | Impact | Mitigation                         |
+| --------------------------------------- | ----------- | ------ | ---------------------------------- |
+| Licensing delays for map imagery        | Medium      | High   | Engage legal/estates team early    |
+| Admin errors in overlay setup           | Medium      | Medium | Undo, validation, preview features |
+| Overlay "drift" or scaling inaccuracies | Medium      | Medium | Snap-to-grid, calibration wizard   |
+| 3rd party browser incompatibility       | Low         | High   | Cross-browser QA matrix            |
+| Accidental data exposure (map privacy)  | Medium      | High   | Strict RBAC, privacy audit         |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target |
-|----------|-------|--------|
-| Should users be able to print or export estate maps for offline use? | Owner/Support | TBC Q2 |
-| Is a history log of overlay edits required for compliance? | Compliance/Dev | TBC Q2 |
-| Would supporting live/camera-sync'd map overlays add major value? | Product/Dev | Research in later phases |
+| Question                                                             | Owner          | Target                   |
+| -------------------------------------------------------------------- | -------------- | ------------------------ |
+| Should users be able to print or export estate maps for offline use? | Owner/Support  | TBC Q2                   |
+| Is a history log of overlay edits required for compliance?           | Compliance/Dev | TBC Q2                   |
+| Would supporting live/camera-sync'd map overlays add major value?    | Product/Dev    | Research in later phases |
 
 ---
 

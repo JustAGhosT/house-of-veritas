@@ -2,6 +2,7 @@
 
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
+import Link from "next/link"
 import Image from "next/image"
 
 const footerLinks = {
@@ -17,23 +18,25 @@ export function Footer() {
 
   return (
     <footer ref={ref} className="border-t border-zinc-800 bg-zinc-950">
-      <div className="max-w-6xl mx-auto px-4 py-16">
+      <div className="mx-auto max-w-6xl px-4 py-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="grid grid-cols-2 md:grid-cols-5 gap-8"
+          className="grid grid-cols-2 gap-8 md:grid-cols-5"
         >
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <a href="#" className="flex items-center gap-3 mb-4">
+            <Link href="/" className="mb-4 flex cursor-pointer items-center gap-3">
               <Image src="/hv-logo-small.svg" alt="House of Veritas" width={40} height={40} />
               <span className="font-semibold text-white">House of Veritas</span>
-            </a>
-            <p className="text-sm text-zinc-500 mb-4">Secure estate management and digital governance platform.</p>
+            </Link>
+            <p className="mb-4 text-sm text-zinc-500">
+              Secure estate management and digital governance platform.
+            </p>
             {/* System Status */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-glow" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900 px-3 py-1.5">
+              <span className="pulse-glow h-2 w-2 rounded-full bg-emerald-500" />
               <span className="text-xs text-zinc-400">All Systems Operational</span>
             </div>
           </div>
@@ -41,13 +44,16 @@ export function Footer() {
           {/* Links */}
           {Object.entries(footerLinks).map(([title, links]) => (
             <div key={title}>
-              <h4 className="text-sm font-semibold text-white mb-4">{title}</h4>
+              <h4 className="mb-4 text-sm font-semibold text-white">{title}</h4>
               <ul className="space-y-3">
                 {links.map((link) => (
                   <li key={link}>
-                    <a href="#" className="text-sm text-zinc-500 hover:text-white transition-colors">
+                    <Link
+                      href="#"
+                      className="cursor-pointer text-sm text-zinc-500 transition-colors hover:text-white"
+                    >
                       {link}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -60,19 +66,30 @@ export function Footer() {
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-16 pt-8 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4"
+          className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-zinc-800 pt-8 sm:flex-row"
         >
-          <p className="text-sm text-zinc-500">&copy; {new Date().getFullYear()} House of Veritas. All rights reserved.</p>
+          <p className="text-sm text-zinc-500">
+            &copy; {new Date().getFullYear()} House of Veritas. All rights reserved.
+          </p>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-sm text-zinc-500 hover:text-white transition-colors">
+            <Link
+              href="#"
+              className="cursor-pointer text-sm text-zinc-500 transition-colors hover:text-white"
+            >
               Documentation
-            </a>
-            <a href="#" className="text-sm text-zinc-500 hover:text-white transition-colors">
+            </Link>
+            <Link
+              href="#"
+              className="cursor-pointer text-sm text-zinc-500 transition-colors hover:text-white"
+            >
               Support
-            </a>
-            <a href="#" className="text-sm text-zinc-500 hover:text-white transition-colors">
+            </Link>
+            <Link
+              href="#"
+              className="cursor-pointer text-sm text-zinc-500 transition-colors hover:text-white"
+            >
               Contact
-            </a>
+            </Link>
           </div>
         </motion.div>
       </div>

@@ -10,7 +10,9 @@
     "design_issues": [
       {
         "screen": "Approvals page",
-        "issues": ["Minor: Console warning about missing DialogDescription for DialogContent - accessibility improvement recommended"]
+        "issues": [
+          "Minor: Console warning about missing DialogDescription for DialogContent - accessibility improvement recommended"
+        ]
       }
     ]
   },
@@ -23,15 +25,13 @@
     "Kiosk requests API uses IN-MEMORY MOCK storage - data will be lost on server restart",
     "External URL (demobackend.emergentagent.com) returns 'Route not found' for /login - routing issue with external proxy (localhost works fine)"
   ],
-  "updated_files": [
-    "/app/backend/tests/test_approvals_api.py"
-  ],
+  "updated_files": ["/app/backend/tests/test_approvals_api.py"],
   "success_rate": {
     "backend": "100% (19/19 tests passed)",
     "frontend": "100% (all UI flows working)"
   },
   "test_credentials": {
-    "hans": {"email": "hans@houseofv.com", "password": "hans123"}
+    "hans": { "email": "hans@houseofv.com", "password": "hans123" }
   },
   "seed_data_creation": "Mock data seeded in /app/app/api/kiosk/requests/route.ts with 7 requests (5 pending initially)",
   "retest_needed": false,

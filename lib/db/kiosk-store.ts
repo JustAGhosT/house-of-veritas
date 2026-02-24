@@ -18,10 +18,7 @@ export interface KioskRequestDoc {
 export interface KioskStore {
   find(query: Record<string, unknown>): Promise<KioskRequestDoc[]>
   insertOne(doc: Omit<KioskRequestDoc, "_id">): Promise<{ insertedId: ObjectId }>
-  updateOne(
-    filter: { _id: ObjectId },
-    update: { $set: Record<string, unknown> }
-  ): Promise<unknown>
+  updateOne(filter: { _id: ObjectId }, update: { $set: Record<string, unknown> }): Promise<unknown>
   findOne(filter: { _id: ObjectId }): Promise<KioskRequestDoc | null>
   countDocuments(): Promise<number>
   insertMany(docs: Omit<KioskRequestDoc, "_id">[]): Promise<unknown>
@@ -32,7 +29,12 @@ export const KIOSK_SEED_DATA: Omit<KioskRequestDoc, "_id">[] = [
     type: "stock_order",
     employeeId: "lucky",
     employeeName: "Lucky",
-    data: { itemName: "Fertilizer bags", quantity: 5, urgency: "normal", notes: "For the front garden beds" },
+    data: {
+      itemName: "Fertilizer bags",
+      quantity: 5,
+      urgency: "normal",
+      notes: "For the front garden beds",
+    },
     timestamp: new Date(Date.now() - 86400000).toISOString(),
     status: "approved",
     reviewedBy: "hans",
@@ -43,7 +45,12 @@ export const KIOSK_SEED_DATA: Omit<KioskRequestDoc, "_id">[] = [
     type: "issue_report",
     employeeId: "charl",
     employeeName: "Charl",
-    data: { assetName: "Workshop drill press", issueType: "maintenance", description: "Belt needs replacement, making squeaking noise", location: "Workshop" },
+    data: {
+      assetName: "Workshop drill press",
+      issueType: "maintenance",
+      description: "Belt needs replacement, making squeaking noise",
+      location: "Workshop",
+    },
     timestamp: new Date(Date.now() - 172800000).toISOString(),
     status: "pending",
   },
@@ -51,7 +58,11 @@ export const KIOSK_SEED_DATA: Omit<KioskRequestDoc, "_id">[] = [
     type: "salary_advance",
     employeeId: "lucky",
     employeeName: "Lucky",
-    data: { amount: 1500, reason: "School fees for my daughter due this week", repaymentPlan: "2months" },
+    data: {
+      amount: 1500,
+      reason: "School fees for my daughter due this week",
+      repaymentPlan: "2months",
+    },
     timestamp: new Date(Date.now() - 3600000).toISOString(),
     status: "pending",
   },
@@ -59,7 +70,12 @@ export const KIOSK_SEED_DATA: Omit<KioskRequestDoc, "_id">[] = [
     type: "stock_order",
     employeeId: "charl",
     employeeName: "Charl",
-    data: { itemName: "WD-40 lubricant spray", quantity: 3, urgency: "urgent", notes: "Gate motor making grinding noises, need to lubricate urgently" },
+    data: {
+      itemName: "WD-40 lubricant spray",
+      quantity: 3,
+      urgency: "urgent",
+      notes: "Gate motor making grinding noises, need to lubricate urgently",
+    },
     timestamp: new Date(Date.now() - 7200000).toISOString(),
     status: "pending",
   },
@@ -67,7 +83,12 @@ export const KIOSK_SEED_DATA: Omit<KioskRequestDoc, "_id">[] = [
     type: "issue_report",
     employeeId: "irma",
     employeeName: "Irma",
-    data: { assetName: "Kitchen dishwasher", issueType: "broken", description: "Not draining water properly, leaves puddles inside after cycle", location: "Main Kitchen" },
+    data: {
+      assetName: "Kitchen dishwasher",
+      issueType: "broken",
+      description: "Not draining water properly, leaves puddles inside after cycle",
+      location: "Main Kitchen",
+    },
     timestamp: new Date(Date.now() - 14400000).toISOString(),
     status: "pending",
   },
@@ -75,7 +96,12 @@ export const KIOSK_SEED_DATA: Omit<KioskRequestDoc, "_id">[] = [
     type: "issue_report",
     employeeId: "lucky",
     employeeName: "Lucky",
-    data: { assetName: "Pool pump room door", issueType: "safety", description: "Door lock is broken, pool chemicals accessible to anyone", location: "Pool area" },
+    data: {
+      assetName: "Pool pump room door",
+      issueType: "safety",
+      description: "Door lock is broken, pool chemicals accessible to anyone",
+      location: "Pool area",
+    },
     timestamp: new Date(Date.now() - 1800000).toISOString(),
     status: "pending",
   },
@@ -120,7 +146,10 @@ const inMemoryStoreAdapter: KioskStore = {
     inMemoryStore.set(id.toString(), { ...doc, _id: id } as KioskRequestDoc)
     return { insertedId: id }
   },
-  async updateOne(filter: { _id: ObjectId }, update: { $set: Record<string, unknown> }): Promise<void> {
+  async updateOne(
+    filter: { _id: ObjectId },
+    update: { $set: Record<string, unknown> }
+  ): Promise<void> {
     const existing = inMemoryStore.get(filter._id.toString())
     if (existing) {
       Object.assign(existing, update.$set)

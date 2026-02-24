@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server"
-import {
-  getTasks,
-  getExpenses,
-  getEmployees,
-  isBaserowConfigured,
-} from "@/lib/services/baserow"
+import { getTasks, getExpenses, getEmployees, isBaserowConfigured } from "@/lib/services/baserow"
 import { withAuth } from "@/lib/auth/rbac"
 
 export const GET = withAuth(async (_request) => {
@@ -15,9 +10,7 @@ export const GET = withAuth(async (_request) => {
   ])
 
   const now = new Date()
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-    .toISOString()
-    .split("T")[0]
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0]
 
   const monthExpenses = expenses.filter((e) => e.date >= monthStart)
 
@@ -52,9 +45,7 @@ export const GET = withAuth(async (_request) => {
   }
 
   stats.budget.remaining = stats.budget.allocated - stats.budget.spent
-  stats.budget.percentage = Math.round(
-    (stats.budget.spent / stats.budget.allocated) * 100
-  )
+  stats.budget.percentage = Math.round((stats.budget.spent / stats.budget.allocated) * 100)
 
   return NextResponse.json(stats)
 })

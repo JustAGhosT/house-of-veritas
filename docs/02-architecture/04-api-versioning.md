@@ -50,10 +50,10 @@ These do **not** require a new version:
 
 ### Response Headers
 
-| Header | Purpose |
-| -------- | --------- |
-| `Content-Type` | `application/json` |
-| `X-Request-ID` | Request correlation (future) |
+| Header          | Purpose                         |
+| --------------- | ------------------------------- |
+| `Content-Type`  | `application/json`              |
+| `X-Request-ID`  | Request correlation (future)    |
 | `X-API-Version` | `1` (when versioning is active) |
 
 ## Recommendations

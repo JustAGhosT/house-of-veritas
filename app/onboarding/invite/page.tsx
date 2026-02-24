@@ -16,19 +16,21 @@ function InviteRedirect() {
   }, [token])
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+    <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
     </div>
   )
 }
 
 export default function OnboardingInvitePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
+        </div>
+      }
+    >
       <InviteRedirect />
     </Suspense>
   )

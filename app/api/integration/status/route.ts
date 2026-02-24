@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
-import { isDocuSealConfigured } from '@/lib/services/docuseal'
-import { isBaserowConfigured } from '@/lib/services/baserow'
+import { NextResponse } from "next/server"
+import { isDocuSealConfigured } from "@/lib/services/docuseal"
+import { isBaserowConfigured } from "@/lib/services/baserow"
 
 export async function GET() {
   const docusealConfigured = isDocuSealConfigured()

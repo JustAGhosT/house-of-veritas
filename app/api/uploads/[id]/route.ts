@@ -2,11 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { readFile, readdir } from "fs/promises"
 import { existsSync } from "fs"
 import path from "path"
-import {
-  isPostgresConfigured,
-  query,
-  ensureSchema,
-} from "@/lib/db/postgres"
+import { isPostgresConfigured, query, ensureSchema } from "@/lib/db/postgres"
 
 const UPLOAD_DIR = "/tmp/hov-uploads"
 
@@ -28,10 +24,7 @@ async function ensureSchemaOnce() {
   }
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   if (!id) {
     return NextResponse.json({ error: "File ID required" }, { status: 400 })
@@ -79,9 +72,6 @@ export async function GET(
       },
     })
   } catch {
-    return NextResponse.json(
-      { error: "Failed to retrieve file" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to retrieve file" }, { status: 500 })
   }
 }

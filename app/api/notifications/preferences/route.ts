@@ -20,16 +20,18 @@ interface NotificationPreference {
 const DEFAULT_FALLBACK_ORDER: ("sms" | "whatsapp" | "email")[] = ["sms", "whatsapp", "email"]
 
 // GET: Get user's notification preferences
-export const GET = withRole("admin", "operator", "employee", "resident")(async (request, context) => {
+export const GET = withRole(
+  "admin",
+  "operator",
+  "employee",
+  "resident"
+)(async (request, context) => {
   try {
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get("userId")
 
     if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "userId is required" },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: "userId is required" }, { status: 400 })
     }
 
     // Non-admin users can only access their own preferences
@@ -58,7 +60,9 @@ export const GET = withRole("admin", "operator", "employee", "resident")(async (
       preference: sanitizeDocument(preference),
     })
   } catch (error) {
-    logger.error("GET notification preferences error", { error: error instanceof Error ? error.message : String(error) })
+    logger.error("GET notification preferences error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
     return NextResponse.json(
       { success: false, error: "Failed to fetch preferences" },
       { status: 500 }
@@ -67,7 +71,12 @@ export const GET = withRole("admin", "operator", "employee", "resident")(async (
 })
 
 // POST: Create or update notification preferences
-export const POST = withRole("admin", "operator", "employee", "resident")(async (request, context) => {
+export const POST = withRole(
+  "admin",
+  "operator",
+  "employee",
+  "resident"
+)(async (request, context) => {
   try {
     const body = await request.json()
     const { userId, preferredChannel, phoneNumber, email, whatsappNumber, fallbackOrder } = body
@@ -113,7 +122,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(async 
 
     const savedPreference = await collection.findOne({ userId })
 
-    logger.info('Notification preference updated', { userId, preferredChannel })
+    logger.info("Notification preference updated", { userId, preferredChannel })
 
     return NextResponse.json({
       success: true,
@@ -121,7 +130,9 @@ export const POST = withRole("admin", "operator", "employee", "resident")(async 
       message: `Notification preference set to ${preferredChannel}`,
     })
   } catch (error) {
-    logger.error("POST notification preferences error", { error: error instanceof Error ? error.message : String(error) })
+    logger.error("POST notification preferences error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
     return NextResponse.json(
       { success: false, error: "Failed to save preferences" },
       { status: 500 }
@@ -130,16 +141,18 @@ export const POST = withRole("admin", "operator", "employee", "resident")(async 
 })
 
 // PATCH: Update specific fields
-export const PATCH = withRole("admin", "operator", "employee", "resident")(async (request, context) => {
+export const PATCH = withRole(
+  "admin",
+  "operator",
+  "employee",
+  "resident"
+)(async (request, context) => {
   try {
     const body = await request.json()
     const { userId, ...updates } = body
 
     if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "userId is required" },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: "userId is required" }, { status: 400 })
     }
 
     // Non-admin users can only update their own preferences
@@ -155,11 +168,7 @@ export const PATCH = withRole("admin", "operator", "employee", "resident")(async
       updatedAt: new Date().toISOString(),
     }
 
-    await collection.updateOne(
-      { userId },
-      { $set: updateData },
-      { upsert: true }
-    )
+    await collection.updateOne({ userId }, { $set: updateData }, { upsert: true })
 
     const updatedPreference = await collection.findOne({ userId })
 
@@ -168,7 +177,9 @@ export const PATCH = withRole("admin", "operator", "employee", "resident")(async
       preference: updatedPreference ? sanitizeDocument(updatedPreference) : null,
     })
   } catch (error) {
-    logger.error("PATCH notification preferences error", { error: error instanceof Error ? error.message : String(error) })
+    logger.error("PATCH notification preferences error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
     return NextResponse.json(
       { success: false, error: "Failed to update preferences" },
       { status: 500 }

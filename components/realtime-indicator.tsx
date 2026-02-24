@@ -46,17 +46,29 @@ export function RealTimeIndicator() {
 
   const handleEvent = (event: RealTimeEvent) => {
     // Show toast for important events
-    if (["approval_required", "system_alert", "task_created", "expense_approved", "expense_rejected"].includes(event.type)) {
+    if (
+      [
+        "approval_required",
+        "system_alert",
+        "task_created",
+        "expense_approved",
+        "expense_rejected",
+      ].includes(event.type)
+    ) {
       setToastEvent(event)
       setShowToast(true)
-      
+
       // Auto-hide after 5 seconds
       setTimeout(() => setShowToast(false), 5000)
 
       // Also add to notifications
       if (event.type !== "system_alert") {
         addNotification({
-          type: event.type.includes("task") ? "task" : event.type.includes("expense") ? "expense" : "system",
+          type: event.type.includes("task")
+            ? "task"
+            : event.type.includes("expense")
+              ? "expense"
+              : "system",
           title: eventConfig[event.type]?.label || "Update",
           message: event.data?.title || event.data?.message || JSON.stringify(event.data),
           userId: user?.id || "hans",
@@ -81,22 +93,22 @@ export function RealTimeIndicator() {
       {/* Connection Status Indicator */}
       <div className="flex items-center gap-2">
         <div
-          className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs ${
-            isConnected
-              ? "bg-green-500/10 text-green-400"
-              : "bg-red-500/10 text-red-400"
+          className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs ${
+            isConnected ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"
           }`}
-          title={isConnected ? "Real-time updates active" : "Disconnected - attempting to reconnect"}
+          title={
+            isConnected ? "Real-time updates active" : "Disconnected - attempting to reconnect"
+          }
         >
           {isConnected ? (
             <>
-              <Wifi className="w-3 h-3" />
+              <Wifi className="h-3 w-3" />
               <span className="hidden sm:inline">Live</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-400" />
             </>
           ) : (
             <>
-              <WifiOff className="w-3 h-3" />
+              <WifiOff className="h-3 w-3" />
               <span className="hidden sm:inline">Offline</span>
             </>
           )}
@@ -105,28 +117,24 @@ export function RealTimeIndicator() {
 
       {/* Toast Notification */}
       {showToast && toastEvent && (
-        <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
-          <div className="bg-[#0d0d12] border border-white/10 rounded-xl p-4 shadow-2xl max-w-sm">
+        <div className="animate-in slide-in-from-bottom-5 fade-in fixed right-4 bottom-4 z-50 duration-300">
+          <div className="max-w-sm rounded-xl border border-white/10 bg-[#0d0d12] p-4 shadow-2xl">
             <div className="flex items-start gap-3">
-              <div className={`p-2 rounded-lg bg-white/5 ${config?.color}`}>
-                <ToastIcon className="w-5 h-5" />
+              <div className={`rounded-lg bg-white/5 p-2 ${config?.color}`}>
+                <ToastIcon className="h-5 w-5" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-medium text-sm">
-                  {config?.label || "Update"}
-                </p>
-                <p className="text-white/60 text-sm mt-1 line-clamp-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-white">{config?.label || "Update"}</p>
+                <p className="mt-1 line-clamp-2 text-sm text-white/60">
                   {toastEvent.data?.title || toastEvent.data?.message || "New update received"}
                 </p>
-                <p className="text-white/40 text-xs mt-2">
-                  Just now
-                </p>
+                <p className="mt-2 text-xs text-white/40">Just now</p>
               </div>
               <button
                 onClick={() => setShowToast(false)}
-                className="p-1 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+                className="rounded-lg p-1 text-white/40 transition-colors hover:bg-white/10 hover:text-white"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -147,8 +155,8 @@ export function RealTimeActivityFeed({ maxItems = 5 }: { maxItems?: number }) {
 
   if (recentEvents.length === 0) {
     return (
-      <div className="text-center py-8 text-white/40">
-        <Activity className="w-8 h-8 mx-auto mb-2 opacity-50" />
+      <div className="py-8 text-center text-white/40">
+        <Activity className="mx-auto mb-2 h-8 w-8 opacity-50" />
         <p className="text-sm">No recent activity</p>
       </div>
     )
@@ -157,24 +165,28 @@ export function RealTimeActivityFeed({ maxItems = 5 }: { maxItems?: number }) {
   return (
     <div className="space-y-3">
       {recentEvents.map((event) => {
-        const config = eventConfig[event.type] || { icon: Activity, color: "text-white/60", label: "Event" }
+        const config = eventConfig[event.type] || {
+          icon: Activity,
+          color: "text-white/60",
+          label: "Event",
+        }
         const Icon = config.icon
 
         return (
           <div
             key={event.id}
-            className="flex items-start gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+            className="flex items-start gap-3 rounded-xl bg-white/5 p-3 transition-colors hover:bg-white/10"
           >
-            <div className={`p-2 rounded-lg bg-white/5 ${config.color}`}>
-              <Icon className="w-4 h-4" />
+            <div className={`rounded-lg bg-white/5 p-2 ${config.color}`}>
+              <Icon className="h-4 w-4" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-medium">{config.label}</p>
-              <p className="text-white/50 text-xs mt-0.5 line-clamp-1">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-white">{config.label}</p>
+              <p className="mt-0.5 line-clamp-1 text-xs text-white/50">
                 {event.data?.title || event.data?.message || event.data?.name || "Activity"}
               </p>
             </div>
-            <span className="text-white/30 text-xs whitespace-nowrap">
+            <span className="text-xs whitespace-nowrap text-white/30">
               {formatTimeAgo(event.timestamp)}
             </span>
           </div>

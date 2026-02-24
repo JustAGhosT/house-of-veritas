@@ -4,7 +4,9 @@ import type { Page } from "@playwright/test"
 const LOGIN_FORM_TIMEOUT = 15000
 
 async function waitForLoginForm(page: Page) {
-  await expect(page.locator('[data-testid="email-input"]')).toBeVisible({ timeout: LOGIN_FORM_TIMEOUT })
+  await expect(page.locator('[data-testid="email-input"]')).toBeVisible({
+    timeout: LOGIN_FORM_TIMEOUT,
+  })
 }
 
 async function fillLoginAndSubmit(page: Page, email: string, password: string) {
@@ -71,7 +73,10 @@ test.describe("Authentication", () => {
       )
 
       const logoutResponse = await page.request.post("/api/auth/logout")
-      expect(logoutResponse.ok(), `Logout failed with status ${logoutResponse.status()}`).toBeTruthy()
+      expect(
+        logoutResponse.ok(),
+        `Logout failed with status ${logoutResponse.status()}`
+      ).toBeTruthy()
       await page.goto("/login")
     }
   })

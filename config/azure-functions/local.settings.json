@@ -3,10 +3,10 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "python",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    
+
     "BASEROW_URL": "https://ops.nexamesh.ai",
     "BASEROW_TOKEN": "",
-    
+
     "TABLE_EMPLOYEES": "1",
     "TABLE_ASSETS": "2",
     "TABLE_TASKS": "3",
@@ -15,21 +15,21 @@
     "TABLE_VEHICLE_LOGS": "6",
     "TABLE_EXPENSES": "7",
     "TABLE_DOCUMENT_EXPIRY": "8",
-    
+
     "DOCUSEAL_URL": "https://docs.nexamesh.ai",
     "DOCUSEAL_API_KEY": "",
     "DOCUSEAL_WEBHOOK_SECRET": "",
-    
+
     "SENDGRID_API_KEY": "",
     "EMAIL_FROM": "alerts@nexamesh.ai",
-    
+
     "TWILIO_ACCOUNT_SID": "",
     "TWILIO_AUTH_TOKEN": "",
     "TWILIO_PHONE_NUMBER": "",
-    
+
     "ADMIN_EMAIL": "hans@nexamesh.ai",
     "ADMIN_PHONE": "",
-    
+
     "AZURE_STORAGE_CONNECTION_STRING": "",
     "BACKUP_CONTAINER": "backups",
     "ARCHIVE_CONTAINER": "archive"

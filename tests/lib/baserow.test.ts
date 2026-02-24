@@ -1,10 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
-import {
-  isBaserowConfigured,
-  getEmployees,
-  getTasks,
-  getExpenses,
-} from "@/lib/services/baserow"
+import { isBaserowConfigured, getEmployees, getTasks, getExpenses } from "@/lib/services/baserow"
 
 describe("baserow service", () => {
   const originalEnv = process.env

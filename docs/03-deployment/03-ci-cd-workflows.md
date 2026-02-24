@@ -4,13 +4,13 @@ This document describes the GitHub Actions workflows for continuous integration 
 
 ## Workflows Overview
 
-| Workflow | Trigger | Purpose |
-| -------- | ------- | ------- |
+| Workflow                   | Trigger                            | Purpose                     |
+| -------------------------- | ---------------------------------- | --------------------------- |
 | `deployment-checklist.yml` | PR, Push, Schedule (daily), Manual | Infrastructure verification |
-| `deploy.yml` | Manual, Release | Full deployment pipeline |
-| `deploy-functions.yml` | Push to main (scripts), Manual | Azure Functions deployment |
-| `terraform-plan.yml` | PR to main (terraform changes) | Terraform plan preview |
-| `terraform-apply.yml` | Push to main (terraform changes) | Terraform apply |
+| `deploy.yml`               | Manual, Release                    | Full deployment pipeline    |
+| `deploy-functions.yml`     | Push to main (scripts), Manual     | Azure Functions deployment  |
+| `terraform-plan.yml`       | PR to main (terraform changes)     | Terraform plan preview      |
+| `terraform-apply.yml`      | Push to main (terraform changes)   | Terraform apply             |
 
 ---
 
@@ -67,12 +67,12 @@ This document describes the GitHub Actions workflows for continuous integration 
 
 ### Manual Trigger Options
 
-| Option | Description | Default |
-| ------ | ----------- | ------- |
-| `environment` | Target environment | `production` |
-| `skip_checklist` | Skip pre-deployment validation | `false` |
-| `deploy_infrastructure` | Deploy Terraform changes | `true` |
-| `seed_data` | Run data seeding script | `false` |
+| Option                  | Description                    | Default      |
+| ----------------------- | ------------------------------ | ------------ |
+| `environment`           | Target environment             | `production` |
+| `skip_checklist`        | Skip pre-deployment validation | `false`      |
+| `deploy_infrastructure` | Deploy Terraform changes       | `true`       |
+| `seed_data`             | Run data seeding script        | `false`      |
 
 ---
 
@@ -87,9 +87,9 @@ This document describes the GitHub Actions workflows for continuous integration 
 
 ### Deployed Functions
 
-| Function | Type | Schedule |
-| -------- | ---- | -------- |
-| DocuSealWebhook | HTTP Trigger | On demand |
+| Function            | Type          | Schedule      |
+| ------------------- | ------------- | ------------- |
+| DocuSealWebhook     | HTTP Trigger  | On demand     |
 | DocumentExpiryAlert | Timer Trigger | Daily 6am UTC |
 
 ---

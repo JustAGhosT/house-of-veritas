@@ -40,7 +40,10 @@ export async function validateInviteToken(token: string): Promise<{ userId: stri
   }
 }
 
-export async function sendInvite(userId: string, baseUrl: string): Promise<{ sent: boolean; error?: string }> {
+export async function sendInvite(
+  userId: string,
+  baseUrl: string
+): Promise<{ sent: boolean; error?: string }> {
   try {
     const token = await createInviteToken(userId)
     const user = await findUserByIdAsync(userId)

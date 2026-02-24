@@ -1,7 +1,7 @@
 "use client"
 
-import React, { createContext, useContext, useState, ReactNode } from 'react'
-import { Language, translations, TranslationKey, LANGUAGES } from './translations'
+import React, { createContext, useContext, useState, ReactNode } from "react"
+import { Language, translations, TranslationKey, LANGUAGES } from "./translations"
 
 interface I18nContextType {
   language: Language
@@ -12,13 +12,13 @@ interface I18nContextType {
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined)
 
-const STORAGE_KEY = 'hov_language'
+const STORAGE_KEY = "hov_language"
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
-    if (typeof window === 'undefined') return 'en'
+    if (typeof window === "undefined") return "en"
     const saved = localStorage.getItem(STORAGE_KEY) as Language | null
-    return saved && saved in translations ? saved : 'en'
+    return saved && saved in translations ? saved : "en"
   })
 
   const setLanguage = (lang: Language) => {
@@ -42,7 +42,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 export function useI18n() {
   const context = useContext(I18nContext)
   if (!context) {
-    throw new Error('useI18n must be used within I18nProvider')
+    throw new Error("useI18n must be used within I18nProvider")
   }
   return context
 }
@@ -56,7 +56,7 @@ export function LanguageSelector() {
       <select
         value={language}
         onChange={(e) => setLanguage(e.target.value as Language)}
-        className="appearance-none bg-white/5 border border-white/10 rounded-lg px-3 py-2 pr-8 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer"
+        className="cursor-pointer appearance-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 pr-8 text-sm text-white focus:ring-2 focus:ring-blue-500/50 focus:outline-none"
         aria-label="Display language"
       >
         {Object.entries(languages).map(([code, { name, flag }]) => (
@@ -65,7 +65,7 @@ export function LanguageSelector() {
           </option>
         ))}
       </select>
-      <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-white/60">
+      <div className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-white/60">
         ▼
       </div>
     </div>

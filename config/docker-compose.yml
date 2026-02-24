@@ -2,7 +2,7 @@
 # This file orchestrates DocuSeal and Baserow for local development
 # For production deployment, use Azure Container Instances via Terraform
 
-version: '3.8'
+version: "3.8"
 
 services:
   # ============================================

@@ -154,16 +154,16 @@ Each employee records daily attendance, either directly from dashboard or via mo
 
 **Documents To Be Tracked for Expiry/Renewal:**
 
-| Document | Expiry/Review Cycle | Alert Default |
-|----------|---------------------|---------------|
-| Property Charter (Doc 1) | 3 years | 60d, 30d, 7d prior |
-| House Rules (Doc 2) | 1 year (annual review) | 60d, 30d, 7d prior |
-| Workshop Safety Manual (Doc 3) | 1 year (OHS review/cert if req) | 60d, 30d, 7d prior |
-| Employment Contracts (Doc 4) | Annual review | 60d, 30d, 7d prior |
-| Resident Agreement (Doc 5) | Annual review | 60d, 30d, 7d prior |
-| Vehicle Usage Policy (Doc 13) | 1 year | 60d, 30d, 7d prior |
-| Insurance Register (Doc 14) | Per policy renewal date | 60d, 30d, 7d prior |
-| Succession Protocol (Doc 18) | 3 years (legal/beneficiary update) | 60d, 30d, 7d prior |
+| Document                       | Expiry/Review Cycle                | Alert Default      |
+| ------------------------------ | ---------------------------------- | ------------------ |
+| Property Charter (Doc 1)       | 3 years                            | 60d, 30d, 7d prior |
+| House Rules (Doc 2)            | 1 year (annual review)             | 60d, 30d, 7d prior |
+| Workshop Safety Manual (Doc 3) | 1 year (OHS review/cert if req)    | 60d, 30d, 7d prior |
+| Employment Contracts (Doc 4)   | Annual review                      | 60d, 30d, 7d prior |
+| Resident Agreement (Doc 5)     | Annual review                      | 60d, 30d, 7d prior |
+| Vehicle Usage Policy (Doc 13)  | 1 year                             | 60d, 30d, 7d prior |
+| Insurance Register (Doc 14)    | Per policy renewal date            | 60d, 30d, 7d prior |
+| Succession Protocol (Doc 18)   | 3 years (legal/beneficiary update) | 60d, 30d, 7d prior |
 
 **Multi-Stage Alerting System:**
 

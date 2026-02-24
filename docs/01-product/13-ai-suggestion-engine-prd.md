@@ -8,12 +8,12 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (nudge banners, dashboards, suggestion notices) |
-| Backend | Azure Functions (AI core suggestion engine, event analytics, explainability logs) |
-| Storage | Baserow (history, user context), Azure Blob (evidence, exports) |
-| API Hooks | Required for all active modules (bidirectional ingest and action) |
+| Layer     | Technology                                                                        |
+| --------- | --------------------------------------------------------------------------------- |
+| Frontend  | Next.js/React (nudge banners, dashboards, suggestion notices)                     |
+| Backend   | Azure Functions (AI core suggestion engine, event analytics, explainability logs) |
+| Storage   | Baserow (history, user context), Azure Blob (evidence, exports)                   |
+| API Hooks | Required for all active modules (bidirectional ingest and action)                 |
 
 ---
 
@@ -125,25 +125,25 @@ Design and deploy an AI/ML-driven engine that programmatically blends historic, 
 
 ## Measurable Objectives
 
-| Metric | Baseline | Target | Timeline |
-|--------|----------|--------|----------|
-| Nudge Adoption Rate | 45% | 70% | 3 months post-launch |
-| Urgent Response Time | 3 hours | <1 hr | 1 month post-go-live |
-| Nudge Satisfaction Score | — | 80%+ | Bi-weekly reviews |
-| Admin Override Rate | — | <15% | Steady-state Q2 |
+| Metric                   | Baseline | Target | Timeline             |
+| ------------------------ | -------- | ------ | -------------------- |
+| Nudge Adoption Rate      | 45%      | 70%    | 3 months post-launch |
+| Urgent Response Time     | 3 hours  | <1 hr  | 1 month post-go-live |
+| Nudge Satisfaction Score | —        | 80%+   | Bi-weekly reviews    |
+| Admin Override Rate      | —        | <15%   | Steady-state Q2      |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibilities |
-|------|------------------|
-| Residents | View & act on nudges, provide feedback |
-| Admins | Configure, monitor, override, and analyze suggestions |
-| Owners | Review performance/ROI, approve modules, tune risk |
-| Module Owners | Integrate triggers, monitor nudge impact in their area |
-| AI/Product Team | Quality, override, event audits |
-| Support | Handle explainability fails, permission issues |
+| Role            | Responsibilities                                       |
+| --------------- | ------------------------------------------------------ |
+| Residents       | View & act on nudges, provide feedback                 |
+| Admins          | Configure, monitor, override, and analyze suggestions  |
+| Owners          | Review performance/ROI, approve modules, tune risk     |
+| Module Owners   | Integrate triggers, monitor nudge impact in their area |
+| AI/Product Team | Quality, override, event audits                        |
+| Support         | Handle explainability fails, permission issues         |
 
 ---
 
@@ -242,26 +242,26 @@ Event → Nudge Rule/Trigger → Override/Retune → Monitor Logs
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Suggestion/nudge delivery | <3s (95th percentile) |
-| Event ingestion | <10ms |
-| Audit/event data retention | 3+ years, encrypted (Azure/Baserow) |
-| Accessibility | ARIA compliance, all explain modals screen-reader ready |
-| Dashboard refresh | Sub-2s for admin/owner analytics |
-| Horizontal scaling | Up to 10,000 suggestions per hour across modules |
-| API authentication | SSO-authenticated event/action endpoints |
+| Requirement                | Target                                                  |
+| -------------------------- | ------------------------------------------------------- |
+| Suggestion/nudge delivery  | <3s (95th percentile)                                   |
+| Event ingestion            | <10ms                                                   |
+| Audit/event data retention | 3+ years, encrypted (Azure/Baserow)                     |
+| Accessibility              | ARIA compliance, all explain modals screen-reader ready |
+| Dashboard refresh          | Sub-2s for admin/owner analytics                        |
+| Horizontal scaling         | Up to 10,000 suggestions per hour across modules        |
+| API authentication         | SSO-authenticated event/action endpoints                |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Component Roles/Responsibilities |
-|-------|----------------------------------|
-| Frontend | Nudge UI, Explain modals, Feedback, Dashboard panels |
-| Backend | Event ingestion, ML logic, Audit/Override recorder, Monitoring |
+| Layer        | Component Roles/Responsibilities                               |
+| ------------ | -------------------------------------------------------------- |
+| Frontend     | Nudge UI, Explain modals, Feedback, Dashboard panels           |
+| Backend      | Event ingestion, ML logic, Audit/Override recorder, Monitoring |
 | Notification | Batch/push notifications, explain modals, points/impact alerts |
-| Storage | Event logs, suggestion histories, feedback, evidence blobs |
+| Storage      | Event logs, suggestion histories, feedback, evidence blobs     |
 
 ---
 
@@ -269,15 +269,15 @@ Event → Nudge Rule/Trigger → Override/Retune → Monitor Logs
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/event/ingest | POST | Receive new module events |
-| /api/suggest/next | POST | Return high-ROI, prioritized suggestions |
-| /api/nudge/post | POST | Capture user or admin nudge interaction |
-| /api/explain/:id | GET | Explain AI suggestion (why/context/evidence) |
-| /api/override | POST | Record/administer manual override actions |
-| /api/feedback | POST | Collect structured feedback from actions |
-| /api/log/audit | GET | Query audit, suggestion, and override logs |
+| Endpoint          | Method | Purpose                                      |
+| ----------------- | ------ | -------------------------------------------- |
+| /api/event/ingest | POST   | Receive new module events                    |
+| /api/suggest/next | POST   | Return high-ROI, prioritized suggestions     |
+| /api/nudge/post   | POST   | Capture user or admin nudge interaction      |
+| /api/explain/:id  | GET    | Explain AI suggestion (why/context/evidence) |
+| /api/override     | POST   | Record/administer manual override actions    |
+| /api/feedback     | POST   | Collect structured feedback from actions     |
+| /api/log/audit    | GET    | Query audit, suggestion, and override logs   |
 
 ### External Dependencies
 
@@ -290,13 +290,13 @@ Event → Nudge Rule/Trigger → Override/Retune → Monitor Logs
 
 ## Data Models
 
-| Model | Fields |
-|-------|--------|
-| Event | ID, module, user, context, value, timestamp |
-| Suggestion | ID, user, reason, weight, history, explain, module |
-| Accept/Override | SuggestionID, actor, action, timestamp, reason |
-| Log | user, action, event, feedback, impact |
-| Feedback | nudgeId, rating, outcome, user/context, timestamp |
+| Model           | Fields                                             |
+| --------------- | -------------------------------------------------- |
+| Event           | ID, module, user, context, value, timestamp        |
+| Suggestion      | ID, user, reason, weight, history, explain, module |
+| Accept/Override | SuggestionID, actor, action, timestamp, reason     |
+| Log             | user, action, event, feedback, impact              |
+| Feedback        | nudgeId, rating, outcome, user/context, timestamp  |
 
 **Relationships:**
 
@@ -349,13 +349,13 @@ Event → Nudge Rule/Trigger → Override/Retune → Monitor Logs
 
 ### Key Metrics
 
-| Metric | Method | Target |
-|--------|--------|--------|
-| Nudge open/view rate | UI logs | 95%+ |
-| Suggestion adoption | Action logs | 60%+ |
-| Issue miss rate (nudge) | Admin audit | <10% |
-| Override/suppression rate | Admin dashboard | <15% |
-| Feedback form fills | Logs/analytics | 100+ wk post-launch |
+| Metric                    | Method          | Target              |
+| ------------------------- | --------------- | ------------------- |
+| Nudge open/view rate      | UI logs         | 95%+                |
+| Suggestion adoption       | Action logs     | 60%+                |
+| Issue miss rate (nudge)   | Admin audit     | <10%                |
+| Override/suppression rate | Admin dashboard | <15%                |
+| Feedback form fills       | Logs/analytics  | 100+ wk post-launch |
 
 ### Leading Indicators
 
@@ -382,11 +382,11 @@ Event → Nudge Rule/Trigger → Override/Retune → Monitor Logs
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target | Dependencies |
-|-------|-------|--------|---------------|
-| 1 | Chores, Maintenance, Budget/Green ingest + nudge core | Month 1–2 | Module API hooks ready |
-| 2 | Renovation, Events, Compliance expansion; explain modals | Month 3–4 | Feedback/event tuning |
-| 3 | Analytics scaling, full admin tuning, cross-module deep links | Month 5–6 | Owner/admin input |
+| Phase | Scope                                                         | Target    | Dependencies           |
+| ----- | ------------------------------------------------------------- | --------- | ---------------------- |
+| 1     | Chores, Maintenance, Budget/Green ingest + nudge core         | Month 1–2 | Module API hooks ready |
+| 2     | Renovation, Events, Compliance expansion; explain modals      | Month 3–4 | Feedback/event tuning  |
+| 3     | Analytics scaling, full admin tuning, cross-module deep links | Month 5–6 | Owner/admin input      |
 
 ---
 
@@ -426,23 +426,23 @@ Event → Nudge Rule/Trigger → Override/Retune → Monitor Logs
 
 ## Risks & Mitigations
 
-| Risk | Probability | Impact | Mitigation |
-|------|--------------|--------|------------|
-| Explain API/UI Fails | Medium | Med/High | Fallback to admin notes, log for fix |
-| Feedback/Nudge Bias | Medium | Medium | Ongoing model audits, weighted sampling |
-| Nudge Overload | High | Medium | User-level throttle, admin suppression |
-| Override Friction | Medium | Low/Medium | Streamlined override flows, clear logs |
-| Privacy Issues | Low | High | SSO enforced, all event/API access logged |
+| Risk                 | Probability | Impact     | Mitigation                                |
+| -------------------- | ----------- | ---------- | ----------------------------------------- |
+| Explain API/UI Fails | Medium      | Med/High   | Fallback to admin notes, log for fix      |
+| Feedback/Nudge Bias  | Medium      | Medium     | Ongoing model audits, weighted sampling   |
+| Nudge Overload       | High        | Medium     | User-level throttle, admin suppression    |
+| Override Friction    | Medium      | Low/Medium | Streamlined override flows, clear logs    |
+| Privacy Issues       | Low         | High       | SSO enforced, all event/API access logged |
 
 ---
 
 ## Open Questions
 
-| Question | Impact |
-|----------|--------|
-| Which modules/events must be prioritized for daily nudges in early phases? | |
-| Should residents see full nudge/action history or only current/active items? | |
-| To what granularity should admin/owner be able to see impact logs for rejected/suppressed suggestions? | |
+| Question                                                                                               | Impact |
+| ------------------------------------------------------------------------------------------------------ | ------ |
+| Which modules/events must be prioritized for daily nudges in early phases?                             |        |
+| Should residents see full nudge/action history or only current/active items?                           |        |
+| To what granularity should admin/owner be able to see impact logs for rejected/suppressed suggestions? |        |
 
 ---
 

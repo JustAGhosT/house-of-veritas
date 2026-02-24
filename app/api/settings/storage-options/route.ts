@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server"
 import { withRole } from "@/lib/auth/rbac"
-import { loadStorageOptions, saveStorageOptions, DEFAULT_STORAGE_OPTIONS } from "@/lib/storage-options"
+import {
+  loadStorageOptions,
+  saveStorageOptions,
+  DEFAULT_STORAGE_OPTIONS,
+} from "@/lib/storage-options"
 import { logger } from "@/lib/logger"
 
 export async function GET() {
@@ -8,7 +12,9 @@ export async function GET() {
     const options = await loadStorageOptions()
     return NextResponse.json({ options })
   } catch (err) {
-    logger.error("Failed to load storage options", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Failed to load storage options", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ options: DEFAULT_STORAGE_OPTIONS })
   }
 }
@@ -30,7 +36,9 @@ export const POST = withRole("admin")(async (request: Request) => {
     await saveStorageOptions(trimmed)
     return NextResponse.json({ success: true, options: trimmed })
   } catch (err) {
-    logger.error("Failed to save storage options", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Failed to save storage options", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ error: "Failed to save" }, { status: 500 })
   }
 })

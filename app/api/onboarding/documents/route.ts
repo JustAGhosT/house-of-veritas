@@ -16,7 +16,8 @@ export const GET = withAuth(async (request, context) => {
     const user = await getUserWithManagement(context.userId)
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 })
 
-    const templateIds = ONBOARDING_TEMPLATES_BY_ROLE[user.role] || ONBOARDING_TEMPLATES_BY_ROLE.resident
+    const templateIds =
+      ONBOARDING_TEMPLATES_BY_ROLE[user.role] || ONBOARDING_TEMPLATES_BY_ROLE.resident
     const templates = await getTemplates()
     const docs = templateIds
       .map((id) => templates.find((t) => t.id === id))
@@ -43,9 +44,7 @@ export const POST = withAuth(async (request, context) => {
 
     const submission = await createSubmission({
       templateId,
-      recipients: [
-        { email: user.email, name: user.name, role: "signer" },
-      ],
+      recipients: [{ email: user.email, name: user.name, role: "signer" }],
       metadata: { userId: context.userId, onboarding: true },
     })
 
@@ -56,7 +55,8 @@ export const POST = withAuth(async (request, context) => {
     return NextResponse.json({
       submissionId: submission.id,
       status: submission.status,
-      message: "Signature request created. Check your email for the signing link, or use the DocuSeal portal.",
+      message:
+        "Signature request created. Check your email for the signing link, or use the DocuSeal portal.",
     })
   } catch (err) {
     return NextResponse.json({ error: "Failed to create signature request" }, { status: 500 })

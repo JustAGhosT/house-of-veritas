@@ -5,11 +5,13 @@ Project-level MCP servers are configured in `.cursor/mcp.json`. Restart Cursor a
 ## Configured Servers
 
 ### Playwright (`playwright`)
+
 - **Package:** `@playwright/mcp`
 - **Purpose:** Browser automation, E2E test generation, web interaction for AI agents
 - **Requires:** Node.js 18+, Playwright browsers (`npx playwright install`)
 
 ### Storybook (`storybook`)
+
 - **Package:** `storybook-mcp-server`
 - **Purpose:** Component discovery, story management, visual testing
 - **Requires:** Node.js 18+, running Storybook instance (`npm run storybook` on port 6006)
@@ -25,6 +27,7 @@ Project-level MCP servers are configured in `.cursor/mcp.json`. Restart Cursor a
 ## Adding a New MCP
 
 1. Add to `mcpServers` in `.cursor/mcp.json`:
+
 ```json
 "server-name": {
   "command": "npx",
@@ -32,5 +35,6 @@ Project-level MCP servers are configured in `.cursor/mcp.json`. Restart Cursor a
   "env": {}
 }
 ```
+
 2. Restart Cursor
 3. Verify in Cursor Settings → Tools & MCP

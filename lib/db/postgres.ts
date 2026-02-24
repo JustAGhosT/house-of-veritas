@@ -36,9 +36,7 @@ export async function query<T = unknown>(
   return { rows: result.rows as T[], rowCount: result.rowCount ?? 0 }
 }
 
-export async function withClient<T>(
-  fn: (client: PoolClient) => Promise<T>
-): Promise<T> {
+export async function withClient<T>(fn: (client: PoolClient) => Promise<T>): Promise<T> {
   const p = await getPool()
   const client = await p.connect()
   try {

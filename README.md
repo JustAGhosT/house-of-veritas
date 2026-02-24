@@ -21,18 +21,18 @@ A comprehensive estate and asset management platform for private households and 
 
 ## Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript 5 |
-| Styling | Tailwind CSS 4 + Shadcn/UI |
-| Backend | DocuSeal (Ruby) + Baserow (Django) |
-| Database | Azure PostgreSQL Flexible Server |
-| Storage | Azure Blob Storage (GRS) |
-| OCR | Azure Document Intelligence |
-| IaC | Terraform 1.5+ |
-| CI/CD | GitHub Actions |
-| Cloud | Azure (South Africa North) |
+| Category  | Technology                         |
+| --------- | ---------------------------------- |
+| Framework | Next.js 16 (App Router)            |
+| Language  | TypeScript 5                       |
+| Styling   | Tailwind CSS 4 + Shadcn/UI         |
+| Backend   | DocuSeal (Ruby) + Baserow (Django) |
+| Database  | Azure PostgreSQL Flexible Server   |
+| Storage   | Azure Blob Storage (GRS)           |
+| OCR       | Azure Document Intelligence        |
+| IaC       | Terraform 1.5+                     |
+| CI/CD     | GitHub Actions                     |
+| Cloud     | Azure (South Africa North)         |
 
 ---
 
@@ -85,13 +85,13 @@ HouseOfVeritas/
 
 ## Documentation
 
-| Section | Contents |
-|---------|----------|
-| [Product](docs/01-product/) | Platform specification, functional design, product requirements |
-| [Architecture](docs/02-architecture/) | Technical design, naming convention, infrastructure map |
-| [Deployment](docs/03-deployment/) | Azure deployment, local development, CI/CD workflows |
-| [Configuration](docs/04-configuration/) | DocuSeal, Baserow, Azure Functions, document templates |
-| [Project](docs/05-project/) | Backlog, roadmap, test report, changelog, contributing |
+| Section                                 | Contents                                                        |
+| --------------------------------------- | --------------------------------------------------------------- |
+| [Product](docs/01-product/)             | Platform specification, functional design, product requirements |
+| [Architecture](docs/02-architecture/)   | Technical design, naming convention, infrastructure map         |
+| [Deployment](docs/03-deployment/)       | Azure deployment, local development, CI/CD workflows            |
+| [Configuration](docs/04-configuration/) | DocuSeal, Baserow, Azure Functions, document templates          |
+| [Project](docs/05-project/)             | Backlog, roadmap, test report, changelog, contributing          |
 
 Full index: [docs/README.md](docs/README.md)
 

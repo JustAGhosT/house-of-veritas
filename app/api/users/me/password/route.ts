@@ -8,10 +8,7 @@ export const POST = withAuth(async (request, context) => {
     const { password } = body
 
     if (!password || typeof password !== "string" || password.length < 6) {
-      return NextResponse.json(
-        { error: "Password must be at least 6 characters" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 })
     }
 
     const ok = await setPasswordAsync(context.userId, password)

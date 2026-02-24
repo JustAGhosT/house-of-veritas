@@ -15,7 +15,7 @@ The Key Vault `network_acls` block uses `var.deployer_ip_addresses` in `ip_rules
 
 ## Variables
 
-| Name | Description |
-|------|-------------|
+| Name                    | Description                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------ |
 | `deployer_ip_addresses` | List of IP addresses (or CIDR) to whitelist for Key Vault access during provisioning |
-| `container_subnet_id` | Subnet ID for VNet-based access |
+| `container_subnet_id`   | Subnet ID for VNet-based access                                                      |

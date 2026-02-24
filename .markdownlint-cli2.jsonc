@@ -1,12 +1,12 @@
 {
   "config": {
     "default": true,
-    "MD013": { "line_length": 120 }
+    "MD013": { "line_length": 120 },
   },
   "globs": [
     ".claude/agents/**/*.md",
     ".claude/commands/**/*.md",
     ".claude/README.md",
-    "docs/**/*.md"
-  ]
+    "docs/**/*.md",
+  ],
 }

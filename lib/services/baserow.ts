@@ -170,10 +170,7 @@ export const isBaserowConfigured = (): boolean => {
 }
 
 // Generic fetch function
-async function baserowFetch<T>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<T | null> {
+async function baserowFetch<T>(endpoint: string, options?: RequestInit): Promise<T | null> {
   const config = getConfig()
 
   if (!config.apiToken) {
@@ -198,7 +195,9 @@ async function baserowFetch<T>(
 
     return await response.json()
   } catch (error) {
-    logger.error("Baserow API error", { error: error instanceof Error ? error.message : String(error) })
+    logger.error("Baserow API error", {
+      error: error instanceof Error ? error.message : String(error),
+    })
     return null
   }
 }
@@ -207,7 +206,7 @@ async function baserowFetch<T>(
 
 export async function getEmployees(): Promise<Employee[]> {
   const tableIds = getTableIds()
-  
+
   if (!isBaserowConfigured() || !tableIds.employees) {
     return getMockEmployees()
   }
@@ -321,7 +320,8 @@ export async function getTasksPaginated(
   }
 
   let endpoint = `/database/rows/table/${tableIds.tasks}/?user_field_names=true`
-  if (filters?.assignedTo) endpoint += `&filter__field_assigned_to__link_row_has=${filters.assignedTo}`
+  if (filters?.assignedTo)
+    endpoint += `&filter__field_assigned_to__link_row_has=${filters.assignedTo}`
   if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
   endpoint = appendPagination(endpoint, page, size)
 
@@ -356,10 +356,7 @@ export async function createTask(task: Omit<Task, "id">): Promise<Task | null> {
   return row ? mapRowToTask(row) : null
 }
 
-export async function updateTask(
-  id: number,
-  updates: Partial<Task>
-): Promise<Task | null> {
+export async function updateTask(id: number, updates: Partial<Task>): Promise<Task | null> {
   const tableIds = getTableIds()
 
   if (!isBaserowConfigured() || !tableIds.tasks) {
@@ -398,7 +395,7 @@ export async function getExpenses(filters?: {
   }
 
   let endpoint = `/database/rows/table/${tableIds.expenses}/?user_field_names=true`
-  
+
   const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
 
   if (!result) {
@@ -480,10 +477,7 @@ export async function updateExpense(
 
 // ==================== ASSETS ====================
 
-export async function getAssets(filters?: {
-  type?: string
-  location?: string
-}): Promise<Asset[]> {
+export async function getAssets(filters?: { type?: string; location?: string }): Promise<Asset[]> {
   const tableIds = getTableIds()
 
   if (!isBaserowConfigured() || !tableIds.assets) {
@@ -613,7 +607,15 @@ export async function clockIn(employeeId: number): Promise<TimeClockEntry | null
     }
   )
 
-  return row ? mapRowToTimeClockEntry(row) : { employee: employeeId, date: toISODateString(now), clockIn: clockTime, approvalStatus: "Pending", id: Date.now() } as TimeClockEntry
+  return row
+    ? mapRowToTimeClockEntry(row)
+    : ({
+        employee: employeeId,
+        date: toISODateString(now),
+        clockIn: clockTime,
+        approvalStatus: "Pending",
+        id: Date.now(),
+      } as TimeClockEntry)
 }
 
 export async function clockOut(entryId: number): Promise<TimeClockEntry | null> {
@@ -642,9 +644,7 @@ const APP_ID_TO_NAME: Record<string, string> = {
   irma: "Irma",
 }
 
-export async function getBaserowEmployeeIdByAppId(
-  appId: string
-): Promise<number | null> {
+export async function getBaserowEmployeeIdByAppId(appId: string): Promise<number | null> {
   const employees = await getEmployees()
   const name = APP_ID_TO_NAME[appId.toLowerCase()] || appId
   const emp = employees.find(
@@ -655,9 +655,7 @@ export async function getBaserowEmployeeIdByAppId(
   return emp ? emp.id : null
 }
 
-export async function clockInByAppId(
-  appId: string
-): Promise<TimeClockEntry | null> {
+export async function clockInByAppId(appId: string): Promise<TimeClockEntry | null> {
   const baserowEmployeeId = await getBaserowEmployeeIdByAppId(appId)
   if (baserowEmployeeId === null) return null
   return clockIn(baserowEmployeeId)
@@ -676,9 +674,7 @@ export async function clockOutByAppId(appId: string): Promise<TimeClockEntry | n
   )
   if (!result?.results?.length) return null
 
-  const openEntry = result.results.find(
-    (r) => !r["Clock Out"] && !r.clock_out
-  )
+  const openEntry = result.results.find((r) => !r["Clock Out"] && !r.clock_out)
   if (!openEntry) return null
 
   return clockOut(openEntry.id)
@@ -686,9 +682,7 @@ export async function clockOutByAppId(appId: string): Promise<TimeClockEntry | n
 
 // ==================== VEHICLE LOGS ====================
 
-export async function getVehicleLogs(filters?: {
-  driver?: number
-}): Promise<VehicleLog[]> {
+export async function getVehicleLogs(filters?: { driver?: number }): Promise<VehicleLog[]> {
   const tableIds = getTableIds()
 
   if (!isBaserowConfigured() || !tableIds.vehicleLogs) {
@@ -914,46 +908,217 @@ function getMockEmployees(): Employee[] {
 
 function getMockTasks(): Task[] {
   return [
-    { id: 1, title: "Fix electrical outlet - Kitchen", assignedTo: 2, assignedToName: "Charl", priority: "High", status: "In Progress", dueDate: toISODateString(), project: "Electrical Work" },
-    { id: 2, title: "Repair leaking pipe - Bathroom", assignedTo: 2, assignedToName: "Charl", priority: "High", status: "Completed", dueDate: toISODateString(), project: "Plumbing" },
-    { id: 3, title: "Weekly lawn mowing", assignedTo: 3, assignedToName: "Lucky", priority: "Medium", status: "Completed", dueDate: toISODateString(), project: "Garden Maintenance" },
-    { id: 4, title: "Trim hedges - front", assignedTo: 3, assignedToName: "Lucky", priority: "Medium", status: "Completed", dueDate: toISODateString(), project: "Garden Maintenance" },
-    { id: 5, title: "Fix irrigation zone 3", assignedTo: 3, assignedToName: "Lucky", priority: "High", status: "In Progress", dueDate: toISODateString(), project: "Garden Maintenance" },
-    { id: 6, title: "Morning kitchen clean", assignedTo: 4, assignedToName: "Irma", priority: "Medium", status: "Completed", dueDate: toISODateString(), project: "Household" },
-    { id: 7, title: "Meal preparation - dinner", assignedTo: 4, assignedToName: "Irma", priority: "High", status: "In Progress", dueDate: toISODateString(), project: "Household" },
+    {
+      id: 1,
+      title: "Fix electrical outlet - Kitchen",
+      assignedTo: 2,
+      assignedToName: "Charl",
+      priority: "High",
+      status: "In Progress",
+      dueDate: toISODateString(),
+      project: "Electrical Work",
+    },
+    {
+      id: 2,
+      title: "Repair leaking pipe - Bathroom",
+      assignedTo: 2,
+      assignedToName: "Charl",
+      priority: "High",
+      status: "Completed",
+      dueDate: toISODateString(),
+      project: "Plumbing",
+    },
+    {
+      id: 3,
+      title: "Weekly lawn mowing",
+      assignedTo: 3,
+      assignedToName: "Lucky",
+      priority: "Medium",
+      status: "Completed",
+      dueDate: toISODateString(),
+      project: "Garden Maintenance",
+    },
+    {
+      id: 4,
+      title: "Trim hedges - front",
+      assignedTo: 3,
+      assignedToName: "Lucky",
+      priority: "Medium",
+      status: "Completed",
+      dueDate: toISODateString(),
+      project: "Garden Maintenance",
+    },
+    {
+      id: 5,
+      title: "Fix irrigation zone 3",
+      assignedTo: 3,
+      assignedToName: "Lucky",
+      priority: "High",
+      status: "In Progress",
+      dueDate: toISODateString(),
+      project: "Garden Maintenance",
+    },
+    {
+      id: 6,
+      title: "Morning kitchen clean",
+      assignedTo: 4,
+      assignedToName: "Irma",
+      priority: "Medium",
+      status: "Completed",
+      dueDate: toISODateString(),
+      project: "Household",
+    },
+    {
+      id: 7,
+      title: "Meal preparation - dinner",
+      assignedTo: 4,
+      assignedToName: "Irma",
+      priority: "High",
+      status: "In Progress",
+      dueDate: toISODateString(),
+      project: "Household",
+    },
   ]
 }
 
 function getMockExpenses(): Expense[] {
   return [
-    { id: 1, requester: 2, requesterName: "Charl", type: "Request", category: "Materials", amount: 850, date: toISODateString(), approvalStatus: "Pending", project: "Workshop" },
-    { id: 2, requester: 3, requesterName: "Lucky", type: "Request", category: "Supplies", amount: 320, date: toISODateString(), approvalStatus: "Pending", project: "Garden" },
-    { id: 3, requester: 3, requesterName: "Lucky", type: "Post-Hoc", category: "Fuel", amount: 280, date: toISODateString(new Date(Date.now() - 86400000)), approvalStatus: "Approved" },
-    { id: 4, requester: 2, requesterName: "Charl", type: "Post-Hoc", category: "Fuel", amount: 450, date: toISODateString(new Date(Date.now() - 172800000)), approvalStatus: "Approved" },
+    {
+      id: 1,
+      requester: 2,
+      requesterName: "Charl",
+      type: "Request",
+      category: "Materials",
+      amount: 850,
+      date: toISODateString(),
+      approvalStatus: "Pending",
+      project: "Workshop",
+    },
+    {
+      id: 2,
+      requester: 3,
+      requesterName: "Lucky",
+      type: "Request",
+      category: "Supplies",
+      amount: 320,
+      date: toISODateString(),
+      approvalStatus: "Pending",
+      project: "Garden",
+    },
+    {
+      id: 3,
+      requester: 3,
+      requesterName: "Lucky",
+      type: "Post-Hoc",
+      category: "Fuel",
+      amount: 280,
+      date: toISODateString(new Date(Date.now() - 86400000)),
+      approvalStatus: "Approved",
+    },
+    {
+      id: 4,
+      requester: 2,
+      requesterName: "Charl",
+      type: "Post-Hoc",
+      category: "Fuel",
+      amount: 450,
+      date: toISODateString(new Date(Date.now() - 172800000)),
+      approvalStatus: "Approved",
+    },
   ]
 }
 
 function getMockAssets(): Asset[] {
   return [
-    { id: 1, assetId: "WS-001", type: "Tool", description: "Makita Drill Set", condition: "Good", location: "Workshop", checkedOutBy: 2 },
-    { id: 2, assetId: "WS-002", type: "Tool", description: "Angle Grinder", condition: "Good", location: "Workshop", checkedOutBy: 2 },
-    { id: 3, assetId: "WS-003", type: "Tool", description: "Multimeter", condition: "Excellent", location: "Workshop" },
-    { id: 4, assetId: "VH-001", type: "Vehicle", description: "Toyota Hilux", condition: "Good", location: "Garage" },
-    { id: 5, assetId: "GD-001", type: "Equipment", description: "Lawn Mower", condition: "Good", location: "Garden Shed" },
+    {
+      id: 1,
+      assetId: "WS-001",
+      type: "Tool",
+      description: "Makita Drill Set",
+      condition: "Good",
+      location: "Workshop",
+      checkedOutBy: 2,
+    },
+    {
+      id: 2,
+      assetId: "WS-002",
+      type: "Tool",
+      description: "Angle Grinder",
+      condition: "Good",
+      location: "Workshop",
+      checkedOutBy: 2,
+    },
+    {
+      id: 3,
+      assetId: "WS-003",
+      type: "Tool",
+      description: "Multimeter",
+      condition: "Excellent",
+      location: "Workshop",
+    },
+    {
+      id: 4,
+      assetId: "VH-001",
+      type: "Vehicle",
+      description: "Toyota Hilux",
+      condition: "Good",
+      location: "Garage",
+    },
+    {
+      id: 5,
+      assetId: "GD-001",
+      type: "Equipment",
+      description: "Lawn Mower",
+      condition: "Good",
+      location: "Garden Shed",
+    },
   ]
 }
 
 function getMockTimeClockEntries(): TimeClockEntry[] {
   const today = toISODateString()
   return [
-    { id: 1, employee: 2, employeeName: "Charl", date: today, clockIn: "07:15", approvalStatus: "Pending" },
-    { id: 2, employee: 3, employeeName: "Lucky", date: today, clockIn: "06:30", approvalStatus: "Pending" },
+    {
+      id: 1,
+      employee: 2,
+      employeeName: "Charl",
+      date: today,
+      clockIn: "07:15",
+      approvalStatus: "Pending",
+    },
+    {
+      id: 2,
+      employee: 3,
+      employeeName: "Lucky",
+      date: today,
+      clockIn: "06:30",
+      approvalStatus: "Pending",
+    },
   ]
 }
 
 function getMockVehicleLogs(): VehicleLog[] {
   return [
-    { id: 1, driver: 3, driverName: "Lucky", vehicle: 4, vehicleName: "Toyota Hilux", dateOut: toISODateString(), odometerStart: 124532 },
-    { id: 2, driver: 2, driverName: "Charl", vehicle: 4, vehicleName: "Toyota Hilux", dateOut: toISODateString(new Date(Date.now() - 86400000)), dateIn: toISODateString(new Date(Date.now() - 86400000)), odometerStart: 124500, odometerEnd: 124532, distance: 32 },
+    {
+      id: 1,
+      driver: 3,
+      driverName: "Lucky",
+      vehicle: 4,
+      vehicleName: "Toyota Hilux",
+      dateOut: toISODateString(),
+      odometerStart: 124532,
+    },
+    {
+      id: 2,
+      driver: 2,
+      driverName: "Charl",
+      vehicle: 4,
+      vehicleName: "Toyota Hilux",
+      dateOut: toISODateString(new Date(Date.now() - 86400000)),
+      dateIn: toISODateString(new Date(Date.now() - 86400000)),
+      odometerStart: 124500,
+      odometerEnd: 124532,
+      distance: 32,
+    },
   ]
 }

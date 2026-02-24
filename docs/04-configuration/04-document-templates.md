@@ -280,24 +280,24 @@ For each document:
 
 ## Template Checklist
 
-| # | Document | Created | Uploaded | Fields Added | Workflow Set |
-|---|----------|---------|----------|--------------|--------------|
-| 1 | Property Charter | [ ] | [ ] | [ ] | [ ] |
-| 2 | House Rules | [ ] | [ ] | [ ] | [ ] |
-| 3 | Succession Protocol | [ ] | [ ] | [ ] | [ ] |
-| 4 | Resident Agreement | [ ] | [ ] | [ ] | [ ] |
-| 5 | Employment Contract - Charl | [ ] | [ ] | [ ] | [ ] |
-| 6 | Employment Contract - Lucky | [ ] | [ ] | [ ] | [ ] |
-| 7 | Leave Policy | [ ] | [ ] | [ ] | [ ] |
-| 8 | Overtime Policy | [ ] | [ ] | [ ] | [ ] |
-| 9 | Workshop Safety Manual | [ ] | [ ] | [ ] | [ ] |
-| 10 | Incident Reporting Procedure | [ ] | [ ] | [ ] | [ ] |
-| 11 | Emergency Contact List | [ ] | [ ] | [ ] | [ ] |
-| 12 | Vehicle Usage Policy | [ ] | [ ] | [ ] | [ ] |
-| 13 | Tool Checkout Policy | [ ] | [ ] | [ ] | [ ] |
-| 14 | Asset Maintenance Schedule | [ ] | [ ] | [ ] | [ ] |
-| 15 | Garden Maintenance Plan | [ ] | [ ] | [ ] | [ ] |
-| 16 | Household Task Roster | [ ] | [ ] | [ ] | [ ] |
-| 17 | Expense Reimbursement Policy | [ ] | [ ] | [ ] | [ ] |
-| 18 | Financial Approval Matrix | [ ] | [ ] | [ ] | [ ] |
-| 19 | POPIA Consent Form | [ ] | [ ] | [ ] | [ ] |
+| #   | Document                     | Created | Uploaded | Fields Added | Workflow Set |
+| --- | ---------------------------- | ------- | -------- | ------------ | ------------ |
+| 1   | Property Charter             | [ ]     | [ ]      | [ ]          | [ ]          |
+| 2   | House Rules                  | [ ]     | [ ]      | [ ]          | [ ]          |
+| 3   | Succession Protocol          | [ ]     | [ ]      | [ ]          | [ ]          |
+| 4   | Resident Agreement           | [ ]     | [ ]      | [ ]          | [ ]          |
+| 5   | Employment Contract - Charl  | [ ]     | [ ]      | [ ]          | [ ]          |
+| 6   | Employment Contract - Lucky  | [ ]     | [ ]      | [ ]          | [ ]          |
+| 7   | Leave Policy                 | [ ]     | [ ]      | [ ]          | [ ]          |
+| 8   | Overtime Policy              | [ ]     | [ ]      | [ ]          | [ ]          |
+| 9   | Workshop Safety Manual       | [ ]     | [ ]      | [ ]          | [ ]          |
+| 10  | Incident Reporting Procedure | [ ]     | [ ]      | [ ]          | [ ]          |
+| 11  | Emergency Contact List       | [ ]     | [ ]      | [ ]          | [ ]          |
+| 12  | Vehicle Usage Policy         | [ ]     | [ ]      | [ ]          | [ ]          |
+| 13  | Tool Checkout Policy         | [ ]     | [ ]      | [ ]          | [ ]          |
+| 14  | Asset Maintenance Schedule   | [ ]     | [ ]      | [ ]          | [ ]          |
+| 15  | Garden Maintenance Plan      | [ ]     | [ ]      | [ ]          | [ ]          |
+| 16  | Household Task Roster        | [ ]     | [ ]      | [ ]          | [ ]          |
+| 17  | Expense Reimbursement Policy | [ ]     | [ ]      | [ ]          | [ ]          |
+| 18  | Financial Approval Matrix    | [ ]     | [ ]      | [ ]          | [ ]          |
+| 19  | POPIA Consent Form           | [ ]     | [ ]      | [ ]          | [ ]          |

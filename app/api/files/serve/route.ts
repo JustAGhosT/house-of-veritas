@@ -13,10 +13,7 @@ export const GET = withAuth(async (request) => {
   const filename = searchParams.get("filename")
 
   if (!category || !filename) {
-    return NextResponse.json(
-      { error: "category and filename required" },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: "category and filename required" }, { status: 400 })
   }
 
   if (!ALLOWED_CATEGORIES.includes(category)) {

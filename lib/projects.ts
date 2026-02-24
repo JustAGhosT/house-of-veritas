@@ -30,8 +30,16 @@ export interface Project {
 }
 
 export const DEFAULT_MAJOR_PROJECTS = [
-  { id: "house-revamp", name: "House Revamp", description: "Full house renovation and improvements" },
-  { id: "zeerust-arming", name: "Zeerust Arming", description: "Security and arming at Zeerust property" },
+  {
+    id: "house-revamp",
+    name: "House Revamp",
+    description: "Full house renovation and improvements",
+  },
+  {
+    id: "zeerust-arming",
+    name: "Zeerust Arming",
+    description: "Security and arming at Zeerust property",
+  },
 ]
 
 export async function getProjectNamesForMember(userId: string): Promise<string[]> {
@@ -41,9 +49,7 @@ export async function getProjectNamesForMember(userId: string): Promise<string[]
     const data = await readFile(join(process.cwd(), "data", "projects.json"), "utf-8")
     const projects: Project[] = JSON.parse(data)
     if (!Array.isArray(projects)) return []
-    return projects
-      .filter((p) => p.members?.some((m) => m.userId === userId))
-      .map((p) => p.name)
+    return projects.filter((p) => p.members?.some((m) => m.userId === userId)).map((p) => p.name)
   } catch {
     return []
   }

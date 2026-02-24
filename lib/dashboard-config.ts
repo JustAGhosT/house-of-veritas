@@ -37,40 +37,176 @@ const ICON_MAP: Record<string, string> = {
 }
 
 export const ALL_PAGES: DashboardPage[] = [
-  { id: "overview", name: "Overview", href: "/dashboard", icon: "Home", description: "Dashboard home", sortOrder: 0 },
-  { id: "approvals", name: "Approvals", href: "/dashboard/hans/approvals", icon: "CheckSquare", description: "Review requests", sortOrder: 1 },
-  { id: "calendar", name: "Calendar", href: "/dashboard/hans/calendar", icon: "Calendar", description: "Calendar", sortOrder: 2 },
-  { id: "documents", name: "Documents", href: "/dashboard/documents", icon: "FileText", description: "Documents", sortOrder: 3 },
-  { id: "employees", name: "HR Roster", href: "/dashboard/hans/team", icon: "Users", description: "Baserow employees (in Team tab)", sortOrder: 4 },
-  { id: "users", name: "Team", href: "/dashboard/hans/team", icon: "Users", description: "Platform users and HR roster", sortOrder: 5 },
-  { id: "tasks", name: "Tasks", href: "/dashboard/tasks", icon: "ClipboardList", description: "Task management", sortOrder: 6 },
-  { id: "payroll", name: "Payroll", href: "/dashboard/hans/payroll", icon: "DollarSign", description: "Payroll", sortOrder: 7 },
-  { id: "assets", name: "Assets", href: "/dashboard/assets", icon: "Package", description: "Assets", sortOrder: 8 },
-  { id: "inventory", name: "Inventory", href: "/dashboard/inventory", icon: "Boxes", description: "Inventory", sortOrder: 9 },
-  { id: "ocr", name: "OCR Scanner", href: "/dashboard/hans/ocr", icon: "ScanLine", description: "OCR", sortOrder: 10 },
-  { id: "marketplace", name: "Marketplace", href: "/dashboard/hans/marketplace", icon: "Store", description: "Marketplace", sortOrder: 11 },
-  { id: "maintenance", name: "Maintenance", href: "/dashboard/hans/maintenance", icon: "Wrench", description: "Maintenance", sortOrder: 12 },
-  { id: "time", name: "Time & Attendance", href: "/dashboard/time", icon: "Clock", description: "Time clock", sortOrder: 13 },
-  { id: "expenses", name: "Expenses", href: "/dashboard/expenses", icon: "DollarSign", description: "Expenses", sortOrder: 14 },
-  { id: "vehicles", name: "Vehicles", href: "/dashboard/vehicles", icon: "Car", description: "Vehicle log", sortOrder: 15 },
-  { id: "reports", name: "Reports", href: "/dashboard/hans/reports", icon: "BarChart3", description: "Reports", sortOrder: 16 },
-  { id: "settings", name: "Settings", href: "/dashboard/hans/settings", icon: "Settings", description: "Settings", sortOrder: 17 },
+  {
+    id: "overview",
+    name: "Overview",
+    href: "/dashboard",
+    icon: "Home",
+    description: "Dashboard home",
+    sortOrder: 0,
+  },
+  {
+    id: "approvals",
+    name: "Approvals",
+    href: "/dashboard/hans/approvals",
+    icon: "CheckSquare",
+    description: "Review requests",
+    sortOrder: 1,
+  },
+  {
+    id: "calendar",
+    name: "Calendar",
+    href: "/dashboard/hans/calendar",
+    icon: "Calendar",
+    description: "Calendar",
+    sortOrder: 2,
+  },
+  {
+    id: "documents",
+    name: "Documents",
+    href: "/dashboard/documents",
+    icon: "FileText",
+    description: "Documents",
+    sortOrder: 3,
+  },
+  {
+    id: "employees",
+    name: "HR Roster",
+    href: "/dashboard/hans/team",
+    icon: "Users",
+    description: "Baserow employees (in Team tab)",
+    sortOrder: 4,
+  },
+  {
+    id: "users",
+    name: "Team",
+    href: "/dashboard/hans/team",
+    icon: "Users",
+    description: "Platform users and HR roster",
+    sortOrder: 5,
+  },
+  {
+    id: "tasks",
+    name: "Tasks",
+    href: "/dashboard/tasks",
+    icon: "ClipboardList",
+    description: "Task management",
+    sortOrder: 6,
+  },
+  {
+    id: "payroll",
+    name: "Payroll",
+    href: "/dashboard/hans/payroll",
+    icon: "DollarSign",
+    description: "Payroll",
+    sortOrder: 7,
+  },
+  {
+    id: "assets",
+    name: "Assets",
+    href: "/dashboard/assets",
+    icon: "Package",
+    description: "Assets",
+    sortOrder: 8,
+  },
+  {
+    id: "inventory",
+    name: "Inventory",
+    href: "/dashboard/inventory",
+    icon: "Boxes",
+    description: "Inventory",
+    sortOrder: 9,
+  },
+  {
+    id: "ocr",
+    name: "OCR Scanner",
+    href: "/dashboard/hans/ocr",
+    icon: "ScanLine",
+    description: "OCR",
+    sortOrder: 10,
+  },
+  {
+    id: "marketplace",
+    name: "Marketplace",
+    href: "/dashboard/hans/marketplace",
+    icon: "Store",
+    description: "Marketplace",
+    sortOrder: 11,
+  },
+  {
+    id: "maintenance",
+    name: "Maintenance",
+    href: "/dashboard/hans/maintenance",
+    icon: "Wrench",
+    description: "Maintenance",
+    sortOrder: 12,
+  },
+  {
+    id: "time",
+    name: "Time & Attendance",
+    href: "/dashboard/time",
+    icon: "Clock",
+    description: "Time clock",
+    sortOrder: 13,
+  },
+  {
+    id: "expenses",
+    name: "Expenses",
+    href: "/dashboard/expenses",
+    icon: "DollarSign",
+    description: "Expenses",
+    sortOrder: 14,
+  },
+  {
+    id: "vehicles",
+    name: "Vehicles",
+    href: "/dashboard/vehicles",
+    icon: "Car",
+    description: "Vehicle log",
+    sortOrder: 15,
+  },
+  {
+    id: "reports",
+    name: "Reports",
+    href: "/dashboard/hans/reports",
+    icon: "BarChart3",
+    description: "Reports",
+    sortOrder: 16,
+  },
+  {
+    id: "settings",
+    name: "Settings",
+    href: "/dashboard/hans/settings",
+    icon: "Settings",
+    description: "Settings",
+    sortOrder: 17,
+  },
 ]
 
 const DEFAULT_ROLE_PAGES: Record<UserRole, string[]> = {
   admin: [
-    "overview", "approvals", "calendar", "documents", "employees", "users", "tasks", "payroll",
-    "assets", "inventory", "ocr", "marketplace", "maintenance", "time", "expenses", "vehicles", "reports", "settings",
+    "overview",
+    "approvals",
+    "calendar",
+    "documents",
+    "employees",
+    "users",
+    "tasks",
+    "payroll",
+    "assets",
+    "inventory",
+    "ocr",
+    "marketplace",
+    "maintenance",
+    "time",
+    "expenses",
+    "vehicles",
+    "reports",
+    "settings",
   ],
-  operator: [
-    "overview", "tasks", "time", "assets", "vehicles", "documents",
-  ],
-  employee: [
-    "overview", "tasks", "time", "inventory", "expenses", "vehicles", "documents",
-  ],
-  resident: [
-    "overview", "tasks", "documents",
-  ],
+  operator: ["overview", "tasks", "time", "assets", "vehicles", "documents"],
+  employee: ["overview", "tasks", "time", "inventory", "expenses", "vehicles", "documents"],
+  resident: ["overview", "tasks", "documents"],
 }
 
 function getDefaultPagesForRole(role: UserRole): string[] {
@@ -174,7 +310,11 @@ export async function getRolePageAssignments(role: UserRole): Promise<RolePageAs
     }))
   }
   await ensureDashboardConfigSchema()
-  const { rows } = await query<{ page_id: string; required_responsibility: string | null; sort_order: number }>(
+  const { rows } = await query<{
+    page_id: string
+    required_responsibility: string | null
+    sort_order: number
+  }>(
     `SELECT page_id, required_responsibility, sort_order FROM role_dashboard_pages WHERE role = $1 ORDER BY sort_order, page_id`,
     [role]
   )

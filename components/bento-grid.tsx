@@ -40,7 +40,7 @@ function SystemStatus() {
       {dots.map((active, i) => (
         <motion.div
           key={i}
-          className={`w-2 h-2 rounded-full ${active ? "bg-emerald-500" : "bg-zinc-700"}`}
+          className={`h-2 w-2 rounded-full ${active ? "bg-emerald-500" : "bg-zinc-700"}`}
           animate={active ? { scale: [1, 1.2, 1] } : {}}
           transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, delay: i * 0.2 }}
         />
@@ -64,14 +64,14 @@ function KeyboardCommand() {
     <div className="flex items-center gap-1">
       <motion.kbd
         animate={pressed ? { scale: 0.95, y: 2 } : { scale: 1, y: 0 }}
-        className="px-2 py-1 text-xs bg-zinc-800 border border-zinc-700 rounded text-zinc-300 font-mono"
+        className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 font-mono text-xs text-zinc-300"
       >
         ⌘
       </motion.kbd>
       <motion.kbd
         animate={pressed ? { scale: 0.95, y: 2 } : { scale: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="px-2 py-1 text-xs bg-zinc-800 border border-zinc-700 rounded text-zinc-300 font-mono"
+        className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 font-mono text-xs text-zinc-300"
       >
         K
       </motion.kbd>
@@ -97,7 +97,7 @@ function AnimatedChart() {
   }, "")
 
   return (
-    <svg ref={ref} viewBox="0 0 100 70" className="w-full h-24">
+    <svg ref={ref} viewBox="0 0 100 70" className="h-24 w-full">
       <defs>
         <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="rgb(255,255,255)" stopOpacity="0.2" />
@@ -106,8 +106,19 @@ function AnimatedChart() {
       </defs>
       {isInView && (
         <>
-          <path d={`${pathD} L 100 70 L 0 70 Z`} fill="url(#chartGradient)" className="opacity-50" />
-          <path d={pathD} fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" className="draw-line" />
+          <path
+            d={`${pathD} L 100 70 L 0 70 Z`}
+            fill="url(#chartGradient)"
+            className="opacity-50"
+          />
+          <path
+            d={pathD}
+            fill="none"
+            stroke="white"
+            strokeWidth="2"
+            strokeLinecap="round"
+            className="draw-line"
+          />
         </>
       )}
     </svg>
@@ -118,30 +129,31 @@ export function BentoGrid() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
-  const [metricValues] = useState(
-    () => ["CPU", "Memory", "Network", "Storage"].map((name) => ({
+  const [metricValues] = useState(() =>
+    ["CPU", "Memory", "Network", "Storage"].map((name) => ({
       name,
       value: Math.floor(Math.random() * 40 + 60),
     }))
   )
 
   return (
-    <section id="features" className="py-24 px-4">
-      <div className="max-w-6xl mx-auto">
+    <section id="features" className="px-4 py-24">
+      <div className="mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="mb-16 text-center"
         >
           <h2
-            className="text-3xl sm:text-4xl font-bold text-white mb-4"
+            className="mb-4 text-3xl font-bold text-white sm:text-4xl"
             style={{ fontFamily: "var(--font-inter)" }}
           >
             Everything you need to ship
           </h2>
-          <p className="text-zinc-400 max-w-2xl mx-auto">
-            Built for modern teams. Powerful features that help you build, deploy, and scale faster than ever.
+          <p className="mx-auto max-w-2xl text-zinc-400">
+            Built for modern teams. Powerful features that help you build, deploy, and scale faster
+            than ever.
           </p>
         </motion.div>
 
@@ -150,21 +162,22 @@ export function BentoGrid() {
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
           {/* Large card - System Status */}
           <motion.div
             variants={itemVariants}
-            className="md:col-span-2 group relative p-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-600 hover:scale-[1.02] transition-all duration-300 overflow-hidden"
+            className="group relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-6 transition-all duration-300 hover:scale-[1.02] hover:border-zinc-600 md:col-span-2"
           >
-            <div className="flex items-start justify-between mb-8">
+            <div className="mb-8 flex items-start justify-between">
               <div>
-                <div className="p-2 rounded-lg bg-zinc-800 w-fit mb-4">
-                  <Activity className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
+                <div className="mb-4 w-fit rounded-lg bg-zinc-800 p-2">
+                  <Activity className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">Real-time Monitoring</h3>
-                <p className="text-zinc-400 text-sm">
-                  Track system health, performance metrics, and alerts in real-time across all your deployments.
+                <h3 className="mb-2 text-xl font-semibold text-white">Real-time Monitoring</h3>
+                <p className="text-sm text-zinc-400">
+                  Track system health, performance metrics, and alerts in real-time across all your
+                  deployments.
                 </p>
               </div>
               <SystemStatus />
@@ -172,7 +185,7 @@ export function BentoGrid() {
             <div className="grid grid-cols-4 gap-4">
               {metricValues.map(({ name, value }) => (
                 <div key={name} className="text-center">
-                  <div className="text-2xl font-bold text-white mb-1">{value}%</div>
+                  <div className="mb-1 text-2xl font-bold text-white">{value}%</div>
                   <div className="text-xs text-zinc-500">{name}</div>
                 </div>
               ))}
@@ -182,42 +195,46 @@ export function BentoGrid() {
           {/* Command Palette */}
           <motion.div
             variants={itemVariants}
-            className="group relative p-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-600 hover:scale-[1.02] transition-all duration-300"
+            className="group relative rounded-2xl border border-zinc-800 bg-zinc-900 p-6 transition-all duration-300 hover:scale-[1.02] hover:border-zinc-600"
           >
-            <div className="p-2 rounded-lg bg-zinc-800 w-fit mb-4">
-              <Command className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
+            <div className="mb-4 w-fit rounded-lg bg-zinc-800 p-2">
+              <Command className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Command Palette</h3>
-            <p className="text-zinc-400 text-sm mb-6">Navigate anywhere instantly with powerful keyboard shortcuts.</p>
+            <h3 className="mb-2 text-lg font-semibold text-white">Command Palette</h3>
+            <p className="mb-6 text-sm text-zinc-400">
+              Navigate anywhere instantly with powerful keyboard shortcuts.
+            </p>
             <KeyboardCommand />
           </motion.div>
 
           {/* Analytics */}
           <motion.div
             variants={itemVariants}
-            className="group relative p-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-600 hover:scale-[1.02] transition-all duration-300"
+            className="group relative rounded-2xl border border-zinc-800 bg-zinc-900 p-6 transition-all duration-300 hover:scale-[1.02] hover:border-zinc-600"
           >
-            <div className="p-2 rounded-lg bg-zinc-800 w-fit mb-4">
-              <BarChart3 className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
+            <div className="mb-4 w-fit rounded-lg bg-zinc-800 p-2">
+              <BarChart3 className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Analytics</h3>
-            <p className="text-zinc-400 text-sm mb-4">Deep insights into your application performance.</p>
+            <h3 className="mb-2 text-lg font-semibold text-white">Analytics</h3>
+            <p className="mb-4 text-sm text-zinc-400">
+              Deep insights into your application performance.
+            </p>
             <AnimatedChart />
           </motion.div>
 
           {/* Performance */}
           <motion.div
             variants={itemVariants}
-            className="group relative p-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-600 hover:scale-[1.02] transition-all duration-300"
+            className="group relative rounded-2xl border border-zinc-800 bg-zinc-900 p-6 transition-all duration-300 hover:scale-[1.02] hover:border-zinc-600"
           >
-            <div className="p-2 rounded-lg bg-zinc-800 w-fit mb-4">
-              <Zap className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
+            <div className="mb-4 w-fit rounded-lg bg-zinc-800 p-2">
+              <Zap className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Blazing Fast</h3>
-            <p className="text-zinc-400 text-sm mb-4">
+            <h3 className="mb-2 text-lg font-semibold text-white">Blazing Fast</h3>
+            <p className="mb-4 text-sm text-zinc-400">
               Edge-optimized infrastructure for sub-50ms response times globally.
             </p>
-            <div className="flex items-center gap-2 text-emerald-500 text-sm">
+            <div className="flex items-center gap-2 text-sm text-emerald-500">
               <span className="font-mono">~32ms</span>
               <span className="text-zinc-500">avg response</span>
             </div>
@@ -226,17 +243,19 @@ export function BentoGrid() {
           {/* Security */}
           <motion.div
             variants={itemVariants}
-            className="group relative p-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-600 hover:scale-[1.02] transition-all duration-300"
+            className="group relative rounded-2xl border border-zinc-800 bg-zinc-900 p-6 transition-all duration-300 hover:scale-[1.02] hover:border-zinc-600"
           >
-            <div className="p-2 rounded-lg bg-zinc-800 w-fit mb-4">
-              <Shield className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
+            <div className="mb-4 w-fit rounded-lg bg-zinc-800 p-2">
+              <Shield className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Enterprise Security</h3>
-            <p className="text-zinc-400 text-sm mb-4">SOC2 compliant with end-to-end encryption and SSO support.</p>
+            <h3 className="mb-2 text-lg font-semibold text-white">Enterprise Security</h3>
+            <p className="mb-4 text-sm text-zinc-400">
+              SOC2 compliant with end-to-end encryption and SSO support.
+            </p>
             <div className="flex items-center gap-2">
-              <span className="px-2 py-1 text-xs bg-zinc-800 rounded text-zinc-400">SOC2</span>
-              <span className="px-2 py-1 text-xs bg-zinc-800 rounded text-zinc-400">GDPR</span>
-              <span className="px-2 py-1 text-xs bg-zinc-800 rounded text-zinc-400">HIPAA</span>
+              <span className="rounded bg-zinc-800 px-2 py-1 text-xs text-zinc-400">SOC2</span>
+              <span className="rounded bg-zinc-800 px-2 py-1 text-xs text-zinc-400">GDPR</span>
+              <span className="rounded bg-zinc-800 px-2 py-1 text-xs text-zinc-400">HIPAA</span>
             </div>
           </motion.div>
         </motion.div>

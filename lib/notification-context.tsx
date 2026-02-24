@@ -149,7 +149,7 @@ const initialNotifications: Notification[] = [
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>(() => {
-    if (typeof window === 'undefined') return initialNotifications
+    if (typeof window === "undefined") return initialNotifications
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       try {
@@ -169,20 +169,21 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
   }, [notifications])
 
-  const addNotification = useCallback((notification: Omit<Notification, "id" | "timestamp" | "read">) => {
-    const newNotification: Notification = {
-      ...notification,
-      id: Date.now().toString(),
-      timestamp: new Date(),
-      read: false,
-    }
-    setNotifications((prev) => [newNotification, ...prev])
-  }, [])
+  const addNotification = useCallback(
+    (notification: Omit<Notification, "id" | "timestamp" | "read">) => {
+      const newNotification: Notification = {
+        ...notification,
+        id: Date.now().toString(),
+        timestamp: new Date(),
+        read: false,
+      }
+      setNotifications((prev) => [newNotification, ...prev])
+    },
+    []
+  )
 
   const markAsRead = useCallback((id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    )
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
   }, [])
 
   const markAllAsRead = useCallback(() => {

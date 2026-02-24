@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React, mobile-first and desktop |
-| Backend | Baserow, Azure Functions (AI, recipe search, OCR) |
-| Storage | Azure Blob (receipts/photos) |
+| Layer    | Technology                                        |
+| -------- | ------------------------------------------------- |
+| Frontend | Next.js/React, mobile-first and desktop           |
+| Backend  | Baserow, Azure Functions (AI, recipe search, OCR) |
+| Storage  | Azure Blob (receipts/photos)                      |
 
 ---
 
@@ -112,24 +112,24 @@ Centralize and gamify personal and group kitchen logistics so participation is r
 
 ## Measurable Objectives
 
-| Objective | Target |
-|-----------|--------|
-| Shelves claimed within 4 weeks | ≥80% |
-| Meal plans inclusive of all resident dietary needs | ≥90% |
-| Social meals/household/day logged | ≥1 |
-| AI recipes allergy-safe for all invitees | ≥95% |
-| Shelf status badges adopted for scanned inventory | 100% |
+| Objective                                          | Target |
+| -------------------------------------------------- | ------ |
+| Shelves claimed within 4 weeks                     | ≥80%   |
+| Meal plans inclusive of all resident dietary needs | ≥90%   |
+| Social meals/household/day logged                  | ≥1     |
+| AI recipes allergy-safe for all invitees           | ≥95%   |
+| Shelf status badges adopted for scanned inventory  | 100%   |
 
 ---
 
 ## Stakeholders
 
-| Stakeholder | Role | Responsibilities |
-|-------------|------|------------------|
-| Residents | User | Claim shelves, plan/attend meals, feedback |
-| Kitchen Admin | Superuser | Approve/mediate/resolve disputes |
-| Shopping Leader | User/lead role | Organize shopping, meal logistics |
-| Support/Tech Team | System/Infra | APIs, AI, OCR, feedback, allergy sync |
+| Stakeholder       | Role           | Responsibilities                           |
+| ----------------- | -------------- | ------------------------------------------ |
+| Residents         | User           | Claim shelves, plan/attend meals, feedback |
+| Kitchen Admin     | Superuser      | Approve/mediate/resolve disputes           |
+| Shopping Leader   | User/lead role | Organize shopping, meal logistics          |
+| Support/Tech Team | System/Infra   | APIs, AI, OCR, feedback, allergy sync      |
 
 ---
 
@@ -281,13 +281,13 @@ Centralize and gamify personal and group kitchen logistics so participation is r
 
 ## Data Models
 
-| Entity | Fields | Notes/Edge Handling |
-|--------|--------|---------------------|
-| Shelf | ID, Label, Owner, QR, Items[*], StatusBadge | Merges, claim logging, live badge state |
-| Item | ID, Name, Barcode, AllergyTag[], Expiry | Duplicate/unrecognized, badge updates |
-| Resident | ID, AllergyProfile, Meals[*] | Expired/incomplete profile warning |
-| Meal Event | Participants[*], AIRecipe, Chat, Feedback | Timeout, critical pin, allergy comment pin |
-| ShoppingList | Items[*], EditorLog, Chat, Comments | Real-time, audit logged, event-pushed |
+| Entity       | Fields                                      | Notes/Edge Handling                        |
+| ------------ | ------------------------------------------- | ------------------------------------------ |
+| Shelf        | ID, Label, Owner, QR, Items[*], StatusBadge | Merges, claim logging, live badge state    |
+| Item         | ID, Name, Barcode, AllergyTag[], Expiry     | Duplicate/unrecognized, badge updates      |
+| Resident     | ID, AllergyProfile, Meals[*]                | Expired/incomplete profile warning         |
+| Meal Event   | Participants[*], AIRecipe, Chat, Feedback   | Timeout, critical pin, allergy comment pin |
+| ShoppingList | Items[*], EditorLog, Chat, Comments         | Real-time, audit logged, event-pushed      |
 
 ---
 
@@ -304,20 +304,20 @@ Centralize and gamify personal and group kitchen logistics so participation is r
 
 ## Timeline & Milestones
 
-| Phase | Scope | Duration |
-|-------|-------|----------|
-| 1 | Core badge UX/logic, shelf real-time updates | Weeks 1–2 |
-| 2 | Group chat build, API event push, shopping list live edits | Weeks 2–4 |
-| 3 | Analytics pipeline, shelf heatmap/favorites, incident dashboards | Weeks 4–6 |
+| Phase | Scope                                                            | Duration  |
+| ----- | ---------------------------------------------------------------- | --------- |
+| 1     | Core badge UX/logic, shelf real-time updates                     | Weeks 1–2 |
+| 2     | Group chat build, API event push, shopping list live edits       | Weeks 2–4 |
+| 3     | Analytics pipeline, shelf heatmap/favorites, incident dashboards | Weeks 4–6 |
 
 ---
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| Allergy/medical edge | Block actions on incomplete/expired allergy data. Hard fail/alert for any unclaimed or expiring shelf items tied to allergies. |
-| Real-time performance | Robust websocket/event handling and fallback UX for disconnects. |
+| Risk                  | Mitigation                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Allergy/medical edge  | Block actions on incomplete/expired allergy data. Hard fail/alert for any unclaimed or expiring shelf items tied to allergies. |
+| Real-time performance | Robust websocket/event handling and fallback UX for disconnects.                                                               |
 
 ---
 

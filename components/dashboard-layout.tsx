@@ -12,13 +12,7 @@ import { ErrorBoundary } from "@/components/error-boundary"
 import { SimpleGridBackground } from "@/components/grid-room-background"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { OnboardingTutorial } from "@/components/onboarding-tutorial"
-import {
-  LogOut,
-  Menu,
-  X,
-  ChevronDown,
-  ChevronRight,
-} from "lucide-react"
+import { LogOut, Menu, X, ChevronDown, ChevronRight } from "lucide-react"
 import { UserProfileDropdown } from "@/components/user-profile-dropdown"
 import { getNavForPersona, isCategory } from "@/lib/nav-config"
 import type { NavEntry } from "@/lib/nav-config"
@@ -82,8 +76,8 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
   // Show loading while checking auth
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
       </div>
     )
   }
@@ -91,7 +85,9 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
   const isViewingOwnDashboard = user?.id === persona
   const navEntries = getNavForPersona(
     persona,
-    isViewingOwnDashboard ? (user?.role as "admin" | "operator" | "employee" | "resident") : undefined,
+    isViewingOwnDashboard
+      ? (user?.role as "admin" | "operator" | "employee" | "resident")
+      : undefined,
     isViewingOwnDashboard ? user?.responsibilities : undefined
   )
   const personaInfo = PERSONA_INFO[persona]
@@ -108,52 +104,52 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] relative">
+    <div className="relative min-h-screen bg-[#0a0a0f]">
       {/* Grid Background */}
       <SimpleGridBackground />
-      
+
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`
-          fixed top-0 left-0 z-50 h-full w-64 bg-[#0d0d12] border-r border-white/10
-          transform transition-transform duration-300 lg:translate-x-0
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        `}
+        className={`fixed top-0 left-0 z-50 h-full w-64 transform border-r border-white/10 bg-[#0d0d12] transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} `}
       >
         {/* Logo */}
-        <div className="p-6 border-b border-white/10">
+        <div className="border-b border-white/10 p-6">
           <Link href="/" className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl bg-linear-to-br ${colorClasses[personaInfo.color as keyof typeof colorClasses]} flex items-center justify-center`}>
-              <span className="text-white font-bold text-lg">HV</span>
+            <div
+              className={`h-10 w-10 rounded-xl bg-linear-to-br ${colorClasses[personaInfo.color as keyof typeof colorClasses]} flex items-center justify-center`}
+            >
+              <span className="text-lg font-bold text-white">HV</span>
             </div>
             <div>
-              <h1 className="text-white font-semibold text-sm">House of Veritas</h1>
-              <p className="text-white/50 text-xs">Dashboard</p>
+              <h1 className="text-sm font-semibold text-white">House of Veritas</h1>
+              <p className="text-xs text-white/50">Dashboard</p>
             </div>
           </Link>
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100%-180px)]">
+        <nav className="h-[calc(100%-180px)] space-y-1 overflow-y-auto p-4">
           {navEntries.map((entry, idx) => {
             if (isCategory(entry)) {
               const hasActive = entry.items.some((i) => pathname === i.href)
               return (
                 <Collapsible key={entry.category} defaultOpen={hasActive}>
-                  <CollapsibleTrigger className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-all group">
-                    <ChevronRight className="w-5 h-5 transition-transform group-data-[state=open]:rotate-90" />
-                    <span className="text-sm font-medium uppercase tracking-wider">{entry.category}</span>
+                  <CollapsibleTrigger className="group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-white/60 transition-all hover:bg-white/5 hover:text-white">
+                    <ChevronRight className="h-5 w-5 transition-transform group-data-[state=open]:rotate-90" />
+                    <span className="text-sm font-medium tracking-wider uppercase">
+                      {entry.category}
+                    </span>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
-                    <div className="ml-4 mt-1 space-y-1 border-l border-white/10 pl-3">
+                    <div className="mt-1 ml-4 space-y-1 border-l border-white/10 pl-3">
                       {entry.items.map((item) => {
                         const isActive = pathname === item.href
                         const Icon = item.icon
@@ -162,15 +158,13 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
                             key={item.href}
                             href={item.href}
                             onClick={() => setSidebarOpen(false)}
-                            className={`
-                              flex items-center gap-3 px-3 py-2 rounded-lg transition-all
-                              ${isActive
+                            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+                              isActive
                                 ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
-                                : "text-white/60 hover:text-white hover:bg-white/5"
-                              }
-                            `}
+                                : "text-white/60 hover:bg-white/5 hover:text-white"
+                            } `}
                           >
-                            <Icon className="w-4 h-4" />
+                            <Icon className="h-4 w-4" />
                             <span className="text-sm">{item.name}</span>
                           </Link>
                         )
@@ -187,15 +181,13 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
                 key={entry.href}
                 href={entry.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`
-                  flex items-center gap-3 px-4 py-3 rounded-xl transition-all
-                  ${isActive
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
+                  isActive
                     ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
-                    : "text-white/60 hover:text-white hover:bg-white/5"
-                  }
-                `}
+                    : "text-white/60 hover:bg-white/5 hover:text-white"
+                } `}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="h-5 w-5" />
                 <span className="text-sm font-medium">{entry.name}</span>
               </Link>
             )
@@ -203,15 +195,15 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
 
           {/* Admin: View Other Dashboards */}
           {user?.id === "hans" && persona === "hans" && (
-            <div className="pt-4 mt-4 border-t border-white/10">
-              <p className="px-4 text-white/40 text-xs uppercase tracking-wider mb-2">View Team</p>
+            <div className="mt-4 border-t border-white/10 pt-4">
+              <p className="mb-2 px-4 text-xs tracking-wider text-white/40 uppercase">View Team</p>
               {["charl", "lucky", "irma"].map((userId) => {
                 const info = PERSONA_INFO[userId as keyof typeof PERSONA_INFO]
                 return (
                   <Link
                     key={userId}
                     href={`/dashboard/${userId}`}
-                    className="flex items-center gap-3 px-4 py-2 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-all"
+                    className="flex items-center gap-3 rounded-xl px-4 py-2 text-white/60 transition-all hover:bg-white/5 hover:text-white"
                   >
                     <span className="text-lg">{info.icon}</span>
                     <span className="text-sm">{info.name}</span>
@@ -223,10 +215,19 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
         </nav>
 
         {/* User Profile */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
+        <div className="absolute right-0 bottom-0 left-0 border-t border-white/10 p-4">
           <div className="rounded-xl bg-white/5 p-2">
             <UserProfileDropdown
-              user={{ id: user?.id ?? persona, name: user?.name ?? "", email: user?.email ?? "", phone: user?.phone, role: user?.role ?? "", color: (user as { color?: string })?.color, icon: (user as { icon?: string })?.icon, photoUrl: (user as { photoUrl?: string })?.photoUrl }}
+              user={{
+                id: user?.id ?? persona,
+                name: user?.name ?? "",
+                email: user?.email ?? "",
+                phone: user?.phone,
+                role: user?.role ?? "",
+                color: (user as { color?: string })?.color,
+                icon: (user as { icon?: string })?.icon,
+                photoUrl: (user as { photoUrl?: string })?.photoUrl,
+              }}
               personaInfo={personaInfo}
               onLogout={handleLogout}
               onRepeatTutorial={() => setShowTutorial(true)}
@@ -239,22 +240,22 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
       {/* Main Content */}
       <div className="lg:pl-64">
         {/* Top Bar */}
-        <header className="sticky top-0 z-30 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/10">
+        <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0a0a0f]/80 backdrop-blur-xl">
           <div className="flex items-center justify-between px-6 py-4">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+              className="rounded-lg p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white lg:hidden"
             >
-              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
 
             {/* Page Title - Hidden on mobile */}
             <div className="hidden lg:block">
-              <h2 className="text-white font-semibold">
+              <h2 className="font-semibold text-white">
                 Welcome back, {user?.name || personaInfo.name}
               </h2>
-              <p className="text-white/50 text-sm">
+              <p className="text-sm text-white/50">
                 {new Date().toLocaleDateString("en-ZA", {
                   weekday: "long",
                   year: "numeric",
@@ -268,14 +269,23 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
             <div className="flex items-center gap-4">
               <ConnectionStatus />
               <RealTimeIndicator />
-              
+
               {/* Notifications */}
               <NotificationPanel />
 
               {/* User Profile Dropdown */}
               <div className="hidden md:block">
                 <UserProfileDropdown
-                  user={{ id: user?.id ?? persona, name: user?.name ?? "", email: user?.email ?? "", phone: user?.phone, role: user?.role ?? "", color: (user as { color?: string })?.color, icon: (user as { icon?: string })?.icon, photoUrl: (user as { photoUrl?: string })?.photoUrl }}
+                  user={{
+                    id: user?.id ?? persona,
+                    name: user?.name ?? "",
+                    email: user?.email ?? "",
+                    phone: user?.phone,
+                    role: user?.role ?? "",
+                    color: (user as { color?: string })?.color,
+                    icon: (user as { icon?: string })?.icon,
+                    photoUrl: (user as { photoUrl?: string })?.photoUrl,
+                  }}
                   personaInfo={personaInfo}
                   onLogout={handleLogout}
                   onRepeatTutorial={() => setShowTutorial(true)}
@@ -286,19 +296,22 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
         </header>
 
         <main className="p-6">
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
+          <ErrorBoundary>{children}</ErrorBoundary>
         </main>
 
         {showTutorial && user && (
           <OnboardingTutorial
             steps={[
-              { title: "Welcome to your dashboard", body: "This is your personal workspace. Use the sidebar to navigate." },
-              ...getFlatNavItems(navEntries).slice(0, 5).map((i) => ({
-                title: i.name,
-                body: `Use this to access ${i.name.toLowerCase()}.`,
-              })),
+              {
+                title: "Welcome to your dashboard",
+                body: "This is your personal workspace. Use the sidebar to navigate.",
+              },
+              ...getFlatNavItems(navEntries)
+                .slice(0, 5)
+                .map((i) => ({
+                  title: i.name,
+                  body: `Use this to access ${i.name.toLowerCase()}.`,
+                })),
               { title: "You're all set!", body: "Explore the platform at your own pace." },
             ]}
             onComplete={async () => {

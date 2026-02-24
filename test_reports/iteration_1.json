@@ -3,26 +3,35 @@
   "backend_issues": {
     "critical": [],
     "minor": [
-      {"endpoint": "/api/stats", "issue": "Returns 404 - some dashboard stats may be hardcoded", "priority": "LOW"}
+      {
+        "endpoint": "/api/stats",
+        "issue": "Returns 404 - some dashboard stats may be hardcoded",
+        "priority": "LOW"
+      }
     ]
   },
   "frontend_issues": {
     "ui_bugs": [],
     "integration_issues": [],
     "design_issues": [
-      {"screen": "All dashboards", "issues": ["Console shows 404 for /_vercel/insights/script.js - Vercel analytics not configured (expected in non-Vercel environment)"]}
+      {
+        "screen": "All dashboards",
+        "issues": [
+          "Console shows 404 for /_vercel/insights/script.js - Vercel analytics not configured (expected in non-Vercel environment)"
+        ]
+      }
     ]
   },
   "test_report_links": ["/app/test_reports/iteration_1.json"],
   "action_items": [],
   "critical_code_review_comments": [],
   "updated_files": [],
-  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "success_rate": { "backend": "100%", "frontend": "100%" },
   "test_credentials": {
-    "hans": {"email": "hans@houseofv.com", "password": "hans123", "role": "admin"},
-    "charl": {"email": "charl@houseofv.com", "password": "charl123"},
-    "lucky": {"email": "lucky@houseofv.com", "password": "lucky123"},
-    "irma": {"email": "irma@houseofv.com", "password": "irma123"}
+    "hans": { "email": "hans@houseofv.com", "password": "hans123", "role": "admin" },
+    "charl": { "email": "charl@houseofv.com", "password": "charl123" },
+    "lucky": { "email": "lucky@houseofv.com", "password": "lucky123" },
+    "irma": { "email": "irma@houseofv.com", "password": "irma123" }
   },
   "seed_data_creation": "Initial notifications seeded via notification-context.tsx",
   "retest_needed": false,

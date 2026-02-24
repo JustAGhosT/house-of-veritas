@@ -106,11 +106,11 @@ network ─────────────┬──────────
 
 ## DNS Configuration
 
-| Record | Type | Target | Zone |
-| ------ | ---- | ------ | ---- |
-| `docs.nexamesh.ai` | A | Application Gateway IP | `nl-prod-nexamesh-rg-san` |
-| `ops.nexamesh.ai` | A | Application Gateway IP | `nl-prod-nexamesh-rg-san` |
-| `nexamesh.ai` | A | Application Gateway IP | `nl-prod-nexamesh-rg-san` |
+| Record             | Type | Target                 | Zone                      |
+| ------------------ | ---- | ---------------------- | ------------------------- |
+| `docs.nexamesh.ai` | A    | Application Gateway IP | `nl-prod-nexamesh-rg-san` |
+| `ops.nexamesh.ai`  | A    | Application Gateway IP | `nl-prod-nexamesh-rg-san` |
+| `nexamesh.ai`      | A    | Application Gateway IP | `nl-prod-nexamesh-rg-san` |
 
 ## Traffic Flow
 
@@ -135,12 +135,12 @@ Document Intelligence (nl-prod-hov-di-san)
 
 ## Cost Estimate (Monthly)
 
-| Service | SKU | Est. Cost (ZAR) |
-| ------- | --- | --------------- |
-| PostgreSQL Flexible | B_Standard_B1ms | R400 |
-| Container Instances (x2) | 2 CPU / 4 GB each | R300 |
-| Application Gateway | WAF_v2 (1 unit) | R150 |
-| Storage Account | Standard GRS | R50 |
-| Key Vault + DNS | Standard | R50 |
-| Document Intelligence | S0 | R0 (free tier for low volume) |
-| **Total** | | **~R950** |
+| Service                  | SKU               | Est. Cost (ZAR)               |
+| ------------------------ | ----------------- | ----------------------------- |
+| PostgreSQL Flexible      | B_Standard_B1ms   | R400                          |
+| Container Instances (x2) | 2 CPU / 4 GB each | R300                          |
+| Application Gateway      | WAF_v2 (1 unit)   | R150                          |
+| Storage Account          | Standard GRS      | R50                           |
+| Key Vault + DNS          | Standard          | R50                           |
+| Document Intelligence    | S0                | R0 (free tier for low volume) |
+| **Total**                |                   | **~R950**                     |

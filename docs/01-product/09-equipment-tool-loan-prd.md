@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (asset search/list; mobile scan/image intake; feedback/leaderboards) |
-| Backend | Baserow (asset/loan/feedback DB), Azure Functions (overdue logic; analytics; notification API) |
-| Storage | Azure Blob (asset photos, scan history, audit logs) |
+| Layer    | Technology                                                                                     |
+| -------- | ---------------------------------------------------------------------------------------------- |
+| Frontend | Next.js/React (asset search/list; mobile scan/image intake; feedback/leaderboards)             |
+| Backend  | Baserow (asset/loan/feedback DB), Azure Functions (overdue logic; analytics; notification API) |
+| Storage  | Azure Blob (asset photos, scan history, audit logs)                                            |
 
 ---
 
@@ -100,13 +100,13 @@ Shared assets are essential in dense residential/communal settings. Mobile-first
 
 ### Business Goals
 
-| Objective | Target Metric | Expected Revenue Impact |
-|-----------|---------------|-------------------------|
-| Reduce loss/damage | <5% monthly asset loss | Asset write-offs drop; reduced replacement spend |
-| Maximize shared asset usage | 80%+ checked in/out per month | ROI on communal inventory investments |
-| Promote responsibility & community engagement | 90%+ self-service actions | Higher resident retention |
-| Accelerate dispute resolution | 100% traceable audits | Fewer escalations and claims |
-| Prove operational ROI | Admin hours reduced by 25% | Lowered staff costs, showcase to potential tenants |
+| Objective                                     | Target Metric                 | Expected Revenue Impact                            |
+| --------------------------------------------- | ----------------------------- | -------------------------------------------------- |
+| Reduce loss/damage                            | <5% monthly asset loss        | Asset write-offs drop; reduced replacement spend   |
+| Maximize shared asset usage                   | 80%+ checked in/out per month | ROI on communal inventory investments              |
+| Promote responsibility & community engagement | 90%+ self-service actions     | Higher resident retention                          |
+| Accelerate dispute resolution                 | 100% traceable audits         | Fewer escalations and claims                       |
+| Prove operational ROI                         | Admin hours reduced by 25%    | Lowered staff costs, showcase to potential tenants |
 
 ### User Goals
 
@@ -126,24 +126,24 @@ Shared assets are essential in dense residential/communal settings. Mobile-first
 
 ## Measurable Objectives
 
-| Objective | Baseline | Target | Timeline |
-|-----------|----------|--------|----------|
-| Monthly check-in/out compliance | 45% | ≥80% | 6 months |
-| Overdue/loss rate | ~12% | <5% | 4 months |
-| Resident self-service | 50% | ≥90% | 3 months |
-| Full audit logging | Partial | 100% assets | At launch |
+| Objective                       | Baseline | Target      | Timeline  |
+| ------------------------------- | -------- | ----------- | --------- |
+| Monthly check-in/out compliance | 45%      | ≥80%        | 6 months  |
+| Overdue/loss rate               | ~12%     | <5%         | 4 months  |
+| Resident self-service           | 50%      | ≥90%        | 3 months  |
+| Full audit logging              | Partial  | 100% assets | At launch |
 
 ---
 
 ## Stakeholders
 
-| Stakeholder | Role/Responsibility |
-|-------------|---------------------|
-| Residents | Book, check-out/in, review, receive gamification/alerts |
-| Workshop/Admin | Asset mapping, maintenance, repair, escalation, approval flows |
-| Maintenance Staff | Repair, mark ready/out of order, action logs |
-| Owner/Analytics | Monitor usage, run audits, approve item flows |
-| Gamification Lead | Curate recognition schemes, manage contests/leaderboards |
+| Stakeholder       | Role/Responsibility                                            |
+| ----------------- | -------------------------------------------------------------- |
+| Residents         | Book, check-out/in, review, receive gamification/alerts        |
+| Workshop/Admin    | Asset mapping, maintenance, repair, escalation, approval flows |
+| Maintenance Staff | Repair, mark ready/out of order, action logs                   |
+| Owner/Analytics   | Monitor usage, run audits, approve item flows                  |
+| Gamification Lead | Curate recognition schemes, manage contests/leaderboards       |
 
 ---
 
@@ -249,41 +249,41 @@ Reserve (optional) → Scan/Check out → Use → Return/Scan → Feedback
 
 ## Functional Requirements
 
-| Requirement | Phase | Priority | Notes |
-|-------------|-------|----------|-------|
-| Asset registry: ID, photo, tag, location | 1 | P0 | Baserow as source of truth |
-| Reservation, waitlist, real-time status | 1/2 | P0 | Includes live ETA, batch actions |
-| Check-out/in with scan/photo | 1 | P0 | Mobile-first flow, fallback to ID |
-| Usage timer, overdue detection | 1/2 | P0 | Azure logic for reminders |
-| Notifications: push/email/SMS | 1/2 | P1 | Adjustable per user preference |
-| Usage feedback; star/comment/post-return | 2 | P1 | Inline with return flow |
-| Gamification: points, streaks, leaderboards | 2 | P1 | Opt-in for visibility |
-| Admin console: audit log, repair/lock/reset | 2 | P1 | Drill-down by asset/user status |
-| Self-onboarding for new/missing assets | 3 | P2 | Admin approval required |
+| Requirement                                 | Phase | Priority | Notes                             |
+| ------------------------------------------- | ----- | -------- | --------------------------------- |
+| Asset registry: ID, photo, tag, location    | 1     | P0       | Baserow as source of truth        |
+| Reservation, waitlist, real-time status     | 1/2   | P0       | Includes live ETA, batch actions  |
+| Check-out/in with scan/photo                | 1     | P0       | Mobile-first flow, fallback to ID |
+| Usage timer, overdue detection              | 1/2   | P0       | Azure logic for reminders         |
+| Notifications: push/email/SMS               | 1/2   | P1       | Adjustable per user preference    |
+| Usage feedback; star/comment/post-return    | 2     | P1       | Inline with return flow           |
+| Gamification: points, streaks, leaderboards | 2     | P1       | Opt-in for visibility             |
+| Admin console: audit log, repair/lock/reset | 2     | P1       | Drill-down by asset/user status   |
+| Self-onboarding for new/missing assets      | 3     | P2       | Admin approval required           |
 
 ---
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Dashboard refresh | Auto-refresh ≤30s |
-| Scan-to-action latency | ≤5s |
-| Mobile | Responsive; offline scan/caching |
-| Concurrency | Support concurrent edits (multi-user) |
-| Scan reliability | ≥99% photo/tag scan in field conditions |
-| Audit retention | 3-year audit/event retention |
-| Accessibility | Full ARIA/WCAG 2.1 AA on all screens |
+| Requirement            | Target                                  |
+| ---------------------- | --------------------------------------- |
+| Dashboard refresh      | Auto-refresh ≤30s                       |
+| Scan-to-action latency | ≤5s                                     |
+| Mobile                 | Responsive; offline scan/caching        |
+| Concurrency            | Support concurrent edits (multi-user)   |
+| Scan reliability       | ≥99% photo/tag scan in field conditions |
+| Audit retention        | 3-year audit/event retention            |
+| Accessibility          | Full ARIA/WCAG 2.1 AA on all screens    |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Components | Responsibilities |
-|-------|-------------|------------------|
+| Layer    | Components                              | Responsibilities                                    |
+| -------- | --------------------------------------- | --------------------------------------------------- |
 | Frontend | React/Next.js, mobile scan, feedback UI | User flows, status views, scan/image, audit display |
-| Backend | Baserow, Azure Functions | Asset/loan DB, workflow logic, timing, analytics |
-| Storage | Blob/Image store, gamification cache | Asset photos, feedback, action history, recognition |
+| Backend  | Baserow, Azure Functions                | Asset/loan DB, workflow logic, timing, analytics    |
+| Storage  | Blob/Image store, gamification cache    | Asset photos, feedback, action history, recognition |
 
 ---
 
@@ -291,17 +291,17 @@ Reserve (optional) → Scan/Check out → Use → Return/Scan → Feedback
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/asset | GET | List/search assets |
-| /api/asset | POST | Add new asset (admin/self-onboard) |
-| /api/asset/{id} | PATCH | Update asset status, repair flag, lock/unlock |
-| /api/loan | POST | Create new loan/check-out/in/reserve |
-| /api/loan | GET | Query loan status/history |
-| /api/feedback | POST | Add rating/comment on return |
-| /api/feedback | GET | Aggregate per asset/user |
-| /api/notify | POST | Send notification (reminder, overdue, escalation) |
-| /api/points/leaderboard | GET | Pull gamified rankings |
+| Endpoint                | Method | Purpose                                           |
+| ----------------------- | ------ | ------------------------------------------------- |
+| /api/asset              | GET    | List/search assets                                |
+| /api/asset              | POST   | Add new asset (admin/self-onboard)                |
+| /api/asset/{id}         | PATCH  | Update asset status, repair flag, lock/unlock     |
+| /api/loan               | POST   | Create new loan/check-out/in/reserve              |
+| /api/loan               | GET    | Query loan status/history                         |
+| /api/feedback           | POST   | Add rating/comment on return                      |
+| /api/feedback           | GET    | Aggregate per asset/user                          |
+| /api/notify             | POST   | Send notification (reminder, overdue, escalation) |
+| /api/points/leaderboard | GET    | Pull gamified rankings                            |
 
 ### Data Flow Diagram
 
@@ -325,13 +325,13 @@ Reserve (optional) → Scan/Check out → Use → Return/Scan → Feedback
 
 ## Data Models
 
-| Model | Key Fields | Relationships |
-|-------|------------|---------------|
-| Asset | ID, Name, Location, Photo/Tag, Status, Type, Usage Count, Condition, Owner, Created/Updated | 1-to-many: Loans; 1-to-many: Feedback; 1-to-many: Audit |
-| Loan | AssetID, UserID, CheckoutTime, Due/ETA, ReturnTime, Overdue, Status, FeedbackID, Points | Linked to Asset, User, Feedback |
-| Waitlist | AssetID, UserIDs, JoinedTime, Assigned ETA | Many Users per Asset |
-| Feedback | LoanID, UserID, Stars, Notes, Points | Linked to Loan and User |
-| Audit | AssetID, Action, By, Timestamp | 1-to-1: Asset/Action |
+| Model    | Key Fields                                                                                  | Relationships                                           |
+| -------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Asset    | ID, Name, Location, Photo/Tag, Status, Type, Usage Count, Condition, Owner, Created/Updated | 1-to-many: Loans; 1-to-many: Feedback; 1-to-many: Audit |
+| Loan     | AssetID, UserID, CheckoutTime, Due/ETA, ReturnTime, Overdue, Status, FeedbackID, Points     | Linked to Asset, User, Feedback                         |
+| Waitlist | AssetID, UserIDs, JoinedTime, Assigned ETA                                                  | Many Users per Asset                                    |
+| Feedback | LoanID, UserID, Stars, Notes, Points                                                        | Linked to Loan and User                                 |
+| Audit    | AssetID, Action, By, Timestamp                                                              | 1-to-1: Asset/Action                                    |
 
 ### Visual Model
 
@@ -385,12 +385,12 @@ Asset (1) —— (M) Loan (1) —— (1) Feedback
 
 ### Key Metrics
 
-| Metric | Target |
-|--------|--------|
-| Loss/overdue rate | <5% monthly |
+| Metric                  | Target         |
+| ----------------------- | -------------- |
+| Loss/overdue rate       | <5% monthly    |
 | Avg. check-in/out speed | <30s user flow |
-| Feedback positivity | ≥90% good+ |
-| Admin intervention rate | <10% actions |
+| Feedback positivity     | ≥90% good+     |
+| Admin intervention rate | <10% actions   |
 
 ### Leading Indicators
 
@@ -415,11 +415,11 @@ Asset (1) —— (M) Loan (1) —— (1) Feedback
 
 ## Timeline & Milestones
 
-| Phase | Scope | Date Range |
-|-------|-------|------------|
-| Phase 1 | Asset tagging/import, check-in/out core flows | Month 1–2 |
-| Phase 2 | Waitlist, overdue/feedback logic, gamification, admin tools | Month 3–5 |
-| Phase 3 | Advanced analytics, chore/task module cross-link, self-onboard | Month 6–8 |
+| Phase   | Scope                                                          | Date Range |
+| ------- | -------------------------------------------------------------- | ---------- |
+| Phase 1 | Asset tagging/import, check-in/out core flows                  | Month 1–2  |
+| Phase 2 | Waitlist, overdue/feedback logic, gamification, admin tools    | Month 3–5  |
+| Phase 3 | Advanced analytics, chore/task module cross-link, self-onboard | Month 6–8  |
 
 ---
 
@@ -458,23 +458,23 @@ Asset (1) —— (M) Loan (1) —— (1) Feedback
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation Strategy |
-|------|--------|-------------|---------------------|
-| Asset loss (non-returned/mis-tagged) | Medium-High | Medium | Require scan/photo check-in; admin lock flow |
-| System "gaming" for points | Medium | Low | Rate limit actions, audit flagged usage |
-| Unresponsive admins (repair/flags) | Medium | Medium | Escalate via auto-notification/overdue |
-| Asset backlog (mapping slow) | High | High | Self-onboarding, incentive for early tagging |
-| Notification failure (lost reminders) | Medium | Low | Secondary/reminder failsafe by email |
+| Risk                                  | Impact      | Probability | Mitigation Strategy                          |
+| ------------------------------------- | ----------- | ----------- | -------------------------------------------- |
+| Asset loss (non-returned/mis-tagged)  | Medium-High | Medium      | Require scan/photo check-in; admin lock flow |
+| System "gaming" for points            | Medium      | Low         | Rate limit actions, audit flagged usage      |
+| Unresponsive admins (repair/flags)    | Medium      | Medium      | Escalate via auto-notification/overdue       |
+| Asset backlog (mapping slow)          | High        | High        | Self-onboarding, incentive for early tagging |
+| Notification failure (lost reminders) | Medium      | Low         | Secondary/reminder failsafe by email         |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target Date | Impact if Unresolved |
-|----------|-------|-------------|---------------------|
-| Should guests be allowed to check out items? | Product Lead | 2 weeks | Could restrict or expand usage |
-| Points visibility: all, or opt-in? | Gamification Lead | 1 month | Affects engagement, privacy |
-| Resident self-onboard: add assets w/ admin approval? | Admin Lead | 1 month | Key to scaling asset import/mapping |
+| Question                                             | Owner             | Target Date | Impact if Unresolved                |
+| ---------------------------------------------------- | ----------------- | ----------- | ----------------------------------- |
+| Should guests be allowed to check out items?         | Product Lead      | 2 weeks     | Could restrict or expand usage      |
+| Points visibility: all, or opt-in?                   | Gamification Lead | 1 month     | Affects engagement, privacy         |
+| Resident self-onboard: add assets w/ admin approval? | Admin Lead        | 1 month     | Key to scaling asset import/mapping |
 
 ---
 

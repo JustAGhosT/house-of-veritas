@@ -1,12 +1,12 @@
-name: 'Azure Functions Deployment'
+name: "Azure Functions Deployment"
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'config/azure-functions/**'
-      - '.github/workflows/deploy-functions.yml'
+      - "config/azure-functions/**"
+      - ".github/workflows/deploy-functions.yml"
   workflow_dispatch:
 
 permissions:
@@ -14,13 +14,13 @@ permissions:
   id-token: write
 
 env:
-  AZURE_RESOURCE_GROUP: 'nl-prod-hov-rg-san'
-  AZURE_FUNCTIONAPP_NAME: 'nl-prod-hov-func-san'
-  PYTHON_VERSION: '3.11'
+  AZURE_RESOURCE_GROUP: "nl-prod-hov-rg-san"
+  AZURE_FUNCTIONAPP_NAME: "nl-prod-hov-func-san"
+  PYTHON_VERSION: "3.11"
 
 jobs:
   deploy-functions:
-    name: 'Deploy Azure Functions'
+    name: "Deploy Azure Functions"
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: production

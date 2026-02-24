@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server"
 import { withRole } from "@/lib/auth/rbac"
-import {
-  ALL_PAGES,
-  getRolePageAssignments,
-  setRolePageAssignments,
-} from "@/lib/dashboard-config"
+import { ALL_PAGES, getRolePageAssignments, setRolePageAssignments } from "@/lib/dashboard-config"
 import { UserRole } from "@/lib/users"
 
 export const GET = withRole("admin")(async (request) => {

@@ -13,7 +13,14 @@ async function loadProjectNames(): Promise<string[]> {
     const projects: Project[] = JSON.parse(data)
     return (Array.isArray(projects) ? projects : []).map((p) => p.name)
   } catch {
-    return ["House Revamp", "Zeerust Arming", "Garage", "Garden Revamp", "Kitchen Cupboards", "Lay Paving"]
+    return [
+      "House Revamp",
+      "Zeerust Arming",
+      "Garage",
+      "Garden Revamp",
+      "Kitchen Cupboards",
+      "Lay Paving",
+    ]
   }
 }
 

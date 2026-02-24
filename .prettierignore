@@ -1,0 +1,30 @@
+# Dependencies and build
+node_modules
+.next
+out
+build
+
+# Cache and generated
+.mypy_cache
+*.tsbuildinfo
+
+# Lock files and package manager
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Terraform
+.terraform
+*.tfstate
+*.tfstate.*
+
+# Test artifacts
+test-results
+playwright-report
+playwright/.cache
+blob-report
+coverage
+
+# Env and secrets
+.env*
+*.env

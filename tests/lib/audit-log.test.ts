@@ -1,9 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest"
-import {
-  auditLog,
-  logActivity,
-  type AuditAction,
-} from "@/lib/audit-log"
+import { auditLog, logActivity, type AuditAction } from "@/lib/audit-log"
 
 describe("audit-log", () => {
   beforeEach(() => {

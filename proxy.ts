@@ -21,9 +21,7 @@ const API_WINDOW_MS = 60_000
 
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.includes(pathname)) return true
-  return PUBLIC_PATHS.some(
-    (p) => p.endsWith("/") === false && pathname.startsWith(p + "/")
-  )
+  return PUBLIC_PATHS.some((p) => p.endsWith("/") === false && pathname.startsWith(p + "/"))
 }
 
 function getClientIp(request: NextRequest): string {

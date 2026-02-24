@@ -8,12 +8,12 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React |
-| Backend | Baserow, Azure Functions |
-| Storage | Azure Blob |
-| AI Integration | Azure Foundry |
+| Layer          | Technology               |
+| -------------- | ------------------------ |
+| Frontend       | Next.js/React            |
+| Backend        | Baserow, Azure Functions |
+| Storage        | Azure Blob               |
+| AI Integration | Azure Foundry            |
 
 ---
 
@@ -121,24 +121,24 @@ Enable open suggestion (all rooms/areas), structured voting/prioritization, AI d
 
 ## Measurable Objectives
 
-| Objective | Baseline | Target | Timeline |
-|-----------|----------|--------|----------|
-| % residents who suggest/vote first cycle | TBD | >60% | Q1 Launch |
-| % Projects with AI-aided material list | 0 | 70% | Q1 Launch |
-| Admin time spent on renovation process | 100% | <40% of previous | Q2 Review |
-| Archive coverage of executed changes | ~10% | >90% | Q2 Review |
+| Objective                                | Baseline | Target           | Timeline  |
+| ---------------------------------------- | -------- | ---------------- | --------- |
+| % residents who suggest/vote first cycle | TBD      | >60%             | Q1 Launch |
+| % Projects with AI-aided material list   | 0        | 70%              | Q1 Launch |
+| Admin time spent on renovation process   | 100%     | <40% of previous | Q2 Review |
+| Archive coverage of executed changes     | ~10%     | >90%             | Q2 Review |
 
 ---
 
 ## Stakeholders
 
-| Stakeholder | Role | Responsibility |
-|-------------|------|-----------------|
-| Admin (PM) | Workflow definition, signoff | Cost tracking |
-| Residents | Suggest, vote, track | Input and participation |
-| Technical Lead | AI/UX integration | Delivery, API design |
-| Support | Resident enablement | Training, troubleshooting |
-| Compliance | Privacy/review/auditing | Policy checks |
+| Stakeholder    | Role                         | Responsibility            |
+| -------------- | ---------------------------- | ------------------------- |
+| Admin (PM)     | Workflow definition, signoff | Cost tracking             |
+| Residents      | Suggest, vote, track         | Input and participation   |
+| Technical Lead | AI/UX integration            | Delivery, API design      |
+| Support        | Resident enablement          | Training, troubleshooting |
+| Compliance     | Privacy/review/auditing      | Policy checks             |
 
 ---
 
@@ -300,14 +300,14 @@ Enable open suggestion (all rooms/areas), structured voting/prioritization, AI d
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Performance | UI response within 2 seconds |
-| Scalability | Support for up to 10 concurrent users |
-| Availability | Secure image/idea storage; robust archival |
-| Security | RBAC for sensitive actions |
-| Audit | Full audit log; all actions traceable |
-| Accessibility | Basic compliance (minimum AA) |
+| Requirement   | Target                                     |
+| ------------- | ------------------------------------------ |
+| Performance   | UI response within 2 seconds               |
+| Scalability   | Support for up to 10 concurrent users      |
+| Availability  | Secure image/idea storage; robust archival |
+| Security      | RBAC for sensitive actions                 |
+| Audit         | Full audit log; all actions traceable      |
+| Accessibility | Basic compliance (minimum AA)              |
 
 ---
 
@@ -338,18 +338,18 @@ Enable open suggestion (all rooms/areas), structured voting/prioritization, AI d
 
 ### Required APIs
 
-| API | Endpoint | Method | Description | Sample Payload/Notes |
-|-----|----------|--------|-------------|---------------------|
-| AI Suggestion | `/api/ai/suggest-renovation` | POST | Generate design concepts from photo/text input | `{ roomId, photoUrl, prompt }` |
-| AI Imaging Pipeline (Sketch) | `/api/ai/render-sketch` | POST | Generate sketch/contour variant | `{ imageUrl, params }` |
-| AI Imaging Pipeline (Refine) | `/api/ai/render-refine` | POST | Guided refinement of previous render | `{ imageId, adjustments }` |
-| AI Imaging Pipeline (Render) | `/api/ai/render-final` | POST | Final photoreal/inspirational render | `{ imageId, style }` |
-| Asset Matcher | `/api/ai/asset-match` | GET | Suggest matching assets/materials from in-house stock | `{ projectId, roomId }` |
-| Suggestion CRUD | `/api/suggestion` | CRUD | Create, read, edit, delete suggestions | Standard REST |
-| Voting | `/api/vote` | POST | Upvote/downvote by registered resident | `{ userId, suggestionId, vote }` |
-| Blob Upload | `/api/blob/upload` | POST | Store photos, renders, or related artifacts | Multipart/form-data |
-| Notification Trigger | `/api/notify/status` | POST | Trigger resident/admin notification (email/SMS/Web) | `{ userId, event, entityId }` |
-| Project Archive | `/api/archive/project` | CRUD | Manage completed/denied projects | Standard REST |
+| API                          | Endpoint                     | Method | Description                                           | Sample Payload/Notes             |
+| ---------------------------- | ---------------------------- | ------ | ----------------------------------------------------- | -------------------------------- |
+| AI Suggestion                | `/api/ai/suggest-renovation` | POST   | Generate design concepts from photo/text input        | `{ roomId, photoUrl, prompt }`   |
+| AI Imaging Pipeline (Sketch) | `/api/ai/render-sketch`      | POST   | Generate sketch/contour variant                       | `{ imageUrl, params }`           |
+| AI Imaging Pipeline (Refine) | `/api/ai/render-refine`      | POST   | Guided refinement of previous render                  | `{ imageId, adjustments }`       |
+| AI Imaging Pipeline (Render) | `/api/ai/render-final`       | POST   | Final photoreal/inspirational render                  | `{ imageId, style }`             |
+| Asset Matcher                | `/api/ai/asset-match`        | GET    | Suggest matching assets/materials from in-house stock | `{ projectId, roomId }`          |
+| Suggestion CRUD              | `/api/suggestion`            | CRUD   | Create, read, edit, delete suggestions                | Standard REST                    |
+| Voting                       | `/api/vote`                  | POST   | Upvote/downvote by registered resident                | `{ userId, suggestionId, vote }` |
+| Blob Upload                  | `/api/blob/upload`           | POST   | Store photos, renders, or related artifacts           | Multipart/form-data              |
+| Notification Trigger         | `/api/notify/status`         | POST   | Trigger resident/admin notification (email/SMS/Web)   | `{ userId, event, entityId }`    |
+| Project Archive              | `/api/archive/project`       | CRUD   | Manage completed/denied projects                      | Standard REST                    |
 
 ### Azure Function Jobs
 
@@ -410,16 +410,16 @@ Enable open suggestion (all rooms/areas), structured voting/prioritization, AI d
 
 ### Data Model Mapping Table
 
-| Logical Model | Storage (Table) | Key Fields | Relationships/Notes |
-|---------------|-----------------|------------|---------------------|
-| Room/Area | Baserow: Rooms | roomId, label, status | N:1 with RenovationIdea |
-| RenovationIdea | Baserow: Ideas | id, roomId, userId, text, photo | 1:N with AI_Image, Votes, Gallery |
-| Vote | Baserow: Votes | id, ideaId, userId, value | FK to Idea, FK to User |
-| AI_Image | Azure Blob/Baserow | id, ideaId, url, state | 1:N to Idea |
-| InspirationGallery | Baserow: Gallery | id, ideaId, source | 1:N to Idea |
-| Project/Plan | Baserow: Projects | id, ideaId, status, cost | 1:N to MaterialLink |
-| MaterialLink | Baserow: Materials | id, projectId, assetId, qty | To Asset/Inventory module |
-| Archive Log | Baserow: Archive | id, projectId, completed, denied | 1:1 with Project/Plan |
+| Logical Model      | Storage (Table)    | Key Fields                       | Relationships/Notes               |
+| ------------------ | ------------------ | -------------------------------- | --------------------------------- |
+| Room/Area          | Baserow: Rooms     | roomId, label, status            | N:1 with RenovationIdea           |
+| RenovationIdea     | Baserow: Ideas     | id, roomId, userId, text, photo  | 1:N with AI_Image, Votes, Gallery |
+| Vote               | Baserow: Votes     | id, ideaId, userId, value        | FK to Idea, FK to User            |
+| AI_Image           | Azure Blob/Baserow | id, ideaId, url, state           | 1:N to Idea                       |
+| InspirationGallery | Baserow: Gallery   | id, ideaId, source               | 1:N to Idea                       |
+| Project/Plan       | Baserow: Projects  | id, ideaId, status, cost         | 1:N to MaterialLink               |
+| MaterialLink       | Baserow: Materials | id, projectId, assetId, qty      | To Asset/Inventory module         |
+| Archive Log        | Baserow: Archive   | id, projectId, completed, denied | 1:1 with Project/Plan             |
 
 ---
 
@@ -482,11 +482,11 @@ Enable open suggestion (all rooms/areas), structured voting/prioritization, AI d
 
 ## Timeline & Milestones
 
-| Phase | Scope | Duration |
-|-------|-------|----------|
-| 1 | Core suggestion, voting, map UI, photo input | 2 weeks |
-| 2 | AI imaging, suggestion refinement | 4 weeks |
-| 3 | Asset match, costing workflow, archive browser | 2 weeks |
+| Phase | Scope                                          | Duration |
+| ----- | ---------------------------------------------- | -------- |
+| 1     | Core suggestion, voting, map UI, photo input   | 2 weeks  |
+| 2     | AI imaging, suggestion refinement              | 4 weeks  |
+| 3     | Asset match, costing workflow, archive browser | 2 weeks  |
 
 **Dependencies:** AI Foundry SLA/feature releases, Baserow updates.
 
@@ -517,22 +517,22 @@ Enable open suggestion (all rooms/areas), structured voting/prioritization, AI d
 
 ## Risks & Mitigations
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| AI service outages | Medium | High | Fallback to manual review of ideas |
-| Voting/suggestion spam | Medium | Medium | Rate limiting, moderation queue |
-| Storage overruns | Low | Medium | Lifecycle archiving, quota alerting |
-| Admin/Resident disengagement | Low | High | Prominent tracking of engagement metrics |
+| Risk                         | Probability | Impact | Mitigation                               |
+| ---------------------------- | ----------- | ------ | ---------------------------------------- |
+| AI service outages           | Medium      | High   | Fallback to manual review of ideas       |
+| Voting/suggestion spam       | Medium      | Medium | Rate limiting, moderation queue          |
+| Storage overruns             | Low         | Medium | Lifecycle archiving, quota alerting      |
+| Admin/Resident disengagement | Low         | High   | Prominent tracking of engagement metrics |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target Resolution | Impact if Unresolved |
-|----------|-------|-------------------|----------------------|
-| Do we allow anonymous suggestion? | Product | Sprint 2 | Privacy/process adjustments |
-| Is per-room privacy granularly required? | Product | Sprint 2 | Possible scoping change |
-| Can AI be trained on user-specific inspiration galleries in future cycles? | Product/AI | Pre go-live | Future roadmap, data privacy |
+| Question                                                                   | Owner      | Target Resolution | Impact if Unresolved         |
+| -------------------------------------------------------------------------- | ---------- | ----------------- | ---------------------------- |
+| Do we allow anonymous suggestion?                                          | Product    | Sprint 2          | Privacy/process adjustments  |
+| Is per-room privacy granularly required?                                   | Product    | Sprint 2          | Possible scoping change      |
+| Can AI be trained on user-specific inspiration galleries in future cycles? | Product/AI | Pre go-live       | Future roadmap, data privacy |
 
 ---
 

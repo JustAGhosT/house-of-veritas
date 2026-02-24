@@ -32,30 +32,30 @@ Read .claude/commands/fix.md and follow the instructions
 
 ### Assessment Commands
 
-| Command | Description |
-|---------|-------------|
-| `assess-all` | Run all 10 agents, synthesize into prioritized report |
-| `assess-cicd` | Audit CI/CD pipelines and deployment workflows |
-| `assess-infrastructure` | Audit Terraform and Azure resources |
-| `assess-testing` | Evaluate test coverage and quality |
-| `assess-api` | Audit API routes and Azure Functions |
-| `assess-database` | Audit data layer and storage |
-| `assess-ui` | Audit frontend components and UX |
-| `assess-architecture` | Evaluate system design and patterns |
-| `assess-refactoring` | Find SOLID/DRY violations and code smells |
-| `assess-bugs` | Find bugs, feature gaps, enhancements |
-| `assess-vertical` | Trace features across the full stack |
+| Command                 | Description                                           |
+| ----------------------- | ----------------------------------------------------- |
+| `assess-all`            | Run all 10 agents, synthesize into prioritized report |
+| `assess-cicd`           | Audit CI/CD pipelines and deployment workflows        |
+| `assess-infrastructure` | Audit Terraform and Azure resources                   |
+| `assess-testing`        | Evaluate test coverage and quality                    |
+| `assess-api`            | Audit API routes and Azure Functions                  |
+| `assess-database`       | Audit data layer and storage                          |
+| `assess-ui`             | Audit frontend components and UX                      |
+| `assess-architecture`   | Evaluate system design and patterns                   |
+| `assess-refactoring`    | Find SOLID/DRY violations and code smells             |
+| `assess-bugs`           | Find bugs, feature gaps, enhancements                 |
+| `assess-vertical`       | Trace features across the full stack                  |
 
 ### Operational Commands
 
-| Command | Description |
-|---------|-------------|
-| `healthcheck` | Quick project health snapshot (types, lint, tests, git) |
-| `fix` | Fix highest-priority issues from latest assessment |
-| `discover` | Scan codebase, update orchestrator state with metrics |
-| `deploy` | Pre-deployment verification checklist |
-| `review-pr` | Review a PR against project standards |
-| `security-audit` | Focused security scan of the codebase |
+| Command          | Description                                             |
+| ---------------- | ------------------------------------------------------- |
+| `healthcheck`    | Quick project health snapshot (types, lint, tests, git) |
+| `fix`            | Fix highest-priority issues from latest assessment      |
+| `discover`       | Scan codebase, update orchestrator state with metrics   |
+| `deploy`         | Pre-deployment verification checklist                   |
+| `review-pr`      | Review a PR against project standards                   |
+| `security-audit` | Focused security scan of the codebase                   |
 
 ## Directory Structure
 
@@ -104,36 +104,42 @@ Read .claude/commands/fix.md and follow the instructions
 
 ## Root Files
 
-| File | Purpose |
-|------|---------|
-| `CLAUDE.md` | Project context for Claude/Cursor AI sessions |
-| `AGENTS.md` | This file — agent system documentation |
-| `AGENT_TEAMS.md` | Team-based agent organization |
+| File               | Purpose                                         |
+| ------------------ | ----------------------------------------------- |
+| `CLAUDE.md`        | Project context for Claude/Cursor AI sessions   |
+| `AGENTS.md`        | This file — agent system documentation          |
+| `AGENT_TEAMS.md`   | Team-based agent organization                   |
 | `AGENT_BACKLOG.md` | Prioritized action items from latest assessment |
 
 ## How It Works
 
 ### Lifecycle Hooks
+
 Hooks run automatically during Claude Code sessions (configured in `settings.json`):
 
-| Hook | Trigger | Action |
-|------|---------|--------|
-| `session-start.sh` | Session begins | Verify Node.js, run build check, show git status |
-| `protect-sensitive.sh` | Before file write | Block writes to `.env.local`, `.tfvars`, creds |
-| `guard-destructive-bash.sh` | Before bash command | Block `git push --force`, `terraform destroy` |
-| `warn-uncommitted.sh` | After file write | Warn if 10+ uncommitted changes |
-| `stop-build-check.sh` | Session ends | Verify TypeScript and tests still pass |
+| Hook                        | Trigger             | Action                                           |
+| --------------------------- | ------------------- | ------------------------------------------------ |
+| `session-start.sh`          | Session begins      | Verify Node.js, run build check, show git status |
+| `protect-sensitive.sh`      | Before file write   | Block writes to `.env.local`, `.tfvars`, creds   |
+| `guard-destructive-bash.sh` | Before bash command | Block `git push --force`, `terraform destroy`    |
+| `warn-uncommitted.sh`       | After file write    | Warn if 10+ uncommitted changes                  |
+| `stop-build-check.sh`       | Session ends        | Verify TypeScript and tests still pass           |
 
 ### Permission System
+
 `settings.json` defines allowed and denied commands:
+
 - **Allowed:** npm, git, gh, terraform (read), az (read), docker
 - **Denied:** force-push, hard reset, terraform destroy/apply, resource deletion
 
 ### Persistent State
+
 The orchestrator tracks metrics and grades across sessions in `.claude/state/orchestrator.json`. Run `discover` to update, `assess-all` for full refresh.
 
 ### Domain Rules
+
 Rules in `.claude/rules/` encode project-specific coding standards that agents follow:
+
 - Security rules prevent credential leaks and ensure auth coverage
 - Testing rules define test structure, quality standards, and CI integration
 - TypeScript rules enforce type safety and consistent patterns

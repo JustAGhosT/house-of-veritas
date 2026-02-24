@@ -1,31 +1,31 @@
-name: 'Terraform Apply'
+name: "Terraform Apply"
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'terraform/**'
-      - '.github/workflows/terraform-apply.yml'
+      - "terraform/**"
+      - ".github/workflows/terraform-apply.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 env:
-  WORKING_DIR: './terraform/environments/production'
+  WORKING_DIR: "./terraform/environments/production"
 
 jobs:
   terraform-apply:
-    name: 'Terraform Apply'
+    name: "Terraform Apply"
     runs-on: [self-hosted, azure-vnet-ghost]
     timeout-minutes: 45
     environment: production
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Verify Terraform
         run: |
           REQUIRED="1.5.0"
@@ -36,12 +36,12 @@ jobs:
             exit 1
           fi
           terraform version
-      
+
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+
       - name: Set Terraform ARM credentials
         run: |
           CREDS='${{ secrets.AZURE_CREDENTIALS }}'
@@ -49,7 +49,7 @@ jobs:
           echo "ARM_CLIENT_SECRET=$(echo $CREDS | jq -r .clientSecret)" >> $GITHUB_ENV
           echo "ARM_TENANT_ID=$(echo $CREDS | jq -r .tenantId)" >> $GITHUB_ENV
           echo "ARM_SUBSCRIPTION_ID=$(echo $CREDS | jq -r .subscriptionId)" >> $GITHUB_ENV
-      
+
       - name: Terraform Init
         working-directory: ${{ env.WORKING_DIR }}
         run: |
@@ -70,16 +70,16 @@ jobs:
             -var="ssl_certificate_data=${{ secrets.SSL_CERTIFICATE_DATA }}" \
             -var="ssl_certificate_password=${{ secrets.SSL_CERTIFICATE_PASSWORD }}" \
             -out=tfplan
-      
+
       - name: Terraform Apply
         working-directory: ${{ env.WORKING_DIR }}
         run: terraform apply -auto-approve tfplan
-      
+
       - name: Terraform Output
         id: output
         working-directory: ${{ env.WORKING_DIR }}
         run: terraform output -json > outputs.json
-      
+
       - name: Create Deployment Tag
         run: |
           TAG="deploy-$(date +'%Y%m%d-%H%M%S')"
@@ -87,13 +87,13 @@ jobs:
           git push origin $TAG
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Send Success Notification
         if: success()
         run: |
           echo "Deployment successful!"
           echo "Check outputs.json for resource details"
-      
+
       - name: Send Failure Notification
         if: failure()
         run: |

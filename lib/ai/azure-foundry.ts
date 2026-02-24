@@ -7,7 +7,8 @@ import { logger } from "@/lib/logger"
 
 const AZURE_AI_ENDPOINT = process.env.AZURE_AI_ENDPOINT || process.env.AZURE_OPENAI_ENDPOINT
 const AZURE_AI_KEY = process.env.AZURE_AI_KEY || process.env.AZURE_OPENAI_API_KEY
-const AZURE_AI_DEPLOYMENT = process.env.AZURE_AI_DEPLOYMENT || process.env.AZURE_OPENAI_DEPLOYMENT || "gpt-4o-mini"
+const AZURE_AI_DEPLOYMENT =
+  process.env.AZURE_AI_DEPLOYMENT || process.env.AZURE_OPENAI_DEPLOYMENT || "gpt-4o-mini"
 
 export function isAzureAIConfigured(): boolean {
   return !!(AZURE_AI_ENDPOINT && AZURE_AI_KEY)
@@ -82,7 +83,9 @@ Return exactly one option from the list:`
   if (!result) return null
 
   const normalized = result.trim().toLowerCase()
-  const match = options.find((o) => o.toLowerCase() === normalized || normalized.includes(o.toLowerCase()))
+  const match = options.find(
+    (o) => o.toLowerCase() === normalized || normalized.includes(o.toLowerCase())
+  )
   return match || options[0]
 }
 
@@ -114,7 +117,9 @@ Return exactly one category key:`
   if (!result) return null
 
   const normalized = result.trim().toLowerCase().replace(/\s+/g, "_")
-  const match = options.find((o) => o.toLowerCase() === normalized || normalized.includes(o.toLowerCase()))
+  const match = options.find(
+    (o) => o.toLowerCase() === normalized || normalized.includes(o.toLowerCase())
+  )
   return match || options[0]
 }
 
@@ -126,7 +131,9 @@ async function suggestFromOptions(params: {
   const { context, options, systemHint } = params
   if (options.length === 0) return null
 
-  const systemPrompt = systemHint || `Given the context, suggest the most appropriate option from the list. Reply with ONLY the exact option text, nothing else.`
+  const systemPrompt =
+    systemHint ||
+    `Given the context, suggest the most appropriate option from the list. Reply with ONLY the exact option text, nothing else.`
   const userPrompt = `${context}\n\nAvailable options: ${options.join(", ")}\n\nReturn exactly one option:`
 
   const result = await chatCompletion([
@@ -136,7 +143,9 @@ async function suggestFromOptions(params: {
 
   if (!result) return null
   const normalized = result.trim().toLowerCase()
-  const match = options.find((o) => o.toLowerCase() === normalized || normalized.includes(o.toLowerCase()))
+  const match = options.find(
+    (o) => o.toLowerCase() === normalized || normalized.includes(o.toLowerCase())
+  )
   return match || options[0]
 }
 
@@ -150,11 +159,14 @@ export async function suggestProject(params: {
     params.taskTitle && `Task: ${params.taskTitle}`,
     params.taskDescription && `Description: ${params.taskDescription}`,
     params.expenseCategory && `Expense category: ${params.expenseCategory}`,
-  ].filter(Boolean).join("\n")
+  ]
+    .filter(Boolean)
+    .join("\n")
   return suggestFromOptions({
     context: ctx || "General work",
     options: params.options,
-    systemHint: "You are an estate project manager. Suggest the most relevant project/subproject for this work.",
+    systemHint:
+      "You are an estate project manager. Suggest the most relevant project/subproject for this work.",
   })
 }
 
@@ -163,7 +175,12 @@ export async function suggestAssignee(params: {
   taskDescription?: string
   projectName?: string
   options: string[]
-  userDetails?: Array<{ id: string; name?: string; responsibilities?: string[]; specialty?: string[] }>
+  userDetails?: Array<{
+    id: string
+    name?: string
+    responsibilities?: string[]
+    specialty?: string[]
+  }>
 }): Promise<string | null> {
   const { userDetails, options } = params
   const ctx = `Task: ${params.taskTitle}
@@ -187,7 +204,9 @@ export async function suggestExpenseCategory(params: {
   const ctx = [
     params.vendor && `Vendor: ${params.vendor}`,
     params.description && `Description: ${params.description}`,
-  ].filter(Boolean).join("\n")
+  ]
+    .filter(Boolean)
+    .join("\n")
   return suggestFromOptions({
     context: ctx || "General expense",
     options: params.options,
@@ -211,7 +230,14 @@ ${params.dueDate ? `Due: ${params.dueDate}` : ""}`
   })
 }
 
-async function chatCompletionWithVision(messages: Array<{ role: "system" | "user" | "assistant"; content: string | Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }> }>): Promise<string | null> {
+async function chatCompletionWithVision(
+  messages: Array<{
+    role: "system" | "user" | "assistant"
+    content:
+      | string
+      | Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }>
+  }>
+): Promise<string | null> {
   if (!isAzureAIConfigured()) return null
 
   const url = `${AZURE_AI_ENDPOINT!.replace(/\/$/, "")}/openai/deployments/${AZURE_AI_DEPLOYMENT}/chat/completions?api-version=2024-02-15-preview`
@@ -231,7 +257,10 @@ async function chatCompletionWithVision(messages: Array<{ role: "system" | "user
     })
 
     if (!res.ok) {
-      logger.error("Azure AI vision request failed", { status: res.status, statusText: res.statusText })
+      logger.error("Azure AI vision request failed", {
+        status: res.status,
+        statusText: res.statusText,
+      })
       return null
     }
 
@@ -239,7 +268,9 @@ async function chatCompletionWithVision(messages: Array<{ role: "system" | "user
     const content = data.choices?.[0]?.message?.content?.trim()
     return content || null
   } catch (err) {
-    logger.error("Azure AI vision error", { error: err instanceof Error ? err.message : String(err) })
+    logger.error("Azure AI vision error", {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return null
   }
 }
@@ -254,10 +285,17 @@ export async function suggestProjectFromPhoto(params: {
   existingProjectNames: string[]
   allowNew?: boolean
 }): Promise<{ name: string; description?: string; fromExisting: boolean } | null> {
-  const { imageBase64, imageMimeType = "image/jpeg", existingProjectNames, allowNew = true } = params
+  const {
+    imageBase64,
+    imageMimeType = "image/jpeg",
+    existingProjectNames,
+    allowNew = true,
+  } = params
   if (!imageBase64 || !isAzureAIConfigured()) return null
 
-  const dataUrl = imageBase64.startsWith("data:") ? imageBase64 : `data:${imageMimeType};base64,${imageBase64}`
+  const dataUrl = imageBase64.startsWith("data:")
+    ? imageBase64
+    : `data:${imageMimeType};base64,${imageBase64}`
 
   const systemPrompt = `You are an estate project manager. Analyze the photo and suggest the most relevant project or subproject for this work.
 If the image shows renovation, construction, garden, electrical, plumbing, painting, paving, security, or similar work, suggest an appropriate project name.
@@ -265,8 +303,13 @@ ${existingProjectNames.length > 0 ? `Prefer one of these existing projects if re
 ${allowNew ? "If no existing project fits, suggest a new project name and brief description." : "Reply with only an existing project name from the list."}
 Reply in JSON: { "name": "Project Name", "description": "Brief description if new", "fromExisting": true/false }`
 
-  const userContent: Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }> = [
-    { type: "text", text: "What project or subproject does this photo relate to? Reply in JSON only." },
+  const userContent: Array<
+    { type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }
+  > = [
+    {
+      type: "text",
+      text: "What project or subproject does this photo relate to? Reply in JSON only.",
+    },
     { type: "image_url", image_url: { url: dataUrl } },
   ]
 
@@ -278,8 +321,15 @@ Reply in JSON: { "name": "Project Name", "description": "Brief description if ne
   if (!result) return null
 
   try {
-    const json = result.replace(/```json?\s*/g, "").replace(/```\s*/g, "").trim()
-    const parsed = JSON.parse(json) as { name?: string; description?: string; fromExisting?: boolean }
+    const json = result
+      .replace(/```json?\s*/g, "")
+      .replace(/```\s*/g, "")
+      .trim()
+    const parsed = JSON.parse(json) as {
+      name?: string
+      description?: string
+      fromExisting?: boolean
+    }
     const name = parsed?.name?.trim()
     if (!name) return null
     const fromExisting = existingProjectNames.some((n) => n.toLowerCase() === name.toLowerCase())

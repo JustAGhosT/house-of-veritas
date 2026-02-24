@@ -4,12 +4,7 @@ import { logger } from "@/lib/logger"
 import { existsSync } from "fs"
 import path from "path"
 import { withAuth } from "@/lib/auth/rbac"
-import {
-  isPostgresConfigured,
-  withClient,
-  query,
-  ensureSchema,
-} from "@/lib/db/postgres"
+import { isPostgresConfigured, withClient, query, ensureSchema } from "@/lib/db/postgres"
 
 const UPLOAD_DIR = "/tmp/hov-uploads"
 
@@ -191,10 +186,7 @@ export const POST = withAuth(async (request) => {
     }
 
     if (!uploader) {
-      return NextResponse.json(
-        { error: "userId or authenticated user required" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "userId or authenticated user required" }, { status: 400 })
     }
 
     if (file.size > MAX_FILE_SIZE) {
@@ -206,8 +198,7 @@ export const POST = withAuth(async (request) => {
       )
     }
 
-    const allowedTypes =
-      ALLOWED_TYPES[category] || Object.values(ALLOWED_TYPES).flat()
+    const allowedTypes = ALLOWED_TYPES[category] || Object.values(ALLOWED_TYPES).flat()
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
         { error: `Invalid file type. Allowed: ${allowedTypes.join(", ")}` },
@@ -247,10 +238,7 @@ export const POST = withAuth(async (request) => {
     logger.error("Upload error", {
       error: error instanceof Error ? error.message : String(error),
     })
-    return NextResponse.json(
-      { error: "Failed to upload file" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to upload file" }, { status: 500 })
   }
 })
 
@@ -259,10 +247,7 @@ export const DELETE = withAuth(async (request) => {
   const fileId = searchParams.get("id")
 
   if (!fileId) {
-    return NextResponse.json(
-      { error: "File ID required" },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: "File ID required" }, { status: 400 })
   }
 
   const file = fileStore.get(fileId)
@@ -277,9 +262,7 @@ export const DELETE = withAuth(async (request) => {
       if (existsSync(filePath)) {
         await unlink(filePath).catch(() => {})
       }
-      await withClient((client) =>
-        client.query(`DELETE FROM file_uploads WHERE id = $1`, [fileId])
-      )
+      await withClient((client) => client.query(`DELETE FROM file_uploads WHERE id = $1`, [fileId]))
     }
   } else if (file) {
     const filePath = path.join(UPLOAD_DIR, file.storedName)

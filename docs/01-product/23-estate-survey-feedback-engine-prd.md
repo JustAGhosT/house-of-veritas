@@ -8,11 +8,11 @@
 
 ## Platform/Mesh Layer(s)
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js/React (survey builder, poll/vote UX, analytics dashboard) |
-| Backend | Baserow (survey/response database), Azure Functions (anonymity handling, alerting, analytics) |
-| Storage | Blob (data exports); Notification/alert engines |
+| Layer    | Technology                                                                                    |
+| -------- | --------------------------------------------------------------------------------------------- |
+| Frontend | Next.js/React (survey builder, poll/vote UX, analytics dashboard)                             |
+| Backend  | Baserow (survey/response database), Azure Functions (anonymity handling, alerting, analytics) |
+| Storage  | Blob (data exports); Notification/alert engines                                               |
 
 ---
 
@@ -116,26 +116,26 @@ Stakeholder expectations have shifted to real-time, data-driven decision-making.
 
 ## Measurable Objectives
 
-| Objective | Baseline | Target | Timeline |
-|-----------|----------|--------|----------|
-| Avg. survey completion time | N/A | <2 min | Launch +1mo |
-| Admin build-to-launch time | N/A | <1 hour | Launch |
-| Feedback-to-action/reply/alert time | N/A | <1 week | Ongoing |
-| Survey response bias | N/A | <10% | Ongoing |
-| Response rate per event/project | Varies | 80%+ | Launch +1mo |
-| Owner export/report lag | N/A | <24 hours | Ongoing |
+| Objective                           | Baseline | Target    | Timeline    |
+| ----------------------------------- | -------- | --------- | ----------- |
+| Avg. survey completion time         | N/A      | <2 min    | Launch +1mo |
+| Admin build-to-launch time          | N/A      | <1 hour   | Launch      |
+| Feedback-to-action/reply/alert time | N/A      | <1 week   | Ongoing     |
+| Survey response bias                | N/A      | <10%      | Ongoing     |
+| Response rate per event/project     | Varies   | 80%+      | Launch +1mo |
+| Owner export/report lag             | N/A      | <24 hours | Ongoing     |
 
 ---
 
 ## Stakeholders
 
-| Role | Responsibility |
-|------|----------------|
-| Residents/Respondents | Provide feedback; see closure and privacy maintained |
-| Admins/Designers | Build/deploy surveys; monitor and act on feedback; compliance |
-| Owners | Oversight of trends and actions; ensure closure and export of feedback |
-| Analyst/Board | Review feedback data, trends, compliance reporting |
-| HR/Compliance/Audit | Monitor privacy adherence and regulatory compliance |
+| Role                  | Responsibility                                                         |
+| --------------------- | ---------------------------------------------------------------------- |
+| Residents/Respondents | Provide feedback; see closure and privacy maintained                   |
+| Admins/Designers      | Build/deploy surveys; monitor and act on feedback; compliance          |
+| Owners                | Oversight of trends and actions; ensure closure and export of feedback |
+| Analyst/Board         | Review feedback data, trends, compliance reporting                     |
+| HR/Compliance/Audit   | Monitor privacy adherence and regulatory compliance                    |
 
 ---
 
@@ -201,25 +201,25 @@ Stakeholder expectations have shifted to real-time, data-driven decision-making.
 
 ## Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| Response/loading time | <2s for all actions |
-| Security | All data encrypted in transit and at rest |
-| Accessibility | ARIA compliance across mobile and desktop |
-| Processing | Reliable batch/event processing |
-| Export | Robust admin export/report capability |
-| Access | Role-based access/logging |
-| Privacy | Privacy-by-design testing |
+| Requirement           | Target                                    |
+| --------------------- | ----------------------------------------- |
+| Response/loading time | <2s for all actions                       |
+| Security              | All data encrypted in transit and at rest |
+| Accessibility         | ARIA compliance across mobile and desktop |
+| Processing            | Reliable batch/event processing           |
+| Export                | Robust admin export/report capability     |
+| Access                | Role-based access/logging                 |
+| Privacy               | Privacy-by-design testing                 |
 
 ---
 
 ## Mesh Layer Mapping
 
-| Layer | Responsibility |
-|-------|----------------|
-| Frontend | Survey build, respond, event pairing, alerts |
-| Backend | Survey/response/event logging, privacy controls, analytics |
-| Storage | Batch/export/role logs, trend/benchmarking |
+| Layer    | Responsibility                                             |
+| -------- | ---------------------------------------------------------- |
+| Frontend | Survey build, respond, event pairing, alerts               |
+| Backend  | Survey/response/event logging, privacy controls, analytics |
+| Storage  | Batch/export/role logs, trend/benchmarking                 |
 
 ---
 
@@ -227,15 +227,15 @@ Stakeholder expectations have shifted to real-time, data-driven decision-making.
 
 ### Required APIs
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/survey | POST/GET | Create or retrieve survey |
-| /api/response | POST/GET | Submit or list responses |
-| /api/action | POST/PATCH | Mark action, closure |
-| /api/export | POST | Trigger export |
-| /api/alert | POST | Send alert |
-| /api/benchmark | GET | Trend analytics |
-| /api/privacy | PATCH | Set privacy/consent |
+| Endpoint       | Method     | Purpose                   |
+| -------------- | ---------- | ------------------------- |
+| /api/survey    | POST/GET   | Create or retrieve survey |
+| /api/response  | POST/GET   | Submit or list responses  |
+| /api/action    | POST/PATCH | Mark action, closure      |
+| /api/export    | POST       | Trigger export            |
+| /api/alert     | POST       | Send alert                |
+| /api/benchmark | GET        | Trend analytics           |
+| /api/privacy   | PATCH      | Set privacy/consent       |
 
 API hooks into all core modules (event, chore, incident, etc.).
 
@@ -250,11 +250,11 @@ API hooks into all core modules (event, chore, incident, etc.).
 
 ## Data Models
 
-| Entity | Key Fields |
-|--------|------------|
-| Survey | ID, event/project, type, question/pulse, role/privacy, status, log |
-| Response | SurveyID, event, user/anon status, answer, time, alert, feedback |
-| Action/Alert | SurveyID, event, admin, close, role, export, trend |
+| Entity       | Key Fields                                                         |
+| ------------ | ------------------------------------------------------------------ |
+| Survey       | ID, event/project, type, question/pulse, role/privacy, status, log |
+| Response     | SurveyID, event, user/anon status, answer, time, alert, feedback   |
+| Action/Alert | SurveyID, event, admin, close, role, export, trend                 |
 
 ---
 
@@ -316,11 +316,11 @@ API hooks into all core modules (event, chore, incident, etc.).
 
 ## Timeline & Milestones
 
-| Phase | Scope | Target Date |
-|-------|-------|-------------|
-| Phase 1 | Build/respond/trigger/export | Month 1 |
-| Phase 2 | Batch/benchmark/event pairing/action integration | Months 2–3 |
-| Phase 3 | Action closure/export, trend/BI owner/analyst tools | Month 4+ |
+| Phase   | Scope                                               | Target Date |
+| ------- | --------------------------------------------------- | ----------- |
+| Phase 1 | Build/respond/trigger/export                        | Month 1     |
+| Phase 2 | Batch/benchmark/event pairing/action integration    | Months 2–3  |
+| Phase 3 | Action closure/export, trend/BI owner/analyst tools | Month 4+    |
 
 ---
 
@@ -354,23 +354,23 @@ API hooks into all core modules (event, chore, incident, etc.).
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Event/survey pair missed | Incomplete feedback | Medium | Automated checks, manual repair prompts |
-| Privacy/data leak | Regulatory/compliance | Low | Encrypted comms, admin alert, force closure |
-| Admin bias/exclusion | Low trust | Medium | Automated bias detection, audit logging |
-| Alert/export failure | Reporting delays | Low | Automated retries, admin notifications |
+| Risk                     | Impact                | Probability | Mitigation                                  |
+| ------------------------ | --------------------- | ----------- | ------------------------------------------- |
+| Event/survey pair missed | Incomplete feedback   | Medium      | Automated checks, manual repair prompts     |
+| Privacy/data leak        | Regulatory/compliance | Low         | Encrypted comms, admin alert, force closure |
+| Admin bias/exclusion     | Low trust             | Medium      | Automated bias detection, audit logging     |
+| Alert/export failure     | Reporting delays      | Low         | Automated retries, admin notifications      |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target Date | Impact if Unresolved |
-|----------|-------|-------------|---------------------|
-| Anonymous survey at MVP? | Product Lead | Pre-dev | Privacy compliance, trust uptake |
-| Incentive for repeated survey engagement? | Owner/Admin | MVP+2 | Response/engagement rates |
-| Owner role on batch/closure? | PM/Owner | Pre-launch | Accountability, workflow design |
-| Export/alert on trend/incident spike? | Analyst | MVP | Incident response optimization |
+| Question                                  | Owner        | Target Date | Impact if Unresolved             |
+| ----------------------------------------- | ------------ | ----------- | -------------------------------- |
+| Anonymous survey at MVP?                  | Product Lead | Pre-dev     | Privacy compliance, trust uptake |
+| Incentive for repeated survey engagement? | Owner/Admin  | MVP+2       | Response/engagement rates        |
+| Owner role on batch/closure?              | PM/Owner     | Pre-launch  | Accountability, workflow design  |
+| Export/alert on trend/incident spike?     | Analyst      | MVP         | Incident response optimization   |
 
 ---
 
