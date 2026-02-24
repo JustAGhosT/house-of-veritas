@@ -266,14 +266,11 @@ resource "azurerm_application_gateway" "main" {
     # No disabled_rule_group - all OWASP rules (including 942 SQL injection) active
   }
 
-  # Gateway-level SSL policy (AppGwSslPolicy20150501 deprecated Aug 2025)
-  # AppGwSslPolicy20220101 = TLS 1.2 and 1.3; no ssl_profile so this applies to all HTTPS listeners
-  dynamic "ssl_policy" {
-    for_each = local.has_ssl ? [1] : []
-    content {
-      policy_type = "Predefined"
-      policy_name = "AppGwSslPolicy20220101"
-    }
+  # Gateway-level SSL policy — ALWAYS set (static block) to avoid Azure default AppGwSslPolicy20150501 (deprecated Aug 2025)
+  # AppGwSslPolicy20220101 = TLS 1.2 and 1.3
+  ssl_policy {
+    policy_type = "Predefined"
+    policy_name = "AppGwSslPolicy20220101"
   }
 
   tags = var.tags
