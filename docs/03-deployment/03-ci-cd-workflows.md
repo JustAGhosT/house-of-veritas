@@ -7,10 +7,11 @@ This document describes the GitHub Actions workflows for continuous integration 
 | Workflow                   | Trigger                            | Purpose                     |
 | -------------------------- | ---------------------------------- | --------------------------- |
 | `deployment-checklist.yml` | PR, Push, Schedule (daily), Manual | Infrastructure verification |
-| `deploy.yml`               | Manual, Release                    | Full deployment pipeline    |
-| `deploy-functions.yml`     | Push to main (scripts), Manual     | Azure Functions deployment  |
+| `deploy-on-merge.yml`      | Push to main (app changes)         | **Auto-deploy web app**     |
+| `terraform-apply.yml`      | Push to main (terraform changes)   | Terraform apply (infra only when needed) |
+| `deploy-functions.yml`     | Push to main (function code)       | Azure Functions deployment  |
 | `terraform-plan.yml`       | PR to main (terraform changes)     | Terraform plan preview      |
-| `terraform-apply.yml`      | Push to main (terraform changes)   | Terraform apply             |
+| `deploy.yml`               | Manual, Release                    | Full deployment pipeline    |
 
 ---
 
@@ -45,7 +46,29 @@ This document describes the GitHub Actions workflows for continuous integration 
 
 ---
 
-## 2. Full Deployment Pipeline
+## 2. Deploy on Merge (Auto-Deploy)
+
+**File:** `.github/workflows/deploy-on-merge.yml`
+
+Runs automatically after a PR is merged to `main` when app code changes.
+
+### Triggers
+
+- **Push to main**: Only when paths under `app/`, `components/`, `lib/`, `hooks/`, `public/`, `styles/`, or config files (`next.config.mjs`, `package.json`, etc.) change.
+
+### Jobs
+
+1. **build**: Lint, test, build Next.js app
+2. **deploy-webapp**: Deploy to Azure App Service, verify health
+
+### Infra and Functions
+
+- **Infrastructure**: Deployed only when `terraform/**` changes (see `terraform-apply.yml`)
+- **Azure Functions**: Deployed only when `config/azure-functions/**` changes (see `deploy-functions.yml`)
+
+---
+
+## 3. Full Deployment Pipeline
 
 **File:** `.github/workflows/deploy.yml`
 
@@ -76,7 +99,7 @@ This document describes the GitHub Actions workflows for continuous integration 
 
 ---
 
-## 3. Azure Functions Deployment
+## 4. Azure Functions Deployment
 
 **File:** `.github/workflows/deploy-functions.yml`
 
@@ -176,6 +199,8 @@ Add these to your README.md:
 
 ```markdown
 [![Deployment Checklist](https://github.com/{owner}/{repo}/actions/workflows/deployment-checklist.yml/badge.svg)](https://github.com/{owner}/{repo}/actions/workflows/deployment-checklist.yml)
+
+[![Deploy on Merge](https://github.com/{owner}/{repo}/actions/workflows/deploy-on-merge.yml/badge.svg)](https://github.com/{owner}/{repo}/actions/workflows/deploy-on-merge.yml)
 
 [![Terraform Plan](https://github.com/{owner}/{repo}/actions/workflows/terraform-plan.yml/badge.svg)](https://github.com/{owner}/{repo}/actions/workflows/terraform-plan.yml)
 
