@@ -28,7 +28,15 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Verify Terraform
-        run: terraform version
+        run: |
+          REQUIRED="1.5.0"
+          TF_VER=$(terraform version -json | jq -r '.terraform_version')
+          MIN=$(printf '%s\n%s' "$REQUIRED" "$TF_VER" | sort -V | head -n1)
+          if [ "$MIN" != "$REQUIRED" ]; then
+            echo "Terraform $TF_VER does not satisfy required_version >= $REQUIRED (from terraform/environments/production/main.tf)"
+            exit 1
+          fi
+          terraform version
       
       - name: Azure Login
         uses: azure/login@v2
