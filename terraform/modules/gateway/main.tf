@@ -126,6 +126,18 @@ resource "azurerm_application_gateway" "main" {
     host_name                      = "ops.${var.domain_name}"
   }
 
+  # SSL profile with TLS 1.2+ (required; AppGwSslPolicy20150501 deprecated Aug 2025)
+  dynamic "ssl_profile" {
+    for_each = local.has_ssl ? [1] : []
+    content {
+      name = "modern-tls"
+      ssl_policy {
+        policy_type = "Predefined"
+        policy_name = "AppGwSslPolicy20220101S"
+      }
+    }
+  }
+
   # HTTPS listeners (only when SSL cert is provided)
   dynamic "http_listener" {
     for_each = local.has_ssl ? [1] : []
@@ -135,6 +147,7 @@ resource "azurerm_application_gateway" "main" {
       frontend_port_name             = "https-port"
       protocol                       = "Https"
       ssl_certificate_name           = "ssl-cert"
+      ssl_profile_name               = "modern-tls"
       host_name                      = "docs.${var.domain_name}"
     }
   }
@@ -147,6 +160,7 @@ resource "azurerm_application_gateway" "main" {
       frontend_port_name             = "https-port"
       protocol                       = "Https"
       ssl_certificate_name           = "ssl-cert"
+      ssl_profile_name               = "modern-tls"
       host_name                      = "ops.${var.domain_name}"
     }
   }
@@ -263,15 +277,6 @@ resource "azurerm_application_gateway" "main" {
     rule_set_type    = "OWASP"
     rule_set_version = "3.2"
     # No disabled_rule_group - all OWASP rules (including 942 SQL injection) active
-  }
-
-  # SSL policy - TLS 1.2 minimum (when HTTPS listeners exist)
-  dynamic "ssl_policy" {
-    for_each = local.has_ssl ? [1] : []
-    content {
-      policy_type = "Predefined"
-      policy_name = "AppGwSslPolicy20220101S"
-    }
   }
 
   tags = var.tags
