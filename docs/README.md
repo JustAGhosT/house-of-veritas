@@ -18,6 +18,10 @@
 | [12-document-compliance-prd.md](01-product/12-document-compliance-prd.md) | Document Locker & Compliance Portal PRD — Compliance Vault, e-sign, audit |
 | [13-ai-suggestion-engine-prd.md](01-product/13-ai-suggestion-engine-prd.md) | AI/Smart Suggestion Engine PRD — Insight & Nudge Engine, explainable AI |
 | [14-financial-expense-management-prd.md](01-product/14-financial-expense-management-prd.md) | Financial/Expense Management PRD — Finance & Shared Spend Engine, receipts, approvals, audit |
+| [15-health-safety-wellness-prd.md](01-product/15-health-safety-wellness-prd.md) | Health, Safety & Wellness Logbook PRD — Safety Central, incident, audit, first-aider |
+| [16-advanced-analytics-insight-prd.md](01-product/16-advanced-analytics-insight-prd.md) | Advanced Analytics & Insight Engine PRD — Insight Central, KPIs, dashboards, export |
+| [17-integration-marketplace-connectors-prd.md](01-product/17-integration-marketplace-connectors-prd.md) | Integration Marketplace & External Connectors PRD — Connect Hub, sync, audit, partner |
+| [18-mobile-app-offline-prd.md](01-product/18-mobile-app-offline-prd.md) | Mobile App & Offline Module Launch PRD — Mobile+ Anywhere, offline-first, queue, sync |
 
 ## 02-architecture/ -- Technical Architecture
 

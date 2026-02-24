@@ -646,5 +646,5 @@ Resolve-DnsName -Name nexamesh.ai -Type NS
 ---
 
 **Last Updated:** February 2026
-**Terraform Version:** 1.5.7
+**Terraform Version:** 1.14.5 (pre-installed on self-hosted runner via HashiCorp APT repo)
 **Azure Provider Version:** ~> 3.80
