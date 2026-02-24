@@ -22,6 +22,7 @@
 | [16-advanced-analytics-insight-prd.md](01-product/16-advanced-analytics-insight-prd.md) | Advanced Analytics & Insight Engine PRD — Insight Central, KPIs, dashboards, export |
 | [17-integration-marketplace-connectors-prd.md](01-product/17-integration-marketplace-connectors-prd.md) | Integration Marketplace & External Connectors PRD — Connect Hub, sync, audit, partner |
 | [18-mobile-app-offline-prd.md](01-product/18-mobile-app-offline-prd.md) | Mobile App & Offline Module Launch PRD — Mobile+ Anywhere, offline-first, queue, sync |
+| [19-resident-profile-identity-prd.md](01-product/19-resident-profile-identity-prd.md) | Resident Profile & Identity Hub PRD — MyResidence Profile, SSO, skills, audit |
 
 ## 02-architecture/ -- Technical Architecture
 

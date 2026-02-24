@@ -280,12 +280,12 @@ resource "azurerm_application_gateway" "main" {
   }
 
   # Gateway-level SSL policy (AppGwSslPolicy20150501 deprecated Aug 2025)
-  # Required to override Azure default when creating; listener ssl_profile refines per-listener
+  # CustomV2 with TLS 1.3 minimum bypasses deprecated default; listener ssl_profile refines per-listener
   dynamic "ssl_policy" {
     for_each = local.has_ssl ? [1] : []
     content {
-      policy_type = "Predefined"
-      policy_name = "AppGwSslPolicy20220101S"
+      policy_type         = "CustomV2"
+      min_protocol_version = "TLSv1_3"
     }
   }
 
