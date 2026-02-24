@@ -126,19 +126,8 @@ resource "azurerm_application_gateway" "main" {
     host_name                      = "ops.${var.domain_name}"
   }
 
-  # SSL profile with TLS 1.3 (listener-level overrides gateway; AppGwSslPolicy20150501 deprecated Aug 2025)
-  dynamic "ssl_profile" {
-    for_each = local.has_ssl ? [1] : []
-    content {
-      name = "modern-tls"
-      ssl_policy {
-        policy_type          = "CustomV2"
-        min_protocol_version = "TLSv1_3"
-      }
-    }
-  }
-
   # HTTPS listeners (only when SSL cert is provided)
+  # No ssl_profile — listeners inherit gateway-level ssl_policy (AppGwSslPolicy20220101 = TLS 1.2 and 1.3)
   dynamic "http_listener" {
     for_each = local.has_ssl ? [1] : []
     content {
@@ -147,7 +136,6 @@ resource "azurerm_application_gateway" "main" {
       frontend_port_name             = "https-port"
       protocol                       = "Https"
       ssl_certificate_name           = "ssl-cert"
-      ssl_profile_name               = "modern-tls"
       host_name                      = "docs.${var.domain_name}"
     }
   }
@@ -160,7 +148,6 @@ resource "azurerm_application_gateway" "main" {
       frontend_port_name             = "https-port"
       protocol                       = "Https"
       ssl_certificate_name           = "ssl-cert"
-      ssl_profile_name               = "modern-tls"
       host_name                      = "ops.${var.domain_name}"
     }
   }
@@ -280,12 +267,12 @@ resource "azurerm_application_gateway" "main" {
   }
 
   # Gateway-level SSL policy (AppGwSslPolicy20150501 deprecated Aug 2025)
-  # CustomV2 with TLS 1.3 minimum bypasses deprecated default; listener ssl_profile refines per-listener
+  # AppGwSslPolicy20220101 = TLS 1.2 and 1.3; no ssl_profile so this applies to all HTTPS listeners
   dynamic "ssl_policy" {
     for_each = local.has_ssl ? [1] : []
     content {
-      policy_type         = "CustomV2"
-      min_protocol_version = "TLSv1_3"
+      policy_type = "Predefined"
+      policy_name = "AppGwSslPolicy20220101"
     }
   }
 
