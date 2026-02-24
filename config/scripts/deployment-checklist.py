@@ -689,16 +689,17 @@ class DeploymentChecker:
             details="All placeholder values replaced"
         )
     
-    def run_all_checks(self):
+    def run_all_checks(self, json_only: bool = False):
         """Run all deployment checks."""
-        print("\n" + "=" * 70)
-        print("🔍 House of Veritas - Azure Deployment Checklist")
-        print("=" * 70)
-        print(f"📅 Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"🎯 Resource Group: {self.resource_group}")
-        print(f"📍 Location: {self.location}")
-        print("=" * 70 + "\n")
-        
+        if not json_only:
+            print("\n" + "=" * 70)
+            print("🔍 House of Veritas - Azure Deployment Checklist")
+            print("=" * 70)
+            print(f"📅 Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"🎯 Resource Group: {self.resource_group}")
+            print(f"📍 Location: {self.location}")
+            print("=" * 70 + "\n")
+
         # Category 1: Prerequisites
         prereqs = CheckCategory(
             name="Prerequisites",
@@ -745,9 +746,9 @@ class DeploymentChecker:
         networking.checks.append(self.check_dns())
         networking.checks.append(self.check_ssl_certificates())
         self.categories.append(networking)
-        
-        # Print results
-        self.print_results()
+
+        if not json_only:
+            self.print_results()
     
     def print_results(self):
         """Print formatted results."""
@@ -984,16 +985,15 @@ def main():
     parser.add_argument(
         "--json", "-j",
         action="store_true",
-        help="Output results as JSON"
+        help="Output results as JSON only (no human-readable text)"
     )
     
     args = parser.parse_args()
     
     checker = DeploymentChecker(verbose=args.verbose)
-    checker.run_all_checks()
-    
+    checker.run_all_checks(json_only=args.json)
+
     if args.json:
-        print("\n\n--- JSON OUTPUT ---")
         print(checker.to_json())
 
 
