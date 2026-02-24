@@ -36,7 +36,9 @@ export async function apiFetch<T = unknown>(
       fetchOpts.headers = init.headers
     } else {
       fetchOpts.body = typeof body === "string" ? body : JSON.stringify(body)
-      fetchOpts.headers = { "Content-Type": "application/json", ...init.headers }
+      const headers = new Headers(init.headers as HeadersInit | undefined)
+      headers.set("Content-Type", "application/json")
+      fetchOpts.headers = headers
     }
   } else {
     fetchOpts.headers = init.headers
@@ -59,17 +61,18 @@ export async function apiFetch<T = unknown>(
       status: res.status,
       statusText: res.statusText,
     })
-    let body: unknown
+    let errBody: unknown
+    const errText = await res.text()
     try {
-      body = await res.json()
+      errBody = JSON.parse(errText)
     } catch {
-      body = await res.text()
+      errBody = errText
     }
     throw new ApiError(
       `API error: ${res.status} ${res.statusText}`,
       res.status,
       res.statusText,
-      body
+      errBody
     )
   }
 
