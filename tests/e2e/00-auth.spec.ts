@@ -70,7 +70,8 @@ test.describe("Authentication", () => {
         { timeout: 10000 }
       )
 
-      await page.request.post("/api/auth/logout")
+      const logoutResp = await page.request.post("/api/auth/logout")
+      expect(logoutResp.ok()).toBeTruthy()
       await page.goto("/login")
     }
   })

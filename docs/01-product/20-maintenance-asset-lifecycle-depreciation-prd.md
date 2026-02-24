@@ -328,8 +328,10 @@ Estate assets are major capital investments where compliance, tax, and owner val
 |-------|-------|-------------|--------------|
 | Phase 1 | Asset add → Schedule → Assign → Service | Q3 | Baserow, Blob |
 | Phase 2 | Depreciation calc/report/export | Q4 | Azure Functions |
-| Phase 3 | Audit/insurance/export, doc archive | Q1 next year | Maintenance partner, APIs |
-| Enhancement | Mobile-first & camera, bulk workflows | Q2 next year | Frontend, UX testing |
+| Phase 3 | Audit/insurance/export, doc archive | Q1 2027 | Maintenance partner, APIs |
+| Enhancement | Mobile-first & camera, bulk workflows | Q2 2027 | Frontend, UX testing |
+
+*Dates are relative to document version Feb 2025.*
 
 ---
 

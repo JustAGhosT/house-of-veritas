@@ -341,9 +341,9 @@ Modern estates increasingly require demonstrable cost control, future-proofing, 
 
 | Phase | Scope | Target Date |
 |-------|-------|-------------|
-| Phase 1 | Project/phase/task/schedule, approval/audit/log | Q3 2024 |
-| Phase 2 | Budget/analytics/Gantt, alert/milestone/event | Q4 2024 |
-| Phase 3 | Compliance/export/feedback/report/day/incident | Q1 2025 |
+| Phase 1 | Project/phase/task/schedule, approval/audit/log | Q3 2025 |
+| Phase 2 | Budget/analytics/Gantt, alert/milestone/event | Q4 2025 |
+| Phase 3 | Compliance/export/feedback/report/day/incident | Q1 2026 |
 
 ---
 
