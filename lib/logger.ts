@@ -31,10 +31,16 @@ function emit(entry: LogEntry) {
   }
 }
 
+const BASE_META: Record<string, unknown> = {
+  ...(process.env.WEBSITE_SITE_NAME && { service: process.env.WEBSITE_SITE_NAME }),
+  ...(process.env.NODE_ENV && { env: process.env.NODE_ENV }),
+}
+
 function createLogFn(level: LogLevel) {
   return (message: string, meta?: Record<string, unknown>) => {
     if (!shouldLog(level)) return
     emit({
+      ...BASE_META,
       ...meta,
       level,
       message,

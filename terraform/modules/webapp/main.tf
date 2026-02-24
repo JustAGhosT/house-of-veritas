@@ -19,6 +19,8 @@ resource "azurerm_linux_web_app" "main" {
       node_version = "20-lts"
     }
 
+    app_command_line = "node server.js"
+
     always_on  = true
     ftps_state = "Disabled"
 

@@ -131,16 +131,17 @@ jobs:
       - name: Build Application
         run: npm run build
       
+      - name: Prepare Standalone for Deployment
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+          jq '.scripts = ((.scripts // {}) + {"start": "node server.js"})' .next/standalone/package.json > .next/standalone/package.json.tmp && mv .next/standalone/package.json.tmp .next/standalone/package.json
+      
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-build
-          path: |
-            .next/
-            public/
-            package.json
-            package-lock.json
-            next.config.mjs
+          path: .next/standalone
           retention-days: 7
 
   # ============================================

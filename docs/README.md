@@ -23,6 +23,11 @@
 | [17-integration-marketplace-connectors-prd.md](01-product/17-integration-marketplace-connectors-prd.md) | Integration Marketplace & External Connectors PRD — Connect Hub, sync, audit, partner |
 | [18-mobile-app-offline-prd.md](01-product/18-mobile-app-offline-prd.md) | Mobile App & Offline Module Launch PRD — Mobile+ Anywhere, offline-first, queue, sync |
 | [19-resident-profile-identity-prd.md](01-product/19-resident-profile-identity-prd.md) | Resident Profile & Identity Hub PRD — MyResidence Profile, SSO, skills, audit |
+| [20-maintenance-asset-lifecycle-depreciation-prd.md](01-product/20-maintenance-asset-lifecycle-depreciation-prd.md) | Maintenance/Asset Lifecycle & Depreciation PRD — VeritasVault Asset 360, lifecycle, depreciation, audit |
+| [21-estate-marketplace-service-directory-prd.md](01-product/21-estate-marketplace-service-directory-prd.md) | Estate Marketplace & Service Directory PRD — VeritasVault Connect & Offerings, marketplace, booking, audit |
+| [22-multi-estate-portfolio-management-prd.md](01-product/22-multi-estate-portfolio-management-prd.md) | Multi-Estate/Portfolio Management PRD — VeritasVault Portfolio Central, SSO, audit, export |
+| [23-estate-survey-feedback-engine-prd.md](01-product/23-estate-survey-feedback-engine-prd.md) | Estate Survey & Feedback Engine PRD — VeritasVault Voice & Pulse, survey, feedback, analytics |
+| [24-long-term-capital-project-planner-prd.md](01-product/24-long-term-capital-project-planner-prd.md) | Long-Term Capital Project Planner PRD — VeritasVault CapEx Roadmap, Gantt, budget, audit |
 
 ## 02-architecture/ -- Technical Architecture
 
