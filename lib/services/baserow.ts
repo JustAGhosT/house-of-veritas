@@ -265,6 +265,35 @@ export async function getEmployee(id: number): Promise<Employee | null> {
   return row ? mapRowToEmployee(row) : null
 }
 
+export async function updateEmployee(
+  id: number,
+  updates: Partial<Pick<Employee, "leaveBalance" | "contractRef" | "probationStatus">>
+): Promise<Employee | null> {
+  const tableIds = getTableIds()
+
+  if (!isBaserowConfigured() || !tableIds.employees) {
+    const mock = getMockEmployees().find((e) => e.id === id)
+    return mock ? { ...mock, ...updates } : null
+  }
+
+  const body: Record<string, unknown> = {}
+  if (updates.leaveBalance !== undefined) body["Leave Balance"] = updates.leaveBalance
+  if (updates.contractRef !== undefined) body["Contract Ref"] = updates.contractRef
+  if (updates.probationStatus !== undefined)
+    body["Probation Status"] = updates.probationStatus
+  if (Object.keys(body).length === 0) return getEmployee(id)
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.employees}/${id}/?user_field_names=true`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }
+  )
+
+  return row ? mapRowToEmployee(row) : null
+}
+
 // ==================== TASKS ====================
 
 export async function getTasks(filters?: {
@@ -373,6 +402,29 @@ export async function updateTask(id: number, updates: Partial<Task>): Promise<Ta
   )
 
   return row ? mapRowToTask(row) : null
+}
+
+export interface RecurringTaskTemplate {
+  id: number
+  Title?: string
+  Description?: string
+  "Assigned To"?: Array<{ id: number }>
+  Recurrence?: string
+  "Is Recurring"?: boolean
+  Priority?: { value?: string }
+  Project?: string
+}
+
+export async function getRecurringTaskTemplates(): Promise<RecurringTaskTemplate[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.tasks) return []
+  const result = await baserowFetch<{ results: BaserowRow[] }>(
+    `/database/rows/table/${tableIds.tasks}/?user_field_names=true&size=200`
+  )
+  if (!result?.results) return []
+  return result.results.filter(
+    (r) => r["Is Recurring"] && r["Recurrence"]
+  ) as RecurringTaskTemplate[]
 }
 
 // ==================== EXPENSES ====================
@@ -634,6 +686,22 @@ export async function clockOut(entryId: number): Promise<TimeClockEntry | null> 
     }
   )
 
+  return row ? mapRowToTimeClockEntry(row) : null
+}
+
+export async function updateTimeClockEntry(
+  entryId: number,
+  updates: { approvalStatus?: string }
+): Promise<TimeClockEntry | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.timeClock) return null
+  const body: Record<string, unknown> = {}
+  if (updates.approvalStatus) body["Approval Status"] = updates.approvalStatus
+  if (Object.keys(body).length === 0) return null
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.timeClock}/${entryId}/?user_field_names=true`,
+    { method: "PATCH", body: JSON.stringify(body) }
+  )
   return row ? mapRowToTimeClockEntry(row) : null
 }
 
@@ -1121,4 +1189,42 @@ function getMockVehicleLogs(): VehicleLog[] {
       distance: 32,
     },
   ]
+}
+
+export interface DocumentExpiryRow {
+  id: number
+  "Doc Name"?: string
+  Type?: string
+  "Next Review"?: string
+  "Party Responsible"?: Array<{ id: number }>
+}
+
+export async function getDocumentExpiryRows(): Promise<DocumentExpiryRow[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.documentExpiry) {
+    return []
+  }
+  const result = await baserowFetch<{ results: BaserowRow[] }>(
+    `/database/rows/table/${tableIds.documentExpiry}/?user_field_names=true&size=200`
+  )
+  if (!result?.results) return []
+  return result.results as DocumentExpiryRow[]
+}
+
+export async function updateDocumentExpiryRow(
+  id: number,
+  updates: { docuSealRef?: string; lastReview?: string; status?: string }
+): Promise<DocumentExpiryRow | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.documentExpiry) return null
+  const body: Record<string, unknown> = {}
+  if (updates.docuSealRef !== undefined) body["DocuSeal Ref"] = updates.docuSealRef
+  if (updates.lastReview !== undefined) body["Last Review"] = updates.lastReview
+  if (updates.status !== undefined) body["Status"] = updates.status
+  if (Object.keys(body).length === 0) return null
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.documentExpiry}/${id}/?user_field_names=true`,
+    { method: "PATCH", body: JSON.stringify(body) }
+  )
+  return row as DocumentExpiryRow | null
 }

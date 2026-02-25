@@ -45,6 +45,12 @@ resource "azurerm_storage_container" "backups" {
   container_access_type = "private"
 }
 
+resource "azurerm_storage_container" "archive" {
+  name                  = "archive"
+  storage_account_name  = azurerm_storage_account.main.name
+  container_access_type = "private"
+}
+
 resource "azurerm_storage_container" "terraform-state" {
   name                  = "tfstate"
   storage_account_name  = azurerm_storage_account.main.name
@@ -90,7 +96,25 @@ resource "azurerm_storage_management_policy" "lifecycle" {
     actions {
       base_blob {
         tier_to_cool_after_days_since_modification_greater_than = 7
-        delete_after_days_since_modification_greater_than       = 30
+        tier_to_archive_after_days_since_modification_greater_than = 90
+        delete_after_days_since_modification_greater_than       = 365
+      }
+    }
+  }
+
+  rule {
+    name    = "archive-lifecycle"
+    enabled = true
+
+    filters {
+      prefix_match = ["archive/"]
+      blob_types   = ["blockBlob"]
+    }
+
+    actions {
+      base_blob {
+        tier_to_cool_after_days_since_modification_greater_than    = 90
+        tier_to_archive_after_days_since_modification_greater_than = 365
       }
     }
   }

@@ -2,7 +2,7 @@
 House of Veritas - Azure Function: Monthly Budget Report
 
 Generates monthly financial report with budget vs actual spending.
-Exports report as PDF and emails to admin.
+Exports report to Azure Blob Storage (archive) and emails to admin.
 
 Trigger: Timer (Monthly 5th at 8:00 AM UTC)
 Schedule: 0 0 8 5 * *
@@ -12,6 +12,8 @@ Report Includes:
 - Budget vs actual comparison
 - Top expenses
 - Employee expense breakdown
+
+Retention: Stored in archive container for long-term retention in Azure.
 """
 
 import logging
@@ -30,6 +32,12 @@ from shared.utils import (
 )
 
 logger = setup_logging("budget-report")
+
+try:
+    from azure.storage.blob import BlobServiceClient
+    HAS_AZURE_STORAGE = True
+except ImportError:
+    HAS_AZURE_STORAGE = False
 
 # Budget limits by category (monthly)
 CATEGORY_BUDGETS = {
@@ -224,6 +232,24 @@ def main(timer: func.TimerRequest) -> None:
         category_totals,
         employee_totals
     )
+    
+    # Upload report to Azure Blob Storage for retention
+    if HAS_AZURE_STORAGE and config.storage_connection_string:
+        try:
+            blob_service = BlobServiceClient.from_connection_string(
+                config.storage_connection_string
+            )
+            container_client = blob_service.get_container_client(config.archive_container)
+            if not container_client.exists():
+                container_client.create_container()
+            blob_name = f"budget-reports/{report_year}/{report_month:02d}_{get_month_name(report_month)}_{report_year}.txt"
+            blob_client = container_client.get_blob_client(blob_name)
+            blob_client.upload_blob(report_text, overwrite=True)
+            logger.info(f"Budget report retained in Azure: {config.archive_container}/{blob_name}")
+        except Exception as e:
+            logger.warning(f"Failed to retain report in Azure: {e}")
+    else:
+        logger.warning("Azure Storage not configured - report not retained in blob storage")
     
     # Send report via email
     total_spent = sum(category_totals.values())

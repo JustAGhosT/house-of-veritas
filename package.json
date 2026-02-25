@@ -18,6 +18,7 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:install": "npx playwright install chromium",
+    "inngest:dev": "npx --ignore-scripts=false inngest-cli@latest dev",
     "verify": "npm run build && npm run lint && npm run format:check && npm test",
     "spell": "cspell \"**/*\"",
     "spell:fix": "cspell \"**/*\" --no-progress -u"
@@ -62,6 +63,7 @@
     "embla-carousel-react": "8.5.1",
     "framer-motion": "12.24.5",
     "html5-qrcode": "^2.3.8",
+    "inngest": "^3.52.3",
     "input-otp": "1.4.1",
     "ioredis": "^5.9.3",
     "jose": "^6.1.3",

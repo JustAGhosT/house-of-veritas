@@ -9,6 +9,8 @@ import { withDataSource } from "@/lib/api/response"
 import { withRole } from "@/lib/auth/rbac"
 import { toISODateString } from "@/lib/utils"
 import { logger } from "@/lib/logger"
+import { emitApprovalRequired } from "@/lib/realtime/event-store"
+import { routeToInngest } from "@/lib/workflows"
 
 export const GET = withRole(
   "admin",
@@ -93,6 +95,23 @@ export const POST = withRole(
       project,
       notes,
     })
+
+    const useInngest = process.env.USE_INNGEST_APPROVALS === "true"
+    if (!useInngest) {
+      emitApprovalRequired(
+        { ...expense, type: "expense", submittedBy: request.headers.get("x-user-id") || "unknown" },
+        "hans"
+      )
+    }
+    if (useInngest) {
+      await routeToInngest({
+        name: "house-of-veritas/expense.created",
+        data: {
+          ...expense,
+          submittedBy: request.headers.get("x-user-id") || "unknown",
+        },
+      })
+    }
 
     return withDataSource({ expense })
   } catch (error) {

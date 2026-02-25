@@ -1,0 +1,96 @@
+import { inngest } from "@/lib/inngest/client"
+import { getRecurringTaskTemplates, createTask } from "@/lib/services/baserow"
+import { sendNotification } from "@/lib/services/notification-service"
+import { toISODateString } from "@/lib/utils"
+
+const BASEROW_ID_TO_APP_ID: Record<number, string> = {
+  1: "hans",
+  2: "charl",
+  3: "lucky",
+  4: "irma",
+}
+
+function getWeekStart(d: Date): Date {
+  const copy = new Date(d)
+  const day = copy.getDay()
+  const diff = copy.getDate() - day + (day === 0 ? -6 : 1)
+  copy.setDate(diff)
+  return copy
+}
+
+function shouldCreateThisWeek(recurrence: string | undefined, d: Date): boolean {
+  if (!recurrence) return false
+  if (recurrence === "Daily" || recurrence === "Weekly") return true
+  if (recurrence === "Monthly") return d.getDate() <= 7
+  if (recurrence === "Quarterly") {
+    const m = d.getMonth()
+    return [0, 3, 6, 9].includes(m) && d.getDate() <= 7
+  }
+  return false
+}
+
+export const recurringTasksCreate = inngest.createFunction(
+  { id: "recurring-tasks-create", retries: 2 },
+  { cron: "0 8 * * 1" },
+  async () => {
+    const templates = await getRecurringTaskTemplates()
+    const now = new Date()
+    const weekStart = getWeekStart(new Date(now))
+    const created: { id: number; title: string }[] = []
+
+    for (const t of templates) {
+      if (!shouldCreateThisWeek(t.Recurrence, now)) continue
+      const assigneeId = t["Assigned To"]?.[0]?.id
+      const dueDates: Date[] =
+        t.Recurrence === "Daily"
+          ? Array.from({ length: 7 }, (_, i) => new Date(weekStart.getTime() + i * 86400000))
+          : [new Date(weekStart.getTime() + 4 * 86400000)]
+
+      const templateCreated: { id: number; title: string }[] = []
+      for (const dueDate of dueDates) {
+        const task = await createTask({
+          title: `${t.Title ?? "Task"} - ${toISODateString(dueDate)}`,
+          description: t.Description ?? "",
+          dueDate: toISODateString(dueDate),
+          priority: (t.Priority?.value as "Low" | "Medium" | "High") ?? "Medium",
+          status: "Not Started",
+          assignedTo: assigneeId,
+          project: t.Project,
+        })
+        if (task) {
+          created.push({ id: task.id, title: task.title })
+          templateCreated.push({ id: task.id, title: task.title })
+        }
+      }
+      if (templateCreated.length > 0 && assigneeId) {
+        const appUserId = BASEROW_ID_TO_APP_ID[assigneeId] ?? "hans"
+        await sendNotification({
+          type: "task_assigned",
+          userId: appUserId,
+          title: "Weekly Tasks Assigned",
+          message:
+            templateCreated.length === 1
+              ? `${templateCreated[0].title}`
+              : `${t.Title ?? "Task"}: ${templateCreated.length} tasks created`,
+          channels: ["in_app"],
+          data: { taskIds: templateCreated.map((c) => c.id), assigneeId },
+          priority: "medium",
+        })
+      }
+    }
+
+    if (created.length > 0) {
+      await sendNotification({
+        type: "weekly_summary",
+        userId: "hans",
+        title: `Weekly Tasks Created: ${created.length} tasks`,
+        message: created.slice(0, 5).map((c) => c.title).join("; "),
+        channels: ["in_app"],
+        data: { count: created.length },
+        priority: "medium",
+      })
+    }
+
+    return { templatesChecked: templates.length, tasksCreated: created.length }
+  }
+)

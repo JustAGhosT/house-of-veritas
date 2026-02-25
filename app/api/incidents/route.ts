@@ -1,7 +1,24 @@
 import { NextResponse } from "next/server"
+import { withRole } from "@/lib/auth/rbac"
+import { routeToInngest } from "@/lib/workflows"
+import { logger } from "@/lib/logger"
 
-export async function GET() {
-  const incidents = [
+interface Incident {
+  id: number
+  date: string
+  time: string
+  type: string
+  location: string
+  reporter: string
+  severity: "Low" | "Medium" | "High" | "Critical"
+  status: string
+  description: string
+  actions?: string | null
+  witnesses?: string | null
+  followUpRequired?: boolean
+}
+
+let incidents: Incident[] = [
     {
       id: 1,
       date: "2025-01-18",
@@ -60,6 +77,7 @@ export async function GET() {
     },
   ]
 
+export async function GET() {
   const summary = {
     total: incidents.length,
     resolved: incidents.filter((i) => i.status === "Resolved").length,
@@ -80,3 +98,64 @@ export async function GET() {
 
   return NextResponse.json({ incidents, summary })
 }
+
+export const POST = withRole("admin", "operator", "employee", "resident")(
+  async (request) => {
+    try {
+      const body = await request.json()
+      const { type, location, severity, description, reporter } = body
+      const userId = request.headers.get("x-user-id") || "unknown"
+
+      if (!type || !location || !severity || !description) {
+        return NextResponse.json(
+          { error: "type, location, severity, and description are required" },
+          { status: 400 }
+        )
+      }
+
+      const validSeverity = ["Low", "Medium", "High", "Critical"]
+      if (!validSeverity.includes(severity)) {
+        return NextResponse.json(
+          { error: `severity must be one of: ${validSeverity.join(", ")}` },
+          { status: 400 }
+        )
+      }
+
+      const now = new Date()
+      const id = incidents.length + 1
+      const newIncident: Incident = {
+        id,
+        date: now.toISOString().split("T")[0],
+        time: now.toTimeString().slice(0, 5),
+        type,
+        location,
+        reporter: reporter || userId,
+        severity,
+        status: "Pending",
+        description,
+        actions: null,
+        witnesses: null,
+        followUpRequired: severity === "High" || severity === "Critical",
+      }
+      incidents.push(newIncident)
+
+      await routeToInngest({
+        name: "house-of-veritas/incident.created",
+        data: {
+          id: String(id),
+          severity: newIncident.severity,
+        },
+      })
+
+      return NextResponse.json({ incident: newIncident })
+    } catch (error) {
+      logger.error("POST incident error", {
+        error: error instanceof Error ? error.message : String(error),
+      })
+      return NextResponse.json(
+        { error: "Failed to create incident" },
+        { status: 500 }
+      )
+    }
+  }
+)

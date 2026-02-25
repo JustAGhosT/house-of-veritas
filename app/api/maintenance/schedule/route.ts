@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { logger } from "@/lib/logger"
 import { withRole } from "@/lib/auth/rbac"
+import { routeToInngest } from "@/lib/workflows"
 
 // Scheduled maintenance items (synced with calendar)
 interface ScheduledMaintenance {
@@ -206,6 +207,18 @@ export const POST = withRole(
         }
       }
 
+      for (const m of newSchedules) {
+        await routeToInngest({
+          name: "house-of-veritas/maintenance.scheduled",
+          data: {
+            id: m.id,
+            assigneeId: m.assignedTo,
+            assigneeEmail: undefined,
+            scheduledDate: m.scheduledDate,
+          },
+        })
+      }
+
       return NextResponse.json({
         success: true,
         scheduledCount: newSchedules.length,
@@ -279,6 +292,16 @@ export const POST = withRole(
     }
 
     scheduledMaintenance.push(newMaintenance)
+
+    await routeToInngest({
+      name: "house-of-veritas/maintenance.scheduled",
+      data: {
+        id: newMaintenance.id,
+        assigneeId: newMaintenance.assignedTo,
+        assigneeEmail: undefined,
+        scheduledDate: newMaintenance.scheduledDate,
+      },
+    })
 
     return NextResponse.json({
       success: true,

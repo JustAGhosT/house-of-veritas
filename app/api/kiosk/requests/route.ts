@@ -9,6 +9,8 @@ import { sendNotification, NotificationChannel } from "@/lib/services/notificati
 import { withRole, withAuth } from "@/lib/auth/rbac"
 import { ObjectId } from "mongodb"
 import { logger } from "@/lib/logger"
+import { routeToInngest } from "@/lib/workflows"
+import { restockByName } from "@/lib/inventory-store"
 
 // Re-export for tests that may reference SEED_DATA
 export { KIOSK_SEED_DATA as SEED_DATA } from "@/lib/db/kiosk-store"
@@ -176,7 +178,22 @@ export const POST = withAuth(async (request) => {
       _id: result.insertedId,
     }
 
-    await notifyManager(insertedRequest)
+    const useInngest = process.env.USE_INNGEST_APPROVALS === "true"
+    if (useInngest) {
+      await routeToInngest({
+        name: "house-of-veritas/kiosk.request.submitted",
+        data: {
+          requestId: result.insertedId.toString(),
+          type: insertedRequest.type,
+          employeeId: insertedRequest.employeeId,
+          employeeName: insertedRequest.employeeName,
+          data: insertedRequest.data,
+          timestamp: insertedRequest.timestamp,
+        },
+      })
+    } else {
+      await notifyManager(insertedRequest)
+    }
     logger.info("Kiosk: New request", { type, employeeName: employeeName || employeeId, data })
 
     return NextResponse.json({
@@ -241,6 +258,32 @@ export const PATCH = withRole("admin")(async (request, context) => {
 
     if (status === "approved" || status === "rejected") {
       await notifyEmployee(updatedRequest, status, notes)
+    }
+
+    if (status === "approved" && updatedRequest.type === "stock_order") {
+      const d = updatedRequest.data as { itemName?: string; quantity?: number }
+      const itemName = d?.itemName
+      const quantity = typeof d?.quantity === "number" ? d.quantity : 0
+      if (itemName && quantity > 0) {
+        const restocked = restockByName(itemName, quantity)
+        if (restocked) {
+          logger.info("Kiosk: Auto-restocked inventory from approved stock order", {
+            itemName,
+            quantity,
+            itemId: restocked.id,
+          })
+        }
+        await routeToInngest({
+          name: "house-of-veritas/kiosk.stock_order.approved",
+          data: {
+            requestId: requestId,
+            itemName,
+            quantity,
+            employeeId: updatedRequest.employeeId,
+            reviewedBy: context.userId,
+          },
+        })
+      }
     }
 
     return NextResponse.json({

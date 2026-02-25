@@ -41,6 +41,7 @@
 | [06-access-control-adr.md](02-architecture/06-access-control-adr.md)             | ADR: Access control model — roles, responsibilities, project membership, task visibility |
 | [07-ai-integration-adr.md](02-architecture/07-ai-integration-adr.md)             | ADR: AI integration strategy — Azure Foundry, suggestion APIs, fallback behavior         |
 | [08-testing-strategy-adr.md](02-architecture/08-testing-strategy-adr.md)         | ADR: Testing strategy — Vitest, Playwright, coverage targets, CI integration             |
+| [09-workflow-orchestration-adr.md](02-architecture/09-workflow-orchestration-adr.md) | ADR: Workflow orchestration — Inngest, workflow layer, n8n roadmap, weighted decision matrix |
 
 ## 03-deployment/ -- Deployment and Operations
 

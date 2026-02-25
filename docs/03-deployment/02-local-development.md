@@ -25,6 +25,8 @@ Edit `.env` and set:
 | `BASEROW_SECRET_KEY`  | Generate with `openssl rand -hex 32` |
 | `REDIS_PASSWORD`      | Redis password                       |
 
+For Next.js `.env.local`, see [Workflow env](../04-configuration/06-workflow-env.md) (e.g. `USE_INNGEST_APPROVALS`).
+
 ### 2. Generate Local SSL Certificates
 
 ```bash
