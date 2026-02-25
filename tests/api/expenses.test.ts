@@ -3,6 +3,24 @@ import { GET, POST, PATCH } from "@/app/api/expenses/route"
 import * as eventStore from "@/lib/realtime/event-store"
 import * as workflows from "@/lib/workflows"
 
+vi.mock("@/lib/services/baserow", () => {
+  const mockExpenses = [
+    { id: 1, requester: 1, requesterName: "Hans", category: "Supplies", amount: 100, approvalStatus: "Pending" as const },
+    { id: 2, requester: 2, requesterName: "Charl", category: "Materials", amount: 200, approvalStatus: "Approved" as const },
+  ]
+  return {
+    getExpenses: vi.fn().mockResolvedValue(mockExpenses),
+    createExpense: vi.fn().mockImplementation((expense: Record<string, unknown>) =>
+      Promise.resolve({ ...expense, id: Date.now(), approvalStatus: "Pending" })
+    ),
+    updateExpense: vi.fn().mockImplementation((id: number, updates: Record<string, unknown>) =>
+      Promise.resolve({ id, requester: 1, category: "Supplies", amount: 150, ...mockExpenses[0], ...updates })
+    ),
+    getBaserowEmployeeIdByAppId: vi.fn().mockResolvedValue(1),
+    isBaserowConfigured: vi.fn().mockReturnValue(false),
+  }
+})
+
 const adminHeaders = {
   "x-user-id": "hans",
   "x-user-role": "admin",

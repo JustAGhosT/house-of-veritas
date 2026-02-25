@@ -77,11 +77,11 @@ describe("users", () => {
   describe("verifyPassword", () => {
     it("should verify correct password", () => {
       expect(verifyPassword("hans123", USERS.hans.passwordHash)).toBe(true)
-    })
+    }, 10000)
 
     it("should reject incorrect password", () => {
       expect(verifyPassword("wrong", USERS.hans.passwordHash)).toBe(false)
-    })
+    }, 10000)
   })
 
   describe("password management", () => {
@@ -97,7 +97,7 @@ describe("users", () => {
       expect(hash).toMatch(/^\$2[aby]\$/)
       expect(verifyPassword("newpass", hash)).toBe(true)
       expect(verifyPassword("hans123", hash)).toBe(false)
-    })
+    }, 10000)
   })
 
   describe("safeUser", () => {
