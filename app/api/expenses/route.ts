@@ -11,6 +11,9 @@ import { toISODateString } from "@/lib/utils"
 import { logger } from "@/lib/logger"
 import { emitApprovalRequired } from "@/lib/realtime/event-store"
 import { routeToInngest } from "@/lib/workflows"
+import { sendNotification } from "@/lib/services/notification-service"
+
+const HIGH_VALUE_THRESHOLD = 5000
 
 export const GET = withRole(
   "admin",
@@ -125,13 +128,55 @@ export const POST = withRole(
 export const PATCH = withRole("admin")(async (request) => {
   try {
     const body = await request.json()
-    const { id, ...updates } = body
+    const { id, status, secondaryApprover, ...rest } = body
 
     if (!id) {
       return NextResponse.json({ error: "Expense ID is required" }, { status: 400 })
     }
 
-    const expense = await updateExpense(id, updates)
+    const existing = (await getExpenses({ status: undefined })).find((e) => e.id === id)
+    if (!existing) {
+      return NextResponse.json({ error: "Expense not found" }, { status: 404 })
+    }
+
+    const updates: Record<string, unknown> = { ...rest }
+    if (status) updates.approvalStatus = status
+    if (secondaryApprover !== undefined) updates.secondaryApprover = secondaryApprover
+
+    const isHighValue = existing.amount > HIGH_VALUE_THRESHOLD
+    if (status === "Approved" && isHighValue && existing.approvalStatus === "Pending") {
+      Object.assign(updates, {
+        approvalStatus: "Pending Secondary",
+        approver: 1,
+        approvalDate: toISODateString(),
+      })
+      const expense = await updateExpense(id, updates as Parameters<typeof updateExpense>[1])
+      if (expense) {
+        await sendNotification({
+          type: "approval_required",
+          userId: "hans",
+          title: "Secondary Approval Required",
+          message: `Expense R${existing.amount.toLocaleString()} needs secondary approval`,
+          channels: ["in_app"],
+          data: { expenseId: id, amount: existing.amount },
+          priority: "medium",
+        })
+      }
+      return withDataSource({ expense })
+    }
+
+    if (
+      status === "Approved" &&
+      existing.approvalStatus === "Pending Secondary"
+    ) {
+      Object.assign(updates, {
+        approvalStatus: "Approved",
+        secondaryApprover: secondaryApprover ?? 1,
+        secondaryApprovalDate: toISODateString(),
+      })
+    }
+
+    const expense = await updateExpense(id, updates as Parameters<typeof updateExpense>[1])
 
     if (!expense) {
       return NextResponse.json({ error: "Expense not found" }, { status: 404 })

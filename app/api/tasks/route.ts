@@ -118,13 +118,36 @@ export const POST = withRole("admin", "operator", "employee")(
 )
 
 export const PATCH = withRole("admin", "operator", "employee")(
-  async (request) => {
+  async (request, context) => {
     try {
       const body = await request.json()
       const { id, ...updates } = body
 
       if (!id) {
         return NextResponse.json({ error: "Task ID is required" }, { status: 400 })
+      }
+
+      const existing = (await getTasks({ status: undefined })).find((t) => t.id === id)
+      if (!existing) {
+        return NextResponse.json({ error: "Task not found" }, { status: 404 })
+      }
+
+      const userRole = context.role
+      const userId = context.userId
+      const isAdmin = userRole === "admin"
+
+      if (!isAdmin) {
+        const myAssignedId = PERSONA_TO_ASSIGNED_ID[userId?.toLowerCase() ?? ""]
+        const projectNames = await getProjectNamesForMember(userId ?? "")
+        const canEdit =
+          (myAssignedId !== undefined && existing.assignedTo === myAssignedId) ||
+          (existing.project && projectNames.includes(existing.project))
+        if (!canEdit) {
+          return NextResponse.json(
+            { error: "You can only update tasks assigned to you or in your projects" },
+            { status: 403 }
+          )
+        }
       }
 
       const task = await updateTask(id, updates)

@@ -19,13 +19,19 @@ function getWeekRange(d: Date): { start: string; end: string } {
   return { start: toISODateString(start), end: toISODateString(end) }
 }
 
-function parseHours(clockIn?: string, clockOut?: string): number {
+function parseHours(
+  clockIn?: string,
+  clockOut?: string,
+  breakDurationMinutes?: number
+): number {
   if (!clockIn || !clockOut) return 0
   try {
     const [ih, im] = clockIn.split(":").map(Number)
     const [oh, om] = clockOut.split(":").map(Number)
     let mins = oh * 60 + om - (ih * 60 + im)
     if (mins < 0) mins += 24 * 60
+    const breakMins = typeof breakDurationMinutes === "number" ? breakDurationMinutes : 0
+    mins = Math.max(0, mins - breakMins)
     return mins / 60
   } catch {
     return 0
@@ -50,7 +56,8 @@ export const overtimeCalculate = inngest.createFunction(
         (e) => e.date >= start && e.date <= end && e.clockOut
       )
       const totalHours = weekEntries.reduce(
-        (sum, e) => sum + parseHours(e.clockIn, e.clockOut),
+        (sum, e) =>
+          sum + parseHours(e.clockIn, e.clockOut, e.breakDuration),
         0
       )
       const overtimeHours = Math.max(0, totalHours - STANDARD_HOURS)

@@ -16,32 +16,74 @@ Access n8n at http://localhost:5678. Default credentials: admin / changeme (over
 1. **Baserow** — Add Baserow credential with `BASEROW_API_TOKEN` and `BASEROW_URL`
 2. **SendGrid** — For email notifications
 3. **Twilio** — For SMS (incident escalation)
+4. **WhatsApp** — For staff notifications (optional)
 
 ## Business Rules to Implement
 
-### 1. Expense > R5,000 → Extra Approval
+### Core Rules (Priority)
 
-- **Trigger:** Webhook from Next.js when expense created (or Baserow webhook)
-- **Condition:** `amount > 5000`
-- **Action:** Send notification to Hans; optionally create "secondary approval" task
+| Rule | Trigger | Condition | Action |
+| ---- | ------- | --------- | ------ |
+| Expense > R5k | Webhook on expense created | `amount > 5000` | Notify Hans; secondary approval |
+| Incident High/Critical | Webhook on incident created | `severity` in [High, Critical] | SMS Hans via Twilio |
+| Task Overdue > 3 days | Daily or Baserow webhook | `status !== Completed` AND `dueDate` < today - 3 | Notify Hans; escalate |
+| Vehicle Mileage > 100k | Webhook on vehicle log | `odometerEnd` or `odometerStart` > 100000 | Create maintenance task; notify Charl |
 
-### 2. Incident High/Critical → SMS Hans
+### Employee & Onboarding (n8n)
 
-- **Trigger:** Webhook when incident created
-- **Condition:** `severity` in ["High", "Critical"]
-- **Action:** Send SMS to Hans via Twilio
+- **New hire onboarding:** DocuSeal contract signed → create employee record, assign checklist, welcome email, ID doc upload task
+- **Exit workflow:** Termination logged → asset return checklist, deactivate access, exit interview, payroll trigger
 
-### 3. Task Overdue > 3 Days → Escalate
+### Asset Management (n8n)
 
-- **Trigger:** Scheduled (daily) or Baserow webhook on task update
-- **Condition:** `status !== "Completed"` AND `dueDate` < today - 3 days
-- **Action:** Notify Hans; optionally reassign
+- **Asset check-in/out:** On allocation → log in Baserow, send return reminder by due date
+- **Maintenance due:** Asset due for service → create task, notify assignee, escalate to Hans after 48h
+- **Damaged/missing:** Incident with asset reference → assign to maintenance, log cost, update insurance
 
-### 4. Vehicle Mileage > 100,000 km → Schedule Service
+### Incident & Safety (n8n)
 
-- **Trigger:** Webhook when vehicle log updated (or scheduled check)
-- **Condition:** `odometerEnd` or `odometerStart` > 100000
-- **Action:** Create maintenance task; notify workshop (Charl)
+- **Investigation workflow:** New incident → assign to Hans, set deadline, auto-remind if overdue
+- **Repeat incident:** Same type within period → escalate (review meeting, policy change)
+- **Safety equipment checks:** Rotate responsibility, log result in Baserow
+- **Emergency plan review:** Annual → DocuSeal "review and sign"
+
+### Payroll & Leave (n8n)
+
+- **Leave request:** Employee submits → notify Hans; 48h escalation; approved → update calendar/rota
+- **Budget variance:** Weekly aggregate actuals vs budget → alert if 90% with projected overrun
+
+### Policy & Feedback (n8n)
+
+- **Policy change:** Amend House Rules → notify signatories, lock old version, require new DocuSeal e-sign
+- **Feedback loop:** After incident closed, contractor job → survey via WhatsApp/email
+- **Contractor performance:** After job → review/rating request; log negative events
+- **Micro-incident trend:** Weekly tally minor issues → if pattern, create action for Hans
+- **Celebration:** Milestone (12 months no incident) → congrats message, badge
+- **Rota autopilot:** Leave/illness → auto-adjust rota, ping next in chain
+- **Emergency protocol live test:** Twice yearly → mock SMS, capture responses, report gaps
+- **Cross-function coordination:** Blocked workflow → coordinated reminders to all involved
+
+## Inngest vs n8n
+
+- **Inngest:** Cron-based, durable, event-driven (e.g. document expiry, probation reminder, payroll summary, task overdue)
+- **n8n:** Assignment logic, notifications, multi-service orchestration, business-user rules
+
+See [10-workflow-specifications.md](10-workflow-specifications.md) for full workflow catalog.
+
+## New Webhooks (Swimlane Implementation)
+
+Events emitted by Inngest/Next.js that n8n can consume:
+
+| Event | Payload | Use Case |
+| ----- | ------- | -------- |
+| `house-of-veritas/leave.request.submitted` | id, employeeId, startDate, endDate, type, days | Leave 48h escalation |
+| `house-of-veritas/loan.request.submitted` | id, employeeId, amount, purpose | Loan approval flow |
+| `house-of-veritas/petty.cash.request.submitted` | id, requesterId, amount, purpose | Petty cash approval |
+| `house-of-veritas/petty.cash.policy.violation` | requesterId, amount, reason | Policy violation alert |
+| `house-of-veritas/kitchen.cross.contamination` | taskId, description, location | Cross-contamination escalation |
+| `house-of-veritas/employee.created` | employeeId | Reference verification trigger |
+| `house-of-veritas/onboarding.checklist.progressed` | checklistId, employeeId | IT provisioning trigger |
+| `house-of-veritas/succession.live.test` | successorId, duration | Live succession test |
 
 ## Webhook Integration
 

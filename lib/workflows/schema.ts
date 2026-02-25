@@ -1,6 +1,14 @@
 export type WorkflowEventName =
   | "house-of-veritas/kiosk.request.submitted"
   | "house-of-veritas/expense.created"
+  | "house-of-veritas/leave.request.submitted"
+  | "house-of-veritas/loan.request.submitted"
+  | "house-of-veritas/petty.cash.request.submitted"
+  | "house-of-veritas/petty.cash.policy.violation"
+  | "house-of-veritas/employee.created"
+  | "house-of-veritas/onboarding.checklist.progressed"
+  | "house-of-veritas/kitchen.cross.contamination"
+  | "house-of-veritas/succession.live.test"
   | "house-of-veritas/document.expiry.check"
   | "house-of-veritas/recurring.tasks.create"
   | "house-of-veritas/overtime.calculate"
@@ -51,6 +59,7 @@ export interface IncidentPayload {
   id: string
   severity: "Low" | "Medium" | "High" | "Critical"
   assigneeId?: string
+  victimSupportPath?: boolean
 }
 
 export interface MaintenancePayload {
@@ -116,6 +125,30 @@ export interface ContractorMilestonePayload {
   amount: number
 }
 
+export interface LeaveRequestPayload {
+  id: number
+  employeeId: number
+  startDate: string
+  endDate: string
+  type: string
+  days: number
+}
+
+export interface LoanPayload {
+  id: number
+  employeeId: number
+  amount: number
+  purpose: string
+}
+
+export interface PettyCashPayload {
+  id?: number
+  requesterId: number
+  amount: number
+  purpose: string
+  reason?: string
+}
+
 export type WorkflowEvent =
   | { name: "house-of-veritas/kiosk.request.submitted"; data: KioskRequestPayload }
   | { name: "house-of-veritas/expense.created"; data: ExpensePayload }
@@ -132,3 +165,7 @@ export type WorkflowEvent =
   | { name: "house-of-veritas/purchase_order.created"; data: PurchaseOrderCreatedPayload }
   | { name: "house-of-veritas/project.started"; data: ProjectStartedPayload }
   | { name: "house-of-veritas/contractor.milestone.completed"; data: ContractorMilestonePayload }
+  | { name: "house-of-veritas/leave.request.submitted"; data: LeaveRequestPayload }
+  | { name: "house-of-veritas/loan.request.submitted"; data: LoanPayload }
+  | { name: "house-of-veritas/petty.cash.request.submitted"; data: PettyCashPayload }
+  | { name: "house-of-veritas/petty.cash.policy.violation"; data: PettyCashPayload }
