@@ -18,8 +18,12 @@ import {
   Camera,
   Bell,
   Shield,
+  X,
+  User,
+  ChevronDown,
 } from "lucide-react"
 import { apiFetch, apiFetchSafe } from "@/lib/api-client"
+import { RESPONSIBILITIES } from "@/lib/access-config"
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Administrator",
@@ -27,6 +31,8 @@ const ROLE_LABELS: Record<string, string> = {
   resident: "Resident",
   employee: "Employee",
 }
+
+const ROLES = ["operator", "employee", "resident"] as const
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -39,6 +45,10 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(true)
   const [confirmedRole, setConfirmedRole] = useState(false)
   const [confirmedResponsibilities, setConfirmedResponsibilities] = useState(false)
+  const [selectedResponsibilities, setSelectedResponsibilities] = useState<Set<string>>(new Set())
+  const [roleRequestOpen, setRoleRequestOpen] = useState(false)
+  const [requestedRole, setRequestedRole] = useState("")
+  const [roleRequestSent, setRoleRequestSent] = useState(false)
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [passwordSet, setPasswordSet] = useState(false)
@@ -63,9 +73,14 @@ export default function OnboardingPage() {
     } | null>("/api/users/me", null, { label: "UsersMe" })
       .then((data) => {
         if (data?.user) {
-          setUser(
-            data.user as { id: string; name: string; role: string; responsibilities?: string[] }
-          )
+          const u = data.user as {
+            id: string
+            name: string
+            role: string
+            responsibilities?: string[]
+          }
+          setUser(u)
+          setSelectedResponsibilities(new Set(u.responsibilities || []))
           if (data.user.onboardingStatus === "completed") {
             router.push(`/dashboard/${data.user.id}`)
           }
@@ -128,7 +143,10 @@ export default function OnboardingPage() {
   const handleSignDocument = async (templateId: string) => {
     setSigningDoc(templateId)
     try {
-      const data = await apiFetch<{ submissionId?: string }>("/api/onboarding/documents", {
+      const data = await apiFetch<{
+        submissionId?: string
+        signingUrl?: string
+      }>("/api/onboarding/documents", {
         method: "POST",
         body: { templateId },
         label: "SignDocument",
@@ -136,19 +154,67 @@ export default function OnboardingPage() {
       if (data?.submissionId) {
         setDocumentsSigned(true)
       }
+      if (data?.signingUrl) {
+        window.open(data.signingUrl, "_blank", "noopener,noreferrer")
+      }
     } finally {
       setSigningDoc(null)
     }
   }
 
-  const handleStartTutorial = () => {
-    if (!confirmedRole || !confirmedResponsibilities) return
-    router.push(`/dashboard/${user?.id}?tutorial=1`)
+  const handleSubmitRoleRequest = async () => {
+    if (!requestedRole.trim()) return
+    try {
+      await apiFetch("/api/users/me/onboarding-feedback", {
+        method: "POST",
+        body: { roleChangeRequest: requestedRole },
+        label: "RoleRequest",
+      })
+      setRoleRequestSent(true)
+    } catch {
+      setRoleRequestSent(false)
+    }
+  }
+
+  const handleSaveResponsibilities = async () => {
+    try {
+      await apiFetch("/api/users/me/onboarding-feedback", {
+        method: "POST",
+        body: { responsibilities: Array.from(selectedResponsibilities) },
+        label: "Responsibilities",
+      })
+    } catch {
+      // ignore
+    }
+  }
+
+  const toggleResponsibility = (r: string) => {
+    setSelectedResponsibilities((prev) => {
+      const next = new Set(prev)
+      if (next.has(r)) next.delete(r)
+      else next.add(r)
+      return next
+    })
+  }
+
+  const handleStartTutorial = async () => {
+    if (!user?.id) return
+    await handleSaveResponsibilities()
+    try {
+      await apiFetch("/api/users/me/onboard", { method: "POST", label: "Onboard" })
+      router.push(`/dashboard/${user.id}?tutorial=1`)
+    } catch {
+      router.push(`/dashboard/${user.id}?tutorial=1`)
+    }
+  }
+
+  const handleClose = () => {
+    router.push(`/dashboard/${user?.id || ""}`)
   }
 
   if (loading || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
+      <div className="flex min-h-screen items-center justify-center bg-black/60">
         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
       </div>
     )
@@ -156,113 +222,175 @@ export default function OnboardingPage() {
 
   return (
     <ErrorBoundary>
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f] p-6">
-        <Card className="w-full max-w-lg border-white/10 bg-[#0d0d12]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Users className="h-6 w-6" />
-              Welcome to House of Veritas
-            </CardTitle>
-            <CardDescription className="text-white/60">
-              Please confirm your role and responsibilities to complete onboarding.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <p className="mb-2 text-white/80">Your assigned role</p>
-              <p className="text-lg font-medium text-white">
-                {ROLE_LABELS[user.role] || user.role}
-              </p>
-              <div className="mt-2 flex items-center gap-2">
-                <Checkbox
-                  id="confirm-role"
-                  checked={confirmedRole}
-                  onCheckedChange={(v) => setConfirmedRole(!!v)}
-                />
-                <Label htmlFor="confirm-role" className="cursor-pointer text-white/70">
-                  I confirm this is my correct role
-                </Label>
-              </div>
-            </div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+        <Card className="relative w-full max-w-lg max-h-[90vh] overflow-hidden border-white/20 bg-[#0d0d12] shadow-2xl">
+          <button
+            onClick={handleClose}
+            className="absolute top-4 right-4 z-10 rounded-lg p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
 
-            <div>
-              <p className="mb-2 text-white/80">Your responsibilities</p>
-              {user.responsibilities?.length ? (
-                <ul className="list-inside list-disc space-y-1 text-white/70">
-                  {user.responsibilities.map((r) => (
-                    <li key={r}>{r}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-white/50 italic">No specific responsibilities assigned yet.</p>
-              )}
-              <div className="mt-2 flex items-center gap-2">
-                <Checkbox
-                  id="confirm-resp"
-                  checked={confirmedResponsibilities}
-                  onCheckedChange={(v) => setConfirmedResponsibilities(!!v)}
-                />
-                <Label htmlFor="confirm-resp" className="cursor-pointer text-white/70">
-                  I confirm I understand my responsibilities
-                </Label>
+          <div className="overflow-y-auto max-h-[90vh]">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-3 pr-10">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600/20">
+                  <Users className="h-6 w-6 text-blue-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl text-white">Welcome to House of Veritas</CardTitle>
+                  <CardDescription className="mt-1 flex items-center gap-2 text-white/70">
+                    <User className="h-4 w-4" />
+                    {user.name}
+                  </CardDescription>
+                </div>
               </div>
-            </div>
+              <p className="mt-2 text-sm text-white/50">
+                Please confirm your role and responsibilities to complete onboarding.
+              </p>
+            </CardHeader>
 
-            <div>
-              <p className="mb-2 flex items-center gap-2 text-white/80">
-                <Key className="h-4 w-4" />
-                Set your password
-              </p>
-              <p className="mb-2 text-sm text-white/50">
-                Choose a password for future logins (min 6 characters). You can skip and set it
-                later from your profile.
-              </p>
-              {!passwordSet ? (
-                <div className="space-y-2">
-                  <Input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="New password"
-                    className="border-white/10 bg-white/5 text-white"
-                  />
-                  <Input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm password"
-                    className="border-white/10 bg-white/5 text-white"
-                  />
+            <CardContent className="space-y-6 pb-8">
+              <div>
+                <p className="mb-2 text-sm font-medium text-white/80">Your assigned role</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-lg bg-white/10 px-3 py-1.5 text-white">
+                    {ROLE_LABELS[user.role] || user.role}
+                  </span>
                   <Button
-                    onClick={handleSetPassword}
-                    disabled={
-                      password.length < 6 || password !== confirmPassword || settingPassword
-                    }
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    className="border-white/20"
+                    className="text-blue-400 hover:bg-blue-500/20 hover:text-blue-300"
+                    onClick={() => setRoleRequestOpen(!roleRequestOpen)}
                   >
-                    {settingPassword ? "Setting..." : "Set password"}
+                    Request different role
+                    <ChevronDown
+                      className={`ml-1 h-4 w-4 transition-transform ${roleRequestOpen ? "rotate-180" : ""}`}
+                    />
                   </Button>
                 </div>
-              ) : (
-                <p className="flex items-center gap-1 text-sm text-green-400">
-                  <CheckCircle className="h-4 w-4" />
-                  Password set successfully
-                </p>
-              )}
-            </div>
+                {roleRequestOpen && (
+                  <div className="mt-3 space-y-2">
+                    <select
+                      value={requestedRole}
+                      onChange={(e) => setRequestedRole(e.target.value)}
+                      className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white"
+                      title="Select role to request"
+                      aria-label="Select role to request"
+                    >
+                      <option value="">Select role to request</option>
+                      {ROLES.filter((r) => r !== user.role).map((r) => (
+                        <option key={r} value={r}>
+                          {ROLE_LABELS[r]}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      size="sm"
+                      onClick={handleSubmitRoleRequest}
+                      disabled={!requestedRole || roleRequestSent}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {roleRequestSent ? "Request sent" : "Submit request"}
+                    </Button>
+                  </div>
+                )}
+                <div className="mt-2 flex items-center gap-2">
+                  <Checkbox
+                    id="confirm-role"
+                    checked={confirmedRole}
+                    onCheckedChange={(v) => setConfirmedRole(!!v)}
+                  />
+                  <Label htmlFor="confirm-role" className="cursor-pointer text-sm text-white/70">
+                    I confirm this is my correct role
+                  </Label>
+                </div>
+              </div>
 
-            <div>
-              <p className="mb-2 flex items-center gap-2 text-white/80">
-                <Camera className="h-4 w-4" />
-                Profile photo
-              </p>
-              <p className="mb-2 text-sm text-white/50">
-                Upload a profile photo (from camera or file). Optional – you can add one later in
-                Settings.
-              </p>
-              <div className="flex items-center gap-2">
+              <div>
+                <p className="mb-2 text-sm font-medium text-white/80">
+                  Your responsibilities (select to accept, deselect to deny)
+                </p>
+                <div className="space-y-2 rounded-lg border border-white/10 bg-white/5 p-3">
+                  {RESPONSIBILITIES.map((r) => (
+                    <label
+                      key={r}
+                      className="flex cursor-pointer items-center gap-2 text-sm text-white/80"
+                    >
+                      <Checkbox
+                        checked={selectedResponsibilities.has(r)}
+                        onCheckedChange={() => toggleResponsibility(r)}
+                      />
+                      {r}
+                    </label>
+                  ))}
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <Checkbox
+                    id="confirm-resp"
+                    checked={confirmedResponsibilities}
+                    onCheckedChange={(v) => {
+                      setConfirmedResponsibilities(!!v)
+                      if (v) handleSaveResponsibilities()
+                    }}
+                  />
+                  <Label htmlFor="confirm-resp" className="cursor-pointer text-sm text-white/70">
+                    I confirm I understand my responsibilities
+                  </Label>
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-2 flex items-center gap-2 text-sm font-medium text-white/80">
+                  <Key className="h-4 w-4" />
+                  Set your password
+                </p>
+                <p className="mb-2 text-xs text-white/50">
+                  Choose a password for future logins (min 6 characters). You can skip and set it
+                  later from your profile.
+                </p>
+                {!passwordSet ? (
+                  <div className="space-y-2">
+                    <Input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="New password"
+                      className="border-white/10 bg-white/5 text-white"
+                    />
+                    <Input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm password"
+                      className="border-white/10 bg-white/5 text-white"
+                    />
+                    <Button
+                      onClick={handleSetPassword}
+                      disabled={
+                        password.length < 6 || password !== confirmPassword || settingPassword
+                      }
+                      variant="outline"
+                      size="sm"
+                      className="border-white/20"
+                    >
+                      {settingPassword ? "Setting..." : "Set password"}
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="flex items-center gap-1 text-sm text-green-400">
+                    <CheckCircle className="h-4 w-4" />
+                    Password set successfully
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <p className="mb-2 flex items-center gap-2 text-sm font-medium text-white/80">
+                  <Camera className="h-4 w-4" />
+                  Profile photo
+                </p>
                 <input
                   type="file"
                   accept="image/*"
@@ -276,139 +404,118 @@ export default function OnboardingPage() {
                   htmlFor="profile-photo-input"
                   className="cursor-pointer rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10"
                 >
-                  {uploadingPhoto
-                    ? "Uploading..."
-                    : photoUploaded
-                      ? "Photo uploaded ✓"
-                      : "Take photo or upload"}
+                  {uploadingPhoto ? "Uploading..." : photoUploaded ? "Photo uploaded ✓" : "Take photo or upload"}
                 </label>
               </div>
-            </div>
 
-            <div>
-              <p className="mb-2 flex items-center gap-2 text-white/80">
-                <Bell className="h-4 w-4" />
-                Notification preferences
-              </p>
-              <p className="mb-2 text-sm text-white/50">
-                Choose how you want to receive notifications.
-              </p>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-white/80">
-                  <input
-                    type="checkbox"
-                    checked={notifPrefs.email}
-                    onChange={(e) => setNotifPrefs((p) => ({ ...p, email: e.target.checked }))}
-                    className="rounded"
-                  />
-                  Email
-                </label>
-                <label className="flex items-center gap-2 text-white/80">
-                  <input
-                    type="checkbox"
-                    checked={notifPrefs.sms}
-                    onChange={(e) => setNotifPrefs((p) => ({ ...p, sms: e.target.checked }))}
-                    className="rounded"
-                  />
-                  SMS
-                </label>
-                <label className="flex items-center gap-2 text-white/80">
-                  <input
-                    type="checkbox"
-                    checked={notifPrefs.push}
-                    onChange={(e) => setNotifPrefs((p) => ({ ...p, push: e.target.checked }))}
-                    className="rounded"
-                  />
-                  Push notifications
-                </label>
+              <div>
+                <p className="mb-2 flex items-center gap-2 text-sm font-medium text-white/80">
+                  <Bell className="h-4 w-4" />
+                  Notification preferences
+                </p>
+                <div className="space-y-2">
+                  {(["email", "sms", "push"] as const).map((k) => (
+                    <label key={k} className="flex items-center gap-2 text-sm text-white/80">
+                      <input
+                        type="checkbox"
+                        checked={notifPrefs[k]}
+                        onChange={(e) =>
+                          setNotifPrefs((p) => ({ ...p, [k]: e.target.checked }))
+                        }
+                        className="rounded"
+                      />
+                      {k === "email" ? "Email" : k === "sms" ? "SMS" : "Push notifications"}
+                    </label>
+                  ))}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleSaveNotifPrefs}
+                    className="mt-2 border-white/20"
+                  >
+                    Save preferences
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-2 flex items-center gap-2 text-sm font-medium text-white/80">
+                  <Shield className="h-4 w-4" />
+                  Two-factor authentication (optional)
+                </p>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={handleSaveNotifPrefs}
-                  className="mt-2 border-white/20"
+                  onClick={() => setTwoFaEnabled(true)}
+                  disabled={twoFaEnabled}
+                  className="border-white/20"
                 >
-                  Save preferences
+                  {twoFaEnabled ? (
+                    <span className="flex items-center gap-1">
+                      <CheckCircle className="h-4 w-4" />
+                      Skip for now
+                    </span>
+                  ) : (
+                    "I'll set up 2FA later"
+                  )}
                 </Button>
               </div>
-            </div>
 
-            <div>
-              <p className="mb-2 flex items-center gap-2 text-white/80">
-                <Shield className="h-4 w-4" />
-                Two-factor authentication (optional)
-              </p>
-              <p className="mb-2 text-sm text-white/50">
-                Add an extra layer of security. You can enable 2FA later in Settings → Security.
-              </p>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setTwoFaEnabled(true)}
-                disabled={twoFaEnabled}
-                className="border-white/20"
-              >
-                {twoFaEnabled ? (
-                  <span className="flex items-center gap-1">
-                    <CheckCircle className="h-4 w-4" />
-                    Skip for now
-                  </span>
-                ) : (
-                  "I'll set up 2FA later"
-                )}
-              </Button>
-            </div>
-
-            <div>
-              <p className="mb-2 flex items-center gap-2 text-white/80">
-                <FileSignature className="h-4 w-4" />
-                Sign initial documents
-              </p>
-              <p className="mb-2 text-sm text-white/50">
-                Sign your employment contract, house rules, or consent forms as applicable. You may
-                receive an email with a signing link.
-              </p>
-              {onboardingDocs.length > 0 ? (
-                <div className="space-y-2">
-                  {onboardingDocs.map((doc) => (
-                    <div
-                      key={doc.id}
-                      className="flex items-center justify-between rounded-lg bg-white/5 p-2"
-                    >
-                      <span className="text-white/80">{doc.name}</span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleSignDocument(doc.id)}
-                        disabled={!!signingDoc}
-                        className="border-white/20"
+              <div>
+                <p className="mb-2 flex items-center gap-2 text-sm font-medium text-white/80">
+                  <FileSignature className="h-4 w-4" />
+                  Sign initial documents
+                </p>
+                {onboardingDocs.length > 0 ? (
+                  <div className="space-y-2">
+                    {onboardingDocs.map((doc) => (
+                      <div
+                        key={doc.id}
+                        className="flex items-center justify-between rounded-lg bg-white/5 p-2"
                       >
-                        {signingDoc === doc.id ? "Sending..." : "Sign"}
-                      </Button>
-                    </div>
-                  ))}
-                  {documentsSigned && (
-                    <p className="flex items-center gap-1 text-sm text-green-400">
-                      <CheckCircle className="h-4 w-4" />
-                      Signature request sent
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <p className="text-sm text-white/40 italic">No documents required for your role.</p>
-              )}
-            </div>
+                        <span className="text-white/80">{doc.name}</span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleSignDocument(doc.id)}
+                          disabled={!!signingDoc}
+                          className="border-white/20"
+                        >
+                          {signingDoc === doc.id ? "Sending..." : "Sign"}
+                        </Button>
+                      </div>
+                    ))}
+                    {documentsSigned && (
+                      <p className="flex items-center gap-1 text-sm text-green-400">
+                        <CheckCircle className="h-4 w-4" />
+                        Signature request sent
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-white/40 italic">No documents required for your role.</p>
+                )}
+              </div>
 
-            <div className="flex justify-end gap-2 pt-4">
-              <Button
-                onClick={handleStartTutorial}
-                disabled={!confirmedRole || !confirmedResponsibilities}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Start Guided Tour
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </CardContent>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={handleClose}
+                  className="border-white/20"
+                >
+                  Complete later
+                </Button>
+                <Button
+                  onClick={handleStartTutorial}
+                  disabled={!confirmedRole || !confirmedResponsibilities}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Start Guided Tour
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </div>
         </Card>
       </div>
     </ErrorBoundary>

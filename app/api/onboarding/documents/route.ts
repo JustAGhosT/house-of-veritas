@@ -55,6 +55,7 @@ export const POST = withAuth(async (request, context) => {
     return NextResponse.json({
       submissionId: submission.id,
       status: submission.status,
+      signingUrl: (submission as { signingUrl?: string }).signingUrl,
       message:
         "Signature request created. Check your email for the signing link, or use the DocuSeal portal.",
     })

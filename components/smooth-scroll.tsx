@@ -20,7 +20,24 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
 
     requestAnimationFrame(raf)
 
+    const handleAnchorClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      const anchor = target.closest('a[href^="#"]')
+      if (anchor) {
+        const href = anchor.getAttribute("href")
+        if (href && href !== "#") {
+          e.preventDefault()
+          const id = href.slice(1)
+          const el = document.getElementById(id)
+          if (el) lenis.scrollTo(el, { offset: -80, duration: 1.2 })
+        }
+      }
+    }
+
+    document.addEventListener("click", handleAnchorClick, true)
+
     return () => {
+      document.removeEventListener("click", handleAnchorClick, true)
       lenis.destroy()
     }
   }, [])

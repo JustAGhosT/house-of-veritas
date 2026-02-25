@@ -32,6 +32,7 @@ interface SignatureSubmission {
   createdAt: Date
   completedAt?: Date
   documentUrl?: string
+  signingUrl?: string
 }
 
 interface CreateSubmissionRequest {
@@ -123,12 +124,24 @@ export async function createSubmission(
     }
 
     const data = await response.json()
+    const baseUrl = config.apiUrl.replace(/\/api\/?$/, "")
+    const submitters = Array.isArray(data) ? data : data.submitters || []
+    const firstSubmitter =
+      submitters.find((s: { email?: string }) => s.email === request.recipients[0]?.email) ||
+      submitters[0]
+    const signingUrl = firstSubmitter?.embed_src
+      ? firstSubmitter.embed_src
+      : firstSubmitter?.slug
+        ? `${baseUrl}/s/${firstSubmitter.slug}`
+        : undefined
+
     return {
-      id: data.id,
+      id: String(data.id ?? data.submission_id ?? firstSubmitter?.submission_id ?? ""),
       templateId: request.templateId,
       recipients: request.recipients,
       status: "pending",
       createdAt: new Date(),
+      signingUrl,
     }
   } catch (error) {
     logger.error("DocuSeal createSubmission error", {
