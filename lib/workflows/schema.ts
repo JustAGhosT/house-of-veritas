@@ -152,6 +152,8 @@ export interface PettyCashPayload {
 export type WorkflowEvent =
   | { name: "house-of-veritas/kiosk.request.submitted"; data: KioskRequestPayload }
   | { name: "house-of-veritas/expense.created"; data: ExpensePayload }
+  | { name: "house-of-veritas/employee.created"; data: { employeeId: number } }
+  | { name: "house-of-veritas/onboarding.checklist.progressed"; data: { checklistId?: number; employeeId?: number } }
   | { name: "house-of-veritas/document.expiry.check"; data?: Record<string, unknown> }
   | { name: "house-of-veritas/recurring.tasks.create"; data?: Record<string, unknown> }
   | { name: "house-of-veritas/overtime.calculate"; data?: Record<string, unknown> }
