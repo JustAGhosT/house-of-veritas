@@ -29,7 +29,7 @@ export async function GET(
 export const PATCH = withRole("admin", "operator", "employee")(
   async (request, context) => {
     try {
-      const params = await (context.params ?? Promise.resolve({}))
+      const params = (await (context.params ?? Promise.resolve({}))) as { id?: string }
       const idParam = params?.id
       if (!idParam) {
         return NextResponse.json({ error: "Asset ID required" }, { status: 400 })
