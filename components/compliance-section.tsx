@@ -42,7 +42,7 @@ export function ComplianceSection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   return (
-    <section className="bg-zinc-950/50 px-4 py-24">
+    <section id="documents" className="bg-zinc-950/50 px-4 py-24">
       <div className="mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

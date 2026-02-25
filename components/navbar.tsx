@@ -24,11 +24,11 @@ export function Navbar() {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }}
-      className="fixed top-0 right-0 left-0 z-50 w-full"
+      className="fixed top-0 left-0 right-0 z-50 w-full min-w-full"
     >
       <nav
         ref={navRef}
-        className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/95 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8"
+        className="flex w-full min-w-full max-w-none items-center justify-between border-b border-zinc-800 bg-zinc-900/95 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8"
       >
         {/* Logo */}
         <Link href="/" className="flex cursor-pointer items-center gap-3">

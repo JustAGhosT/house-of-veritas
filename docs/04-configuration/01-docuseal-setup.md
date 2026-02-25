@@ -38,6 +38,18 @@ Upload the House of Veritas logo and configure colors:
 
 Navigate to Settings → API and generate an API key. Store this in Azure Key Vault.
 
+### 5. Environment Variables (Next.js / local dev)
+
+Add to `.env.local` (create from `.env.example`):
+
+| Variable           | Description                                      | Example                          |
+| ------------------ | ------------------------------------------------ | -------------------------------- |
+| `DOCUSEAL_API_URL` | DocuSeal API base URL                            | `https://api.docuseal.com`       |
+| `DOCUSEAL_API_KEY` | API key (X-Auth-Token); the token from Settings → API | *(your generated key)*          |
+
+- **DocuSeal Cloud:** Use `https://api.docuseal.com` as base URL; the API key is the token.
+- **Self-hosted:** Use `https://docs.nexamesh.ai/api` (or your instance URL + `/api`).
+
 ## Document Templates
 
 Upload the 18 governance documents as templates. See `/config/templates/` for the list.

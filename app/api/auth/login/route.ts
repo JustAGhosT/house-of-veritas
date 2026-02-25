@@ -6,6 +6,7 @@ import {
   verifyPassword,
   safeUser,
 } from "@/lib/users"
+import { getUserWithManagement } from "@/lib/user-management"
 import { signToken, getSessionCookieConfig } from "@/lib/auth/jwt"
 import { logger } from "@/lib/logger"
 
@@ -32,10 +33,19 @@ export async function POST(request: Request) {
     })
 
     const cookie = getSessionCookieConfig(token)
+    const userWithMgmt = await getUserWithManagement(user.id)
+    const redirectTo =
+      userWithMgmt &&
+      userWithMgmt.onboardingStatus !== "completed" &&
+      userWithMgmt.role !== "admin"
+        ? "/onboarding"
+        : `/dashboard/${user.id}`
     const response = NextResponse.json({
       success: true,
-      user: safeUser(user),
-      redirectTo: `/dashboard/${user.id}`,
+      user: userWithMgmt
+        ? { ...safeUser(user), ...userWithMgmt }
+        : safeUser(user),
+      redirectTo,
     })
 
     response.cookies.set(cookie.name, cookie.value, {

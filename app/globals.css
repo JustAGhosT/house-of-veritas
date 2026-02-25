@@ -6,7 +6,11 @@
 /* Clickable elements show pointer cursor */
 a[href],
 button:not(:disabled),
-[role="button"] {
+[role="button"],
+[type="button"],
+[type="submit"],
+.cursor-pointer,
+label[for] {
   cursor: pointer;
 }
 
