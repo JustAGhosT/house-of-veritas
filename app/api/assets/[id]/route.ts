@@ -26,7 +26,7 @@ export async function GET(
   }
 }
 
-export const PATCH = withRole("admin", "operator", "employee")(
+export const PATCH = withRole("admin", "operator")(
   async (request, context) => {
     try {
       const params = (await (context.params ?? Promise.resolve({}))) as { id?: string }
@@ -40,7 +40,7 @@ export const PATCH = withRole("admin", "operator", "employee")(
       }
 
       const body = await request.json()
-      const { action, checkedOutBy, expectedReturnDate, personaId } = body
+      const { action, expectedReturnDate } = body
 
       const asset = await getAsset(id)
       if (!asset) {
@@ -78,9 +78,8 @@ export const PATCH = withRole("admin", "operator", "employee")(
           )
         }
 
-        const userId = request.headers.get("x-user-id") || personaId
         const employeeId =
-          (await getBaserowEmployeeIdByAppId(checkedOutBy || userId)) ?? undefined
+          (await getBaserowEmployeeIdByAppId(context.userId)) ?? undefined
         if (!employeeId) {
           return NextResponse.json(
             { error: "Could not resolve checkout user to employee" },

@@ -125,7 +125,7 @@ export const POST = withRole(
   }
 })
 
-export const PATCH = withRole("admin")(async (request) => {
+export const PATCH = withRole("admin")(async (request, context) => {
   try {
     const body = await request.json()
     const { id, status, secondaryApprover, ...rest } = body
@@ -145,9 +145,10 @@ export const PATCH = withRole("admin")(async (request) => {
 
     const isHighValue = existing.amount > HIGH_VALUE_THRESHOLD
     if (status === "Approved" && isHighValue && existing.approvalStatus === "Pending") {
+      const approverId = (await getBaserowEmployeeIdByAppId(context.userId)) ?? 1
       Object.assign(updates, {
         approvalStatus: "Pending Secondary",
-        approver: 1,
+        approver: approverId,
         approvalDate: toISODateString(),
       })
       const expense = await updateExpense(id, updates as Parameters<typeof updateExpense>[1])
@@ -169,9 +170,11 @@ export const PATCH = withRole("admin")(async (request) => {
       status === "Approved" &&
       existing.approvalStatus === "Pending Secondary"
     ) {
+      const secondaryApproverId =
+        secondaryApprover ?? (await getBaserowEmployeeIdByAppId(context.userId)) ?? 1
       Object.assign(updates, {
         approvalStatus: "Approved",
-        secondaryApprover: secondaryApprover ?? 1,
+        secondaryApprover: secondaryApproverId,
         secondaryApprovalDate: toISODateString(),
       })
     }

@@ -141,7 +141,7 @@ services:
   # Phase 4: expense >R5k, incident High→SMS, task overdue, vehicle mileage
   # ============================================
   n8n:
-    image: n8nio/n8n:latest
+    image: n8nio/n8n:1.70.3
     container_name: hov-n8n
     restart: unless-stopped
     ports:
