@@ -1,20 +1,16 @@
 import { inngest } from "@/lib/inngest/client"
 import { getVehicleLogs, getTasks, createTask } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { toISODateString } from "@/lib/utils"
+import { BASEROW_ID_TO_APP_ID } from "./constants"
 
 const MILEAGE_THRESHOLD_KM = 100_000
-const BASEROW_ID_TO_APP_ID: Record<number, string> = {
-  1: "hans",
-  2: "charl",
-  3: "lucky",
-  4: "irma",
-}
 
 export const vehicleMileageCheck = inngest.createFunction(
   { id: "vehicle-mileage-check", retries: 2 },
   { cron: "0 9 * * *" },
-  async () => {
+  async ({ step }) => {
     const logs = await getVehicleLogs()
     const vehicleMaxMileage = new Map<number, { name: string; mileage: number }>()
 
@@ -67,24 +63,26 @@ export const vehicleMileageCheck = inngest.createFunction(
     }
 
     if (created.length > 0) {
-      await sendNotification({
+      await step.run("send-notifications", async () => {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: `${created.length} vehicle(s) over 100k km - maintenance tasks created`,
         message: created.map((c) => c.title).join("; "),
         channels: ["in_app"],
         data: { taskIds: created.map((c) => c.id) },
         priority: "medium",
-      })
-      const charlId = BASEROW_ID_TO_APP_ID[2] ?? "charl"
-      await sendNotification({
-        type: "task_assigned",
-        userId: charlId,
-        title: "Vehicle maintenance tasks assigned",
-        message: created.map((c) => c.title).join("; "),
-        channels: ["in_app"],
-        data: { taskIds: created.map((c) => c.id) },
-        priority: "medium",
+        })
+        const charlId = BASEROW_ID_TO_APP_ID[2] ?? "charl"
+        await sendNotification({
+          type: "task_assigned",
+          userId: charlId,
+          title: "Vehicle maintenance tasks assigned",
+          message: created.map((c) => c.title).join("; "),
+          channels: ["in_app"],
+          data: { taskIds: created.map((c) => c.id) },
+          priority: "medium",
+        })
       })
     }
 

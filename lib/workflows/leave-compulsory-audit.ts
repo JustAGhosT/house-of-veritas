@@ -1,11 +1,12 @@
 import { inngest } from "@/lib/inngest/client"
 import { getEmployees, getLeaveRequests } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 
 export const leaveCompulsoryAudit = inngest.createFunction(
   { id: "leave-compulsory-audit", retries: 2 },
   { cron: "0 9 1 1,4,7,10 *" },
-  async () => {
+  async ({ step }) => {
     const employees = await getEmployees()
     const employeeRole = ["Employee"]
     const toAudit = employees.filter((e) => employeeRole.includes(e.role))
@@ -36,14 +37,16 @@ export const leaveCompulsoryAudit = inngest.createFunction(
     }
 
     if (findings.length > 0) {
-      await sendNotification({
+      await step.run("send-notification", async () => {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: "Leave Compliance Audit Report",
         message: findings.join("\n"),
         channels: ["in_app"],
         data: { findings, count: findings.length },
         priority: "medium",
+        })
       })
     }
 

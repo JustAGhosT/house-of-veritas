@@ -17,6 +17,7 @@ export type NotificationType =
   | "system_alert"
   | "daily_digest"
   | "weekly_summary"
+  | "leave_balance_updated"
 
 export interface NotificationPayload {
   type: NotificationType
@@ -355,6 +356,11 @@ export const NOTIFICATION_TEMPLATES: Record<
   task_assigned: (data) => ({
     title: "New Task Assigned",
     message: `You have been assigned: "${data.title}". Due: ${data.dueDate || "See dashboard"}`,
+  }),
+
+  leave_balance_updated: (data) => ({
+    title: "Leave Balance Updated",
+    message: `Your annual leave is now ${data.newBalance?.toFixed?.(1) ?? data.newBalance} days (+${data.accrued?.toFixed?.(1) ?? data.accrued} this month).`,
   }),
 
   task_due: (data) => ({

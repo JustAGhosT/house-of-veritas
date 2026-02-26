@@ -1,16 +1,28 @@
-import { NextResponse } from "next/server"
-import { getAsset, updateAsset, getBaserowEmployeeIdByAppId } from "@/lib/services/baserow"
-import { withRole } from "@/lib/auth/rbac"
+import { rateLimitAsync } from "@/lib/auth/rate-limit"
+import { getAuthContext, isAdminOrOperator, withRole } from "@/lib/auth/rbac"
 import { logger } from "@/lib/logger"
+import { getAsset, getBaserowEmployeeIdByAppId, updateAsset } from "@/lib/services/baserow"
 import { toISODateString } from "@/lib/utils"
+import { NextResponse } from "next/server"
+
+const ASSET_RATE_LIMIT = 100
+const ASSET_RATE_WINDOW_MS = 15 * 60 * 1000
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const id = parseInt((await params).id, 10)
   if (Number.isNaN(id)) {
     return NextResponse.json({ error: "Invalid asset ID" }, { status: 400 })
+  }
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  const rl = await rateLimitAsync(`asset:${ip}:${id}`, ASSET_RATE_LIMIT, ASSET_RATE_WINDOW_MS)
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too Many Requests" }, { status: 429 })
   }
   try {
     const asset = await getAsset(id)
@@ -39,7 +51,18 @@ export const PATCH = withRole("admin", "operator", "employee")(
         return NextResponse.json({ error: "Invalid asset ID" }, { status: 400 })
       }
 
-      const body = await request.json()
+      let body: Record<string, unknown>
+      try {
+        body = await request.json()
+      } catch (err) {
+        if (err instanceof SyntaxError) {
+          return NextResponse.json(
+            { error: "Malformed JSON in request body" },
+            { status: 400 }
+          )
+        }
+        throw err
+      }
       const { action, checkedOutBy, expectedReturnDate, personaId } = body
 
       const asset = await getAsset(id)
@@ -57,11 +80,8 @@ export const PATCH = withRole("admin", "operator", "employee")(
 
         const lockoutUntil = asset.lateReturnLockoutUntil
         if (lockoutUntil) {
-          const lockoutDate = new Date(lockoutUntil)
-          lockoutDate.setHours(0, 0, 0, 0)
-          const today = new Date()
-          today.setHours(0, 0, 0, 0)
-          if (lockoutDate > today) {
+          const todayStr = toISODateString(new Date())
+          if (lockoutUntil > todayStr) {
             return NextResponse.json(
               {
                 error: "Checkout blocked: asset has late return lockout until " + lockoutUntil,
@@ -71,16 +91,35 @@ export const PATCH = withRole("admin", "operator", "employee")(
           }
         }
 
-        if (!expectedReturnDate) {
+        if (typeof expectedReturnDate !== "string" || !expectedReturnDate.trim()) {
           return NextResponse.json(
             { error: "expectedReturnDate is required for checkout" },
             { status: 400 }
           )
         }
 
-        const userId = request.headers.get("x-user-id") || personaId
+        // Resolve userId from header first, then fallback to personaId from body
+        const userId = request.headers.get("x-user-id") ?? (typeof personaId === "string" ? personaId : null)
+
+        // Only allow checkedOutBy to differ from userId if caller has elevated privileges
+        let userInput: string
+        if (typeof checkedOutBy === "string" && checkedOutBy) {
+          // Check if caller is trying to set checkedOutBy to a different user
+          if (checkedOutBy !== userId) {
+            const auth = getAuthContext(request)
+            if (!auth || !isAdminOrOperator(auth.role)) {
+              return NextResponse.json(
+                { error: "Forbidden: Cannot check out asset on behalf of another user without admin/operator privileges" },
+                { status: 403 }
+              )
+            }
+          }
+          userInput = checkedOutBy
+        } else {
+          userInput = userId ?? ""
+        }
         const employeeId =
-          (await getBaserowEmployeeIdByAppId(checkedOutBy || userId)) ?? undefined
+          (await getBaserowEmployeeIdByAppId(userInput)) ?? undefined
         if (!employeeId) {
           return NextResponse.json(
             { error: "Could not resolve checkout user to employee" },
@@ -92,8 +131,11 @@ export const PATCH = withRole("admin", "operator", "employee")(
         const updated = await updateAsset(id, {
           checkedOutBy: employeeId,
           checkOutDate: today,
-          expectedReturnDate,
+          expectedReturnDate: expectedReturnDate.trim(),
         })
+        if (!updated) {
+          return NextResponse.json({ error: "Asset update failed" }, { status: 500 })
+        }
         return NextResponse.json({ asset: updated })
       }
 
@@ -110,6 +152,9 @@ export const PATCH = withRole("admin", "operator", "employee")(
           checkOutDate: null,
           expectedReturnDate: null,
         })
+        if (!updated) {
+          return NextResponse.json({ error: "Asset update failed" }, { status: 500 })
+        }
         return NextResponse.json({ asset: updated })
       }
 

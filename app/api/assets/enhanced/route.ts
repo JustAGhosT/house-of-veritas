@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server"
 import { withAuth } from "@/lib/auth/rbac"
+import { ASSET_CATEGORIES, type AssetCategory } from "@/lib/constants/asset-categories"
+
+export { ASSET_CATEGORIES, type AssetCategory }
 
 // Azure AI Configuration (with mock fallback)
 const AZURE_AI_CONFIG = {
@@ -13,20 +16,6 @@ const AZURE_AI_CONFIG = {
 export function isAzureAIConfigured(): boolean {
   return !!(AZURE_AI_CONFIG.endpoint && AZURE_AI_CONFIG.apiKey)
 }
-
-// Asset Categories with responsible persons
-export const ASSET_CATEGORIES = {
-  vehicles: { responsible: "charl", color: "blue" },
-  garden_equipment: { responsible: "lucky", color: "green" },
-  workshop_tools: { responsible: "charl", color: "amber" },
-  household_items: { responsible: "irma", color: "purple" },
-  electronics: { responsible: "hans", color: "cyan" },
-  furniture: { responsible: "irma", color: "pink" },
-  outdoor_furniture: { responsible: "lucky", color: "teal" },
-  safety_equipment: { responsible: "charl", color: "red" },
-} as const
-
-export type AssetCategory = keyof typeof ASSET_CATEGORIES
 
 // Asset Conditions
 export type AssetCondition = "excellent" | "good" | "fair" | "poor" | "needs_repair" | "for_parts"

@@ -1,11 +1,13 @@
 import { inngest } from "@/lib/inngest/client"
 import { getBudgets, getExpenses } from "@/lib/services/baserow"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
+import { formatCurrency } from "@/lib/workflows/utils"
 
 export const budgetBreachAlert = inngest.createFunction(
   { id: "budget-breach-alert", retries: 2 },
   { cron: "0 10 1 * *" },
-  async () => {
+  async ({ step }) => {
     const budgets = await getBudgets({ status: "Active" })
     const expenses = await getExpenses({ status: "Approved" })
 
@@ -31,19 +33,21 @@ export const budgetBreachAlert = inngest.createFunction(
     }
 
     if (breaches.length > 0) {
-      await sendNotification({
+      await step.run("send-notification", async () => {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: "Budget Breach Alert",
         message: breaches
           .map(
             (x) =>
-              `${x.category}: R${x.spent.toLocaleString()} spent (budget R${x.budget.toLocaleString()})`
+              `${x.category}: ${formatCurrency(x.spent)} spent (budget ${formatCurrency(x.budget)})`
           )
           .join("\n"),
         channels: ["in_app"],
         data: { breaches },
         priority: "high",
+        })
       })
     }
 

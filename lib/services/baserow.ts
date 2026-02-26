@@ -1,8 +1,8 @@
 // Baserow API Integration Service
 // This service handles all interactions with the Baserow operational database
 
-import { toISODateString } from "@/lib/utils"
 import { logger } from "@/lib/logger"
+import { toISODateString } from "@/lib/utils"
 
 interface BaserowConfig {
   apiUrl: string
@@ -315,7 +315,6 @@ export async function updateEmployee(
       | "contractRef"
       | "probationStatus"
       | "onboardingStatus"
-      | "buddyId"
       | "itProvisionedAt"
     >
   >
@@ -334,7 +333,6 @@ export async function updateEmployee(
     body["Probation Status"] = updates.probationStatus
   if (updates.onboardingStatus !== undefined)
     body["Onboarding Status"] = updates.onboardingStatus
-  if (updates.buddyId !== undefined) body["Buddy"] = [updates.buddyId]
   if (updates.itProvisionedAt !== undefined)
     body["IT Provisioned At"] = updates.itProvisionedAt
   if (Object.keys(body).length === 0) return getEmployee(id)
@@ -593,6 +591,20 @@ export async function createExpense(expense: Omit<Expense, "id">): Promise<Expen
   return row ? mapRowToExpense(row) : null
 }
 
+export async function getExpense(id: number): Promise<Expense | null> {
+  const tableIds = getTableIds()
+
+  if (!isBaserowConfigured() || !tableIds.expenses) {
+    return getMockExpenses().find((e) => e.id === id) || null
+  }
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.expenses}/${id}/?user_field_names=true`
+  )
+
+  return row ? mapRowToExpense(row) : null
+}
+
 export async function updateExpense(
   id: number,
   updates: Partial<Expense>
@@ -752,6 +764,15 @@ export async function getLoans(filters?: {
   return result.results.map(mapRowToLoan)
 }
 
+export async function getLoan(id: number): Promise<Loan | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.loans) return null
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.loans}/${id}/?user_field_names=true`
+  )
+  return row ? mapRowToLoan(row) : null
+}
+
 export async function createLoan(loan: Omit<Loan, "id">): Promise<Loan | null> {
   const tableIds = getTableIds()
   if (!isBaserowConfigured() || !tableIds.loans) {
@@ -797,6 +818,8 @@ function mapRowToPettyCash(row: BaserowRow): PettyCash {
     status: row["Status"]?.value || row.status || "Pending",
     issuedBy: row["Issued By"]?.[0]?.id ?? row.issued_by,
     issuedAt: row["Issued At"] || row.issued_at,
+    approvedBy: row["Approved By"]?.[0]?.id ?? row.approved_by,
+    approvedAt: row["Approved At"] || row.approved_at,
     createdAt: row["Created At"] || row.created_at || "",
     notes: row["Notes"] || row.notes,
   }
@@ -811,6 +834,8 @@ function mapPettyCashToRow(pc: Partial<PettyCash>): Record<string, unknown> {
   if (pc.status !== undefined) row["Status"] = pc.status
   if (pc.issuedBy !== undefined) row["Issued By"] = [pc.issuedBy]
   if (pc.issuedAt !== undefined) row["Issued At"] = pc.issuedAt
+  if (pc.approvedBy !== undefined) row["Approved By"] = [pc.approvedBy]
+  if (pc.approvedAt !== undefined) row["Approved At"] = pc.approvedAt
   if (pc.createdAt !== undefined) row["Created At"] = pc.createdAt
   if (pc.notes !== undefined) row["Notes"] = pc.notes
   return row
@@ -1447,12 +1472,12 @@ export async function clockIn(employeeId: number): Promise<TimeClockEntry | null
   return row
     ? mapRowToTimeClockEntry(row)
     : ({
-        employee: employeeId,
-        date: toISODateString(now),
-        clockIn: clockTime,
-        approvalStatus: "Pending",
-        id: Date.now(),
-      } as TimeClockEntry)
+      employee: employeeId,
+      date: toISODateString(now),
+      clockIn: clockTime,
+      approvalStatus: "Pending",
+      id: Date.now(),
+    } as TimeClockEntry)
 }
 
 export async function clockOut(entryId: number): Promise<TimeClockEntry | null> {
@@ -2074,6 +2099,8 @@ export interface PettyCash {
   status: "Pending" | "Approved" | "Rejected" | "Issued"
   issuedBy?: number
   issuedAt?: string
+  approvedBy?: number
+  approvedAt?: string
   createdAt: string
   notes?: string
 }

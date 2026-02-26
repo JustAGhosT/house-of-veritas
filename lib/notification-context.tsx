@@ -4,7 +4,14 @@ import { createContext, useContext, useState, useEffect, ReactNode, useCallback 
 
 export interface Notification {
   id: string
-  type: "task" | "approval" | "document" | "expense" | "alert" | "system"
+  type:
+    | "task"
+    | "approval"
+    | "document"
+    | "expense"
+    | "alert"
+    | "system"
+    | "leave_balance_updated"
   title: string
   message: string
   timestamp: Date

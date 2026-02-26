@@ -5,8 +5,8 @@ import {
   updateLeaveRequest,
   getEmployee,
   updateEmployee,
-  getBaserowEmployeeIdByAppId,
 } from "@/lib/services/baserow"
+import { resolveEmployeeForGet, resolveEmployeeForPost } from "@/lib/api/employee-resolver"
 import { withDataSource } from "@/lib/api/response"
 import { withRole } from "@/lib/auth/rbac"
 import { toISODateString } from "@/lib/utils"
@@ -25,19 +25,16 @@ export const GET = withRole(
   "operator",
   "employee",
   "resident"
-)(async (request) => {
+)(async (request, context) => {
   const { searchParams } = new URL(request.url)
-  const employeeParam = searchParams.get("employee")
-  const personaId = searchParams.get("personaId")
   const status = searchParams.get("status")
 
-  let employee: number | undefined
-  if (employeeParam) {
-    employee = parseInt(employeeParam, 10)
-    if (Number.isNaN(employee)) employee = undefined
-  } else if (personaId) {
-    employee = (await getBaserowEmployeeIdByAppId(personaId)) ?? undefined
-  }
+  const { employeeId: employee, error } = await resolveEmployeeForGet(
+    context,
+    searchParams,
+    { paramName: "employee" }
+  )
+  if (error) return error
 
   try {
     const requests = await getLeaveRequests({
@@ -58,22 +55,19 @@ export const POST = withRole(
   "operator",
   "employee",
   "resident"
-)(async (request) => {
+)(async (request, context) => {
   try {
     const body = await request.json()
-    const { employee: empParam, personaId, startDate, endDate, type, notes } = body
+    const { startDate, endDate, type, notes } = body
 
-    let employeeId = empParam
-    if (!employeeId && personaId) {
-      employeeId = (await getBaserowEmployeeIdByAppId(personaId)) ?? undefined
-    }
-    if (!employeeId) {
-      const auth = request.headers.get("x-user-id")
-      employeeId = (await getBaserowEmployeeIdByAppId(auth || "")) ?? undefined
-    }
-    if (!employeeId) {
-      return NextResponse.json({ error: "Employee is required" }, { status: 400 })
-    }
+    const { employeeId: resolvedEmployeeId, error } = await resolveEmployeeForPost(
+      body,
+      request,
+      context,
+      { paramName: "employee", required: true }
+    )
+    if (error) return error
+    const employeeId = resolvedEmployeeId!
 
     if (!startDate || !endDate) {
       return NextResponse.json(

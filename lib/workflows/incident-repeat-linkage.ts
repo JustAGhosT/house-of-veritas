@@ -1,6 +1,7 @@
 import { inngest } from "@/lib/inngest/client"
 import { getIncidents, updateIncident } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 
 const REPEAT_WINDOW_DAYS = 60
 const ESCALATION_THRESHOLD = 3
@@ -18,7 +19,7 @@ function parseIncidentIds(s: string | undefined): number[] {
 export const incidentRepeatLinkage = inngest.createFunction(
   { id: "incident-repeat-linkage", retries: 2 },
   { cron: "0 10 * * *" },
-  async () => {
+  async ({ step }) => {
     const incidents = await getIncidents()
     const now = new Date()
     const cutoff = new Date(now.getTime() - REPEAT_WINDOW_DAYS * 24 * 60 * 60 * 1000)
@@ -50,14 +51,16 @@ export const incidentRepeatLinkage = inngest.createFunction(
         }
       }
 
-      await sendNotification({
-        type: "system_alert",
-        userId: "hans",
+      await step.run(`notify-repeat-${idsStr}`, async () => {
+        await sendNotification({
+          type: "system_alert",
+        userId: getAdminNotificationRecipient(),
         title: "Repeat Incident - Policy Review Required",
         message: `${group.length} similar incidents in ${REPEAT_WINDOW_DAYS} days - formal policy review or intervention needed`,
         channels: ["in_app", "sms"],
         data: { incidentIds: ids, count: group.length },
         priority: "urgent",
+        })
       })
       escalated++
     }

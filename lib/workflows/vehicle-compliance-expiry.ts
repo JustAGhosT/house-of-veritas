@@ -1,12 +1,13 @@
 import { inngest } from "@/lib/inngest/client"
 import { getAssets, createTask } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { toISODateString } from "@/lib/utils"
 
 export const vehicleComplianceExpiry = inngest.createFunction(
   { id: "vehicle-compliance-expiry", retries: 2 },
   { cron: "0 8 1 * *" },
-  async () => {
+  async ({ step }) => {
     const assets = await getAssets({ type: "Vehicle" })
     if (assets.length === 0) return { tasksCreated: 0 }
 
@@ -20,14 +21,16 @@ export const vehicleComplianceExpiry = inngest.createFunction(
     })
 
     if (task) {
-      await sendNotification({
+      await step.run("send-notification", async () => {
+        await sendNotification({
         type: "task_assigned",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: "Vehicle Compliance Review Due",
         message: "Monthly vehicle license/roadworthy/insurance expiry check",
         channels: ["in_app"],
         data: { taskId: task.id },
         priority: "medium",
+        })
       })
     }
 

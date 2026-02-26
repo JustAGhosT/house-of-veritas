@@ -1,13 +1,8 @@
 import { inngest } from "@/lib/inngest/client"
 import { getEmployees } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
-
-const BASEROW_ID_TO_APP_ID: Record<number, string> = {
-  1: "hans",
-  2: "charl",
-  3: "lucky",
-  4: "irma",
-}
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
+import { BASEROW_ID_TO_APP_ID } from "./constants"
 
 function daysSince(dateStr: string): number {
   const d = new Date(dateStr)
@@ -18,7 +13,7 @@ function daysSince(dateStr: string): number {
 export const onboardingFeedbackSurvey = inngest.createFunction(
   { id: "onboarding-feedback-survey", retries: 2 },
   { cron: "0 9 * * *" },
-  async () => {
+  async ({ step }) => {
     const employees = await getEmployees()
     const toSurvey: { emp: (typeof employees)[0]; day: number }[] = []
 
@@ -32,9 +27,10 @@ export const onboardingFeedbackSurvey = inngest.createFunction(
       }
     }
 
-    for (const { emp, day } of toSurvey) {
-      const appId = BASEROW_ID_TO_APP_ID[emp.id] ?? "hans"
-      await sendNotification({
+    await step.run("send-surveys", async () => {
+      for (const { emp, day } of toSurvey) {
+        const appId = BASEROW_ID_TO_APP_ID[emp.id] ?? "hans"
+        await sendNotification({
         type: "system_alert",
         userId: appId,
         title: `${day}-Day Onboarding Feedback`,
@@ -42,20 +38,21 @@ export const onboardingFeedbackSurvey = inngest.createFunction(
         channels: ["in_app"],
         data: { employeeId: emp.id, day },
         priority: "medium",
-      })
-    }
+        })
+      }
 
-    if (toSurvey.length > 0) {
-      await sendNotification({
+      if (toSurvey.length > 0) {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: "Onboarding Feedback Due",
         message: `${toSurvey.length} employee(s) at ${toSurvey.map((x) => x.day).join("/")}-day mark - surveys sent`,
         channels: ["in_app"],
         data: { count: toSurvey.length },
         priority: "low",
-      })
-    }
+        })
+      }
+    })
 
     return { employeesChecked: employees.length, surveysSent: toSurvey.length }
   }

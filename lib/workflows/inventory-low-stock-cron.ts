@@ -1,5 +1,6 @@
 import { inngest } from "@/lib/inngest/client"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getLowStockNotificationRecipient } from "@/lib/workflows/notification-recipients"
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL ||
@@ -10,7 +11,7 @@ const BASE_URL =
 export const inventoryLowStockCron = inngest.createFunction(
   { id: "inventory-low-stock-cron", retries: 2 },
   { cron: "0 8 * * *" },
-  async () => {
+  async ({ step }) => {
     try {
       const res = await fetch(`${BASE_URL}/api/inventory?lowStock=true`)
       if (!res.ok) return { checked: 0, alertsSent: 0 }
@@ -24,9 +25,10 @@ export const inventoryLowStockCron = inngest.createFunction(
       }>
       if (!alerts?.length) return { checked: 1, alertsSent: 0 }
 
-      await sendNotification({
+      await step.run("send-notification", async () => {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getLowStockNotificationRecipient(),
         title: `Daily Inventory: ${alerts.length} low-stock items`,
         message: alerts
           .map((a) => `${a.name} (${a.currentStock}/${a.reorderPoint})`)
@@ -34,11 +36,12 @@ export const inventoryLowStockCron = inngest.createFunction(
         channels: ["in_app"],
         data: { count: alerts.length },
         priority: "medium",
+        })
       })
 
       return { checked: 1, alertsSent: alerts.length }
-    } catch {
-      return { checked: 1, alertsSent: 0 }
+    } catch (err) {
+      throw err
     }
   }
 )

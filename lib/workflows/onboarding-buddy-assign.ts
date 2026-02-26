@@ -3,24 +3,17 @@ import {
   getEmployees,
   getOnboardingChecklists,
   updateOnboardingChecklist,
-  updateEmployee,
 } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
 import { toISODateString } from "@/lib/utils"
-
-const BASEROW_ID_TO_APP_ID: Record<number, string> = {
-  1: "hans",
-  2: "charl",
-  3: "lucky",
-  4: "irma",
-}
+import { BASEROW_ID_TO_APP_ID } from "./constants"
 
 const BUDDY_DURATION_DAYS = 14
 
 export const onboardingBuddyAssign = inngest.createFunction(
   { id: "onboarding-buddy-assign", retries: 2 },
   { cron: "0 8 * * *" },
-  async () => {
+  async ({ step }) => {
     const employees = await getEmployees()
     const checklists = await getOnboardingChecklists({ status: "In Progress" })
 
@@ -38,11 +31,11 @@ export const onboardingBuddyAssign = inngest.createFunction(
 
       const buddy = buddies[0]
       await updateOnboardingChecklist(oc.id, { assignedBuddy: buddy.id })
-      await updateEmployee(emp.id, { buddyId: buddy.id })
       assigned++
 
       const buddyAppId = BASEROW_ID_TO_APP_ID[buddy.id] ?? "hans"
-      await sendNotification({
+      await step.run(`notify-buddy-${oc.id}`, async () => {
+        await sendNotification({
         type: "task_assigned",
         userId: buddyAppId,
         title: "Buddy Assignment",
@@ -50,6 +43,7 @@ export const onboardingBuddyAssign = inngest.createFunction(
         channels: ["in_app"],
         data: { employeeId: emp.id, buddyId: buddy.id },
         priority: "medium",
+        })
       })
     }
 

@@ -1,5 +1,6 @@
 import { inngest } from "@/lib/inngest/client"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import type { IncidentPayload } from "./schema"
 
 const VICTIM_SUPPORT_USER = process.env.VICTIM_SUPPORT_CONTACT || "hans"
@@ -7,13 +8,14 @@ const VICTIM_SUPPORT_USER = process.env.VICTIM_SUPPORT_CONTACT || "hans"
 export const incidentCreated = inngest.createFunction(
   { id: "incident-created", retries: 2 },
   { event: "house-of-veritas/incident.created" },
-  async ({ event }) => {
+  async ({ event, step }) => {
     const payload = event.data as IncidentPayload
     const isHighOrCritical = ["High", "Critical"].includes(payload.severity)
     const isVictimSupport = !!payload.victimSupportPath
 
-    if (isVictimSupport) {
-      await sendNotification({
+    await step.run("send-notifications", async () => {
+      if (isVictimSupport) {
+        await sendNotification({
         type: "system_alert",
         userId: VICTIM_SUPPORT_USER,
         title: "Confidential Incident – External/HR Review Required",
@@ -25,17 +27,18 @@ export const incidentCreated = inngest.createFunction(
           victimSupportPath: true,
         },
         priority: "urgent",
-      })
-    }
+        })
+      }
 
-    await sendNotification({
-      type: "system_alert",
-      userId: "hans",
-      title: `Incident Reported${isHighOrCritical ? " (Urgent)" : ""}${isVictimSupport ? " [Victim Support Path]" : ""}`,
-      message: `Incident ${payload.id} - Severity: ${payload.severity}${isVictimSupport ? " - Confidential routing active" : ""}`,
-      channels: isHighOrCritical ? ["in_app", "sms"] : ["in_app"],
-      data: { incidentId: payload.id, severity: payload.severity, victimSupportPath: isVictimSupport },
-      priority: isHighOrCritical ? "urgent" : "high",
+      await sendNotification({
+        type: "system_alert",
+        userId: getAdminNotificationRecipient(),
+        title: `Incident Reported${isHighOrCritical ? " (Urgent)" : ""}${isVictimSupport ? " [Victim Support Path]" : ""}`,
+        message: `Incident ${payload.id} - Severity: ${payload.severity}${isVictimSupport ? " - Confidential routing active" : ""}`,
+        channels: isHighOrCritical ? ["in_app", "sms"] : ["in_app"],
+        data: { incidentId: payload.id, severity: payload.severity, victimSupportPath: isVictimSupport },
+        priority: isHighOrCritical ? "urgent" : "high",
+      })
     })
 
     return { notified: true, incidentId: payload.id }

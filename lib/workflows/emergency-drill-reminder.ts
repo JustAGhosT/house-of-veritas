@@ -1,15 +1,8 @@
 import { inngest } from "@/lib/inngest/client"
-import { getEmployees } from "@/lib/services/baserow"
+import { getEmployees, createTask } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
-import { createTask } from "@/lib/services/baserow"
 import { toISODateString } from "@/lib/utils"
-
-const BASEROW_ID_TO_APP_ID: Record<number, string> = {
-  1: "hans",
-  2: "charl",
-  3: "lucky",
-  4: "irma",
-}
+import { BASEROW_ID_TO_APP_ID } from "./constants"
 
 function getQuarterStart(d: Date): Date {
   const q = Math.floor(d.getMonth() / 3) + 1
@@ -19,7 +12,7 @@ function getQuarterStart(d: Date): Date {
 export const emergencyDrillReminder = inngest.createFunction(
   { id: "emergency-drill-reminder", retries: 2 },
   { cron: "0 8 1 1,4,7,10 *" },
-  async () => {
+  async ({ step }) => {
     const now = new Date()
     const quarterStart = getQuarterStart(now)
     const drillDate = new Date(quarterStart)
@@ -38,9 +31,10 @@ export const emergencyDrillReminder = inngest.createFunction(
     const employees = await getEmployees()
     const staff = employees.filter((e) => !["Resident"].includes(e.role))
 
-    for (const emp of staff) {
-      const appUserId = BASEROW_ID_TO_APP_ID[emp.id] ?? "hans"
-      await sendNotification({
+    await step.run("send-drill-notifications", async () => {
+      for (const emp of staff) {
+        const appUserId = BASEROW_ID_TO_APP_ID[emp.id] ?? "hans"
+        await sendNotification({
         type: "system_alert",
         userId: appUserId,
         title: "Emergency Drill Scheduled",
@@ -48,8 +42,9 @@ export const emergencyDrillReminder = inngest.createFunction(
         channels: ["in_app"],
         data: { drillDate: drillDateStr, taskId: task?.id },
         priority: "high",
-      })
-    }
+        })
+      }
+    })
 
     return { taskCreated: !!task, staffNotified: staff.length }
   }

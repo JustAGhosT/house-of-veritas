@@ -5,13 +5,14 @@ import {
   updateEmployee,
   updateDocumentExpiryRow,
 } from "@/lib/services/baserow"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
 import type { DocuSealSubmissionPayload } from "./schema"
 
 export const docusealSubmissionCompleted = inngest.createFunction(
   { id: "docuseal-submission-completed", retries: 2 },
   { event: "house-of-veritas/docuseal.submission.completed" },
-  async ({ event }) => {
+  async ({ event, step }) => {
     const payload = event.data as DocuSealSubmissionPayload
     const actions: string[] = []
 
@@ -51,18 +52,20 @@ export const docusealSubmissionCompleted = inngest.createFunction(
       }
     }
 
-    await sendNotification({
-      type: "system_alert",
-      userId: "hans",
-      title: `Document Signed: ${payload.templateName}`,
-      message: `Submission ${payload.submissionId} completed. Signers: ${payload.submitterEmails.join(", ")}`,
-      channels: ["in_app"],
-      data: {
-        submissionId: payload.submissionId,
-        documentUrl: payload.documentUrl,
-        actions,
-      },
-      priority: "medium",
+    await step.run("send-notification", async () => {
+      await sendNotification({
+        type: "system_alert",
+        userId: getAdminNotificationRecipient(),
+        title: `Document Signed: ${payload.templateName}`,
+        message: `Submission ${payload.submissionId} completed. Signers: ${payload.submitterEmails.join(", ")}`,
+        channels: ["in_app"],
+        data: {
+          submissionId: payload.submissionId,
+          documentUrl: payload.documentUrl,
+          actions,
+        },
+        priority: "medium",
+      })
     })
 
     return { success: actions.length > 0, actions }

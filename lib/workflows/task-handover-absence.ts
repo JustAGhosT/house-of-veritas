@@ -1,19 +1,14 @@
 import { inngest } from "@/lib/inngest/client"
 import { getTasks, getLeaveRequests } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { toISODateString } from "@/lib/utils"
-
-const BASEROW_ID_TO_APP_ID: Record<number, string> = {
-  1: "hans",
-  2: "charl",
-  3: "lucky",
-  4: "irma",
-}
+import { BASEROW_ID_TO_APP_ID } from "./constants"
 
 export const taskHandoverAbsence = inngest.createFunction(
   { id: "task-handover-absence", retries: 2 },
   { cron: "0 7 * * *" },
-  async () => {
+  async ({ step }) => {
     const today = toISODateString()
     const leaveRequests = await getLeaveRequests({ status: "Approved" })
     const onLeave = new Set(
@@ -30,21 +25,21 @@ export const taskHandoverAbsence = inngest.createFunction(
       (t) => t.assignedTo && onLeave.has(t.assignedTo)
     )
 
-    let handovers = 0
-    for (const task of tasksToHandover) {
-      const assigneeId = task.assignedTo!
-      await sendNotification({
+    await step.run("send-handover-notifications", async () => {
+      for (const task of tasksToHandover) {
+        const assigneeId = task.assignedTo!
+        await sendNotification({
         type: "task_assigned",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: "Task Handover - Employee on Leave",
         message: `Task "${task.title}" assigned to employee on leave - needs reassignment`,
         channels: ["in_app"],
         data: { taskId: task.id, assigneeId },
         priority: "high",
-      })
-      handovers++
-    }
+        })
+      }
+    })
 
-    return { onLeave: onLeave.size, handovers }
+    return { onLeave: onLeave.size, handovers: tasksToHandover.length }
   }
 )

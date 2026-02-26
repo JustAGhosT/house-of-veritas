@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   Settings,
   ChevronRight,
+  Calendar,
 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
@@ -25,6 +26,7 @@ const typeIcons: Record<string, any> = {
   expense: DollarSign,
   alert: AlertTriangle,
   system: Settings,
+  leave_balance_updated: Calendar,
 }
 
 const typeColors: Record<string, string> = {
@@ -34,6 +36,7 @@ const typeColors: Record<string, string> = {
   expense: "bg-green-500/20 text-green-400",
   alert: "bg-red-500/20 text-red-400",
   system: "bg-gray-500/20 text-gray-400",
+  leave_balance_updated: "bg-teal-500/20 text-teal-400",
 }
 
 const priorityColors: Record<string, string> = {

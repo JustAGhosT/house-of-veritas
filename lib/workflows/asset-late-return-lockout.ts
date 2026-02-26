@@ -1,6 +1,7 @@
 import { inngest } from "@/lib/inngest/client"
 import { getAssets, updateAsset } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { toISODateString } from "@/lib/utils"
 
 const LOCKOUT_DAYS = 7
@@ -8,7 +9,7 @@ const LOCKOUT_DAYS = 7
 export const assetLateReturnLockout = inngest.createFunction(
   { id: "asset-late-return-lockout", retries: 2 },
   { cron: "0 9 * * *" },
-  async () => {
+  async ({ step }) => {
     const assets = await getAssets()
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -34,18 +35,20 @@ export const assetLateReturnLockout = inngest.createFunction(
     lockoutUntil.setDate(lockoutUntil.getDate() + LOCKOUT_DAYS)
     const lockoutStr = toISODateString(lockoutUntil)
 
-    for (const o of overdue) {
-      await updateAsset(o.id, { lateReturnLockoutUntil: lockoutStr })
-      await sendNotification({
+    await step.run("send-lockout-notifications", async () => {
+      for (const o of overdue) {
+        await updateAsset(o.id, { lateReturnLockoutUntil: lockoutStr })
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: "Asset Late Return - Lockout Applied",
         message: `Asset ${o.assetId} overdue - checkout locked until ${lockoutStr}`,
         channels: ["in_app"],
         data: { assetId: o.id, lockoutUntil: lockoutStr },
         priority: "high",
-      })
-    }
+        })
+      }
+    })
 
     return { overdueCount: overdue.length }
   }

@@ -1,18 +1,13 @@
 import { inngest } from "@/lib/inngest/client"
 import { getEmployees } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
-
-const BASEROW_ID_TO_APP_ID: Record<number, string> = {
-  1: "hans",
-  2: "charl",
-  3: "lucky",
-  4: "irma",
-}
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
+import { BASEROW_ID_TO_APP_ID } from "./constants"
 
 export const leaveCarryoverExpiry = inngest.createFunction(
   { id: "leave-carryover-expiry", retries: 2 },
   { cron: "0 8 1 11,12 *" },
-  async () => {
+  async ({ step }) => {
     const employees = await getEmployees()
     const employeeRole = ["Employee"]
     const toCheck = employees.filter((e) => employeeRole.includes(e.role))
@@ -27,8 +22,9 @@ export const leaveCarryoverExpiry = inngest.createFunction(
       }
     }
 
-    for (const a of alerts) {
-      await sendNotification({
+    await step.run("send-carryover-notifications", async () => {
+      for (const a of alerts) {
+        await sendNotification({
         type: "system_alert",
         userId: a.appId,
         title: "Leave Balance Expiring Soon",
@@ -36,20 +32,21 @@ export const leaveCarryoverExpiry = inngest.createFunction(
         channels: ["in_app"],
         data: { balance: a.balance },
         priority: "medium",
-      })
-    }
+        })
+      }
 
-    if (alerts.length > 0) {
-      await sendNotification({
+      if (alerts.length > 0) {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: `Leave Carry-over: ${alerts.length} employees with expiring balance`,
         message: alerts.map((a) => `${a.name}: ${a.balance.toFixed(1)} days`).join("; "),
         channels: ["in_app"],
         data: { count: alerts.length },
         priority: "medium",
-      })
-    }
+        })
+      }
+    })
 
     return { employeesChecked: toCheck.length, alertsSent: alerts.length }
   }

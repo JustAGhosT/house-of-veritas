@@ -1,14 +1,14 @@
 import { inngest } from "@/lib/inngest/client"
 import { getTasks } from "@/lib/services/baserow"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
 import { toISODateString } from "@/lib/utils"
-
-const OVERDUE_DAYS = 3
+import { OVERDUE_DAYS } from "./constants"
 
 export const taskOverdueCheck = inngest.createFunction(
   { id: "task-overdue-check", retries: 2 },
   { cron: "0 9 * * *" },
-  async () => {
+  async ({ step }) => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const cutoff = new Date(today)
@@ -24,9 +24,10 @@ export const taskOverdueCheck = inngest.createFunction(
     )
 
     if (overdue.length > 0) {
-      await sendNotification({
+      await step.run("send-notification", async () => {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: `Task Escalation: ${overdue.length} overdue tasks`,
         message: overdue
           .slice(0, 5)
@@ -38,6 +39,7 @@ export const taskOverdueCheck = inngest.createFunction(
           taskIds: overdue.map((t) => t.id),
         },
         priority: "high",
+        })
       })
     }
 

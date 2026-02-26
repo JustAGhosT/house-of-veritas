@@ -20,7 +20,7 @@ Create a new workspace: **"House of Veritas Operations"**
 
 ### 3. Database Structure
 
-Create a new database within the workspace with the 8 core tables as defined below.
+Create a new database within the workspace with the 17 tables as defined below.
 
 ## Database Schema
 
@@ -155,7 +155,7 @@ Create a new database within the workspace with the 8 core tables as defined bel
 | Approval Date   | Date              |                                                                                                |
 | Payment Status  | Single Select     | Unpaid, Paid                                                                                   |
 | Payment Date    | Date              |                                                                                                |
-| Secondary Approver | Link to Employees | For amounts over threshold (e.g. R5k) |
+| Secondary Approver | Link to Employees | For amounts over R5000 |
 | Secondary Approval Date | Date        |                                                                                                |
 
 ### Table 8: Document Expiry
@@ -184,7 +184,7 @@ Create a new database within the workspace with the 8 core tables as defined bel
 | Employee        | Link to Employees | Required                               |
 | Start Date      | Date              |                                        |
 | End Date        | Date              |                                        |
-| Type            | Single Select     | Annual, Sick, Unpaid, Other             |
+| Type            | Single Select     | Annual, Sick, Family Responsibility, Unpaid, Other |
 | Status          | Single Select     | Pending, Approved, Rejected             |
 | Approver        | Link to Employees | Hans                                   |
 | Approved At     | Date              |                                        |
@@ -211,18 +211,20 @@ Create a new database within the workspace with the 8 core tables as defined bel
 
 ### Table 11: Petty Cash
 
-| Field           | Type              | Options/Notes                   |
-| --------------- | ----------------- | ------------------------------- |
-| ID              | Auto Number       | Primary Key                     |
-| Requester       | Link to Employees | Required                        |
-| Amount          | Number            | ZAR                             |
-| Purpose         | Text              |                                 |
-| Receipt         | File              | Required for reconciliation     |
-| Status          | Single Select     | Pending, Approved, Rejected, Issued |
-| Issued By       | Link to Employees |                                 |
-| Issued At       | Date              |                                 |
-| Created At      | Date              |                                 |
-| Notes           | Long Text         |                                 |
+| Field           | Type              | Options/Notes                                                                 |
+| --------------- | ----------------- | ----------------------------------------------------------------------------- |
+| ID              | Auto Number       | Primary Key                                                                   |
+| Requester       | Link to Employees | Required                                                                      |
+| Amount          | Number            | ZAR                                                                           |
+| Purpose         | Text              |                                                                               |
+| Receipt         | File              | Required for reconciliation                                                   |
+| Status          | Single Select     | Pending, Approved, Rejected, Issued — workflow: request → approval → disbursement |
+| Issued By       | Link to Employees | Disbursement actor; who physically issued the cash when Status = Issued       |
+| Issued At       | Date              | When cash was disbursed                                                       |
+| Approved By     | Link to Employees | Authorisation actor; required when Status = Approved or Issued                |
+| Approved At     | Date              | When approval was granted (authorisation timestamp)                           |
+| Created At      | Date              |                                                                               |
+| Notes           | Long Text         |                                                                               |
 
 ### Table 12: Onboarding Checklist
 
@@ -242,7 +244,7 @@ Create a new database within the workspace with the 8 core tables as defined bel
 | Field           | Type              | Options/Notes                   |
 | --------------- | ----------------- | ------------------------------- |
 | ID              | Auto Number       | Primary Key                     |
-| Category        | Single Select     | Materials, Labor, Fuel, etc.    |
+| Category        | Single Select     | Materials, Labor, Fuel, Maintenance, Supplies, Food, Transport, Utilities, Professional, Other |
 | Amount          | Number            | ZAR                             |
 | Period          | Text              | e.g., "2024" or "2024-Q1"       |
 | Version         | Number            | For amendment tracking          |
@@ -288,7 +290,7 @@ Create a new database within the workspace with the 8 core tables as defined bel
 | Description     | Long Text         |                                 |
 | Amount          | Number            | ZAR                             |
 | Status          | Single Select     | Draft, Submitted, Under Review, Approved, Denied |
-| Claim Id        | Text              | External insurer reference      |
+| Claim ID        | Text              | External insurer reference      |
 | Submitted At    | Date              |                                 |
 | Created At      | Date              |                                 |
 | Notes           | Long Text         |                                 |
@@ -298,7 +300,7 @@ Create a new database within the workspace with the 8 core tables as defined bel
 | Field           | Type              | Options/Notes                   |
 | --------------- | ----------------- | ------------------------------- |
 | ID              | Auto Number       | Primary Key                     |
-| Contractor      | Link to Employees or Text | Contractor reference       |
+| Contractor      | Text              | Contractor or vendor name (free-form; external contractors not in Employees) |
 | Project         | Text              |                                 |
 | Milestones      | Long Text         | JSON array of milestone dates   |
 | Amounts         | Long Text         | JSON array of milestone amounts |
@@ -313,7 +315,6 @@ Create a new database within the workspace with the 8 core tables as defined bel
 
 | Field                 | Type              | Options/Notes                       |
 | --------------------- | ----------------- | ----------------------------------- |
-| Expected Return Date  | Date              | For late return lockout             |
 | Late Return Lockout Until | Date          | Block checkout until resolved       |
 
 ### Table 5: Incidents (extended)
@@ -328,8 +329,15 @@ Create a new database within the workspace with the 8 core tables as defined bel
 | Field                 | Type              | Options/Notes                       |
 | --------------------- | ----------------- | ----------------------------------- |
 | Onboarding Status     | Single Select     | Not Started, In Progress, Completed  |
-| Buddy                 | Link to Employees | Assigned mentor                     |
+| Buddy                 | Lookup            | Via reverse link from Table 12; look up "Assigned Buddy" (single source of truth) |
 | IT Provisioned At     | Date              | When IT accounts created            |
+
+**Buddy field setup:** Table 12 (Onboarding Checklist) links to Employees via "Employee". Baserow creates a reverse link on Employees (e.g. "Onboarding Checklist"). Add a Lookup field "Buddy" on Employees: select the reverse link field, then look up "Assigned Buddy". This ensures the mentor is sourced only from Table 12, avoiding data drift.
+
+**Migration (if Table 1 already has a "Buddy" Link field):**
+
+1. Remove the "Buddy" Link field from Table 1 (Employees).
+2. Add a Lookup field "Buddy" on Employees: use the reverse link from Onboarding Checklist (Employee) and look up "Assigned Buddy".
 
 ## Views Configuration
 
@@ -385,7 +393,7 @@ Base URL: `https://ops.nexamesh.ai/api`
 ## Testing Checklist
 
 - [ ] Admin workspace created
-- [ ] All 16 tables created with correct fields
+- [ ] All 17 tables created with correct fields
 - [ ] Relationships (links) working correctly
 - [ ] Formulas calculating correctly
 - [ ] All 4 users can log in

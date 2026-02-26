@@ -4,6 +4,9 @@
  *
  * Configure BANK_API_URL and BANK_API_KEY to enable. When not configured,
  * submitPayment logs and returns a stub success (no actual transfer).
+ *
+ * Sends Idempotency-Key header (payment.reference or derived key) so the bank
+ * API can deduplicate retries. The bank API should support this header.
  */
 
 import { logger } from "@/lib/logger"
@@ -44,12 +47,17 @@ export async function submitPayment(
     }
   }
 
+  const idempotencyKey =
+    payment.reference?.trim() ||
+    `${payment.type}-${payment.recipientId}-${payment.amount}-${payment.currency}`
+
   try {
     const response = await fetch(`${process.env.BANK_API_URL}/payments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.BANK_API_KEY}`,
+        "Idempotency-Key": idempotencyKey,
       },
       body: JSON.stringify(payment),
     })

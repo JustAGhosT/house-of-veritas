@@ -4,12 +4,13 @@ import {
   getLoans,
   getPettyCashRequests,
 } from "@/lib/services/baserow"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
 
 export const monthlyFinancialAudit = inngest.createFunction(
   { id: "monthly-financial-audit", retries: 2 },
   { cron: "0 9 1 * *" },
-  async () => {
+  async ({ step }) => {
     const expenses = await getExpenses({ status: "Pending" })
     const loans = await getLoans({ status: "Active" })
     const pettyCash = await getPettyCashRequests({ status: "Pending" })
@@ -40,9 +41,10 @@ export const monthlyFinancialAudit = inngest.createFunction(
 
     const hasOpenItems = lines.length > 0
     if (hasOpenItems) {
-      await sendNotification({
+      await step.run("send-notification", async () => {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: "Monthly Financial Audit Report",
         message: lines.join("\n") || "No open items",
         channels: ["in_app"],
@@ -52,6 +54,7 @@ export const monthlyFinancialAudit = inngest.createFunction(
           pendingPettyCash: pettyCash.length,
         },
         priority: "medium",
+        })
       })
     }
 

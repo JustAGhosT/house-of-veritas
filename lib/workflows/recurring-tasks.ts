@@ -1,14 +1,9 @@
 import { inngest } from "@/lib/inngest/client"
 import { getRecurringTaskTemplates, createTask } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { toISODateString } from "@/lib/utils"
-
-const BASEROW_ID_TO_APP_ID: Record<number, string> = {
-  1: "hans",
-  2: "charl",
-  3: "lucky",
-  4: "irma",
-}
+import { BASEROW_ID_TO_APP_ID } from "./constants"
 
 function getWeekStart(d: Date): Date {
   const copy = new Date(d)
@@ -32,7 +27,7 @@ function shouldCreateThisWeek(recurrence: string | undefined, d: Date): boolean 
 export const recurringTasksCreate = inngest.createFunction(
   { id: "recurring-tasks-create", retries: 2 },
   { cron: "0 8 * * 1" },
-  async () => {
+  async ({ step }) => {
     const templates = await getRecurringTaskTemplates()
     const now = new Date()
     const weekStart = getWeekStart(new Date(now))
@@ -64,7 +59,8 @@ export const recurringTasksCreate = inngest.createFunction(
       }
       if (templateCreated.length > 0 && assigneeId) {
         const appUserId = BASEROW_ID_TO_APP_ID[assigneeId] ?? "hans"
-        await sendNotification({
+        await step.run(`notify-assignee-${t.id}-${assigneeId}`, async () => {
+          await sendNotification({
           type: "task_assigned",
           userId: appUserId,
           title: "Weekly Tasks Assigned",
@@ -75,19 +71,22 @@ export const recurringTasksCreate = inngest.createFunction(
           channels: ["in_app"],
           data: { taskIds: templateCreated.map((c) => c.id), assigneeId },
           priority: "medium",
+          })
         })
       }
     }
 
     if (created.length > 0) {
-      await sendNotification({
+      await step.run("send-summary", async () => {
+        await sendNotification({
         type: "weekly_summary",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: `Weekly Tasks Created: ${created.length} tasks`,
         message: created.slice(0, 5).map((c) => c.title).join("; "),
         channels: ["in_app"],
         data: { count: created.length },
         priority: "medium",
+        })
       })
     }
 

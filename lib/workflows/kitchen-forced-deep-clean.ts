@@ -1,12 +1,13 @@
 import { inngest } from "@/lib/inngest/client"
 import { createTask, getTasks } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { toISODateString } from "@/lib/utils"
 
 export const kitchenForcedDeepClean = inngest.createFunction(
   { id: "kitchen-forced-deep-clean", retries: 2 },
   { cron: "0 7 1,15 * *" },
-  async () => {
+  async ({ step }) => {
     const today = toISODateString()
     const existing = await getTasks()
     const recentDeepClean = existing.filter(
@@ -30,14 +31,16 @@ export const kitchenForcedDeepClean = inngest.createFunction(
     })
 
     if (task) {
-      await sendNotification({
+      await step.run("send-notification", async () => {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: "Forced Deep Clean - Action Required",
         message: "Mandatory kitchen deep clean task created - assign and ensure completion",
         channels: ["in_app"],
         data: { taskId: task.id },
         priority: "high",
+        })
       })
     }
 

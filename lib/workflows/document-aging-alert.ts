@@ -1,13 +1,13 @@
 import { inngest } from "@/lib/inngest/client"
 import { getDocumentExpiryRows } from "@/lib/services/baserow"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
-
-const AGING_MONTHS = 12
+import { AGING_MONTHS } from "./constants"
 
 export const documentAgingAlert = inngest.createFunction(
   { id: "document-aging-alert", retries: 2 },
   { cron: "0 8 1 * *" },
-  async () => {
+  async ({ step }) => {
     const docs = await getDocumentExpiryRows()
     const now = new Date()
 
@@ -29,14 +29,16 @@ export const documentAgingAlert = inngest.createFunction(
     }
 
     if (aging.length > 0) {
-      await sendNotification({
+      await step.run("send-notification", async () => {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: "Aging Documents - Mandatory Review",
         message: `${aging.length} document(s) not reviewed in ${AGING_MONTHS}+ months`,
         channels: ["in_app"],
         data: { docIds: aging.map((a) => a.id) },
         priority: "medium",
+        })
       })
     }
 

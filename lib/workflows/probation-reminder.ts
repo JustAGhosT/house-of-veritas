@@ -1,14 +1,9 @@
 import { inngest } from "@/lib/inngest/client"
 import { getEmployees } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { toISODateString } from "@/lib/utils"
-
-const BASEROW_ID_TO_APP_ID: Record<number, string> = {
-  1: "hans",
-  2: "charl",
-  3: "lucky",
-  4: "irma",
-}
+import { BASEROW_ID_TO_APP_ID } from "./constants"
 
 const PROBATION_MONTHS = 3
 
@@ -22,7 +17,7 @@ function monthsSince(startDate: string): number {
 export const probationReminder = inngest.createFunction(
   { id: "probation-reminder", retries: 2 },
   { cron: "0 8 1 * *" },
-  async () => {
+  async ({ step }) => {
     const employees = await getEmployees()
     const now = new Date()
     const todayStr = toISODateString(now)
@@ -38,7 +33,8 @@ export const probationReminder = inngest.createFunction(
       if (months >= PROBATION_MONTHS) {
         reminders.push({ name: emp.fullName, employeeId: emp.id, monthsSinceStart: months })
         const appUserId = BASEROW_ID_TO_APP_ID[emp.id] ?? "hans"
-        await sendNotification({
+        await step.run(`notify-probation-${emp.id}`, async () => {
+          await sendNotification({
           type: "system_alert",
           userId: appUserId,
           title: "Probation Review Due",
@@ -46,19 +42,22 @@ export const probationReminder = inngest.createFunction(
           channels: ["in_app"],
           data: { employeeId: emp.id, startDate, monthsSinceStart: months },
           priority: "medium",
+          })
         })
       }
     }
 
     if (reminders.length > 0) {
-      await sendNotification({
+      await step.run("send-summary", async () => {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: `Probation Review: ${reminders.length} employee(s) due`,
         message: reminders.map((r) => `${r.name} (${r.monthsSinceStart} months)`).join("; "),
         channels: ["in_app"],
         data: { count: reminders.length, employees: reminders },
         priority: "high",
+        })
       })
     }
 

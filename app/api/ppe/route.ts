@@ -5,6 +5,7 @@ import {
   updatePPERecord,
   getBaserowEmployeeIdByAppId,
 } from "@/lib/services/baserow"
+import { resolveEmployeeForGet } from "@/lib/api/employee-resolver"
 import { withDataSource } from "@/lib/api/response"
 import { withRole } from "@/lib/auth/rbac"
 import { toISODateString } from "@/lib/utils"
@@ -15,19 +16,16 @@ export const GET = withRole(
   "operator",
   "employee",
   "resident"
-)(async (request) => {
+)(async (request, context) => {
   const { searchParams } = new URL(request.url)
-  const issuedTo = searchParams.get("issuedTo")
-  const personaId = searchParams.get("personaId")
   const status = searchParams.get("status")
 
-  let employeeId: number | undefined
-  if (issuedTo) {
-    employeeId = parseInt(issuedTo, 10)
-    if (Number.isNaN(employeeId)) employeeId = undefined
-  } else if (personaId) {
-    employeeId = (await getBaserowEmployeeIdByAppId(personaId)) ?? undefined
-  }
+  const { employeeId, error } = await resolveEmployeeForGet(
+    context,
+    searchParams,
+    { paramName: "issuedTo" }
+  )
+  if (error) return error
 
   try {
     const records = await getPPERecords({

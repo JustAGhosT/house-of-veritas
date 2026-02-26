@@ -1,94 +1,96 @@
-import { NextResponse } from "next/server"
-import {
-  getExpenses,
-  createExpense,
-  updateExpense,
-  getBaserowEmployeeIdByAppId,
-} from "@/lib/services/baserow"
+import { resolveEmployeeForGet, resolveEmployeeForPost } from "@/lib/api/employee-resolver"
+import { withErrorHandling } from "@/lib/api/error-handler"
 import { withDataSource } from "@/lib/api/response"
 import { withRole } from "@/lib/auth/rbac"
-import { toISODateString } from "@/lib/utils"
 import { logger } from "@/lib/logger"
 import { emitApprovalRequired } from "@/lib/realtime/event-store"
-import { routeToInngest } from "@/lib/workflows"
+import {
+  createExpense,
+  getBaserowEmployeeIdByAppId,
+  getExpense,
+  getExpenses,
+  updateExpense,
+} from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { toISODateString } from "@/lib/utils"
+import { routeToInngest } from "@/lib/workflows"
+import { NextResponse } from "next/server"
 
 const HIGH_VALUE_THRESHOLD = 5000
+
+// Default requester ID fallback when employee resolution fails
+// In production, this should be configured via environment variable
+const DEFAULT_REQUESTER_ID = process.env.DEFAULT_EXPENSE_REQUESTER_ID ?
+  parseInt(process.env.DEFAULT_EXPENSE_REQUESTER_ID, 10) : 1
 
 export const GET = withRole(
   "admin",
   "operator",
   "employee",
   "resident"
-)(async (request) => {
-  const { searchParams } = new URL(request.url)
-  const requesterParam = searchParams.get("requester")
-  const personaId = searchParams.get("personaId")
-  const status = searchParams.get("status")
+)(
+  withErrorHandling(
+    async (request, context) => {
+      const { searchParams } = new URL(request.url)
+      const status = searchParams.get("status")
 
-  let requester: number | undefined
-  if (requesterParam) {
-    requester = parseInt(requesterParam, 10)
-    if (Number.isNaN(requester)) requester = undefined
-  } else if (personaId) {
-    requester = (await getBaserowEmployeeIdByAppId(personaId)) ?? undefined
-  }
+      const { employeeId: requester, error } = await resolveEmployeeForGet(
+        context,
+        searchParams,
+        { paramName: "requester" }
+      )
+      if (error) return error
 
-  try {
-    const expenses = await getExpenses({
-      requester,
-      status: status || undefined,
-    })
+      const expenses = await getExpenses({
+        requester,
+        status: status || undefined,
+      })
 
-    const summary = {
-      total: expenses.length,
-      pending: expenses.filter((e) => e.approvalStatus === "Pending").length,
-      approved: expenses.filter((e) => e.approvalStatus === "Approved").length,
-      rejected: expenses.filter((e) => e.approvalStatus === "Rejected").length,
-      totalAmount: expenses.reduce((sum, e) => sum + e.amount, 0),
-      pendingAmount: expenses
-        .filter((e) => e.approvalStatus === "Pending")
-        .reduce((sum, e) => sum + e.amount, 0),
-      approvedAmount: expenses
-        .filter((e) => e.approvalStatus === "Approved")
-        .reduce((sum, e) => sum + e.amount, 0),
-    }
+      const summary = {
+        total: expenses.length,
+        pending: expenses.filter((e) => e.approvalStatus === "Pending").length,
+        approved: expenses.filter((e) => e.approvalStatus === "Approved").length,
+        rejected: expenses.filter((e) => e.approvalStatus === "Rejected").length,
+        totalAmount: expenses.reduce((sum, e) => sum + e.amount, 0),
+        pendingAmount: expenses
+          .filter((e) => e.approvalStatus === "Pending")
+          .reduce((sum, e) => sum + e.amount, 0),
+        approvedAmount: expenses
+          .filter((e) => e.approvalStatus === "Approved")
+          .reduce((sum, e) => sum + e.amount, 0),
+      }
 
-    return withDataSource({ expenses, summary })
-  } catch (error) {
-    logger.error("Error fetching expenses", {
-      error: error instanceof Error ? error.message : String(error),
-    })
-    return NextResponse.json({ error: "Failed to fetch expenses" }, { status: 500 })
-  }
-})
+      return withDataSource({ expenses, summary })
+    },
+    { operation: "Error fetching expenses", fallbackMessage: "Failed to fetch expenses" }
+  )
+)
 
 export const POST = withRole(
   "admin",
   "operator",
   "employee",
   "resident"
-)(async (request) => {
+)(async (request, context) => {
   try {
     const body = await request.json()
-    const { requester, personaId, type, category, amount, vendor, date, project, notes } = body
+    const { type, category, amount, vendor, date, project, notes } = body
 
-    let resolvedRequester = requester
-    if (!resolvedRequester && personaId) {
-      resolvedRequester = (await getBaserowEmployeeIdByAppId(personaId)) ?? undefined
-    }
-    if (!resolvedRequester) {
-      const auth = request.headers.get("x-user-id")
-      if (auth) resolvedRequester = (await getBaserowEmployeeIdByAppId(auth)) ?? undefined
-    }
-    if (!resolvedRequester) resolvedRequester = 1
+    const { employeeId: resolvedRequester, error } = await resolveEmployeeForPost(
+      body,
+      request,
+      context,
+      { paramName: "requester", required: false, fallbackToCaller: true }
+    )
+    if (error) return error
+    const finalRequester = resolvedRequester ?? DEFAULT_REQUESTER_ID
 
     if (!amount || !category) {
       return NextResponse.json({ error: "Amount and category are required" }, { status: 400 })
     }
 
     const expense = await createExpense({
-      requester: resolvedRequester,
+      requester: finalRequester,
       type: type || "Request",
       category,
       amount,
@@ -101,9 +103,11 @@ export const POST = withRole(
 
     const useInngest = process.env.USE_INNGEST_APPROVALS === "true"
     if (!useInngest) {
+      // Resolve approver dynamically from env or request context instead of hardcoded "hans"
+      const approverId = process.env.EXPENSE_APPROVER_ID || request.headers.get("x-user-id") || "hans"
       emitApprovalRequired(
         { ...expense, type: "expense", submittedBy: request.headers.get("x-user-id") || "unknown" },
-        "hans"
+        approverId
       )
     }
     if (useInngest) {
@@ -134,7 +138,7 @@ export const PATCH = withRole("admin")(async (request) => {
       return NextResponse.json({ error: "Expense ID is required" }, { status: 400 })
     }
 
-    const existing = (await getExpenses({ status: undefined })).find((e) => e.id === id)
+    const existing = await getExpense(Number(id))
     if (!existing) {
       return NextResponse.json({ error: "Expense not found" }, { status: 404 })
     }
@@ -143,20 +147,33 @@ export const PATCH = withRole("admin")(async (request) => {
     if (status) updates.approvalStatus = status
     if (secondaryApprover !== undefined) updates.secondaryApprover = secondaryApprover
 
-    const isHighValue = existing.amount > HIGH_VALUE_THRESHOLD
+    const isHighValue = existing.amount >= HIGH_VALUE_THRESHOLD
     if (status === "Approved" && isHighValue && existing.approvalStatus === "Pending") {
+      // Use the current user (from request headers) as approver instead of magic number
+      const currentUserId = request.headers.get("x-user-id")
+      const approverId = currentUserId ? await getBaserowEmployeeIdByAppId(currentUserId) : null
+
       Object.assign(updates, {
         approvalStatus: "Pending Secondary",
-        approver: 1,
+        approver: approverId ?? undefined,
         approvalDate: toISODateString(),
       })
-      const expense = await updateExpense(id, updates as Parameters<typeof updateExpense>[1])
+      const expense = await updateExpense(Number(id), updates as Parameters<typeof updateExpense>[1])
       if (expense) {
+        // Derive userId dynamically from request headers instead of hardcoded "hans"
+        const notificationUserId = request.headers.get("x-user-id") || process.env.EXPENSE_APPROVER_ID || "hans"
+        // Format amount using locale-aware formatter
+        const currencySymbol = process.env.CURRENCY_SYMBOL || "R"
+        const formattedAmount = new Intl.NumberFormat("en-ZA", {
+          style: "currency",
+          currency: process.env.CURRENCY_CODE || "ZAR",
+        }).format(existing.amount)
+
         await sendNotification({
           type: "approval_required",
-          userId: "hans",
+          userId: notificationUserId,
           title: "Secondary Approval Required",
-          message: `Expense R${existing.amount.toLocaleString()} needs secondary approval`,
+          message: `Expense ${formattedAmount} needs secondary approval`,
           channels: ["in_app"],
           data: { expenseId: id, amount: existing.amount },
           priority: "medium",

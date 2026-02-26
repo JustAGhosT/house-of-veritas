@@ -8,9 +8,7 @@ function validateSignature(
   signature: string,
   secret: string
 ): boolean {
-  if (!secret) return true
-  if (!signature) return false
-  if (signature === secret) return true
+  if (!secret || !signature) return false
   try {
     const expected = createHmac("sha256", secret).update(body).digest("hex")
     const sigBuf = Buffer.from(signature, "hex")
