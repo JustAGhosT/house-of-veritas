@@ -171,7 +171,16 @@ export const PATCH = withRole("admin")(async (request) => {
 
     const isHighValue = existing.amount >= HIGH_VALUE_THRESHOLD
     if (status === "Approved" && isHighValue && existing.approvalStatus === "Pending") {
-      // Validate x-user-id header before mutating updates
+      // Validate notification recipient BEFORE mutating state
+      const notificationUserId = request.headers.get("x-user-id") || process.env.EXPENSE_APPROVER_ID
+      if (!notificationUserId) {
+        return NextResponse.json(
+          { error: "Unable to determine notification recipient: x-user-id header or EXPENSE_APPROVER_ID env var required" },
+          { status: 400 }
+        )
+      }
+
+      // Validate x-user-id header for approver resolution
       const currentUserId = request.headers.get("x-user-id")
       if (!currentUserId) {
         return NextResponse.json(
@@ -194,32 +203,26 @@ export const PATCH = withRole("admin")(async (request) => {
         approvalDate: toISODateString(),
       })
       const expense = await updateExpense(numericId, updates as Parameters<typeof updateExpense>[1])
-      if (expense) {
-        // Derive userId dynamically from request headers - no hardcoded fallback
-        const notificationUserId = request.headers.get("x-user-id") || process.env.EXPENSE_APPROVER_ID
-        if (!notificationUserId) {
-          return NextResponse.json(
-            { error: "Unable to determine notification recipient: x-user-id header or EXPENSE_APPROVER_ID env var required" },
-            { status: 400 }
-          )
-        }
-        // Format amount using locale-aware formatter
-        const currencySymbol = process.env.CURRENCY_SYMBOL || "R"
-        const formattedAmount = new Intl.NumberFormat("en-ZA", {
-          style: "currency",
-          currency: process.env.CURRENCY_CODE || "ZAR",
-        }).format(existing.amount)
-
-        await sendNotification({
-          type: "approval_required",
-          userId: notificationUserId,
-          title: "Secondary Approval Required",
-          message: `Expense ${formattedAmount} needs secondary approval`,
-          channels: ["in_app"],
-          data: { expenseId: id, amount: existing.amount },
-          priority: "medium",
-        })
+      if (!expense) {
+        return NextResponse.json({ error: "Expense not found" }, { status: 404 })
       }
+
+      // Format amount using locale-aware formatter
+      const currencySymbol = process.env.CURRENCY_SYMBOL || "R"
+      const formattedAmount = new Intl.NumberFormat("en-ZA", {
+        style: "currency",
+        currency: process.env.CURRENCY_CODE || "ZAR",
+      }).format(existing.amount)
+
+      await sendNotification({
+        type: "approval_required",
+        userId: notificationUserId,
+        title: "Secondary Approval Required",
+        message: `Expense ${formattedAmount} needs secondary approval`,
+        channels: ["in_app"],
+        data: { expenseId: id, amount: existing.amount },
+        priority: "medium",
+      })
       return withDataSource({ expense })
     }
 

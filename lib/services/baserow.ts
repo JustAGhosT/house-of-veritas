@@ -675,6 +675,18 @@ export async function getLeaveRequests(filters?: {
   return result.results.map(mapRowToLeaveRequest)
 }
 
+export async function getLeaveRequest(id: number): Promise<LeaveRequest | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.leaveRequests) {
+    return null
+  }
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.leaveRequests}/${id}/?user_field_names=true`
+  )
+  return row ? mapRowToLeaveRequest(row) : null
+}
+
 export async function createLeaveRequest(
   lr: Omit<LeaveRequest, "id">
 ): Promise<LeaveRequest | null> {

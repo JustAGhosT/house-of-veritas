@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server"
-import { getBaserowEmployeeIdByAppId } from "@/lib/services/baserow"
-import { isAdminOrOperator, type RouteContext } from "@/lib/auth/rbac"
+import { isAdminOrOperator, type RouteContext } from "@/lib/auth/rbac";
+import { getBaserowEmployeeIdByAppId } from "@/lib/services/baserow";
+import { NextResponse } from "next/server";
 
 export interface ResolveEmployeeForGetOptions {
   /** Query param name for employee filter, e.g. "employee" | "requester" | "issuedTo" | "driver" */
@@ -85,7 +85,9 @@ export async function resolveEmployeeForPost(
   }
   if (!employeeId) {
     const auth = request.headers.get("x-user-id")
-    employeeId = (await getBaserowEmployeeIdByAppId(auth || "")) ?? undefined
+    if (auth) {
+      employeeId = (await getBaserowEmployeeIdByAppId(auth)) ?? undefined
+    }
   }
   if (!employeeId && fallbackToCaller) {
     employeeId = (await getBaserowEmployeeIdByAppId(context.userId)) ?? undefined

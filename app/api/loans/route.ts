@@ -1,21 +1,19 @@
-import { NextResponse } from "next/server"
-import {
-  getLoans,
-  getLoan,
-  createLoan,
-  updateLoan,
-  getEmployee,
-  getBaserowEmployeeIdByAppId,
-  type Loan,
-} from "@/lib/services/baserow"
 import { resolveEmployeeForGet, resolveEmployeeForPost } from "@/lib/api/employee-resolver"
-import { isAdminOrOperator } from "@/lib/auth/rbac"
-import { submitPayment } from "@/lib/integrations/bank"
 import { withDataSource } from "@/lib/api/response"
-import { withRole } from "@/lib/auth/rbac"
-import { toISODateString } from "@/lib/utils"
+import { isAdminOrOperator, withRole } from "@/lib/auth/rbac"
+import { submitPayment } from "@/lib/integrations/bank"
 import { logger } from "@/lib/logger"
+import {
+  createLoan,
+  getBaserowEmployeeIdByAppId,
+  getEmployee,
+  getLoan,
+  getLoans,
+  updateLoan
+} from "@/lib/services/baserow"
+import { toISODateString } from "@/lib/utils"
 import { routeToInngest } from "@/lib/workflows"
+import { NextResponse } from "next/server"
 
 const MAX_LOAN_AMOUNT = 50000
 const MAX_OUTSTANDING = 20000
@@ -106,11 +104,11 @@ export const POST = withRole(
       employeeId = callerEmployeeId
     }
 
-    if (!amount || amount <= 0) {
-      return NextResponse.json({ error: "Valid amount is required" }, { status: 400 })
-    }
-
+    // Validate amount is numeric and positive before converting
     const amountNum = Number(amount)
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+      return NextResponse.json({ error: "Valid numeric amount is required" }, { status: 400 })
+    }
 
     const existingLoans = await getLoans({ employee: employeeId, status: "Active" })
     const totalOutstanding = existingLoans.reduce((s, l) => s + l.outstandingBalance, 0)

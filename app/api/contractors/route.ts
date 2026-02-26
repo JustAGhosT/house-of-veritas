@@ -151,12 +151,21 @@ export const PATCH = withRole("admin")(async (request, context) => {
       )
     }
 
+    // Validate inputs as integers before using them to index arrays
+    const contractorIdNum = Number(contractorId)
+    const mIdx = Number(milestoneIndex)
+    if (!Number.isInteger(contractorIdNum) || !Number.isInteger(mIdx)) {
+      return NextResponse.json(
+        { error: "contractorId and milestoneIndex must be integers" },
+        { status: 400 }
+      )
+    }
+
     const contractors = await loadContractors()
-    const cIdx = contractors.findIndex((c) => c.id === contractorId)
+    const cIdx = contractors.findIndex((c) => c.id === contractorIdNum)
     if (cIdx === -1) return NextResponse.json({ error: "Contractor not found" }, { status: 404 })
 
     const contractor = contractors[cIdx]
-    const mIdx = Number(milestoneIndex)
     if (mIdx < 0 || mIdx >= contractor.milestones.length) {
       return NextResponse.json({ error: "Milestone not found" }, { status: 404 })
     }

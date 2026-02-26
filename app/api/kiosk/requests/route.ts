@@ -1,16 +1,16 @@
-import { NextResponse } from "next/server"
+import { withAuth, withRole } from "@/lib/auth/rbac"
 import {
   getKioskStore,
   sanitizeKioskDoc,
   sanitizeKioskDocs,
   type KioskRequestDoc,
 } from "@/lib/db/kiosk-store"
-import { sendNotification, NotificationChannel } from "@/lib/services/notification-service"
-import { withRole, withAuth } from "@/lib/auth/rbac"
-import { ObjectId } from "mongodb"
-import { logger } from "@/lib/logger"
-import { routeToInngest } from "@/lib/workflows"
 import { restockByName } from "@/lib/inventory-store"
+import { logger } from "@/lib/logger"
+import { NotificationChannel, sendNotification } from "@/lib/services/notification-service"
+import { routeToInngest } from "@/lib/workflows"
+import { ObjectId } from "mongodb"
+import { NextResponse } from "next/server"
 
 // Re-export for tests that may reference SEED_DATA
 export { KIOSK_SEED_DATA as SEED_DATA } from "@/lib/db/kiosk-store"
@@ -253,6 +253,8 @@ export const PATCH = withRole("admin")(async (request, context) => {
     if (!existingRequest) {
       return NextResponse.json({ success: false, error: "Request not found" }, { status: 404 })
     }
+    // Capture previous status BEFORE updating to avoid race conditions with in-memory stores
+    const previousStatus = existingRequest.status
 
     const updateData = {
       status,
@@ -263,7 +265,6 @@ export const PATCH = withRole("admin")(async (request, context) => {
 
     await store.updateOne({ _id: objectId }, { $set: updateData })
     const updatedRequest = { ...existingRequest, ...updateData }
-    const previousStatus = existingRequest.status
 
     const statusChanged = previousStatus !== status
     if (statusChanged && (status === "approved" || status === "rejected")) {

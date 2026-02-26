@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { GET, POST, PATCH } from "@/app/api/kiosk/requests/route"
-import * as workflows from "@/lib/workflows"
+import { GET, PATCH, POST } from "@/app/api/kiosk/requests/route"
 import { getInventory } from "@/lib/inventory-store"
+import * as workflows from "@/lib/workflows"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 vi.mock("@/lib/services/notification-service", () => ({
   sendNotification: vi.fn().mockResolvedValue([]),
@@ -9,7 +9,7 @@ vi.mock("@/lib/services/notification-service", () => ({
 
 vi.mock("@/lib/db/kiosk-store", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/db/kiosk-store")>()
-  const inMemoryStore = new Map<string, { _id: { toString: () => string }; [k: string]: unknown }>()
+  const inMemoryStore = new Map<string, { _id: { toString: () => string };[k: string]: unknown }>()
   const { ObjectId } = await import("mongodb")
   const seed = [
     { type: "stock_order", employeeId: "lucky", employeeName: "Lucky", data: {}, timestamp: new Date().toISOString(), status: "pending" },
@@ -42,9 +42,9 @@ vi.mock("@/lib/db/kiosk-store", async (importOriginal) => {
       },
       mode: "memory" as const,
     }),
-    sanitizeKioskDoc: (d: { _id?: { toString: () => string }; [k: string]: unknown }) =>
+    sanitizeKioskDoc: (d: { _id?: { toString: () => string };[k: string]: unknown }) =>
       d._id ? { ...d, id: d._id.toString() } : d,
-    sanitizeKioskDocs: (docs: { _id?: { toString: () => string }; [k: string]: unknown }[]) =>
+    sanitizeKioskDocs: (docs: { _id?: { toString: () => string };[k: string]: unknown }[]) =>
       docs.map((d) => (d._id ? { ...d, id: d._id.toString() } : d)),
   }
 })

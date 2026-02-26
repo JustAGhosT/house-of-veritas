@@ -1,17 +1,18 @@
-import { NextResponse } from "next/server"
-import {
-  getLeaveRequests,
-  createLeaveRequest,
-  updateLeaveRequest,
-  getEmployee,
-  updateEmployee,
-} from "@/lib/services/baserow"
 import { resolveEmployeeForGet, resolveEmployeeForPost } from "@/lib/api/employee-resolver"
 import { withDataSource } from "@/lib/api/response"
 import { withRole } from "@/lib/auth/rbac"
-import { toISODateString } from "@/lib/utils"
 import { logger } from "@/lib/logger"
+import {
+  createLeaveRequest,
+  getEmployee,
+  getLeaveRequest,
+  getLeaveRequests,
+  updateEmployee,
+  updateLeaveRequest,
+} from "@/lib/services/baserow"
+import { toISODateString } from "@/lib/utils"
 import { routeToInngest } from "@/lib/workflows"
+import { NextResponse } from "next/server"
 
 function daysBetween(start: string, end: string): number {
   const a = new Date(start)
@@ -140,6 +141,13 @@ export const PATCH = withRole("admin")(async (request) => {
       return NextResponse.json({ error: "Leave request ID is required" }, { status: 400 })
     }
 
+    // Fetch existing request to check for status transition
+    const existingRequest = await getLeaveRequest(id)
+    if (!existingRequest) {
+      return NextResponse.json({ error: "Leave request not found" }, { status: 404 })
+    }
+    const previousStatus = existingRequest.status
+
     const updates: Record<string, unknown> = { ...rest }
     if (status) updates.status = status
     if (approver) updates.approver = approver
@@ -153,7 +161,8 @@ export const PATCH = withRole("admin")(async (request) => {
       return NextResponse.json({ error: "Leave request not found" }, { status: 404 })
     }
 
-    if (status === "Approved" && leaveRequest.type === "Annual") {
+    // Only deduct leave balance when transitioning TO Approved (not already Approved)
+    if (status === "Approved" && previousStatus !== "Approved" && leaveRequest.type === "Annual") {
       const emp = await getEmployee(leaveRequest.employee)
       if (emp) {
         const days = daysBetween(leaveRequest.startDate, leaveRequest.endDate)
