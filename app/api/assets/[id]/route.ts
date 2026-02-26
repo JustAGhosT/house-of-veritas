@@ -98,14 +98,20 @@ export const PATCH = withRole("admin", "operator", "employee")(
           )
         }
 
-        // Resolve userId from header first, then fallback to personaId from body
-        const userId = request.headers.get("x-user-id") ?? (typeof personaId === "string" ? personaId : null)
+        // Derive caller identity strictly from request header (authorization bypass protection)
+        const callerId = request.headers.get("x-user-id")
+        if (!callerId) {
+          return NextResponse.json(
+            { error: "Unauthorized: x-user-id header is required" },
+            { status: 401 }
+          )
+        }
 
-        // Only allow checkedOutBy to differ from userId if caller has elevated privileges
+        // Only allow checkedOutBy to differ from callerId if caller has elevated privileges
         let userInput: string
         if (typeof checkedOutBy === "string" && checkedOutBy) {
           // Check if caller is trying to set checkedOutBy to a different user
-          if (checkedOutBy !== userId) {
+          if (checkedOutBy !== callerId) {
             const auth = getAuthContext(request)
             if (!auth || !isAdminOrOperator(auth.role)) {
               return NextResponse.json(
@@ -116,7 +122,8 @@ export const PATCH = withRole("admin", "operator", "employee")(
           }
           userInput = checkedOutBy
         } else {
-          userInput = userId ?? ""
+          // In else branch, checkedOutBy is falsy and callerId is guaranteed to exist
+          userInput = callerId
         }
         const employeeId =
           (await getBaserowEmployeeIdByAppId(userInput)) ?? undefined

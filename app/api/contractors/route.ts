@@ -1,6 +1,7 @@
 import { withRole } from "@/lib/auth/rbac"
 import { logger } from "@/lib/logger"
 import { routeToInngest } from "@/lib/workflows"
+import { existsSync } from "fs"
 import { mkdir, readFile, writeFile } from "fs/promises"
 import { NextResponse } from "next/server"
 import { join } from "path"
@@ -88,6 +89,10 @@ async function loadContractors(): Promise<Contractor[]> {
 
 async function saveContractors(contractors: Contractor[]): Promise<void> {
   await mkdir(join(process.cwd(), "data"), { recursive: true })
+  // Ensure file exists before locking to prevent ENOENT
+  if (!existsSync(CONTRACTORS_PATH)) {
+    await writeFile(CONTRACTORS_PATH, "[]", "utf-8")
+  }
   // Acquire exclusive file lock to prevent lost updates from concurrent PATCHes
   const release = await lock(CONTRACTORS_PATH, {
     retries: { retries: 5, minTimeout: 50, maxTimeout: 500 },
