@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { GET, POST, PATCH } from "@/app/api/expenses/route"
+import { GET, PATCH, POST } from "@/app/api/expenses/route"
 import * as eventStore from "@/lib/realtime/event-store"
 import * as workflows from "@/lib/workflows"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 vi.mock("@/lib/services/notification-service", () => ({
   sendNotification: vi.fn().mockResolvedValue([]),
@@ -16,12 +16,16 @@ vi.mock("@/lib/services/baserow", () => {
   ]
   return {
     getExpenses: vi.fn().mockResolvedValue(mockExpenses),
+    getExpense: vi.fn().mockImplementation((id: number) =>
+      Promise.resolve(mockExpenses.find((e) => e.id === id) || null)
+    ),
     createExpense: vi.fn().mockImplementation((expense: Record<string, unknown>) =>
       Promise.resolve({ ...expense, id: Date.now(), approvalStatus: "Pending" })
     ),
-    updateExpense: vi.fn().mockImplementation((id: number, updates: Record<string, unknown>) =>
-      Promise.resolve({ id, requester: 1, category: "Supplies", amount: 150, ...mockExpenses[0], ...updates })
-    ),
+    updateExpense: vi.fn().mockImplementation((id: number, updates: Record<string, unknown>) => {
+      const existing = mockExpenses.find((e) => e.id === id) || mockExpenses[0]
+      return Promise.resolve({ ...existing, ...updates })
+    }),
     getBaserowEmployeeIdByAppId: vi.fn().mockResolvedValue(1),
     isBaserowConfigured: vi.fn().mockReturnValue(false),
   }
