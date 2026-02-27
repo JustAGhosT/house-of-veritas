@@ -31,6 +31,9 @@ Resource Groups
     │   │   └── baserow_production     Database
     │   ├── nl-prod-hov-cosmos-san     Cosmos DB (Mongo API)
     │   │   └── house_of_veritas       Database for kiosk requests, audit fallback
+    │   │       ├── Network: Private endpoints with VNet integration
+    │   │       ├── Private DNS Zone: privatelink.mongo.cosmos.azure.com
+    │   │       └── Access: Managed identity + firewall rules enforced
     │   └── Private DNS Zone           private.postgres.database.azure.com
     │
     ├── Storage
@@ -45,6 +48,7 @@ Resource Groups
     ├── Security
     │   └── nl-prod-hov-kv-san         Key Vault (standard)
     │       ├── db-admin-password
+    │       ├── cosmos-connection-string
     │       ├── docuseal-secret-key
     │       ├── baserow-secret-key
     │       └── smtp-password

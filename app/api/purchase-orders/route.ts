@@ -39,16 +39,23 @@ async function acquireFileLock(
   delayMs = 50
 ): Promise<() => Promise<void>> {
   const lockPath = `${targetPath}.lock`
-  for (let attempt = 0; attempt <= retries; attempt++) {
+  let attempt = 0
+  while (attempt <= retries) {
     try {
       const handle = await open(lockPath, "wx")
-      // Write timestamp and PID to the lock file for stale lock detection
-      const lockData = JSON.stringify({ timestamp: Date.now(), pid })
-      await handle.write(lockData)
-      await handle.sync()
-      return async () => {
-        await handle.close()
+      try {
+        // Write timestamp and PID to the lock file for stale lock detection
+        const lockData = JSON.stringify({ timestamp: Date.now(), pid })
+        await handle.write(lockData)
+        await handle.sync()
+        return async () => {
+          await handle.close()
+          await unlink(lockPath).catch(() => { })
+        }
+      } catch (error) {
+        await handle.close().catch(() => { })
         await unlink(lockPath).catch(() => { })
+        throw error
       }
     } catch (error) {
       const err = error as NodeJS.ErrnoException
@@ -77,9 +84,23 @@ async function acquireFileLock(
             const isStale = !timestamp || (Date.now() - timestamp > LOCK_TTL_MS)
 
             if (isStale) {
-              await unlink(lockPath)
-              // Retry immediately without counting this as an attempt
-              continue
+              // Atomically rename the stale lock to avoid race conditions
+              const backupPath = `${lockPath}.stale.${pid}.${Date.now()}`
+              try {
+                await rename(lockPath, backupPath)
+                // Rename succeeded - we removed the exact stale file
+                await unlink(backupPath).catch(() => { })
+                // Retry immediately without counting this as an attempt
+                continue
+              } catch (renameError) {
+                const renameErr = renameError as NodeJS.ErrnoException
+                // If rename failed (ENOENT or EEXIST), someone else changed the lock
+                if (renameErr?.code === "ENOENT" || renameErr?.code === "EEXIST") {
+                  // Another process modified the lock, continue the loop
+                  continue
+                }
+                throw renameError
+              }
             }
           } catch (readError) {
             // If we can't read the lock file, it might have been removed by another process
@@ -93,6 +114,7 @@ async function acquireFileLock(
         continue
       }
 
+      attempt++
       await new Promise((resolve) => setTimeout(resolve, delayMs))
     }
   }

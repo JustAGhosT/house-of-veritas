@@ -253,7 +253,15 @@ export const PATCH = withRole("admin")(async (request, context) => {
     ) {
       let secondaryApproverId: number | undefined
       if (secondaryApprover != null) {
-        secondaryApproverId = secondaryApprover
+        // Validate secondaryApprover: must be a positive integer
+        const numericApprover = Number(secondaryApprover)
+        if (!Number.isFinite(numericApprover) || !Number.isInteger(numericApprover) || numericApprover <= 0) {
+          return NextResponse.json(
+            { error: "Failed to resolve secondary approver. Provide secondaryApprover or ensure user has a valid employee mapping." },
+            { status: 400 }
+          )
+        }
+        secondaryApproverId = numericApprover
       } else {
         const resolvedId = await getBaserowEmployeeIdByAppId(context.userId)
         if (!resolvedId) {
