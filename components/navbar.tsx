@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { motion } from "framer-motion"
-import { Menu, X } from "lucide-react"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import Image from "next/image"
+import { Switch } from "@/components/ui/switch"
 import { useLoginModal } from "@/lib/login-modal-context"
+import { useMotion } from "@/lib/motion-context"
+import { motion } from "framer-motion"
+import { Menu, X, Zap } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { useRef, useState } from "react"
 
 const navItems = [
   { label: "Documents", href: "#documents" },
@@ -18,14 +20,15 @@ const navItems = [
 export function Navbar() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { motionEnabled, setMotionEnabled } = useMotion()
   const { openLoginModal } = useLoginModal()
   const navRef = useRef<HTMLDivElement>(null)
 
   return (
     <motion.header
-      initial={{ y: -100, opacity: 0 }}
+      initial={motionEnabled ? { y: -100, opacity: 0 } : false}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }}
+      transition={motionEnabled ? { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const } : { duration: 0 }}
       className="fixed top-0 left-0 right-0 z-50 w-full min-w-full"
     >
       <nav
@@ -50,10 +53,10 @@ export function Navbar() {
             >
               {hoveredIndex === index && (
                 <motion.div
-                  layoutId="navbar-hover"
+                  layoutId={motionEnabled ? "navbar-hover" : undefined}
                   className="absolute inset-0 rounded-full bg-zinc-800"
                   initial={false}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  transition={motionEnabled ? { type: "spring", stiffness: 500, damping: 30 } : { duration: 0 }}
                 />
               )}
               <span className="relative z-10">{item.label}</span>
@@ -63,6 +66,16 @@ export function Navbar() {
 
         {/* CTA Buttons */}
         <div className="hidden items-center gap-3 md:flex">
+          {/* Motion Toggle */}
+          <div className="flex items-center gap-2 border-r border-zinc-700 pr-3">
+            <Zap size={14} className={motionEnabled ? "text-yellow-400" : "text-zinc-500"} />
+            <Switch
+              checked={motionEnabled}
+              onCheckedChange={setMotionEnabled}
+              className="scale-75"
+              aria-label="Toggle animations"
+            />
+          </div>
           <Button
             variant="ghost"
             size="sm"
@@ -93,9 +106,10 @@ export function Navbar() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={motionEnabled ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
+          exit={motionEnabled ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
+          transition={motionEnabled ? undefined : { duration: 0 }}
           className="absolute top-full right-0 left-0 border-b border-zinc-800 bg-zinc-900/98 p-4 backdrop-blur-md"
         >
           <div className="mx-auto flex max-w-6xl flex-col gap-2">

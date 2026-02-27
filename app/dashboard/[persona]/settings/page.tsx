@@ -1,9 +1,10 @@
 "use client"
 
-import { useParams } from "next/navigation"
 import { SettingsPageContent } from "@/app/dashboard/hans/settings/settings-content"
+import { useParams } from "next/navigation"
+import { Suspense } from "react"
 
-export default function PersonaSettingsPage() {
+function PersonaSettingsContent() {
   const params = useParams()
   const persona = params?.persona as string
 
@@ -12,4 +13,12 @@ export default function PersonaSettingsPage() {
   }
 
   return <SettingsPageContent persona={persona as "hans" | "charl" | "lucky" | "irma"} />
+}
+
+export default function PersonaSettingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <PersonaSettingsContent />
+    </Suspense>
+  )
 }

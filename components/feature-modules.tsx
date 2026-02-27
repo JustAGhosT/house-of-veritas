@@ -1,38 +1,39 @@
 "use client"
 
+import { useMotion } from "@/lib/motion-context"
 import { motion, useInView } from "framer-motion"
-import { useRef, useEffect, useState, startTransition } from "react"
 import {
-  FileSignature,
-  DollarSign,
-  Bell,
-  Clock,
-  ClipboardList,
-  Package,
   AlertTriangle,
+  Bell,
   Car,
+  ClipboardList,
+  Clock,
+  DollarSign,
+  FileSignature,
+  Package,
 } from "lucide-react"
+import { startTransition, useEffect, useRef, useState } from "react"
 
-const containerVariants = {
+const getContainerVariants = (motionEnabled: boolean) => ({
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: motionEnabled ? 0.1 : 0,
     },
   },
-}
+})
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+const getItemVariants = (motionEnabled: boolean) => ({
+  hidden: { opacity: motionEnabled ? 0 : 1, y: motionEnabled ? 20 : 0 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
+    transition: motionEnabled ? {
       duration: 0.6,
       ease: [0.22, 1, 0.36, 1] as const,
-    },
+    } : { duration: 0 },
   },
-}
+})
 
 function ComplianceAlerts() {
   const alerts = [
@@ -46,13 +47,12 @@ function ComplianceAlerts() {
       {alerts.map((alert, i) => (
         <div key={i} className="flex items-center gap-3 text-sm">
           <div
-            className={`h-2 w-2 rounded-full ${
-              alert.status === "green"
+            className={`h-2 w-2 rounded-full ${alert.status === "green"
                 ? "bg-green-500"
                 : alert.status === "yellow"
                   ? "bg-yellow-500"
                   : "bg-orange-500"
-            }`}
+              }`}
           />
           <span className="text-zinc-400">{alert.doc}</span>
           <span className="ml-auto text-zinc-500">{alert.days}d</span>
@@ -62,7 +62,7 @@ function ComplianceAlerts() {
   )
 }
 
-function BudgetChart() {
+function BudgetChart({ motionEnabled }: { motionEnabled: boolean }) {
   const [animated, setAnimated] = useState(false)
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
@@ -92,7 +92,7 @@ function BudgetChart() {
               className={`h-full ${item.color}`}
               initial={{ width: 0 }}
               animate={{ width: animated ? `${item.value}%` : 0 }}
-              transition={{ duration: 1, delay: i * 0.2 }}
+              transition={motionEnabled ? { duration: 1, delay: i * 0.2 } : { duration: 0 }}
             />
           </div>
         </div>
@@ -104,14 +104,17 @@ function BudgetChart() {
 export function FeatureModules() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const { motionEnabled } = useMotion()
+  const containerVariants = getContainerVariants(motionEnabled)
+  const itemVariants = getItemVariants(motionEnabled)
 
   return (
     <section id="features" className="px-4 py-24">
       <div className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={motionEnabled ? { duration: 0.6 } : { duration: 0 }}
           className="mb-16 text-center"
         >
           <h2 className="mb-4 [font-family:var(--font-inter)] text-3xl font-bold text-white sm:text-4xl">
@@ -171,7 +174,7 @@ export function FeatureModules() {
             <p className="mb-4 text-sm text-zinc-400">
               Dual-mode expense management with contractor milestone payments and budget tracking.
             </p>
-            <BudgetChart />
+            <BudgetChart motionEnabled={motionEnabled} />
           </motion.div>
 
           {/* Compliance Alerts */}

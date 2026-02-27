@@ -1,31 +1,32 @@
 "use client"
 
+import { useMotion } from "@/lib/motion-context"
 import { motion, useInView } from "framer-motion"
-import { useRef, useEffect, useState } from "react"
-import { Activity, Command, BarChart3, Zap, Shield } from "lucide-react"
+import { Activity, BarChart3, Command, Shield, Zap } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
-const containerVariants = {
+const getContainerVariants = (motionEnabled: boolean) => ({
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: motionEnabled ? 0.1 : 0,
     },
   },
-}
+})
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+const getItemVariants = (motionEnabled: boolean) => ({
+  hidden: { opacity: motionEnabled ? 0 : 1, y: motionEnabled ? 20 : 0 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
+    transition: motionEnabled ? {
       duration: 0.6,
       ease: [0.22, 1, 0.36, 1] as const,
-    },
+    } : { duration: 0 },
   },
-}
+})
 
-function SystemStatus() {
+function SystemStatus({ motionEnabled }: { motionEnabled: boolean }) {
   const [dots, setDots] = useState([true, true, true, false, true])
 
   useEffect(() => {
@@ -41,15 +42,15 @@ function SystemStatus() {
         <motion.div
           key={i}
           className={`h-2 w-2 rounded-full ${active ? "bg-emerald-500" : "bg-zinc-700"}`}
-          animate={active ? { scale: [1, 1.2, 1] } : {}}
-          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, delay: i * 0.2 }}
+          animate={active && motionEnabled ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+          transition={motionEnabled ? { duration: 1, repeat: Number.POSITIVE_INFINITY, delay: i * 0.2 } : { duration: 0 }}
         />
       ))}
     </div>
   )
 }
 
-function KeyboardCommand() {
+function KeyboardCommand({ motionEnabled }: { motionEnabled: boolean }) {
   const [pressed, setPressed] = useState(false)
 
   useEffect(() => {
@@ -63,14 +64,15 @@ function KeyboardCommand() {
   return (
     <div className="flex items-center gap-1">
       <motion.kbd
-        animate={pressed ? { scale: 0.95, y: 2 } : { scale: 1, y: 0 }}
+        animate={pressed && motionEnabled ? { scale: 0.95, y: 2 } : { scale: 1, y: 0 }}
+        transition={motionEnabled ? { duration: 0.1 } : { duration: 0 }}
         className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 font-mono text-xs text-zinc-300"
       >
         ⌘
       </motion.kbd>
       <motion.kbd
-        animate={pressed ? { scale: 0.95, y: 2 } : { scale: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
+        animate={pressed && motionEnabled ? { scale: 0.95, y: 2 } : { scale: 1, y: 0 }}
+        transition={motionEnabled ? { delay: 0.05, duration: 0.1 } : { duration: 0 }}
         className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 font-mono text-xs text-zinc-300"
       >
         K
@@ -128,6 +130,9 @@ function AnimatedChart() {
 export function BentoGrid() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const { motionEnabled } = useMotion()
+  const containerVariants = getContainerVariants(motionEnabled)
+  const itemVariants = getItemVariants(motionEnabled)
 
   const [metricValues] = useState(() =>
     ["CPU", "Memory", "Network", "Storage"].map((name) => ({
@@ -140,9 +145,9 @@ export function BentoGrid() {
     <section id="features" className="px-4 py-24">
       <div className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={motionEnabled ? { duration: 0.6 } : { duration: 0 }}
           className="mb-16 text-center"
         >
           <h2
@@ -180,7 +185,7 @@ export function BentoGrid() {
                   deployments.
                 </p>
               </div>
-              <SystemStatus />
+              <SystemStatus motionEnabled={motionEnabled} />
             </div>
             <div className="grid grid-cols-4 gap-4">
               {metricValues.map(({ name, value }) => (
@@ -204,7 +209,7 @@ export function BentoGrid() {
             <p className="mb-6 text-sm text-zinc-400">
               Navigate anywhere instantly with powerful keyboard shortcuts.
             </p>
-            <KeyboardCommand />
+            <KeyboardCommand motionEnabled={motionEnabled} />
           </motion.div>
 
           {/* Analytics */}

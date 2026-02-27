@@ -1,9 +1,10 @@
 "use client"
 
+import { useMotion } from "@/lib/motion-context"
 import { motion, useInView } from "framer-motion"
-import { useRef } from "react"
-import Link from "next/link"
 import Image from "next/image"
+import Link from "next/link"
+import { useRef } from "react"
 
 const footerLinks = {
   Platform: ["Documents", "Operations", "Reports", "Dashboards", "Compliance"],
@@ -15,14 +16,15 @@ const footerLinks = {
 export function Footer() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-50px" })
+  const { motionEnabled } = useMotion()
 
   return (
     <footer ref={ref} id="help" className="border-t border-zinc-800 bg-zinc-950">
       <div className="mx-auto max-w-6xl px-4 py-16">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={motionEnabled ? { duration: 0.6 } : { duration: 0 }}
           className="grid grid-cols-2 gap-8 md:grid-cols-5"
         >
           {/* Brand */}
@@ -64,9 +66,9 @@ export function Footer() {
         {/* Bottom */}
         <motion.div
           id="contact"
-          initial={{ opacity: 0 }}
+          initial={motionEnabled ? { opacity: 0 } : { opacity: 1 }}
           animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.3 }}
+          transition={motionEnabled ? { duration: 0.6, delay: 0.3 } : { duration: 0 }}
           className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-zinc-800 pt-8 sm:flex-row"
         >
           <p className="text-sm text-zinc-500">

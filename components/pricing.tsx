@@ -1,9 +1,10 @@
 "use client"
 
-import { motion, useInView } from "framer-motion"
-import { useRef, useState } from "react"
-import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useMotion } from "@/lib/motion-context"
+import { motion, useInView } from "framer-motion"
+import { Check } from "lucide-react"
+import { useRef, useState } from "react"
 
 const plans = [
   {
@@ -71,14 +72,15 @@ export function Pricing() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly")
+  const { motionEnabled } = useMotion()
 
   return (
     <section id="pricing" className="px-4 py-24">
       <div className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={motionEnabled ? { duration: 0.6 } : { duration: 0 }}
           className="mb-12 text-center"
         >
           <h2
@@ -95,30 +97,28 @@ export function Pricing() {
           <div className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900 p-1">
             <button
               onClick={() => setBillingCycle("monthly")}
-              className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                billingCycle === "monthly" ? "text-white" : "text-zinc-400"
-              }`}
+              className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors ${billingCycle === "monthly" ? "text-white" : "text-zinc-400"
+                }`}
             >
               {billingCycle === "monthly" && (
                 <motion.div
-                  layoutId="billing-toggle"
+                  layoutId={motionEnabled ? "billing-toggle" : undefined}
                   className="absolute inset-0 rounded-full bg-zinc-800"
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  transition={motionEnabled ? { type: "spring", stiffness: 500, damping: 30 } : { duration: 0 }}
                 />
               )}
               <span className="relative z-10">Monthly</span>
             </button>
             <button
               onClick={() => setBillingCycle("yearly")}
-              className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                billingCycle === "yearly" ? "text-white" : "text-zinc-400"
-              }`}
+              className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors ${billingCycle === "yearly" ? "text-white" : "text-zinc-400"
+                }`}
             >
               {billingCycle === "yearly" && (
                 <motion.div
-                  layoutId="billing-toggle"
+                  layoutId={motionEnabled ? "billing-toggle" : undefined}
                   className="absolute inset-0 rounded-full bg-zinc-800"
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  transition={motionEnabled ? { type: "spring", stiffness: 500, damping: 30 } : { duration: 0 }}
                 />
               )}
               <span className="relative z-10">Yearly</span>
@@ -131,22 +131,21 @@ export function Pricing() {
 
         <motion.div
           ref={ref}
-          initial={{ opacity: 0, y: 40 }}
+          initial={motionEnabled ? { opacity: 0, y: 40 } : { opacity: 1, y: 0 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={motionEnabled ? { duration: 0.6, delay: 0.2 } : { duration: 0 }}
           className="grid grid-cols-1 gap-6 md:grid-cols-3"
         >
           {plans.map((plan, index) => (
             <motion.div
               key={plan.name}
-              initial={{ opacity: 0, y: 20 }}
+              initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
-              className={`relative rounded-2xl border p-6 transition-all duration-300 hover:scale-[1.02] ${
-                plan.highlighted
+              transition={motionEnabled ? { duration: 0.6, delay: 0.3 + index * 0.1 } : { duration: 0 }}
+              className={`relative rounded-2xl border p-6 transition-all duration-300 hover:scale-[1.02] ${plan.highlighted
                   ? "border-zinc-700 bg-zinc-900"
                   : "border-zinc-800 bg-zinc-900/50 hover:border-zinc-600"
-              }`}
+                }`}
             >
               {plan.highlighted && <BorderBeam />}
 
@@ -183,11 +182,10 @@ export function Pricing() {
               </ul>
 
               <Button
-                className={`w-full rounded-full ${
-                  plan.highlighted
+                className={`w-full rounded-full ${plan.highlighted
                     ? "shimmer-btn bg-white text-zinc-950 hover:bg-zinc-200"
                     : "border border-zinc-700 bg-zinc-800 text-white hover:bg-zinc-700"
-                }`}
+                  }`}
               >
                 {plan.cta}
               </Button>
