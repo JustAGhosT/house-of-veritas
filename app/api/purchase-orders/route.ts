@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server"
 import { withRole } from "@/lib/auth/rbac"
-import { readFile, writeFile, mkdir, open, unlink, rename, stat } from "fs/promises"
-import { existsSync } from "fs"
-import { pid } from "process"
-import { join } from "path"
-import { routeToInngest } from "@/lib/workflows"
 import { logger } from "@/lib/logger"
+import { routeToInngest } from "@/lib/workflows"
 import { randomUUID } from "crypto"
+import { existsSync } from "fs"
+import { mkdir, open, readFile, rename, stat, unlink, writeFile } from "fs/promises"
+import { NextResponse } from "next/server"
+import { join } from "path"
+import { pid } from "process"
 
 interface PurchaseOrder {
   id: string
@@ -48,7 +48,7 @@ async function acquireFileLock(
       await handle.sync()
       return async () => {
         await handle.close()
-        await unlink(lockPath).catch(() => {})
+        await unlink(lockPath).catch(() => { })
       }
     } catch (error) {
       const err = error as NodeJS.ErrnoException
