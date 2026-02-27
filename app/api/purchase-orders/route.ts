@@ -3,10 +3,10 @@ import { logger } from "@/lib/logger"
 import { routeToInngest } from "@/lib/workflows"
 import { randomUUID } from "crypto"
 import { existsSync } from "fs"
-import { mkdir, open, readFile, rename, stat, unlink, writeFile } from "fs/promises"
+import { mkdir, readFile, rename, writeFile } from "fs/promises"
 import { NextResponse } from "next/server"
 import { join } from "path"
-import { pid } from "process"
+import Redis from "ioredis"
 
 interface PurchaseOrder {
   id: string
@@ -31,122 +31,133 @@ async function loadPOs(): Promise<PurchaseOrder[]> {
   }
 }
 
-const LOCK_TTL_MS = 30000 // 30 seconds TTL for stale lock detection
+const LOCK_TTL_MS = 30000 // 30 seconds TTL for Redis lock
 
-async function acquireFileLock(
-  targetPath: string,
-  retries = 5,
-  delayMs = 50,
-  maxStaleRecoveries = 10
-): Promise<() => Promise<void>> {
-  const lockPath = `${targetPath}.lock`
-  let attempt = 0
-  let staleRecoveryCount = 0
-  while (attempt <= retries) {
+// Redis client for distributed locking
+let redis: Redis | null = null
+function getRedis(): Redis | null {
+  if (!process.env.REDIS_URL) return null
+  if (!redis) {
     try {
-      const handle = await open(lockPath, "wx")
-      try {
-        // Write timestamp and PID to the lock file for stale lock detection
-        const lockData = JSON.stringify({ timestamp: Date.now(), pid })
-        await handle.write(lockData)
-        await handle.sync()
-        return async () => {
-          await handle.close()
-          await unlink(lockPath).catch(() => { })
-        }
-      } catch (error) {
-        await handle.close().catch(() => { })
-        await unlink(lockPath).catch(() => { })
-        throw error
-      }
-    } catch (error) {
-      const err = error as NodeJS.ErrnoException
-      if (err?.code !== "EEXIST" || attempt === retries) {
-        throw error
-      }
-
-      // Check for stale lock
-      try {
-        const lockStats = await stat(lockPath)
-        const lockAge = Date.now() - lockStats.mtime.getTime()
-
-        if (lockAge > LOCK_TTL_MS) {
-          // Lock is stale, try to remove it
-          try {
-            // Read lock file to verify it's truly stale (check timestamp inside)
-            const lockContent = await readFile(lockPath, "utf-8")
-            let lockData: { timestamp?: number; pid?: number } | undefined
-            try {
-              lockData = JSON.parse(lockContent)
-            } catch {
-              // Invalid JSON, treat as stale
-            }
-
-            const timestamp = lockData?.timestamp
-            const isStale = !timestamp || (Date.now() - timestamp > LOCK_TTL_MS)
-
-            if (isStale) {
-              // Atomically rename the stale lock to avoid race conditions
-              const backupPath = `${lockPath}.stale.${pid}.${Date.now()}`
-              try {
-                await rename(lockPath, backupPath)
-                // Rename succeeded - we removed the exact stale file
-                await unlink(backupPath).catch(() => { })
-                // Retry immediately but track stale recovery attempts
-                staleRecoveryCount++
-                if (staleRecoveryCount > maxStaleRecoveries) {
-                  throw new Error(`Exceeded max stale lock recovery attempts (${maxStaleRecoveries})`)
-                }
-                continue
-              } catch (renameError) {
-                const renameErr = renameError as NodeJS.ErrnoException
-                // If rename failed (ENOENT or EEXIST), someone else changed the lock
-                if (renameErr?.code === "ENOENT" || renameErr?.code === "EEXIST") {
-                  // Another process modified the lock, continue the loop
-                  staleRecoveryCount++
-                  if (staleRecoveryCount > maxStaleRecoveries) {
-                    throw new Error(`Exceeded max stale lock recovery attempts (${maxStaleRecoveries})`)
-                  }
-                  continue
-                }
-                throw renameError
-              }
-            }
-          } catch (readError) {
-            // If we can't read the lock file, it might have been removed by another process
-            // Retry immediately but track stale recovery attempts
-            staleRecoveryCount++
-            if (staleRecoveryCount > maxStaleRecoveries) {
-              throw new Error(`Exceeded max stale lock recovery attempts (${maxStaleRecoveries})`)
-            }
-            continue
-          }
-        }
-      } catch (statError) {
-        // Lock file might have been removed between EEXIST and stat
-        // Retry immediately but track stale recovery attempts
-        staleRecoveryCount++
-        if (staleRecoveryCount > maxStaleRecoveries) {
-          throw new Error(`Exceeded max stale lock recovery attempts (${maxStaleRecoveries})`)
-        }
-        continue
-      }
-
-      attempt++
-      await new Promise((resolve) => setTimeout(resolve, delayMs))
+      redis = new Redis(process.env.REDIS_URL, {
+        maxRetriesPerRequest: 3,
+        retryStrategy: (times) => (times < 3 ? 1000 : null),
+        lazyConnect: true,
+      })
+      redis.on("error", (err) => {
+        logger.warn("Redis lock connection error", { error: err.message })
+      })
+    } catch (err) {
+      logger.warn("Redis lock init failed", {
+        error: err instanceof Error ? err.message : String(err),
+      })
+      return null
     }
   }
-  throw new Error("Failed to acquire lock")
+  return redis
 }
 
-async function savePOsUnsafe(orders: PurchaseOrder[]): Promise<void> {
-  await mkdir(join(process.cwd(), "data"), { recursive: true })
+// Lua script for atomic check-and-delete (prevents releasing someone else's lock)
+const UNLOCK_SCRIPT = `
+  if redis.call("get", KEYS[1]) == ARGV[1] then
+    return redis.call("del", KEYS[1])
+  else
+    return 0
+  end
+`
 
-  // Re-check and initialize
-  if (!existsSync(PO_PATH)) {
-    await writeFile(PO_PATH, "[]", "utf-8")
+class LockError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "LockError"
+  }
+}
+
+async function acquireDistributedLock(
+  lockKey: string,
+  retries = 5,
+  delayMs = 50
+): Promise<() => Promise<void>> {
+  const token = randomUUID()
+  const redisClient = getRedis()
+
+  // If Redis is not available, fall back to in-memory lock (dev only)
+  if (!redisClient) {
+    logger.warn("Redis not available, using in-memory lock fallback (dev only)")
+    let acquired = false
+    let attempt = 0
+    while (attempt <= retries && !acquired) {
+      if (!globalThis._inMemoryLocks) {
+        globalThis._inMemoryLocks = new Map()
+      }
+      if (!globalThis._inMemoryLocks.has(lockKey)) {
+        globalThis._inMemoryLocks.set(lockKey, token)
+        acquired = true
+        break
+      }
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
+      }
+      attempt++
+    }
+    if (!acquired) {
+      throw new LockError(`Failed to acquire in-memory lock after ${retries} retries`)
+    }
+    return async () => {
+      if (globalThis._inMemoryLocks?.get(lockKey) === token) {
+        globalThis._inMemoryLocks.delete(lockKey)
+      }
+    }
   }
 
+  // Redis-based distributed lock with bounded retry
+  let attempt = 0
+  while (attempt <= retries) {
+    // Try to acquire lock with SET NX PX (set if not exists with TTL)
+    const acquired = await redisClient.set(lockKey, token, "PX", LOCK_TTL_MS, "NX")
+    if (acquired === "OK") {
+      // Lock acquired successfully
+      return async () => {
+        try {
+          // Use Lua script to only delete if we still own the lock
+          await redisClient.eval(UNLOCK_SCRIPT, 1, lockKey, token)
+        } catch (err) {
+          logger.warn("Failed to release Redis lock", {
+            lockKey,
+            error: err instanceof Error ? err.message : String(err),
+          })
+        }
+      }
+    }
+
+    // Lock not acquired, wait and retry with exponential backoff
+    if (attempt < retries) {
+      const backoffMs = delayMs * Math.pow(2, attempt)
+      await new Promise((resolve) => setTimeout(resolve, Math.min(backoffMs, 1000)))
+    }
+    attempt++
+  }
+
+  throw new LockError(`Failed to acquire distributed lock after ${retries} retries`)
+}
+
+declare global {
+  // eslint-disable-next-line no-var
+  var _inMemoryLocks: Map<string, string> | undefined
+}
+
+// Track if lock is held for the current PO_PATH (runtime guard)
+let currentLockHolder: { path: string; acquired: boolean } | null = null
+
+async function savePOsWithLock(orders: PurchaseOrder[]): Promise<void> {
+  // Runtime assertion: ensure lock is held
+  if (!currentLockHolder || currentLockHolder.path !== PO_PATH || !currentLockHolder.acquired) {
+    throw new Error("Lock must be acquired before calling savePOsWithLock")
+  }
+
+  await mkdir(join(process.cwd(), "data"), { recursive: true })
+
+  // Always use atomic write pattern (no existsSync check needed)
   // Atomic write: write to temp file then rename
   const tempPath = `${PO_PATH}.tmp`
   await writeFile(tempPath, JSON.stringify(orders, null, 2), "utf-8")
@@ -200,13 +211,27 @@ export const POST = withRole("admin", "operator")(async (request, context) => {
     }
 
     // Acquire lock and perform read-modify-write atomically
-    const release = await acquireFileLock(PO_PATH)
+    currentLockHolder = { path: PO_PATH, acquired: true }
+    let release: (() => Promise<void>) | undefined
     try {
+      release = await acquireDistributedLock(`lock:${PO_PATH}`)
       const orders = await loadPOs()
       orders.push(po)
-      await savePOsUnsafe(orders)
+      await savePOsWithLock(orders)
+    } catch (lockErr) {
+      if (lockErr instanceof LockError) {
+        logger.error("Failed to acquire lock for purchase order creation", {
+          error: lockErr.message,
+        })
+        return NextResponse.json(
+          { error: "Resource temporarily locked due to high contention. Please retry." },
+          { status: 423 }
+        )
+      }
+      throw lockErr
     } finally {
-      await release()
+      currentLockHolder = null
+      if (release) await release()
     }
 
     // Emit event after persistence - wrap in try/catch to avoid 500 on event failure

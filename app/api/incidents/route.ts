@@ -9,6 +9,7 @@ import {
   isIncidentsTableConfigured,
 } from "@/lib/services/baserow"
 import { routeToInngest } from "@/lib/workflows"
+import { randomUUID } from "crypto"
 import { NextResponse } from "next/server"
 
 const SEED_INCIDENTS: ReadonlyArray<Readonly<Incident & { reporterName?: string }>> = Object.freeze([
@@ -67,9 +68,47 @@ const SEED_INCIDENTS: ReadonlyArray<Readonly<Incident & { reporterName?: string 
 // The GET/POST handlers will prefer Baserow when isIncidentsTableConfigured() returns true.
 const inMemoryIncidents: Incident[] = []
 
-// Module-level ID counter for seed mode to avoid duplicate IDs under concurrent requests.
-// Initialized to max existing ID + 1 to avoid collisions with SEED_INCIDENTS.
-let incidentsIdCounter = Math.max(...SEED_INCIDENTS.map(i => i.id), 0) + 1
+// Maximum number of in-memory incidents to prevent unbounded growth
+const MAX_IN_MEMORY_INCIDENTS = 1000
+
+// TTL for in-memory incidents (24 hours)
+const IN_MEMORY_TTL_MS = 24 * 60 * 60 * 1000
+
+// Track when in-memory store was created for TTL enforcement
+let inMemoryStoreCreatedAt = Date.now()
+
+function isDevMode(): boolean {
+  return process.env.NODE_ENV !== "production" || process.env.ALLOW_IN_MEMORY_INCIDENTS === "true"
+}
+
+function checkInMemoryAllowed(): { allowed: boolean; error?: NextResponse } {
+  if (!isDevMode()) {
+    return {
+      allowed: false,
+      error: NextResponse.json(
+        { error: "In-memory incident store is not allowed in production. Configure Baserow integration." },
+        { status: 503 }
+      ),
+    }
+  }
+  // Check TTL
+  if (Date.now() - inMemoryStoreCreatedAt > IN_MEMORY_TTL_MS) {
+    // Reset the store if TTL expired
+    inMemoryIncidents.length = 0
+    inMemoryStoreCreatedAt = Date.now()
+  }
+  // Check capacity
+  if (inMemoryIncidents.length >= MAX_IN_MEMORY_INCIDENTS) {
+    return {
+      allowed: false,
+      error: NextResponse.json(
+        { error: "In-memory incident store capacity exceeded. Use Baserow for production." },
+        { status: 503 }
+      ),
+    }
+  }
+  return { allowed: true }
+}
 
 function getIncidentsData(): Incident[] {
   return [...SEED_INCIDENTS, ...inMemoryIncidents]
@@ -197,7 +236,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
 
       const useBaserow = isIncidentsTableConfigured()
 
-      let newIncident: { id: number; severity: Incident["severity"]; victimSupportPath: boolean }
+      let newIncident: { id: number | string; severity: Incident["severity"]; victimSupportPath: boolean }
       let apiIncident: ReturnType<typeof formatIncidentForApi>
 
       if (useBaserow) {
@@ -227,13 +266,20 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
           : undefined
         apiIncident = formatIncidentForApi({ ...created, reporterName })
       } else {
-        const id = incidentsIdCounter++
+        // Check if in-memory mode is allowed before proceeding
+        const { allowed, error } = checkInMemoryAllowed()
+        if (!allowed) return error
+
+        // Use UUID for collision-resistant IDs in in-memory mode
+        const id = randomUUID()
         newIncident = {
           id,
           severity: severityValue,
           victimSupportPath: !!victimSupportPath,
         }
-        const inMemory: Incident = {
+        // Create in-memory incident with string ID (dev mode only)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const inMemory: any = {
           id,
           type,
           dateTime,

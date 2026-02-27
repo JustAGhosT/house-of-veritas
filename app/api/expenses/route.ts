@@ -47,7 +47,15 @@ function getDefaultRequesterId(): number {
   }
   return 1
 }
-const DEFAULT_REQUESTER_ID = getDefaultRequesterId()
+
+// Lazy-evaluated default requester ID to avoid build-time errors
+let _defaultRequesterId: number | undefined
+function getDefaultRequesterIdLazy(): number {
+  if (_defaultRequesterId === undefined) {
+    _defaultRequesterId = getDefaultRequesterId()
+  }
+  return _defaultRequesterId
+}
 
 export const GET = withRole(
   "admin",
@@ -112,7 +120,7 @@ export const POST = withRole(
       { paramName: "requester", required: false, fallbackToCaller: true }
     )
     if (error) return error
-    const finalRequester = resolvedRequester ?? DEFAULT_REQUESTER_ID
+    const finalRequester = resolvedRequester ?? getDefaultRequesterIdLazy()
 
     if (!amount || !category) {
       return NextResponse.json({ error: "Amount and category are required" }, { status: 400 })
@@ -131,17 +139,19 @@ export const POST = withRole(
     })
 
     const useInngest = process.env.USE_INNGEST_APPROVALS === "true"
+    // Use authenticated context userId instead of trusting headers
+    const authenticatedUserId = context?.userId
     if (!useInngest) {
-      // Resolve approver dynamically from env or request context - no hardcoded fallback
-      const approverId = process.env.EXPENSE_APPROVER_ID || request.headers.get("x-user-id")
+      // Resolve approver dynamically from env or authenticated context - no hardcoded fallback
+      const approverId = process.env.EXPENSE_APPROVER_ID || authenticatedUserId
       if (!approverId) {
         return NextResponse.json(
-          { error: "Unable to determine approver: EXPENSE_APPROVER_ID env var or x-user-id header required" },
+          { error: "Unable to determine approver: EXPENSE_APPROVER_ID env var or authentication required" },
           { status: 400 }
         )
       }
       emitApprovalRequired(
-        { ...expense, type: "expense", submittedBy: request.headers.get("x-user-id") || "unknown" },
+        { ...expense, type: "expense", submittedBy: authenticatedUserId || "unknown" },
         approverId
       )
     }
@@ -150,7 +160,7 @@ export const POST = withRole(
         name: "house-of-veritas/expense.created",
         data: {
           ...expense,
-          submittedBy: request.headers.get("x-user-id") || "unknown",
+          submittedBy: authenticatedUserId || "unknown",
         },
       })
     }
