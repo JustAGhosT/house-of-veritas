@@ -68,7 +68,13 @@ export async function resolveEmployeeForPost(
     fallbackToCaller = true,
   } = options
 
-  const paramValue = body[paramName] ?? body.requester ?? body.employee
+  // Read body[paramName] first; apply requester/employee fallback only when paramName is neither "requester" nor "employee"
+  // to avoid redundant property checks on the same object.
+  let paramValue = body[paramName]
+  if (paramValue == null && paramName !== "requester" && paramName !== "employee") {
+    paramValue = body.requester ?? body.employee
+  }
+  
   const personaId = body.personaId as string | undefined
 
   let employeeId: number | undefined

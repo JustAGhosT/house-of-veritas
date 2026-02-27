@@ -2063,15 +2063,45 @@ function getMockVehicleLogs(): VehicleLog[] {
   ]
 }
 
-export interface DocumentExpiryRow {
+export interface DocumentExpiryRowRaw {
   id: number
   "Doc Name"?: string
   Type?: string
   "Last Review"?: string
   "Next Review"?: string
-  "Party Responsible"?: Array<{ id: number }>
+  "Party Responsible"?: Array<{ id: number; value: string }>
   "Superseded By"?: number[]
   "Version Blocked"?: boolean
+  "DocuSeal Ref"?: string
+  Status?: string
+}
+
+export interface DocumentExpiryRow {
+  id: number
+  docName: string
+  type: string
+  lastReview?: string
+  nextReview?: string
+  partyResponsible?: number[]
+  supersededBy?: number[]
+  versionBlocked: boolean
+  docuSealRef?: string
+  status?: string
+}
+
+export function mapBaserowToDocumentExpiryRow(raw: DocumentExpiryRowRaw): DocumentExpiryRow {
+  return {
+    id: raw.id,
+    docName: raw["Doc Name"] || "Untitled Document",
+    type: raw.Type || "General",
+    lastReview: raw["Last Review"],
+    nextReview: raw["Next Review"],
+    partyResponsible: raw["Party Responsible"]?.map(p => p.id),
+    supersededBy: raw["Superseded By"],
+    versionBlocked: !!raw["Version Blocked"],
+    docuSealRef: raw["DocuSeal Ref"],
+    status: raw.Status,
+  }
 }
 
 export interface LeaveRequest {

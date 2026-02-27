@@ -1,6 +1,6 @@
-import { ObjectId } from "mongodb"
 import { getCollection, sanitizeDocument, sanitizeDocuments } from "@/lib/db/mongodb"
 import { logger } from "@/lib/logger"
+import { ObjectId } from "mongodb"
 
 export interface KioskRequestDoc {
   _id?: ObjectId
@@ -18,10 +18,14 @@ export interface KioskRequestDoc {
 export interface KioskFindOptions {
   limit?: number
   skip?: number
+  employeeId?: string
+  type?: string
+  status?: string
+  timestamp?: { $gte?: string }
 }
 
 export interface KioskStore {
-  find(query: Record<string, unknown>, options?: KioskFindOptions): Promise<KioskRequestDoc[]>
+  find(options?: KioskFindOptions): Promise<KioskRequestDoc[]>
   insertOne(doc: Omit<KioskRequestDoc, "_id">): Promise<{ insertedId: ObjectId }>
   updateOne(filter: { _id: ObjectId }, update: { $set: Record<string, unknown> }): Promise<unknown>
   findOne(filter: { _id: ObjectId }): Promise<KioskRequestDoc | null>
@@ -136,19 +140,28 @@ function seedInMemory() {
   logger.info("KioskStore: Seeded in-memory fallback", { count: KIOSK_SEED_DATA.length })
 }
 
+function normalizePaging(skip?: number, limit?: number) {
+  const nSkip = skip != null ? Math.max(0, Math.floor(Number(skip) || 0)) : 0
+  const nLimit = limit != null ? Math.max(0, Math.floor(Number(limit) || 0)) : undefined
+  return { skip: nSkip, limit: nLimit }
+}
+
 const inMemoryStoreAdapter: KioskStore = {
-  async find(query: Record<string, unknown>, options?: KioskFindOptions) {
+  async find(options?: KioskFindOptions) {
     seedInMemory()
     let items = Array.from(inMemoryStore.values())
-    if (query.employeeId) items = items.filter((r) => r.employeeId === query.employeeId)
-    if (query.type) items = items.filter((r) => r.type === query.type)
-    if (query.status) items = items.filter((r) => r.status === query.status)
-    const ts = query.timestamp as { $gte?: string } | undefined
-    const cutoff = ts?.$gte
+    
+    // Explicitly validate/accept fields from KioskFindOptions
+    if (options?.employeeId) items = items.filter((r) => r.employeeId === options.employeeId)
+    if (options?.type) items = items.filter((r) => r.type === options.type)
+    if (options?.status) items = items.filter((r) => r.status === options.status)
+    const cutoff = options?.timestamp?.$gte
     if (cutoff) items = items.filter((r) => r.timestamp >= cutoff)
-    items = items.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1))
-    const skip = options?.skip ?? 0
-    const limit = options?.limit
+    
+    // Sort comparator using localeCompare for correctness and satisfying the contract
+    items = items.sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+    
+    const { skip, limit } = normalizePaging(options?.skip, options?.limit)
     if (limit != null && limit > 0) {
       return items.slice(skip, skip + limit)
     }
@@ -193,11 +206,19 @@ async function getMongoStore(): Promise<KioskStore> {
     logger.info("KioskStore: Seeded MongoDB", { count: KIOSK_SEED_DATA.length })
   }
   return {
-    find: async (q, opts) => {
-      let cursor = collection.find(q).sort({ timestamp: -1 })
-      if (opts?.skip != null && opts.skip > 0) cursor = cursor.skip(opts.skip)
-      if (opts?.limit != null && opts.limit > 0) cursor = cursor.limit(opts.limit)
-      return cursor.toArray()
+    find: async (opts) => {
+      const query: Record<string, unknown> = {}
+      if (opts?.employeeId) query.employeeId = opts.employeeId
+      if (opts?.type) query.type = opts.type
+      if (opts?.status) query.status = opts.status
+      if (opts?.timestamp) query.timestamp = opts.timestamp
+
+      let cursor = collection.find(query).sort({ timestamp: -1 })
+      const { skip, limit } = normalizePaging(opts?.skip, opts?.limit)
+      if (skip > 0) cursor = cursor.skip(skip)
+      if (limit != null && limit > 0) cursor = cursor.limit(limit)
+      const results = await cursor.toArray()
+      return sanitizeDocuments(results) as KioskRequestDoc[]
     },
     insertOne: (doc) => collection.insertOne(doc as KioskRequestDoc),
     updateOne: async (filter, update) => {

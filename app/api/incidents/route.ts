@@ -1,17 +1,17 @@
-import { NextResponse } from "next/server"
 import { withRole } from "@/lib/auth/rbac"
-import {
-  getIncidents,
-  createIncident,
-  getBaserowEmployeeIdByAppId,
-  getEmployee,
-  isIncidentsTableConfigured,
-} from "@/lib/services/baserow"
-import { routeToInngest } from "@/lib/workflows"
 import { logger } from "@/lib/logger"
 import type { Incident } from "@/lib/services/baserow"
+import {
+    createIncident,
+    getBaserowEmployeeIdByAppId,
+    getEmployee,
+    getIncidents,
+    isIncidentsTableConfigured,
+} from "@/lib/services/baserow"
+import { routeToInngest } from "@/lib/workflows"
+import { NextResponse } from "next/server"
 
-const SEED_INCIDENTS: Array<Incident & { reporterName?: string }> = [
+const SEED_INCIDENTS: ReadonlyArray<Readonly<Incident & { reporterName?: string }>> = Object.freeze([
   {
     id: 1,
     dateTime: "2025-01-18T14:30:00",
@@ -60,7 +60,14 @@ const SEED_INCIDENTS: Array<Incident & { reporterName?: string }> = [
     relatedIncidentIds: undefined,
     victimSupportPath: false,
   },
-]
+].map(obj => Object.freeze(obj)))
+
+// Simple in-memory store to avoid mutating module-level SEED_INCIDENTS
+const inMemoryIncidents: Incident[] = []
+
+function getIncidentsData(): Incident[] {
+  return [...SEED_INCIDENTS, ...inMemoryIncidents]
+}
 
 function formatIncidentForApi(incident: Incident & { reporterName?: string }) {
   const [datePart, timePart] = (incident.dateTime || "").split("T")
@@ -101,7 +108,7 @@ export const GET = withRole("admin", "operator", "employee", "resident")(
         const baserowIncidents = await getIncidents()
         incidents = await loadIncidentsWithNames(baserowIncidents)
       } else {
-        incidents = await loadIncidentsWithNames(SEED_INCIDENTS)
+        incidents = await loadIncidentsWithNames(getIncidentsData())
       }
 
       const summary = {
@@ -191,7 +198,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
           : undefined
         apiIncident = formatIncidentForApi({ ...created, reporterName })
       } else {
-        const id = SEED_INCIDENTS.length + 1
+        const id = getIncidentsData().length + 1
         newIncident = {
           id,
           severity: severityValue,
@@ -208,7 +215,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
           status: "Reported",
           victimSupportPath: !!victimSupportPath,
         }
-        SEED_INCIDENTS.push(inMemory)
+        inMemoryIncidents.push(inMemory)
         apiIncident = formatIncidentForApi(inMemory)
       }
 

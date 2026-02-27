@@ -19,16 +19,26 @@ import { NextResponse } from "next/server"
 const HIGH_VALUE_THRESHOLD = 5000
 
 // Default requester ID fallback when employee resolution fails
-// In production, this should be configured via environment variable
+// In production, this must be configured via environment variable
 function getDefaultRequesterId(): number {
-  if (process.env.DEFAULT_EXPENSE_REQUESTER_ID) {
-    const parsed = parseInt(process.env.DEFAULT_EXPENSE_REQUESTER_ID, 10)
+  const envValue = process.env.DEFAULT_EXPENSE_REQUESTER_ID
+  if (envValue) {
+    const parsed = parseInt(envValue, 10)
     if (Number.isInteger(parsed) && parsed > 0) {
       return parsed
     }
-    // Log warning for invalid env value but continue with fallback
-    console.warn(`Invalid DEFAULT_EXPENSE_REQUESTER_ID: ${process.env.DEFAULT_EXPENSE_REQUESTER_ID}, using fallback`)
+    throw new Error(
+      `Invalid DEFAULT_EXPENSE_REQUESTER_ID: "${envValue}". Expected a positive integer. Please check your environment configuration.`
+    )
   }
+  
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "DEFAULT_EXPENSE_REQUESTER_ID environment variable is required in production but was not found."
+    )
+  }
+  
+  // Only fallback in development/test if not provided
   return 1
 }
 const DEFAULT_REQUESTER_ID = getDefaultRequesterId()
@@ -233,9 +243,15 @@ export const PATCH = withRole("admin")(async (request) => {
       status === "Approved" &&
       existing.approvalStatus === "Pending Secondary"
     ) {
+      if (!secondaryApprover) {
+        return NextResponse.json(
+          { error: "secondaryApprover is required for final approval of high-value expenses" },
+          { status: 400 }
+        )
+      }
       Object.assign(updates, {
         approvalStatus: "Approved",
-        secondaryApprover: secondaryApprover ?? 1,
+        secondaryApprover: secondaryApprover,
         secondaryApprovalDate: toISODateString(),
       })
     }

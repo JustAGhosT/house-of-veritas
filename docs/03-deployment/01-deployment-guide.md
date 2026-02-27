@@ -11,6 +11,7 @@ This guide covers end-to-end deployment of the House of Veritas platform on Azur
 | DocuSeal              | Document signing & templates     | Container Instance |
 | Baserow               | Operational tracking & data      | Container Instance |
 | PostgreSQL            | Application databases            | Flexible Server    |
+| Cosmos DB (Mongo)     | Kiosk requests, audit fallback   | Cosmos DB          |
 | Blob Storage          | Documents, backups, asset photos | Storage Account    |
 | Document Intelligence | OCR scanning for documents       | Cognitive Services |
 | Application Gateway   | SSL termination, WAF, routing    | App Gateway WAF v2 |
@@ -24,11 +25,12 @@ Internet → Application Gateway (WAF + SSL) → Container Instances → Postgre
                                                     ↓
                                               Blob Storage
                                               Document Intelligence
+                                              Cosmos DB (Mongo API)
 ```
 
 - **Domain:** nexamesh.ai (docs.nexamesh.ai, ops.nexamesh.ai)
 - **Region:** South Africa North
-- **Monthly cost:** ~R950
+- **Monthly cost:** ~R1100
 
 ---
 
@@ -562,23 +564,23 @@ az cognitiveservices account show `
 
 ### Terraform Variables
 
-| Variable                     | Default                   | Source                       |
-| ---------------------------- | ------------------------- | ---------------------------- |
-| `domain_name`                | `nexamesh.ai`             | tfvars                       |
-| `db_admin_password`          | —                         | tfvars (sensitive)           |
-| `smtp_password`              | —                         | tfvars (sensitive)           |
-| `ssl_certificate_data`       | `""`                      | tfvars (sensitive, optional) |
-| `ssl_certificate_password`   | `""`                      | tfvars (sensitive, optional) |
-| `dns_zone_name`              | `nexamesh.ai`             | default                      |
-| `dns_zone_resource_group`    | `nl-prod-nexamesh-rg-san` | default                      |
-| `document_intelligence_name` | `nl-prod-hov-di-san`      | default                      |
-| `storage_account_name`       | `nlprodhovstsan`          | default                      |
-| `key_vault_name`             | `nl-prod-hov-kv-san`      | default                      |
-| `db_server_name`             | `nl-prod-hov-pg-san`      | default                      |
-| `cosmos_account_name`        | `nlprodhovcosmosan`       | default                      |
-| `cosmos_mongo_database_name` | `house_of_veritas`        | default                      |
-| `cosmos_mongo_collection_name` | `kiosk_requests`        | default                      |
-| `resource_group_name`        | `nl-prod-hov-rg-san`      | default                      |
+| Variable                       | Default                   | Source                       |
+| ------------------------------ | ------------------------- | ---------------------------- |
+| `domain_name`                  | `nexamesh.ai`             | tfvars                       |
+| `db_admin_password`            | —                         | tfvars (sensitive)           |
+| `smtp_password`                | —                         | tfvars (sensitive)           |
+| `ssl_certificate_data`         | `""`                      | tfvars (sensitive, optional) |
+| `ssl_certificate_password`     | `""`                      | tfvars (sensitive, optional) |
+| `dns_zone_name`                | `nexamesh.ai`             | default                      |
+| `dns_zone_resource_group`      | `nl-prod-nexamesh-rg-san` | default                      |
+| `document_intelligence_name`   | `nl-prod-hov-di-san`      | default                      |
+| `storage_account_name`         | `nlprodhovstsan`          | default                      |
+| `key_vault_name`               | `nl-prod-hov-kv-san`      | default                      |
+| `db_server_name`               | `nl-prod-hov-pg-san`      | default                      |
+| `cosmos_account_name`          | `nlprodhovcosmosan`       | default                      |
+| `cosmos_mongo_database_name`   | `house_of_veritas`        | default                      |
+| `cosmos_mongo_collection_name` | `kiosk_requests`          | default                      |
+| `resource_group_name`          | `nl-prod-hov-rg-san`      | default                      |
 
 ### Terraform Outputs (post-deploy)
 
