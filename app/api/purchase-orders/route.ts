@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server"
 import { withRole } from "@/lib/auth/rbac"
-import { readFile, writeFile, mkdir } from "fs/promises"
+import { readFile, writeFile, mkdir, open, unlink, rename, stat } from "fs/promises"
+import { existsSync } from "fs"
+import { pid } from "process"
 import { join } from "path"
 import { routeToInngest } from "@/lib/workflows"
 import { logger } from "@/lib/logger"
+import { randomUUID } from "crypto"
 
 interface PurchaseOrder {
   id: string
@@ -28,9 +31,92 @@ async function loadPOs(): Promise<PurchaseOrder[]> {
   }
 }
 
+const LOCK_TTL_MS = 30000 // 30 seconds TTL for stale lock detection
+
+async function acquireFileLock(
+  targetPath: string,
+  retries = 5,
+  delayMs = 50
+): Promise<() => Promise<void>> {
+  const lockPath = `${targetPath}.lock`
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const handle = await open(lockPath, "wx")
+      // Write timestamp and PID to the lock file for stale lock detection
+      const lockData = JSON.stringify({ timestamp: Date.now(), pid })
+      await handle.write(lockData)
+      await handle.sync()
+      return async () => {
+        await handle.close()
+        await unlink(lockPath).catch(() => {})
+      }
+    } catch (error) {
+      const err = error as NodeJS.ErrnoException
+      if (err?.code !== "EEXIST" || attempt === retries) {
+        throw error
+      }
+
+      // Check for stale lock
+      try {
+        const lockStats = await stat(lockPath)
+        const lockAge = Date.now() - lockStats.mtime.getTime()
+
+        if (lockAge > LOCK_TTL_MS) {
+          // Lock is stale, try to remove it
+          try {
+            // Read lock file to verify it's truly stale (check timestamp inside)
+            const lockContent = await readFile(lockPath, "utf-8")
+            let lockData: { timestamp?: number; pid?: number } | undefined
+            try {
+              lockData = JSON.parse(lockContent)
+            } catch {
+              // Invalid JSON, treat as stale
+            }
+
+            const timestamp = lockData?.timestamp
+            const isStale = !timestamp || (Date.now() - timestamp > LOCK_TTL_MS)
+
+            if (isStale) {
+              await unlink(lockPath)
+              // Retry immediately without counting this as an attempt
+              continue
+            }
+          } catch (readError) {
+            // If we can't read the lock file, it might have been removed by another process
+            // Retry immediately
+            continue
+          }
+        }
+      } catch (statError) {
+        // Lock file might have been removed between EEXIST and stat
+        // Retry immediately
+        continue
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, delayMs))
+    }
+  }
+  throw new Error("Failed to acquire lock")
+}
+
 async function savePOs(orders: PurchaseOrder[]): Promise<void> {
   await mkdir(join(process.cwd(), "data"), { recursive: true })
-  await writeFile(PO_PATH, JSON.stringify(orders, null, 2), "utf-8")
+
+  // Acquire lock first to prevent race conditions during initialization
+  const release = await acquireFileLock(PO_PATH)
+  try {
+    // Re-check and initialize inside the locked section
+    if (!existsSync(PO_PATH)) {
+      await writeFile(PO_PATH, "[]", "utf-8")
+    }
+
+    // Atomic write: write to temp file then rename
+    const tempPath = `${PO_PATH}.tmp`
+    await writeFile(tempPath, JSON.stringify(orders, null, 2), "utf-8")
+    await rename(tempPath, PO_PATH)
+  } finally {
+    await release()
+  }
 }
 
 export async function GET() {
@@ -57,14 +143,22 @@ export const POST = withRole("admin", "operator")(async (request, context) => {
       )
     }
 
+    const numericAmount = Number(amount)
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      return NextResponse.json(
+        { error: "amount must be a positive finite number" },
+        { status: 400 }
+      )
+    }
+
     const orders = await loadPOs()
-    const id = `po-${Date.now()}`
+    const id = `po-${randomUUID()}`
     const now = new Date().toISOString()
 
     const po: PurchaseOrder = {
       id,
       vendor,
-      amount: Number(amount),
+      amount: numericAmount,
       items: items ?? "",
       status: "pending_approval",
       createdBy: context.userId,
@@ -75,16 +169,25 @@ export const POST = withRole("admin", "operator")(async (request, context) => {
     orders.push(po)
     await savePOs(orders)
 
-    await routeToInngest({
-      name: "house-of-veritas/purchase_order.created",
-      data: {
+    // Emit event after persistence - wrap in try/catch to avoid 500 on event failure
+    try {
+      await routeToInngest({
+        name: "house-of-veritas/purchase_order.created",
+        data: {
+          poId: id,
+          vendor,
+          amount: po.amount,
+          items: po.items,
+          createdBy: context.userId,
+        },
+      })
+    } catch (eventError) {
+      logger.error("Failed to emit purchase_order.created event", {
         poId: id,
-        vendor,
-        amount: po.amount,
-        items: po.items,
-        createdBy: context.userId,
-      },
-    })
+        error: eventError instanceof Error ? eventError.message : String(eventError),
+      })
+      // Do not rethrow - the PO was successfully created
+    }
 
     return NextResponse.json({ purchaseOrder: po })
   } catch (err) {

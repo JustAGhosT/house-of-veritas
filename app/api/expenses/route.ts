@@ -21,24 +21,30 @@ const HIGH_VALUE_THRESHOLD = 5000
 // Default requester ID fallback when employee resolution fails
 // In production, this must be configured via environment variable
 function getDefaultRequesterId(): number {
-  const envValue = process.env.DEFAULT_EXPENSE_REQUESTER_ID
-  if (envValue) {
-    const parsed = parseInt(envValue, 10)
+  if (process.env.DEFAULT_EXPENSE_REQUESTER_ID) {
+    const parsed = parseInt(process.env.DEFAULT_EXPENSE_REQUESTER_ID, 10)
     if (Number.isInteger(parsed) && parsed > 0) {
       return parsed
     }
-    throw new Error(
-      `Invalid DEFAULT_EXPENSE_REQUESTER_ID: "${envValue}". Expected a positive integer. Please check your environment configuration.`
-    )
+    // In production, throw an error instead of silently falling back
+    if (process.env.NODE_ENV === "production") {
+      logger.error(`Invalid DEFAULT_EXPENSE_REQUESTER_ID: ${process.env.DEFAULT_EXPENSE_REQUESTER_ID}`)
+      throw new Error(
+        `Invalid DEFAULT_EXPENSE_REQUESTER_ID: "${process.env.DEFAULT_EXPENSE_REQUESTER_ID}". ` +
+        `Must be a positive integer. Set a valid DEFAULT_EXPENSE_REQUESTER_ID environment variable.`
+      )
+    }
+    // Log warning for invalid env value but continue with fallback in non-production
+    console.warn(`Invalid DEFAULT_EXPENSE_REQUESTER_ID: ${process.env.DEFAULT_EXPENSE_REQUESTER_ID}, using fallback`)
   }
-
+  // In production, require the environment variable to be set
   if (process.env.NODE_ENV === "production") {
+    logger.error("DEFAULT_EXPENSE_REQUESTER_ID is not set")
     throw new Error(
-      "DEFAULT_EXPENSE_REQUESTER_ID environment variable is required in production but was not found."
+      "DEFAULT_EXPENSE_REQUESTER_ID environment variable is required in production. " +
+      "Set a valid positive integer value."
     )
   }
-
-  // Only fallback in development/test if not provided
   return 1
 }
 const DEFAULT_REQUESTER_ID = getDefaultRequesterId()
@@ -158,7 +164,10 @@ export const POST = withRole(
   }
 })
 
-export const PATCH = withRole("admin")(async (request) => {
+export const PATCH = withRole("admin")(async (request, context) => {
+  if (!context?.userId) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+  }
   try {
     const body = await request.json()
     const { id, status, secondaryApprover, ...rest } = body
@@ -242,15 +251,22 @@ export const PATCH = withRole("admin")(async (request) => {
       status === "Approved" &&
       existing.approvalStatus === "Pending Secondary"
     ) {
-      if (!secondaryApprover) {
-        return NextResponse.json(
-          { error: "secondaryApprover is required for final approval of high-value expenses" },
-          { status: 400 }
-        )
+      let secondaryApproverId: number | undefined
+      if (secondaryApprover != null) {
+        secondaryApproverId = secondaryApprover
+      } else {
+        const resolvedId = await getBaserowEmployeeIdByAppId(context.userId)
+        if (!resolvedId) {
+          return NextResponse.json(
+            { error: "Failed to resolve secondary approver. Provide secondaryApprover or ensure user has a valid employee mapping." },
+            { status: 400 }
+          )
+        }
+        secondaryApproverId = resolvedId
       }
       Object.assign(updates, {
         approvalStatus: "Approved",
-        secondaryApprover: secondaryApprover,
+        secondaryApprover: secondaryApproverId,
         secondaryApprovalDate: toISODateString(),
       })
     }

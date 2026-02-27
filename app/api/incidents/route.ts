@@ -145,11 +145,33 @@ export const GET = withRole("admin", "operator", "employee", "resident")(
 )
 
 export const POST = withRole("admin", "operator", "employee", "resident")(
-  async (request) => {
+  async (request, context) => {
+    // Parse JSON body with explicit error handling
+    let body: Record<string, unknown>
     try {
-      const body = await request.json()
-      const { type, location, severity, description, reporter, victimSupportPath } = body
-      const userId = request.headers.get("x-user-id") || "unknown"
+      body = await request.json()
+    } catch (parseError) {
+      return NextResponse.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      )
+    }
+
+    // Use authenticated user from context instead of trusting client header
+    if (!context?.userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    try {
+      const { type, location, severity, description, reporter, victimSupportPath } = body as {
+        type?: string
+        location?: string
+        severity?: string
+        description?: string
+        reporter?: string
+        victimSupportPath?: boolean
+      }
+      const userId = context.userId
 
       if (!type || !location || !severity || !description) {
         return NextResponse.json(
@@ -168,7 +190,8 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
 
       const severityValue = severity as Incident["severity"]
       const now = new Date()
-      const dateTime = now.toISOString().slice(0, 19)
+      // Use full ISO string with timezone (UTC) to preserve timezone context
+      const dateTime = now.toISOString()
       const reporterId =
         (await getBaserowEmployeeIdByAppId(reporter || userId)) ?? undefined
 
@@ -225,14 +248,23 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
         apiIncident = formatIncidentForApi(inMemory)
       }
 
-      await routeToInngest({
-        name: "house-of-veritas/incident.created",
-        data: {
-          id: String(newIncident.id),
-          severity: newIncident.severity,
-          victimSupportPath: newIncident.victimSupportPath,
-        },
-      })
+      // Emit event after persistence - wrap in try/catch to avoid 500 on event failure
+      try {
+        await routeToInngest({
+          name: "house-of-veritas/incident.created",
+          data: {
+            id: String(newIncident.id),
+            severity: newIncident.severity,
+            victimSupportPath: newIncident.victimSupportPath,
+          },
+        })
+      } catch (eventError) {
+        logger.error("Failed to emit incident.created event", {
+          incidentId: newIncident.id,
+          error: eventError instanceof Error ? eventError.message : String(eventError),
+        })
+        // Do not rethrow - the incident was successfully created
+      }
 
       return NextResponse.json({ incident: apiIncident })
     } catch (error) {
