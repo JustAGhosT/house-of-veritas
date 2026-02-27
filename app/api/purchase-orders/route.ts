@@ -36,10 +36,12 @@ const LOCK_TTL_MS = 30000 // 30 seconds TTL for stale lock detection
 async function acquireFileLock(
   targetPath: string,
   retries = 5,
-  delayMs = 50
+  delayMs = 50,
+  maxStaleRecoveries = 10
 ): Promise<() => Promise<void>> {
   const lockPath = `${targetPath}.lock`
   let attempt = 0
+  let staleRecoveryCount = 0
   while (attempt <= retries) {
     try {
       const handle = await open(lockPath, "wx")
@@ -90,13 +92,21 @@ async function acquireFileLock(
                 await rename(lockPath, backupPath)
                 // Rename succeeded - we removed the exact stale file
                 await unlink(backupPath).catch(() => { })
-                // Retry immediately without counting this as an attempt
+                // Retry immediately but track stale recovery attempts
+                staleRecoveryCount++
+                if (staleRecoveryCount > maxStaleRecoveries) {
+                  throw new Error(`Exceeded max stale lock recovery attempts (${maxStaleRecoveries})`)
+                }
                 continue
               } catch (renameError) {
                 const renameErr = renameError as NodeJS.ErrnoException
                 // If rename failed (ENOENT or EEXIST), someone else changed the lock
                 if (renameErr?.code === "ENOENT" || renameErr?.code === "EEXIST") {
                   // Another process modified the lock, continue the loop
+                  staleRecoveryCount++
+                  if (staleRecoveryCount > maxStaleRecoveries) {
+                    throw new Error(`Exceeded max stale lock recovery attempts (${maxStaleRecoveries})`)
+                  }
                   continue
                 }
                 throw renameError
@@ -104,13 +114,21 @@ async function acquireFileLock(
             }
           } catch (readError) {
             // If we can't read the lock file, it might have been removed by another process
-            // Retry immediately
+            // Retry immediately but track stale recovery attempts
+            staleRecoveryCount++
+            if (staleRecoveryCount > maxStaleRecoveries) {
+              throw new Error(`Exceeded max stale lock recovery attempts (${maxStaleRecoveries})`)
+            }
             continue
           }
         }
       } catch (statError) {
         // Lock file might have been removed between EEXIST and stat
-        // Retry immediately
+        // Retry immediately but track stale recovery attempts
+        staleRecoveryCount++
+        if (staleRecoveryCount > maxStaleRecoveries) {
+          throw new Error(`Exceeded max stale lock recovery attempts (${maxStaleRecoveries})`)
+        }
         continue
       }
 
@@ -121,24 +139,18 @@ async function acquireFileLock(
   throw new Error("Failed to acquire lock")
 }
 
-async function savePOs(orders: PurchaseOrder[]): Promise<void> {
+async function savePOsUnsafe(orders: PurchaseOrder[]): Promise<void> {
   await mkdir(join(process.cwd(), "data"), { recursive: true })
 
-  // Acquire lock first to prevent race conditions during initialization
-  const release = await acquireFileLock(PO_PATH)
-  try {
-    // Re-check and initialize inside the locked section
-    if (!existsSync(PO_PATH)) {
-      await writeFile(PO_PATH, "[]", "utf-8")
-    }
-
-    // Atomic write: write to temp file then rename
-    const tempPath = `${PO_PATH}.tmp`
-    await writeFile(tempPath, JSON.stringify(orders, null, 2), "utf-8")
-    await rename(tempPath, PO_PATH)
-  } finally {
-    await release()
+  // Re-check and initialize
+  if (!existsSync(PO_PATH)) {
+    await writeFile(PO_PATH, "[]", "utf-8")
   }
+
+  // Atomic write: write to temp file then rename
+  const tempPath = `${PO_PATH}.tmp`
+  await writeFile(tempPath, JSON.stringify(orders, null, 2), "utf-8")
+  await rename(tempPath, PO_PATH)
 }
 
 export async function GET() {
@@ -173,7 +185,6 @@ export const POST = withRole("admin", "operator")(async (request, context) => {
       )
     }
 
-    const orders = await loadPOs()
     const id = `po-${randomUUID()}`
     const now = new Date().toISOString()
 
@@ -188,8 +199,15 @@ export const POST = withRole("admin", "operator")(async (request, context) => {
       updatedAt: now,
     }
 
-    orders.push(po)
-    await savePOs(orders)
+    // Acquire lock and perform read-modify-write atomically
+    const release = await acquireFileLock(PO_PATH)
+    try {
+      const orders = await loadPOs()
+      orders.push(po)
+      await savePOsUnsafe(orders)
+    } finally {
+      await release()
+    }
 
     // Emit event after persistence - wrap in try/catch to avoid 500 on event failure
     try {

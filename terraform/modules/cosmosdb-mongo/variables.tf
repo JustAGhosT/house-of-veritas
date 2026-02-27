@@ -35,9 +35,9 @@ variable "throughput" {
 }
 
 variable "public_network_access_enabled" {
-  description = "Whether public network access is enabled. Defaults to false for production security. All calling environments should explicitly set this value rather than relying on the default."
+  description = "Whether public network access is enabled. Defaults to true for backward compatibility. SECURITY NOTICE: This default will change to false in a future release. All calling modules/environments should explicitly set public_network_access_enabled = false for production security before the enforced change."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "enable_free_tier" {

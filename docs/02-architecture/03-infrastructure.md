@@ -33,7 +33,7 @@ Resource Groups
     │   │   └── house_of_veritas       Database for kiosk requests, audit fallback
     │   │       ├── Network: Private endpoints with VNet integration
     │   │       ├── Private DNS Zone: privatelink.mongo.cosmos.azure.com
-    │   │       └── Access: Managed identity + firewall rules enforced
+    │   │       └── Access: Managed identity (production) / connection string fallback (local/dev)
     │   └── Private DNS Zone           private.postgres.database.azure.com
     │
     ├── Storage
@@ -48,7 +48,7 @@ Resource Groups
     ├── Security
     │   └── nl-prod-hov-kv-san         Key Vault (standard)
     │       ├── db-admin-password
-    │       ├── cosmos-connection-string
+    │       ├── cosmos-connection-string  (fallback for local/dev; rotate regularly)
     │       ├── docuseal-secret-key
     │       ├── baserow-secret-key
     │       └── smtp-password
