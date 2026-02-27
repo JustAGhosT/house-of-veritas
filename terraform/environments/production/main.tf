@@ -107,6 +107,23 @@ module "database" {
   depends_on = [module.network, module.security]
 }
 
+module "cosmos_mongo" {
+  source = "../../modules/cosmosdb-mongo"
+
+  resource_group_name           = azurerm_resource_group.main.name
+  location                      = azurerm_resource_group.main.location
+  account_name                  = var.cosmos_account_name
+  mongo_database_name           = var.cosmos_mongo_database_name
+  mongo_collection_name         = var.cosmos_mongo_collection_name
+  throughput                    = var.cosmos_mongo_throughput
+  public_network_access_enabled = var.cosmos_public_network_access_enabled
+  enable_free_tier              = var.cosmos_enable_free_tier
+
+  tags = local.common_tags
+
+  depends_on = [module.network]
+}
+
 # Compute Module (Container Instances)
 module "compute" {
   source = "../../modules/compute"
@@ -200,10 +217,14 @@ module "webapp" {
   docuseal_api_key               = var.docuseal_api_key
   document_intelligence_endpoint = module.cognitive.endpoint
   document_intelligence_key      = module.cognitive.primary_access_key
+  extra_app_settings = {
+    MONGODB_URI = module.cosmos_mongo.mongo_connection_string
+    DB_NAME     = module.cosmos_mongo.mongo_database_name
+  }
 
   tags = local.common_tags
 
-  depends_on = [module.network, module.storage, module.security, module.cognitive]
+  depends_on = [module.network, module.storage, module.security, module.cognitive, module.cosmos_mongo]
 }
 
 # DNS Module (Azure DNS records for nexamesh.ai)

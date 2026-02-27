@@ -216,6 +216,13 @@ let storeMode: "mongodb" | "memory" = "mongodb"
 
 export async function getKioskStore(): Promise<{ store: KioskStore; mode: "mongodb" | "memory" }> {
   if (cachedStore) return { store: cachedStore, mode: storeMode }
+  const isE2E = process.env.E2E_TEST === "1" || process.env.CI === "true"
+  const mongoConfigured = !!(process.env.MONGODB_URI || process.env.MONGO_URL)
+  if (isE2E || !mongoConfigured) {
+    cachedStore = inMemoryStoreAdapter
+    storeMode = "memory"
+    return { store: cachedStore, mode: "memory" }
+  }
   try {
     cachedStore = await getMongoStore()
     storeMode = "mongodb"

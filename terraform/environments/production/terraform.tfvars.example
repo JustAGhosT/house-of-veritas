@@ -17,6 +17,13 @@ db_server_name      = "pg-houseofveritas"
 db_admin_username   = "hov_admin"
 db_admin_password   = "CHANGE_ME_SECURE_PASSWORD_HERE"  # Generate a strong password
 
+cosmos_account_name          = "nlprodhovcosmosan"
+cosmos_mongo_database_name   = "house_of_veritas"
+cosmos_mongo_collection_name = "kiosk_requests"
+cosmos_mongo_throughput      = 400
+cosmos_public_network_access_enabled = true
+cosmos_enable_free_tier      = false
+
 # Domain
 domain_name = "nexamesh.ai"  # Or .co.za
 
