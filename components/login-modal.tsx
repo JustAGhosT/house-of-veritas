@@ -108,7 +108,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto border-white/10 bg-[#0d0d12]/95 p-0 backdrop-blur-xl">
+      <DialogContent className="dark-scrollbar max-h-[90vh] max-w-md overflow-y-auto border-white/10 bg-[#0d0d12]/95 p-0 backdrop-blur-xl">
         {/* Login View */}
         {view === "login" && (
           <div className="p-8">
