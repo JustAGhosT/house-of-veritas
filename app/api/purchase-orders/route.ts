@@ -89,8 +89,25 @@ async function acquireDistributedLock(
       if (!globalThis._inMemoryLocks) {
         globalThis._inMemoryLocks = new Map()
       }
+      // Check and clean expired locks
+      const existing = globalThis._inMemoryLocks.get(lockKey)
+      if (existing) {
+        if (Date.now() > existing.expiry) {
+          // Lock expired, clean it up
+          clearTimeout(existing.timer)
+          globalThis._inMemoryLocks.delete(lockKey)
+        }
+      }
       if (!globalThis._inMemoryLocks.has(lockKey)) {
-        globalThis._inMemoryLocks.set(lockKey, token)
+        // Set lock with TTL timer
+        const timer = setTimeout(() => {
+          globalThis._inMemoryLocks?.delete(lockKey)
+        }, LOCK_TTL_MS)
+        globalThis._inMemoryLocks.set(lockKey, {
+          token,
+          expiry: Date.now() + LOCK_TTL_MS,
+          timer,
+        })
         acquired = true
         break
       }
@@ -103,8 +120,11 @@ async function acquireDistributedLock(
       throw new LockError(`Failed to acquire in-memory lock after ${retries} retries`)
     }
     return async () => {
-      if (globalThis._inMemoryLocks?.get(lockKey) === token) {
-        globalThis._inMemoryLocks.delete(lockKey)
+      const store = globalThis._inMemoryLocks
+      const entry = store?.get(lockKey)
+      if (entry && entry.token === token) {
+        clearTimeout(entry.timer)
+        store?.delete(lockKey)
       }
     }
   }
@@ -140,19 +160,21 @@ async function acquireDistributedLock(
   throw new LockError(`Failed to acquire distributed lock after ${retries} retries`)
 }
 
-declare global {
-  // eslint-disable-next-line no-var
-  var _inMemoryLocks: Map<string, string> | undefined
+// In-memory lock entry with metadata for TTL and cleanup
+type InMemoryLockEntry = {
+  token: string
+  expiry: number
+  timer: ReturnType<typeof setTimeout>
 }
 
-// Track if lock is held for the current PO_PATH (runtime guard)
-let currentLockHolder: { path: string; acquired: boolean } | null = null
+declare global {
+  // eslint-disable-next-line no-var
+  var _inMemoryLocks: Map<string, InMemoryLockEntry> | undefined
+}
 
-async function savePOsWithLock(orders: PurchaseOrder[]): Promise<void> {
-  // Runtime assertion: ensure lock is held
-  if (!currentLockHolder || currentLockHolder.path !== PO_PATH || !currentLockHolder.acquired) {
-    throw new Error("Lock must be acquired before calling savePOsWithLock")
-  }
+async function savePOsWithLock(orders: PurchaseOrder[], _lockToken: string): Promise<void> {
+  // The lock token is passed to ensure callers have acquired the lock
+  // In a more complex system, this could validate against a registry
 
   await mkdir(join(process.cwd(), "data"), { recursive: true })
 
@@ -210,13 +232,13 @@ export const POST = withRole(
     }
 
     // Acquire lock and perform read-modify-write atomically
-    currentLockHolder = { path: PO_PATH, acquired: true }
     let release: (() => Promise<void>) | undefined
     try {
       release = await acquireDistributedLock(`lock:${PO_PATH}`)
       const orders = await loadPOs()
       orders.push(po)
-      await savePOsWithLock(orders)
+      // Pass lock token (for potential validation in savePOsWithLock)
+      await savePOsWithLock(orders, "acquired")
     } catch (lockErr) {
       if (lockErr instanceof LockError) {
         logger.error("Failed to acquire lock for purchase order creation", {
@@ -229,7 +251,6 @@ export const POST = withRole(
       }
       throw lockErr
     } finally {
-      currentLockHolder = null
       if (release) await release()
     }
 

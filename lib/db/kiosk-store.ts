@@ -150,22 +150,26 @@ const inMemoryStoreAdapter: KioskStore = {
   async find(options?: KioskFindOptions) {
     seedInMemory()
     let items = Array.from(inMemoryStore.values())
-    
+
     // Explicitly validate/accept fields from KioskFindOptions
     if (options?.employeeId) items = items.filter((r) => r.employeeId === options.employeeId)
     if (options?.type) items = items.filter((r) => r.type === options.type)
     if (options?.status) items = items.filter((r) => r.status === options.status)
     const cutoff = options?.timestamp?.$gte
     if (cutoff) items = items.filter((r) => r.timestamp >= cutoff)
-    
+
     // Sort comparator using localeCompare for correctness and satisfying the contract
     items = items.sort((a, b) => b.timestamp.localeCompare(a.timestamp))
-    
+
     const { skip, limit } = normalizePaging(options?.skip, options?.limit)
+    let result: KioskRequestDoc[]
     if (limit != null && limit > 0) {
-      return items.slice(skip, skip + limit)
+      result = items.slice(skip, skip + limit)
+    } else {
+      result = skip > 0 ? items.slice(skip) : items
     }
-    return skip > 0 ? items.slice(skip) : items
+    // Sanitize to match Mongo adapter behavior (convert _id to string id)
+    return sanitizeDocuments(result) as KioskRequestDoc[]
   },
   async insertOne(doc: Omit<KioskRequestDoc, "_id">) {
     seedInMemory()
@@ -173,10 +177,7 @@ const inMemoryStoreAdapter: KioskStore = {
     inMemoryStore.set(id.toString(), { ...doc, _id: id } as KioskRequestDoc)
     return { insertedId: id }
   },
-  async updateOne(
-    filter: { _id: ObjectId },
-    update: { $set: Record<string, unknown> }
-  ): Promise<void> {
+  async updateOne(filter: { _id: ObjectId }, update: { $set: Record<string, unknown> }): Promise<void> {
     const existing = inMemoryStore.get(filter._id.toString())
     if (existing) {
       Object.assign(existing, update.$set)
@@ -184,7 +185,8 @@ const inMemoryStoreAdapter: KioskStore = {
   },
   async findOne(filter: { _id: ObjectId }) {
     seedInMemory()
-    return inMemoryStore.get(filter._id.toString()) ?? null
+    const doc = inMemoryStore.get(filter._id.toString())
+    return doc ? (sanitizeDocument(doc) as KioskRequestDoc) : null
   },
   async countDocuments() {
     seedInMemory()
@@ -216,7 +218,7 @@ async function getMongoStore(): Promise<KioskStore> {
       let cursor = collection.find(query).sort({ timestamp: -1 })
       const { skip, limit } = normalizePaging(opts?.skip, opts?.limit)
       if (skip > 0) cursor = cursor.skip(skip)
-      if (limit != null && limit > 0) cursor = cursor.limit(limit)
+      if (limit != null) cursor = cursor.limit(limit)
       const results = await cursor.toArray()
       return sanitizeDocuments(results) as KioskRequestDoc[]
     },

@@ -144,13 +144,21 @@ export const POST = withRole(
     // Use authenticated context userId instead of trusting headers
     const authenticatedUserId = context?.userId
     if (!useInngest) {
-      // Resolve approver dynamically from env or authenticated context - no hardcoded fallback
-      const approverId = process.env.EXPENSE_APPROVER_ID || authenticatedUserId
+      // Require EXPENSE_APPROVER_ID to be explicitly set - do not allow self-approval fallback
+      const approverId = process.env.EXPENSE_APPROVER_ID
       if (!approverId) {
         return NextResponse.json(
           {
-            error:
-              "Unable to determine approver: EXPENSE_APPROVER_ID env var or authentication required",
+            error: "EXPENSE_APPROVER_ID environment variable must be configured",
+          },
+          { status: 400 }
+        )
+      }
+      // Prevent self-approval
+      if (approverId === authenticatedUserId) {
+        return NextResponse.json(
+          {
+            error: "Self-approval is not allowed. Approver must be different from submitter.",
           },
           { status: 400 }
         )
@@ -265,8 +273,7 @@ export const PATCH = withRole("admin")(async (request, context) => {
         ) {
           return NextResponse.json(
             {
-              error:
-                "Failed to resolve secondary approver. Provide secondaryApprover or ensure user has a valid employee mapping.",
+              error: "Invalid secondaryApprover: must be a positive integer",
             },
             { status: 400 }
           )

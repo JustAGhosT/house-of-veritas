@@ -419,6 +419,94 @@ container.upload_blob(name=filename, data=file_data, overwrite=True)
 | `asset-uploads` | Asset registry photos          | No auto-tiering              |
 | `tfstate`       | Terraform state files          | Versioned                    |
 
+### 7.4 Cosmos DB (Mongo API)
+
+Provisioned automatically by the `cosmosdb-mongo` Terraform module as `nl-prod-hov-cosmos-san`.
+
+**Retrieve credentials:**
+
+```powershell
+terraform output cosmos_mongo_database_name
+terraform output -raw cosmos_mongo_connection_string
+```
+
+**App configuration keys:**
+
+| Key                         | Source                                                  |
+| --------------------------- | ------------------------------------------------------- |
+| `COSMOS_MONGO_CONNECTION`   | `terraform output -raw cosmos_mongo_connection_string`  |
+| `COSMOS_MONGO_DATABASE`     | `terraform output cosmos_mongo_database_name`           |
+| `COSMOS_MONGO_COLLECTION`   | `kiosk_requests` (default)                              |
+
+**Usage examples:**
+
+Python (pymongo):
+
+```python
+from pymongo import MongoClient
+import os
+
+client = MongoClient(os.environ["COSMOS_MONGO_CONNECTION"])
+db = client[os.environ["COSMOS_MONGO_DATABASE"]]
+collection = db["kiosk_requests"]
+
+# Insert a kiosk request
+doc = {
+    "type": "stock_order",
+    "employeeId": "lucky",
+    "employeeName": "Lucky",
+    "data": {"itemName": "Garden tools", "quantity": 5},
+    "timestamp": "2025-01-15T10:30:00Z",
+    "status": "pending"
+}
+collection.insert_one(doc)
+
+# Query pending requests
+pending = collection.find({"status": "pending"})
+```
+
+Node.js (mongodb driver):
+
+```typescript
+import { MongoClient } from "mongodb";
+
+const client = new MongoClient(process.env.COSMOS_MONGO_CONNECTION!);
+await client.connect();
+const db = client.db(process.env.COSMOS_MONGO_DATABASE);
+const collection = db.collection("kiosk_requests");
+
+// Insert a kiosk request
+await collection.insertOne({
+  type: "stock_order",
+  employeeId: "lucky",
+  employeeName: "Lucky",
+  data: { itemName: "Garden tools", quantity: 5 },
+  timestamp: new Date().toISOString(),
+  status: "pending"
+});
+
+// Query pending requests
+const pending = await collection.find({ status: "pending" }).toArray();
+```
+
+**Collection: `kiosk_requests`**
+
+| Field         | Type   | Description                              |
+| ------------- | ------ | ---------------------------------------- |
+| `type`        | string | `stock_order`, `salary_advance`, `issue_report` |
+| `employeeId`  | string | Employee identifier                      |
+| `employeeName`| string | Display name                             |
+| `data`        | object | Request-specific payload                 |
+| `timestamp`   | string | ISO 8601 timestamp                       |
+| `status`      | string | `pending`, `approved`, `rejected`, `completed` |
+
+**Configuring apps to use Cosmos Mongo API:**
+
+1. Set environment variables from Terraform outputs
+2. Install `pymongo` (Python) or use MongoDB drivers for your language
+3. Connect using the connection string (includes auth credentials)
+4. Use the database name `house_of_veritas` (or your configured value)
+
 ---
 
 ## Step 8: CI/CD Pipeline
