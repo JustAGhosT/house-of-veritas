@@ -24,6 +24,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   isAuthenticated: boolean
+  requiresAuth: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -31,6 +32,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [requiresAuth, setRequiresAuth] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -62,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isOnboardingPage = pathname === "/onboarding"
 
     if (!user && isDashboardPage) {
-      router.push("/login")
+      setRequiresAuth(true)
     } else if (user && isAuthPage) {
       router.push(`/dashboard/${user.id}`)
     } else if (user && isOnboardingPage && user.onboardingStatus === "completed") {
@@ -109,7 +111,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Clear state even if server call fails
     }
     setUser(null)
-    router.push("/login")
+    setRequiresAuth(true)
+  }
+
+  const clearRequiresAuth = () => {
+    setRequiresAuth(false)
   }
 
   return (
@@ -120,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         isAuthenticated: !!user,
+        requiresAuth,
       }}
     >
       {children}
@@ -140,20 +147,16 @@ export function withAuth<P extends object>(
   options?: { allowedUsers?: string[] }
 ) {
   return function ProtectedComponent(props: P) {
-    const { user, isLoading, isAuthenticated } = useAuth()
+    const { user, isLoading, isAuthenticated, requiresAuth } = useAuth()
     const router = useRouter()
 
     useEffect(() => {
-      if (!isLoading && !isAuthenticated) {
-        router.push("/login")
-      }
-
       if (!isLoading && user && options?.allowedUsers) {
         if (!options.allowedUsers.includes(user.id) && user.role !== "admin") {
           router.push(`/dashboard/${user.id}`)
         }
       }
-    }, [isLoading, isAuthenticated, user, router])
+    }, [isLoading, user, router])
 
     if (isLoading) {
       return (

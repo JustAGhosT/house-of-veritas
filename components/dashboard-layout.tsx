@@ -4,6 +4,7 @@ import { useState, useEffect, startTransition } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { useLoginModal } from "@/lib/login-modal-context"
 import { apiFetch } from "@/lib/api-client"
 import { NotificationPanel } from "@/components/notification-panel"
 import { RealTimeIndicator } from "@/components/realtime-indicator"
@@ -45,16 +46,17 @@ function getFlatNavItems(entries: NavEntry[]): { name: string; href: string }[] 
 export default function DashboardLayout({ children, persona }: DashboardLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, logout, isLoading, isAuthenticated } = useAuth()
+  const { user, logout, isLoading, isAuthenticated, requiresAuth } = useAuth()
+  const { openLoginModal } = useLoginModal()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
 
-  // Auth protection
+  // Auth protection - open login modal when auth is required
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push("/login")
+    if (requiresAuth) {
+      openLoginModal()
     }
-  }, [isLoading, isAuthenticated, router])
+  }, [requiresAuth, openLoginModal])
 
   useEffect(() => {
     if (!isLoading && user) {

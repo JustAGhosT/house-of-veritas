@@ -24,6 +24,8 @@ import {
 } from "lucide-react"
 import { apiFetch, apiFetchSafe } from "@/lib/api-client"
 import { RESPONSIBILITIES } from "@/lib/access-config"
+import { useLoginModal } from "@/lib/login-modal-context"
+import { useAuth } from "@/lib/auth-context"
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Administrator",
@@ -36,6 +38,8 @@ const ROLES = ["operator", "employee", "resident"] as const
 
 export default function OnboardingPage() {
   const router = useRouter()
+  const { openLoginModal } = useLoginModal()
+  const { requiresAuth } = useAuth()
   const [user, setUser] = useState<{
     id: string
     name: string
@@ -43,6 +47,13 @@ export default function OnboardingPage() {
     responsibilities?: string[]
   } | null>(null)
   const [loading, setLoading] = useState(true)
+
+  // Open login modal when auth is required
+  useEffect(() => {
+    if (requiresAuth) {
+      openLoginModal()
+    }
+  }, [requiresAuth, openLoginModal])
   const [confirmedRole, setConfirmedRole] = useState(false)
   const [confirmedResponsibilities, setConfirmedResponsibilities] = useState(false)
   const [selectedResponsibilities, setSelectedResponsibilities] = useState<Set<string>>(new Set())
@@ -84,11 +95,9 @@ export default function OnboardingPage() {
           if (data.user.onboardingStatus === "completed") {
             router.push(`/dashboard/${data.user.id}`)
           }
-        } else {
-          router.push("/login")
         }
       })
-      .catch(() => router.push("/login"))
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [router])
 

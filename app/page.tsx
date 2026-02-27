@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { SmoothScroll } from "@/components/smooth-scroll"
 import { Navbar } from "@/components/navbar"
 import { Hero } from "@/components/hero"
@@ -9,6 +10,7 @@ import { ComplianceSection } from "@/components/compliance-section"
 import { FinalCTA } from "@/components/final-cta"
 import { Footer } from "@/components/footer"
 import { GridPattern } from "@/components/grid-pattern"
+import { LoginRedirectHandler } from "@/components/login-redirect-handler"
 
 export default function Home() {
   return (
@@ -16,6 +18,9 @@ export default function Home() {
       <main className="relative min-h-screen bg-zinc-950">
         <GridPattern />
         <div className="relative z-10">
+          <Suspense fallback={null}>
+            <LoginRedirectHandler />
+          </Suspense>
           <Navbar />
           <Hero />
           <StatsSection />

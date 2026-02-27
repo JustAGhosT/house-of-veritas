@@ -11,7 +11,7 @@ function InviteRedirect() {
     if (token) {
       window.location.href = `/api/auth/invite-accept?token=${encodeURIComponent(token)}`
     } else {
-      window.location.href = "/login?error=missing_token"
+      window.location.href = "/?error=missing_token"
     }
   }, [token])
 

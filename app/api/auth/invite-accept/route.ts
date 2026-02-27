@@ -7,17 +7,17 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const token = searchParams.get("token")
   if (!token) {
-    return NextResponse.redirect(new URL("/login?error=missing_token", request.url))
+    return NextResponse.redirect(new URL("/?error=missing_token", request.url))
   }
 
   const parsed = await validateInviteToken(token)
   if (!parsed) {
-    return NextResponse.redirect(new URL("/login?error=invalid_token", request.url))
+    return NextResponse.redirect(new URL("/?error=invalid_token", request.url))
   }
 
   const user = await findUserByIdAsync(parsed.userId)
   if (!user) {
-    return NextResponse.redirect(new URL("/login?error=user_not_found", request.url))
+    return NextResponse.redirect(new URL("/?error=user_not_found", request.url))
   }
 
   const jwt = await signToken({
