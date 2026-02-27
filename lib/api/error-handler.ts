@@ -1,15 +1,15 @@
-import { NextResponse } from "next/server"
-import { logger } from "@/lib/logger"
+import { logger } from "@/lib/logger";
+import { NextResponse } from "next/server";
 
-type RouteHandler = (
+type RouteHandler<TContext = unknown> = (
   request: Request,
-  context?: unknown
+  context?: TContext
 ) => Promise<NextResponse> | NextResponse
 
-export function withErrorHandling(
-  handler: RouteHandler,
+export function withErrorHandling<TContext>(
+  handler: RouteHandler<TContext>,
   options: { operation: string; fallbackMessage?: string; status?: number }
-): RouteHandler {
+): RouteHandler<TContext> {
   const { operation, fallbackMessage = "Operation failed", status = 500 } = options
   return async (request, context) => {
     try {

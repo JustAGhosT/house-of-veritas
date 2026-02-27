@@ -2,10 +2,9 @@ import { withRole } from "@/lib/auth/rbac"
 import { logger } from "@/lib/logger"
 import { routeToInngest } from "@/lib/workflows"
 import { existsSync } from "fs"
-import { mkdir, readFile, writeFile } from "fs/promises"
+import { mkdir, open, readFile, unlink, writeFile } from "fs/promises"
 import { NextResponse } from "next/server"
 import { join } from "path"
-import { lock } from "proper-lockfile"
 
 const MILESTONE_STATUSES = ["Pending", "In Progress", "Paid", "Completed"] as const
 type MilestoneStatus = (typeof MILESTONE_STATUSES)[number]
@@ -89,20 +88,39 @@ async function loadContractors(): Promise<Contractor[]> {
 
 async function saveContractors(contractors: Contractor[]): Promise<void> {
   await mkdir(join(process.cwd(), "data"), { recursive: true })
-  // Ensure file exists before locking to prevent ENOENT
   if (!existsSync(CONTRACTORS_PATH)) {
     await writeFile(CONTRACTORS_PATH, "[]", "utf-8")
   }
-  // Acquire exclusive file lock to prevent lost updates from concurrent PATCHes
-  const release = await lock(CONTRACTORS_PATH, {
-    retries: { retries: 5, minTimeout: 50, maxTimeout: 500 },
-    stale: 5000,
-  })
+  const release = await acquireFileLock(CONTRACTORS_PATH)
   try {
     await writeFile(CONTRACTORS_PATH, JSON.stringify(contractors, null, 2), "utf-8")
   } finally {
     await release()
   }
+}
+
+async function acquireFileLock(
+  targetPath: string,
+  retries = 5,
+  delayMs = 50
+): Promise<() => Promise<void>> {
+  const lockPath = `${targetPath}.lock`
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const handle = await open(lockPath, "wx")
+      return async () => {
+        await handle.close()
+        await unlink(lockPath).catch(() => {})
+      }
+    } catch (error) {
+      const err = error as NodeJS.ErrnoException
+      if (err?.code !== "EEXIST" || attempt === retries) {
+        throw error
+      }
+      await new Promise((resolve) => setTimeout(resolve, delayMs))
+    }
+  }
+  throw new Error("Failed to acquire lock")
 }
 
 function recalcContractor(c: Contractor): Contractor {

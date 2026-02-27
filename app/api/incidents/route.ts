@@ -153,6 +153,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
         )
       }
 
+      const severityValue = severity as Incident["severity"]
       const now = new Date()
       const dateTime = now.toISOString().slice(0, 19)
       const reporterId =
@@ -160,7 +161,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
 
       const useBaserow = isIncidentsTableConfigured()
 
-      let newIncident: { id: number; severity: string; victimSupportPath: boolean }
+      let newIncident: { id: number; severity: Incident["severity"]; victimSupportPath: boolean }
       let apiIncident: ReturnType<typeof formatIncidentForApi>
 
       if (useBaserow) {
@@ -170,7 +171,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
           location,
           reporter: reporterId,
           description,
-          severity,
+          severity: severityValue,
           status: "Reported",
           victimSupportPath: !!victimSupportPath,
         })
@@ -193,7 +194,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
         const id = SEED_INCIDENTS.length + 1
         newIncident = {
           id,
-          severity,
+          severity: severityValue,
           victimSupportPath: !!victimSupportPath,
         }
         const inMemory: Incident = {
@@ -203,7 +204,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
           location: location || "",
           reporter: reporterId,
           description,
-          severity,
+          severity: severityValue,
           status: "Reported",
           victimSupportPath: !!victimSupportPath,
         }

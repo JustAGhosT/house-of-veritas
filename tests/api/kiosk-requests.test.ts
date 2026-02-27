@@ -9,7 +9,14 @@ vi.mock("@/lib/services/notification-service", () => ({
 
 vi.mock("@/lib/db/kiosk-store", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/db/kiosk-store")>()
-  const inMemoryStore = new Map<string, { _id: { toString: () => string };[k: string]: unknown }>()
+  type KioskDoc = {
+    _id: { toString: () => string }
+    employeeId?: string
+    type?: string
+    status?: string
+    [k: string]: unknown
+  }
+  const inMemoryStore = new Map<string, KioskDoc>()
   const { ObjectId } = await import("mongodb")
   const seed = [
     { type: "stock_order", employeeId: "lucky", employeeName: "Lucky", data: {}, timestamp: new Date().toISOString(), status: "pending" },
@@ -24,9 +31,12 @@ vi.mock("@/lib/db/kiosk-store", async (importOriginal) => {
       store: {
         find: async (q: Record<string, unknown>) => {
           let items = Array.from(inMemoryStore.values())
-          if (q.employeeId) items = items.filter((r: { employeeId?: string }) => r.employeeId === q.employeeId)
-          if (q.type) items = items.filter((r: { type?: string }) => r.type === q.type)
-          if (q.status) items = items.filter((r: { status?: string }) => r.status === q.status)
+          const employeeId = typeof q.employeeId === "string" ? q.employeeId : undefined
+          const type = typeof q.type === "string" ? q.type : undefined
+          const status = typeof q.status === "string" ? q.status : undefined
+          if (employeeId) items = items.filter((r) => r.employeeId === employeeId)
+          if (type) items = items.filter((r) => r.type === type)
+          if (status) items = items.filter((r) => r.status === status)
           return items
         },
         insertOne: async (doc: { type: string; employeeId: string; employeeName: string; data: Record<string, unknown>; timestamp: string; status: string }) => {

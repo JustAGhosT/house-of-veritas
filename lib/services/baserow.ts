@@ -96,7 +96,7 @@ export interface Task {
   assignedTo?: number
   assignedToName?: string
   dueDate?: string
-  priority: "Low" | "Medium" | "High"
+  priority: "Low" | "Medium" | "High" | "Urgent"
   status: "Not Started" | "In Progress" | "Completed"
   timeSpent?: number
   completionNotes?: string
@@ -1733,13 +1733,13 @@ function mapRowToAsset(row: BaserowRow): Asset {
   }
 }
 
-function mapAssetToRow(
-  asset: Partial<Asset> & {
-    checkedOutBy?: number | null
-    expectedReturnDate?: string | null
-    checkOutDate?: string | null
-  }
-): Record<string, unknown> {
+type AssetUpdate = Partial<Omit<Asset, "checkedOutBy" | "expectedReturnDate" | "checkOutDate">> & {
+  checkedOutBy?: number | null
+  expectedReturnDate?: string | null
+  checkOutDate?: string | null
+}
+
+function mapAssetToRow(asset: AssetUpdate): Record<string, unknown> {
   const row: Record<string, unknown> = {}
   if (asset.expectedReturnDate !== undefined)
     row["Expected Return Date"] = asset.expectedReturnDate ?? null
@@ -2067,6 +2067,7 @@ export interface DocumentExpiryRow {
   id: number
   "Doc Name"?: string
   Type?: string
+  "Last Review"?: string
   "Next Review"?: string
   "Party Responsible"?: Array<{ id: number }>
   "Superseded By"?: number[]

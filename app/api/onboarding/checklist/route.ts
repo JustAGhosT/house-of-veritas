@@ -8,6 +8,7 @@ import {
 import { withRole } from "@/lib/auth/rbac"
 import { routeToInngest } from "@/lib/workflows"
 import { logger } from "@/lib/logger"
+import { toISODateString } from "@/lib/utils"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -58,6 +59,7 @@ export const POST = withRole("admin")(
         employee,
         items: items ?? "[]",
         status: status || "In Progress",
+        createdAt: toISODateString(),
       })
 
       if (!checklist) {

@@ -41,6 +41,9 @@ export const GET = withRole(
 )(
   withErrorHandling(
     async (request, context) => {
+      if (!context) {
+        return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+      }
       const { searchParams } = new URL(request.url)
       const status = searchParams.get("status")
 
