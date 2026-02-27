@@ -38,7 +38,7 @@ export async function GET(
   }
 }
 
-export const PATCH = withRole("admin", "operator", "employee")(
+export const PATCH = withRole("admin", "operator")(
   async (request, context) => {
     try {
       const params = (await (context.params ?? Promise.resolve({}))) as { id?: string }

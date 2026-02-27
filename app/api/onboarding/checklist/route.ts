@@ -10,31 +10,33 @@ import { routeToInngest } from "@/lib/workflows"
 import { logger } from "@/lib/logger"
 import { toISODateString } from "@/lib/utils"
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const employee = searchParams.get("employee")
-  const status = searchParams.get("status")
+export const GET = withRole("admin", "operator")(
+  async (request: Request) => {
+    const { searchParams } = new URL(request.url)
+    const employee = searchParams.get("employee")
+    const status = searchParams.get("status")
 
-  try {
-    if (!isOnboardingTableConfigured()) {
-      return NextResponse.json({ checklists: [], total: 0 })
+    try {
+      if (!isOnboardingTableConfigured()) {
+        return NextResponse.json({ checklists: [], total: 0 })
+      }
+      const employeeId = employee ? parseInt(employee, 10) : undefined
+      const checklists = await getOnboardingChecklists({
+        employee: Number.isNaN(employeeId as number) ? undefined : employeeId,
+        status: status || undefined,
+      })
+      return NextResponse.json({ checklists, total: checklists.length })
+    } catch (error) {
+      logger.error("GET onboarding checklist error", {
+        error: error instanceof Error ? error.message : String(error),
+      })
+      return NextResponse.json(
+        { error: "Failed to fetch onboarding checklists" },
+        { status: 500 }
+      )
     }
-    const employeeId = employee ? parseInt(employee, 10) : undefined
-    const checklists = await getOnboardingChecklists({
-      employee: Number.isNaN(employeeId as number) ? undefined : employeeId,
-      status: status || undefined,
-    })
-    return NextResponse.json({ checklists, total: checklists.length })
-  } catch (error) {
-    logger.error("GET onboarding checklist error", {
-      error: error instanceof Error ? error.message : String(error),
-    })
-    return NextResponse.json(
-      { error: "Failed to fetch onboarding checklists" },
-      { status: 500 }
-    )
   }
-}
+)
 
 export const POST = withRole("admin")(
   async (request) => {

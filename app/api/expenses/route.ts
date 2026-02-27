@@ -148,7 +148,7 @@ export const POST = withRole(
   }
 })
 
-export const PATCH = withRole("admin")(async (request) => {
+export const PATCH = withRole("admin")(async (request, context) => {
   try {
     const body = await request.json()
     const { id, status, secondaryApprover, ...rest } = body
@@ -233,9 +233,11 @@ export const PATCH = withRole("admin")(async (request) => {
       status === "Approved" &&
       existing.approvalStatus === "Pending Secondary"
     ) {
+      const secondaryApproverId =
+        secondaryApprover ?? (await getBaserowEmployeeIdByAppId(context.userId)) ?? 1
       Object.assign(updates, {
         approvalStatus: "Approved",
-        secondaryApprover: secondaryApprover ?? 1,
+        secondaryApprover: secondaryApproverId,
         secondaryApprovalDate: toISODateString(),
       })
     }

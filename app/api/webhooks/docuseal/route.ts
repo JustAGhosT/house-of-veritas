@@ -8,6 +8,22 @@ function validateSignature(
   signature: string,
   secret: string
 ): boolean {
+  const isDev = process.env.NODE_ENV === "development"
+
+  if (!secret) {
+    if (!isDev) {
+      logger.error(
+        "DocuSeal webhook: DOCUSEAL_WEBHOOK_SECRET is not set in a non-development environment"
+      )
+      return false
+    }
+
+    logger.warn(
+      "DocuSeal webhook: skipping signature validation because DOCUSEAL_WEBHOOK_SECRET is not set in development"
+    )
+    return true
+  }
+
   if (!secret || !signature) return false
   try {
     const expected = createHmac("sha256", secret).update(body).digest("hex")

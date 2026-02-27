@@ -57,6 +57,13 @@ export const POST = withRole("admin", "operator")(async (request, context) => {
       )
     }
 
+    if (!Number.isFinite(Number(amount))) {
+      return NextResponse.json(
+        { error: "amount must be a valid finite number" },
+        { status: 400 }
+      )
+    }
+
     const orders = await loadPOs()
     const id = `po-${Date.now()}`
     const now = new Date().toISOString()

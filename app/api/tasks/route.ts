@@ -136,6 +136,7 @@ export const PATCH = withRole("admin", "operator", "employee")(
       const userId = context.userId
       const isAdmin = userRole === "admin"
 
+      let effectiveUpdates = updates
       if (!isAdmin) {
         const myAssignedId = PERSONA_TO_ASSIGNED_ID[userId?.toLowerCase() ?? ""]
         const projectNames = await getProjectNamesForMember(userId ?? "")
@@ -148,9 +149,23 @@ export const PATCH = withRole("admin", "operator", "employee")(
             { status: 403 }
           )
         }
+
+        const allowedNonAdminFields = ["status", "completionNotes", "timeSpent"]
+        const safeUpdates = Object.fromEntries(
+          Object.entries(updates).filter(([key]) => allowedNonAdminFields.includes(key))
+        )
+
+        if (Object.keys(safeUpdates).length === 0) {
+          return NextResponse.json(
+            { error: "No permitted fields to update" },
+            { status: 400 }
+          )
+        }
+
+        effectiveUpdates = safeUpdates
       }
 
-      const task = await updateTask(id, updates)
+      const task = await updateTask(id, effectiveUpdates)
 
       if (!task) {
         return NextResponse.json({ error: "Task not found" }, { status: 404 })
