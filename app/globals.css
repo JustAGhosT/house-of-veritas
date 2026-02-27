@@ -137,6 +137,31 @@ label[for] {
   }
 }
 
+/* Dark mode scrollbar styling */
+.dark-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dark-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Firefox scrollbar */
+.dark-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+}
+
 /* Added noise texture overlay */
 .noise-overlay {
   position: fixed;

@@ -5,10 +5,12 @@ import { useRef } from "react"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { useLoginModal } from "@/lib/login-modal-context"
 
 export function FinalCTA() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const { openLoginModal } = useLoginModal()
 
   return (
     <section className="px-4 py-24">
@@ -35,12 +37,10 @@ export function FinalCTA() {
             size="lg"
             className="shimmer-btn h-14 cursor-pointer rounded-full bg-blue-600 px-8 text-base font-medium text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700"
             data-testid="final-cta-access-btn"
-            asChild
+            onClick={openLoginModal}
           >
-            <Link href="/login">
-              Access Platform
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
+            Access Platform
+            <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
           <Button
             variant="outline"

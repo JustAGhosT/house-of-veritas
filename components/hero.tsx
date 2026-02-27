@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { useLoginModal } from "@/lib/login-modal-context"
 
 const textRevealVariants = {
   hidden: { y: "100%" },
@@ -18,6 +18,8 @@ const textRevealVariants = {
 }
 
 export function Hero() {
+  const { openLoginModal } = useLoginModal()
+
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pt-24 pb-16">
       {/* Background gradient */}
@@ -89,21 +91,19 @@ export function Hero() {
             size="lg"
             className="shimmer-btn h-12 cursor-pointer rounded-full bg-blue-600 px-8 text-base font-medium text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700"
             data-testid="access-documents-btn"
-            asChild
+            onClick={openLoginModal}
           >
-            <Link href="/login">
-              Access Documents
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+            Access Documents
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
           <Button
             variant="outline"
             size="lg"
             className="h-12 cursor-pointer rounded-full border-zinc-700 bg-transparent px-8 text-base font-medium text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800 hover:text-white"
             data-testid="view-dashboard-btn"
-            asChild
+            onClick={openLoginModal}
           >
-            <Link href="/login">View Operations Dashboard</Link>
+            View Operations Dashboard
           </Button>
         </motion.div>
       </div>

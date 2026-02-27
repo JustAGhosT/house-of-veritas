@@ -2,9 +2,9 @@
 
 import { motion, useInView } from "framer-motion"
 import { useRef, useEffect, useState } from "react"
-import Link from "next/link"
 import { TrendingUp, CheckCircle2, AlertCircle, Clock } from "lucide-react"
 import { apiFetchSafe } from "@/lib/api-client"
+import { useLoginModal } from "@/lib/login-modal-context"
 
 interface ContractorData {
   contractors: Array<{
@@ -187,6 +187,7 @@ function DocumentExpiry() {
 export function DashboardPreview() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const { openLoginModal } = useLoginModal()
 
   return (
     <section id="dashboard" className="bg-zinc-950/50 px-4 py-24">
@@ -258,24 +259,24 @@ export function DashboardPreview() {
 
           {/* Bottom Actions */}
           <div className="mt-8 flex flex-wrap gap-3 border-t border-zinc-800 pt-6">
-            <Link
-              href="/login"
+            <button
+              onClick={openLoginModal}
               className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
             >
               View Full Dashboard
-            </Link>
-            <Link
-              href="/login"
+            </button>
+            <button
+              onClick={openLoginModal}
               className="cursor-pointer rounded-lg bg-zinc-800 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-700"
             >
               Export Report
-            </Link>
-            <Link
-              href="/login"
+            </button>
+            <button
+              onClick={openLoginModal}
               className="cursor-pointer rounded-lg bg-zinc-800 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-700"
             >
               Manage Alerts
-            </Link>
+            </button>
           </div>
         </motion.div>
       </div>

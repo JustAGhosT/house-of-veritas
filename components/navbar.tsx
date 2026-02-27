@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import { useLoginModal } from "@/lib/login-modal-context"
 
 const navItems = [
   { label: "Documents", href: "#documents" },
@@ -17,6 +18,7 @@ const navItems = [
 export function Navbar() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { openLoginModal } = useLoginModal()
   const navRef = useRef<HTMLDivElement>(null)
 
   return (
@@ -65,16 +67,16 @@ export function Navbar() {
             variant="ghost"
             size="sm"
             className="cursor-pointer text-zinc-400 hover:bg-zinc-800 hover:text-white"
-            asChild
+            onClick={openLoginModal}
           >
-            <Link href="/login">Login</Link>
+            Login
           </Button>
           <Button
             size="sm"
             className="shimmer-btn cursor-pointer rounded-full bg-blue-600 px-4 text-white hover:bg-blue-700"
-            asChild
+            onClick={openLoginModal}
           >
-            <Link href="/login">Access Documents</Link>
+            Access Documents
           </Button>
         </div>
 
@@ -111,19 +113,26 @@ export function Navbar() {
             <Button
               variant="ghost"
               className="cursor-pointer justify-start text-zinc-400 hover:text-white"
-              asChild
+              onClick={() => {
+                openLoginModal()
+                setMobileMenuOpen(false)
+              }}
             >
-              <Link href="/login">Login</Link>
+              Login
             </Button>
             <Button
               className="shimmer-btn cursor-pointer rounded-full bg-blue-600 text-white hover:bg-blue-700"
-              asChild
+              onClick={() => {
+                openLoginModal()
+                setMobileMenuOpen(false)
+              }}
             >
-              <Link href="/login">Access Documents</Link>
+              Access Documents
             </Button>
           </div>
         </motion.div>
       )}
+
     </motion.header>
   )
 }
