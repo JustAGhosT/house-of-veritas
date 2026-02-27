@@ -5,6 +5,7 @@ import { join } from "path"
 import type { Project, ProjectMember } from "@/lib/projects"
 import type { ProjectSuggestion } from "../route"
 import { logger } from "@/lib/logger"
+import { routeToInngest } from "@/lib/workflows"
 
 const SUGGESTIONS_PATH = join(process.cwd(), "data", "project-suggestions.json")
 const PROJECTS_PATH = join(process.cwd(), "data", "projects.json")
@@ -87,6 +88,18 @@ export const PATCH = withRole("admin")(async (request, context) => {
       }
       projects.push(project)
       await saveProjects(projects)
+
+      await routeToInngest({
+        name: "house-of-veritas/project.suggestion.approved",
+        data: {
+          projectId: project.id,
+          name: project.name,
+          type: project.type,
+          suggestedBy: suggestion.suggestedBy,
+          reviewedBy: auth,
+        },
+      })
+
       return NextResponse.json({ suggestion: suggestions[idx], project })
     }
 

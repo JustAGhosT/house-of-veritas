@@ -226,7 +226,7 @@ Monthly leave accrual per BCEA.
 
 - Annual: 1.25 days/month (15/year)
 - Sick: 30 days/3-year cycle
-- Family: 3 days/year
+- Family Responsibility: 3 days/year
 
 ### 6. ExpenseNotification
 
@@ -239,7 +239,7 @@ Notifies admin of pending expenses.
 
 ### 7. BudgetReport
 
-Monthly financial summary.
+Monthly financial summary. Report is emailed to admin and **retained in Azure** (archive container).
 
 **Includes:**
 
@@ -248,15 +248,17 @@ Monthly financial summary.
 - Employee spending
 - Top expenses
 
+**Retention:** `archive/budget-reports/YYYY/MM_report.txt` — long-term retention in Azure Blob Storage.
+
 ### 8. BackupExport
 
-Weekly data export to blob storage.
+Weekly data export to blob storage. **Retained in Azure** per lifecycle policy.
 
 **Exports:**
 
 - All 8 tables as CSV
-- Timestamped folders
-- 90-day retention
+- Timestamped folders (`backups/YYYY/MM/DD_HHMMSS/`)
+- Retention: cool tier after 7 days, archive after 90 days, delete after 365 days
 
 ## Monitoring
 

@@ -24,6 +24,11 @@ output "backups_container_name" {
   value       = azurerm_storage_container.backups.name
 }
 
+output "archive_container_name" {
+  description = "Name of the archive container (budget reports, long-term retention)"
+  value       = azurerm_storage_container.archive.name
+}
+
 output "tfstate_container_name" {
   description = "Name of the terraform state container"
   value       = azurerm_storage_container.terraform-state.name

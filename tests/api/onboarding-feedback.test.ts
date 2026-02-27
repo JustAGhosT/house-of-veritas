@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest"
 
 vi.mock("@/lib/user-management", () => ({
   getUserWithManagement: vi.fn(),
@@ -12,8 +12,14 @@ const authHeaders = {
 }
 
 describe("POST /api/users/me/onboarding-feedback", () => {
+  let POST: (request: Request) => Promise<Response>
+
+  beforeAll(async () => {
+    const route = await import("@/app/api/users/me/onboarding-feedback/route")
+    POST = route.POST
+  })
+
   beforeEach(async () => {
-    vi.resetModules()
     const { getUserWithManagement, updateUserManagement } = await import(
       "@/lib/user-management"
     )
@@ -29,7 +35,6 @@ describe("POST /api/users/me/onboarding-feedback", () => {
   })
 
   it("returns 401 when no auth headers", async () => {
-    const { POST } = await import("@/app/api/users/me/onboarding-feedback/route")
     const request = new Request("http://localhost/api/users/me/onboarding-feedback", {
       method: "POST",
       body: JSON.stringify({}),
@@ -41,7 +46,6 @@ describe("POST /api/users/me/onboarding-feedback", () => {
   it("returns 404 when user not found", async () => {
     const { getUserWithManagement } = await import("@/lib/user-management")
     vi.mocked(getUserWithManagement).mockResolvedValue(null)
-    const { POST } = await import("@/app/api/users/me/onboarding-feedback/route")
     const request = new Request("http://localhost/api/users/me/onboarding-feedback", {
       method: "POST",
       headers: { ...authHeaders, "content-type": "application/json" },
@@ -52,7 +56,6 @@ describe("POST /api/users/me/onboarding-feedback", () => {
   })
 
   it("returns 200 and logs role change request", async () => {
-    const { POST } = await import("@/app/api/users/me/onboarding-feedback/route")
     const request = new Request("http://localhost/api/users/me/onboarding-feedback", {
       method: "POST",
       headers: { ...authHeaders, "content-type": "application/json" },
@@ -66,7 +69,6 @@ describe("POST /api/users/me/onboarding-feedback", () => {
 
   it("returns 200 and persists responsibilities", async () => {
     const { updateUserManagement } = await import("@/lib/user-management")
-    const { POST } = await import("@/app/api/users/me/onboarding-feedback/route")
     const request = new Request("http://localhost/api/users/me/onboarding-feedback", {
       method: "POST",
       headers: { ...authHeaders, "content-type": "application/json" },
@@ -81,7 +83,6 @@ describe("POST /api/users/me/onboarding-feedback", () => {
 
   it("persists empty responsibilities when user denies all", async () => {
     const { updateUserManagement } = await import("@/lib/user-management")
-    const { POST } = await import("@/app/api/users/me/onboarding-feedback/route")
     const request = new Request("http://localhost/api/users/me/onboarding-feedback", {
       method: "POST",
       headers: { ...authHeaders, "content-type": "application/json" },

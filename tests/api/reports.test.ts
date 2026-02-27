@@ -1,5 +1,23 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect, vi } from "vitest"
 import { GET } from "@/app/api/reports/route"
+
+vi.mock("@/lib/services/baserow", () => {
+  const mockExpenses = [
+    { id: 1, requester: 1, requesterName: "Hans", category: "Supplies", amount: 100, approvalStatus: "Pending", date: "2025-01-15" },
+  ]
+  const mockTasks = [
+    { id: 1, title: "Task 1", assignedToName: "Charl", status: "Completed", priority: "High", completedDate: null },
+  ]
+  const mockTimeEntries = [
+    { id: 1, date: "2025-01-15", employeeName: "Charl", clockIn: "08:00", clockOut: "17:00", totalHours: 9, overtimeHours: 0 },
+  ]
+  return {
+    getExpenses: vi.fn().mockResolvedValue(mockExpenses),
+    getTasks: vi.fn().mockResolvedValue(mockTasks),
+    getTimeClockEntries: vi.fn().mockResolvedValue(mockTimeEntries),
+    isBaserowConfigured: vi.fn().mockReturnValue(false),
+  }
+})
 
 const adminHeaders = {
   "x-user-id": "hans",

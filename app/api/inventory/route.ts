@@ -1,42 +1,15 @@
 import { NextResponse } from "next/server"
+import { routeToInngest } from "@/lib/workflows"
+import {
+  getInventory,
+  restockByName,
+  findIndexById,
+  type InventoryItem,
+} from "@/lib/inventory-store"
+import { withRole } from "@/lib/auth/rbac"
 
-// Inventory item types
-interface InventoryItem {
-  id: string
-  name: string
-  category:
-    | "building_materials"
-    | "cleaning_supplies"
-    | "garden_supplies"
-    | "workshop_consumables"
-    | "household"
-    | "fuel"
-    | "other"
-  unit: string
-  currentStock: number
-  minStock: number
-  maxStock: number
-  reorderPoint: number
-  lastRestocked: string
-  averageConsumption: number // per month
-  location: string
-  supplier?: string
-  unitCost: number
-  totalValue: number
-  expiryDate?: string
-  barcode?: string
-  consumptionHistory: Array<{
-    date: string
-    quantity: number
-    usedBy: string
-    purpose: string
-  }>
-}
-
-// Helper function to guess category from item name
 function guessCategory(name: string): InventoryItem["category"] {
   const lowerName = name.toLowerCase()
-
   if (/cement|brick|sand|gravel|paint|plaster|timber|wood|pvc|pipe/i.test(lowerName)) {
     return "building_materials"
   }
@@ -55,14 +28,11 @@ function guessCategory(name: string): InventoryItem["category"] {
   if (/chlorine|pool|kitchen|bathroom/i.test(lowerName)) {
     return "household"
   }
-
   return "other"
 }
 
-// Helper function to guess unit from item name
 function guessUnit(name: string): string {
   const lowerName = name.toLowerCase()
-
   if (/kg|kilogram/i.test(lowerName)) return "kg"
   if (/litre|liter|ml|l$/i.test(lowerName)) return "litres"
   if (/bag|sack/i.test(lowerName)) return "bags"
@@ -71,210 +41,99 @@ function guessUnit(name: string): string {
   if (/pack|box|set/i.test(lowerName)) return "packs"
   if (/piece|pcs|pc/i.test(lowerName)) return "pieces"
   if (/metre|meter|m$/i.test(lowerName)) return "metres"
-
   return "units"
 }
 
-// In-memory inventory store
-let inventory: InventoryItem[] = [
-  {
-    id: "inv_001",
-    name: "Cement 50kg bags",
-    category: "building_materials",
-    unit: "bags",
-    currentStock: 8,
-    minStock: 5,
-    maxStock: 20,
-    reorderPoint: 5,
-    lastRestocked: "2026-02-10",
-    averageConsumption: 6,
-    location: "Workshop Store",
-    supplier: "Cashbuild",
-    unitCost: 89.95,
-    totalValue: 719.6,
-    barcode: "6001234567890",
-    consumptionHistory: [
-      { date: "2026-02-18", quantity: 2, usedBy: "charl", purpose: "Fence repair" },
-    ],
-  },
-  {
-    id: "inv_002",
-    name: "Pool Chlorine 5kg",
-    category: "household",
-    unit: "buckets",
-    currentStock: 2,
-    minStock: 3,
-    maxStock: 6,
-    reorderPoint: 3,
-    barcode: "6001234567891",
-    lastRestocked: "2026-01-25",
-    averageConsumption: 2,
-    location: "Pool House",
-    supplier: "Pool & Spa",
-    unitCost: 285.0,
-    totalValue: 570.0,
-    consumptionHistory: [
-      { date: "2026-02-15", quantity: 1, usedBy: "lucky", purpose: "Weekly pool treatment" },
-    ],
-  },
-  {
-    id: "inv_003",
-    name: "Diesel (Litres)",
-    category: "fuel",
-    unit: "litres",
-    currentStock: 45,
-    minStock: 50,
-    maxStock: 200,
-    reorderPoint: 50,
-    lastRestocked: "2026-02-05",
-    averageConsumption: 80,
-    location: "Fuel Store",
-    unitCost: 23.5,
-    totalValue: 1057.5,
-    barcode: "6001234567892",
-    consumptionHistory: [
-      { date: "2026-02-19", quantity: 35, usedBy: "charl", purpose: "Generator & Tractor" },
-    ],
-  },
-  {
-    id: "inv_004",
-    name: "Garden fertilizer 25kg",
-    category: "garden_supplies",
-    unit: "bags",
-    currentStock: 4,
-    minStock: 2,
-    maxStock: 8,
-    reorderPoint: 2,
-    lastRestocked: "2026-02-01",
-    averageConsumption: 1.5,
-    location: "Garden Shed",
-    supplier: "Stodels",
-    unitCost: 195.0,
-    totalValue: 780.0,
-    barcode: "6001234567893",
-    consumptionHistory: [],
-  },
-  {
-    id: "inv_005",
-    name: "Cleaning detergent 5L",
-    category: "cleaning_supplies",
-    unit: "bottles",
-    currentStock: 3,
-    minStock: 4,
-    maxStock: 10,
-    reorderPoint: 4,
-    lastRestocked: "2026-02-08",
-    averageConsumption: 3,
-    location: "Scullery",
-    supplier: "Makro",
-    unitCost: 125.0,
-    totalValue: 375.0,
-    barcode: "6001234567894",
-    consumptionHistory: [
-      { date: "2026-02-17", quantity: 1, usedBy: "irma", purpose: "Weekly cleaning" },
-    ],
-  },
-  {
-    id: "inv_006",
-    name: "Paint - White 20L",
-    category: "building_materials",
-    barcode: "6001234567895",
-    unit: "buckets",
-    currentStock: 1,
-    minStock: 2,
-    maxStock: 5,
-    reorderPoint: 2,
-    lastRestocked: "2025-12-15",
-    averageConsumption: 0.5,
-    location: "Workshop Store",
-    supplier: "Builders Warehouse",
-    unitCost: 899.0,
-    totalValue: 899.0,
-    consumptionHistory: [],
-  },
-]
-
-// GET - List inventory with filters
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const category = searchParams.get("category")
-  const lowStock = searchParams.get("lowStock") === "true"
-  const location = searchParams.get("location")
-  const barcode = searchParams.get("barcode")
-  const search = searchParams.get("search")
-
-  let items = [...inventory]
-
-  // Barcode lookup - exact match
-  if (barcode) {
-    items = items.filter((i) => i.barcode === barcode)
-    return NextResponse.json({ items })
-  }
-
-  // Search by name
-  if (search) {
-    const searchLower = search.toLowerCase()
-    items = items.filter(
-      (i) => i.name.toLowerCase().includes(searchLower) || i.barcode?.includes(search)
-    )
-  }
-
-  if (category) {
-    items = items.filter((i) => i.category === category)
-  }
-  if (lowStock) {
-    items = items.filter((i) => i.currentStock <= i.reorderPoint)
-  }
-  if (location) {
-    items = items.filter((i) => i.location.toLowerCase().includes(location.toLowerCase()))
-  }
-
-  // Calculate alerts
-  const alerts = inventory
-    .filter((i) => i.currentStock <= i.reorderPoint)
-    .map((i) => ({
-      id: i.id,
-      name: i.name,
-      currentStock: i.currentStock,
-      reorderPoint: i.reorderPoint,
-      urgency: i.currentStock <= i.minStock ? "critical" : "warning",
-      estimatedDaysLeft:
-        i.averageConsumption > 0 ? Math.round((i.currentStock / i.averageConsumption) * 30) : null,
-    }))
-
-  // Summary
-  const summary = {
-    totalItems: items.length,
-    totalValue: items.reduce((sum, i) => sum + i.totalValue, 0),
-    lowStockCount: alerts.filter((a) => a.urgency === "warning").length,
-    criticalCount: alerts.filter((a) => a.urgency === "critical").length,
-    byCategory: items.reduce(
-      (acc, i) => {
-        acc[i.category] = (acc[i.category] || 0) + 1
-        return acc
-      },
-      {} as Record<string, number>
-    ),
-  }
-
-  return NextResponse.json({
-    items,
-    alerts,
-    summary,
-  })
+function findInventoryItemByName(inventory: InventoryItem[], name: string): number {
+  const normalized = name.toLowerCase().trim()
+  const exact = inventory.findIndex(
+    (i) => i.name.toLowerCase().trim() === normalized
+  )
+  if (exact >= 0) return exact
+  return -1
 }
 
+// GET - List inventory with filters
+export const GET = withRole("admin", "operator", "employee", "resident")(
+  async (request: Request) => {
+    const inventory = getInventory()
+    const { searchParams } = new URL(request.url)
+    const category = searchParams.get("category")
+    const lowStock = searchParams.get("lowStock") === "true"
+    const location = searchParams.get("location")
+    const barcode = searchParams.get("barcode")
+    const search = searchParams.get("search")
+
+    let items = [...inventory]
+
+    if (barcode) {
+      items = items.filter((i) => i.barcode === barcode)
+      return NextResponse.json({ items })
+    }
+
+    if (search) {
+      const searchLower = search.toLowerCase()
+      items = items.filter(
+        (i) => i.name.toLowerCase().includes(searchLower) || i.barcode?.includes(search)
+      )
+    }
+
+    if (category) {
+      items = items.filter((i) => i.category === category)
+    }
+    if (lowStock) {
+      items = items.filter((i) => i.currentStock <= i.reorderPoint)
+    }
+    if (location) {
+      items = items.filter((i) => i.location.toLowerCase().includes(location.toLowerCase()))
+    }
+
+    const alerts = inventory
+      .filter((i) => i.currentStock <= i.reorderPoint)
+      .map((i) => ({
+        id: i.id,
+        name: i.name,
+        currentStock: i.currentStock,
+        reorderPoint: i.reorderPoint,
+        urgency: i.currentStock <= i.minStock ? "critical" : "warning",
+        estimatedDaysLeft:
+          i.averageConsumption > 0 ? Math.round((i.currentStock / i.averageConsumption) * 30) : null,
+      }))
+
+    const summary = {
+      totalItems: items.length,
+      totalValue: items.reduce((sum, i) => sum + i.totalValue, 0),
+      lowStockCount: alerts.filter((a) => a.urgency === "warning").length,
+      criticalCount: alerts.filter((a) => a.urgency === "critical").length,
+      byCategory: items.reduce(
+        (acc, i) => {
+          acc[i.category] = (acc[i.category] || 0) + 1
+          return acc
+        },
+        {} as Record<string, number>
+      ),
+    }
+
+    return NextResponse.json({
+      items,
+      alerts,
+      summary,
+    })
+  }
+)
+
 // POST - Add inventory item or record consumption
-export async function POST(request: Request) {
+export const POST = withRole("admin", "operator", "employee")(
+  async (request: Request) => {
+  const inventory = getInventory()
   try {
     const body = await request.json()
     const { action } = body
 
-    // Record consumption
     if (action === "consume") {
       const { itemId, quantity, usedBy, purpose } = body
 
-      const index = inventory.findIndex((i) => i.id === itemId)
+      const index = findIndexById(itemId)
       if (index === -1) {
         return NextResponse.json({ error: "Item not found" }, { status: 404 })
       }
@@ -292,27 +151,43 @@ export async function POST(request: Request) {
         purpose,
       })
 
-      // Check if alert needed
       const needsAlert = inventory[index].currentStock <= inventory[index].reorderPoint
+      const item = inventory[index]
+
+      if (needsAlert) {
+        const urgency =
+          item.currentStock <= item.minStock ? ("critical" as const) : ("warning" as const)
+        routeToInngest({
+          name: "house-of-veritas/inventory.low_stock",
+          data: {
+            itemId: item.id,
+            name: item.name,
+            category: item.category,
+            currentStock: item.currentStock,
+            reorderPoint: item.reorderPoint,
+            location: item.location,
+            urgency,
+          },
+        }).catch(() => {})
+      }
 
       return NextResponse.json({
         success: true,
-        item: inventory[index],
+        item,
         alert: needsAlert
           ? {
-              message: `Low stock alert: ${inventory[index].name}`,
-              currentStock: inventory[index].currentStock,
-              reorderPoint: inventory[index].reorderPoint,
+              message: `Low stock alert: ${item.name}`,
+              currentStock: item.currentStock,
+              reorderPoint: item.reorderPoint,
             }
           : null,
       })
     }
 
-    // Restock item
     if (action === "restock") {
       const { itemId, quantity, unitCost } = body
 
-      const index = inventory.findIndex((i) => i.id === itemId)
+      const index = findIndexById(itemId)
       if (index === -1) {
         return NextResponse.json({ error: "Item not found" }, { status: 404 })
       }
@@ -330,7 +205,6 @@ export async function POST(request: Request) {
       })
     }
 
-    // Add new inventory item
     const {
       name,
       category,
@@ -378,15 +252,17 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json({ error: "Operation failed" }, { status: 500 })
   }
-}
+  }
+)
 
 // Generate shopping list from low stock items OR import from OCR
-export async function PUT(request: Request) {
+export const PUT = withRole("admin", "operator", "employee")(
+  async (request: Request) => {
+  const inventory = getInventory()
   try {
     const body = await request.json()
     const { action, store } = body
 
-    // Import items from OCR result to inventory
     if (action === "import-from-ocr") {
       const { items, supplier, location, category } = body
 
@@ -401,15 +277,9 @@ export async function PUT(request: Request) {
       for (const ocrItem of items) {
         const { name, quantity, price, total, unit } = ocrItem
 
-        // Try to find existing item by name (fuzzy match)
-        const existingIndex = inventory.findIndex(
-          (i) =>
-            i.name.toLowerCase().includes(name.toLowerCase()) ||
-            name.toLowerCase().includes(i.name.toLowerCase())
-        )
+        const existingIndex = findInventoryItemByName(inventory, name)
 
         if (existingIndex >= 0) {
-          // Update existing item - add to stock
           const existing = inventory[existingIndex]
           existing.currentStock += quantity || 1
           if (price) existing.unitCost = price
@@ -418,7 +288,6 @@ export async function PUT(request: Request) {
           if (supplier) existing.supplier = supplier
           updatedItems.push(existing)
         } else {
-          // Create new inventory item
           const unitCost = price || (total && quantity ? total / quantity : 0)
           const newItem: InventoryItem = {
             id: `inv_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
@@ -468,7 +337,6 @@ export async function PUT(request: Request) {
 
       const totalEstimatedCost = shoppingList.reduce((sum, i) => sum + i.estimatedCost, 0)
 
-      // Generate store-specific list
       const storeUrls: Record<string, string> = {
         cashbuild: "https://www.cashbuild.co.za/search?q=",
         builders: "https://www.builders.co.za/search/?text=",
@@ -498,4 +366,5 @@ export async function PUT(request: Request) {
   } catch (error) {
     return NextResponse.json({ error: "Operation failed" }, { status: 500 })
   }
-}
+  }
+)

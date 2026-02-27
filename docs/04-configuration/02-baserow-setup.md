@@ -20,7 +20,7 @@ Create a new workspace: **"House of Veritas Operations"**
 
 ### 3. Database Structure
 
-Create a new database within the workspace with the 8 core tables as defined below.
+Create a new database within the workspace with the 17 tables as defined below.
 
 ## Database Schema
 
@@ -146,7 +146,7 @@ Create a new database within the workspace with the 8 core tables as defined bel
 | Amount          | Number            | ZAR                                                                                            |
 | Vendor          | Text              |                                                                                                |
 | Date            | Date              |                                                                                                |
-| Approval Status | Single Select     | Pending, Approved, Rejected, Post-Hoc Approved                                                 |
+| Approval Status | Single Select     | Pending, Pending Secondary, Approved, Rejected, Post-Hoc Approved                             |
 | Receipt         | File              | Required for reimbursement                                                                     |
 | Project         | Text              |                                                                                                |
 | Milestone       | Single Select     | Deposit, Stage 1, Stage 2, Stage 3, Final, N/A                                                 |
@@ -155,6 +155,8 @@ Create a new database within the workspace with the 8 core tables as defined bel
 | Approval Date   | Date              |                                                                                                |
 | Payment Status  | Single Select     | Unpaid, Paid                                                                                   |
 | Payment Date    | Date              |                                                                                                |
+| Secondary Approver | Link to Employees | For amounts over R5000 |
+| Secondary Approval Date | Date        |                                                                                                |
 
 ### Table 8: Document Expiry
 
@@ -170,7 +172,172 @@ Create a new database within the workspace with the 8 core tables as defined bel
 | Alert Schedule    | Text              | e.g., "60d, 30d, 7d"                           |
 | Status            | Formula           | Based on Next Review date                      |
 | DocuSeal Ref      | URL               | Link to signed document                        |
+| Superseded By     | Link to Document Expiry | For version diffusion block              |
+| Version Blocked   | Boolean           | Lock superseded docs                           |
 | Notes             | Long Text         |                                                |
+
+### Table 9: Leave Requests
+
+| Field           | Type              | Options/Notes                          |
+| --------------- | ----------------- | -------------------------------------- |
+| ID              | Auto Number       | Primary Key                            |
+| Employee        | Link to Employees | Required                               |
+| Start Date      | Date              |                                        |
+| End Date        | Date              |                                        |
+| Type            | Single Select     | Annual, Sick, Family Responsibility, Unpaid, Other |
+| Status          | Single Select     | Pending, Approved, Rejected             |
+| Approver        | Link to Employees | Hans                                   |
+| Approved At     | Date              |                                        |
+| Submitted At    | Date              |                                        |
+| Notes           | Long Text         |                                        |
+
+### Table 10: Loans/Advances
+
+| Field              | Type              | Options/Notes                          |
+| ------------------ | ----------------- | -------------------------------------- |
+| ID                 | Auto Number       | Primary Key                            |
+| Employee           | Link to Employees | Required                               |
+| Amount             | Number            | ZAR                                    |
+| Purpose            | Text              |                                        |
+| Repayment Schedule | Long Text         | JSON or schedule description           |
+| Status             | Single Select     | Pending, Approved, Rejected, Active, Repaid |
+| Outstanding Balance| Number            | ZAR                                    |
+| Next Repayment Date| Date              | For reminder/overdue workflows         |
+| Approved By        | Link to Employees |                                        |
+| Approved At        | Date              |                                        |
+| Disbursed At       | Date              |                                        |
+| Created At         | Date              |                                        |
+| Notes              | Long Text         |                                        |
+
+### Table 11: Petty Cash
+
+| Field           | Type              | Options/Notes                                                                 |
+| --------------- | ----------------- | ----------------------------------------------------------------------------- |
+| ID              | Auto Number       | Primary Key                                                                   |
+| Requester       | Link to Employees | Required                                                                      |
+| Amount          | Number            | ZAR                                                                           |
+| Purpose         | Text              |                                                                               |
+| Receipt         | File              | Required for reconciliation                                                   |
+| Status          | Single Select     | Pending, Approved, Rejected, Issued — workflow: request → approval → disbursement |
+| Issued By       | Link to Employees | Disbursement actor; who physically issued the cash when Status = Issued       |
+| Issued At       | Date              | When cash was disbursed                                                       |
+| Approved By     | Link to Employees | Authorisation actor; required when Status = Approved or Issued                |
+| Approved At     | Date              | When approval was granted (authorisation timestamp)                           |
+| Created At      | Date              |                                                                               |
+| Notes           | Long Text         |                                                                               |
+
+### Table 12: Onboarding Checklist
+
+| Field           | Type              | Options/Notes                   |
+| --------------- | ----------------- | ------------------------------- |
+| ID              | Auto Number       | Primary Key                     |
+| Employee        | Link to Employees | Required                        |
+| Items           | Long Text         | JSON array of checklist items   |
+| Completed At    | Date              | When checklist fully completed  |
+| Assigned Buddy  | Link to Employees | Mentor for new hire             |
+| Status          | Single Select     | In Progress, Completed          |
+| Created At      | Date              |                                 |
+| Notes           | Long Text         |                                 |
+
+### Table 13: Budget
+
+| Field           | Type              | Options/Notes                   |
+| --------------- | ----------------- | ------------------------------- |
+| ID              | Auto Number       | Primary Key                     |
+| Category        | Single Select     | Materials, Labor, Fuel, Maintenance, Supplies, Food, Transport, Utilities, Professional, Other |
+| Amount          | Number            | ZAR                             |
+| Period          | Text              | e.g., "2024" or "2024-Q1"       |
+| Version         | Number            | For amendment tracking          |
+| Status          | Single Select     | Draft, Active, Superseded       |
+| Approved By     | Link to Employees |                                 |
+| Approved At     | Date              |                                 |
+| DocuSeal Ref    | URL               | For signoff on amendments       |
+| Notes           | Long Text         |                                 |
+
+### Table 14: PPE/Equipment
+
+| Field           | Type              | Options/Notes                   |
+| --------------- | ----------------- | ------------------------------- |
+| ID              | Auto Number       | Primary Key                     |
+| Asset           | Link to Assets    | PPE asset                       |
+| Issued To       | Link to Employees | Required                        |
+| Issue Date      | Date              |                                 |
+| Expiry Date     | Date              | For maintenance/expiry alerts   |
+| Return Date     | Date              | When returned                   |
+| Status          | Single Select     | Issued, Returned, Expired       |
+| Notes           | Long Text         |                                 |
+
+### Table 15: Policy Versions
+
+| Field           | Type              | Options/Notes                   |
+| --------------- | ----------------- | ------------------------------- |
+| ID              | Auto Number       | Primary Key                     |
+| Document        | Link to Document Expiry | Policy document               |
+| Version         | Text              | e.g., "1.2"                     |
+| Effective Date  | Date              |                                 |
+| Superseded By   | Link to Policy Versions | Next version            |
+| Status          | Single Select     | Current, Superseded             |
+| DocuSeal Ref    | URL               | Signed version                  |
+| Notes           | Long Text         |                                 |
+
+### Table 16: Insurance Claims
+
+| Field           | Type              | Options/Notes                   |
+| --------------- | ----------------- | ------------------------------- |
+| ID              | Auto Number       | Primary Key                     |
+| Incident        | Link to Incidents | If from incident                |
+| Asset           | Link to Assets    | If asset loss/damage            |
+| Description     | Long Text         |                                 |
+| Amount          | Number            | ZAR                             |
+| Status          | Single Select     | Draft, Submitted, Under Review, Approved, Denied |
+| Claim ID        | Text              | External insurer reference      |
+| Submitted At    | Date              |                                 |
+| Created At      | Date              |                                 |
+| Notes           | Long Text         |                                 |
+
+### Table 17: Contractor Contracts
+
+| Field           | Type              | Options/Notes                   |
+| --------------- | ----------------- | ------------------------------- |
+| ID              | Auto Number       | Primary Key                     |
+| Contractor      | Text              | Contractor or vendor name (free-form; external contractors not in Employees) |
+| Project         | Text              |                                 |
+| Milestones      | Long Text         | JSON array of milestone dates   |
+| Amounts         | Long Text         | JSON array of milestone amounts |
+| Status          | Single Select     | Active, Completed, Terminated   |
+| Start Date      | Date              |                                 |
+| End Date        | Date              |                                 |
+| Notes           | Long Text         |                                 |
+
+## Extended Fields (Existing Tables)
+
+### Table 2: Assets (extended)
+
+| Field                 | Type              | Options/Notes                       |
+| --------------------- | ----------------- | ----------------------------------- |
+| Late Return Lockout Until | Date          | Block checkout until resolved       |
+
+### Table 5: Incidents (extended)
+
+| Field                 | Type              | Options/Notes                       |
+| --------------------- | ----------------- | ----------------------------------- |
+| Related Incident IDs  | Long Text         | Link to repeat incidents (JSON IDs) |
+| Victim Support Path   | Boolean           | Route to external arbiter           |
+
+### Table 1: Employees (extended)
+
+| Field                 | Type              | Options/Notes                       |
+| --------------------- | ----------------- | ----------------------------------- |
+| Onboarding Status     | Single Select     | Not Started, In Progress, Completed  |
+| Buddy                 | Lookup            | Via reverse link from Table 12; look up "Assigned Buddy" (single source of truth) |
+| IT Provisioned At     | Date              | When IT accounts created            |
+
+**Buddy field setup:** Table 12 (Onboarding Checklist) links to Employees via "Employee". Baserow creates a reverse link on Employees (e.g. "Onboarding Checklist"). Add a Lookup field "Buddy" on Employees: select the reverse link field, then look up "Assigned Buddy". This ensures the mentor is sourced only from Table 12, avoiding data drift.
+
+**Migration (if Table 1 already has a "Buddy" Link field):**
+
+1. Remove the "Buddy" Link field from Table 1 (Employees).
+2. Add a Lookup field "Buddy" on Employees: use the reverse link from Onboarding Checklist (Employee) and look up "Assigned Buddy".
 
 ## Views Configuration
 
@@ -226,7 +393,7 @@ Base URL: `https://ops.nexamesh.ai/api`
 ## Testing Checklist
 
 - [ ] Admin workspace created
-- [ ] All 8 tables created with correct fields
+- [ ] All 17 tables created with correct fields
 - [ ] Relationships (links) working correctly
 - [ ] Formulas calculating correctly
 - [ ] All 4 users can log in

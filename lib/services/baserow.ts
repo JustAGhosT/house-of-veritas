@@ -1,8 +1,8 @@
 // Baserow API Integration Service
 // This service handles all interactions with the Baserow operational database
 
-import { toISODateString } from "@/lib/utils"
 import { logger } from "@/lib/logger"
+import { toISODateString } from "@/lib/utils"
 
 interface BaserowConfig {
   apiUrl: string
@@ -20,6 +20,15 @@ interface TableIds {
   vehicleLogs: number
   expenses: number
   documentExpiry: number
+  leaveRequests: number
+  loans: number
+  pettyCash: number
+  onboardingChecklist: number
+  budget: number
+  ppe: number
+  policyVersions: number
+  contractorContracts: number
+  insuranceClaims: number
 }
 
 // Generic row type
@@ -57,6 +66,9 @@ export interface Employee {
   email: string
   phone: string
   photo?: string
+  onboardingStatus?: string
+  buddyId?: number
+  itProvisionedAt?: string
 }
 
 // Asset type
@@ -72,6 +84,8 @@ export interface Asset {
   checkedOutBy?: number
   checkOutDate?: string
   photo?: string
+  expectedReturnDate?: string
+  lateReturnLockoutUntil?: string
 }
 
 // Task type
@@ -82,7 +96,7 @@ export interface Task {
   assignedTo?: number
   assignedToName?: string
   dueDate?: string
-  priority: "Low" | "Medium" | "High"
+  priority: "Low" | "Medium" | "High" | "Urgent"
   status: "Not Started" | "In Progress" | "Completed"
   timeSpent?: number
   completionNotes?: string
@@ -90,6 +104,7 @@ export interface Task {
   project?: string
   createdDate?: string
   completedDate?: string
+  dependsOn?: number[]
 }
 
 // Time Clock Entry type
@@ -117,13 +132,15 @@ export interface Expense {
   amount: number
   vendor?: string
   date: string
-  approvalStatus: "Pending" | "Approved" | "Rejected" | "Post-Hoc"
+  approvalStatus: "Pending" | "Approved" | "Rejected" | "Post-Hoc" | "Pending Secondary"
   receipt?: string
   project?: string
   milestone?: string
   notes?: string
   approver?: number
   approvalDate?: string
+  secondaryApprover?: number
+  secondaryApprovalDate?: string
 }
 
 // Vehicle Log type
@@ -161,12 +178,36 @@ const getTableIds = (): TableIds => ({
   vehicleLogs: parseInt(process.env.BASEROW_TABLE_VEHICLE_LOGS || "0"),
   expenses: parseInt(process.env.BASEROW_TABLE_EXPENSES || "0"),
   documentExpiry: parseInt(process.env.BASEROW_TABLE_DOCUMENT_EXPIRY || "0"),
+  leaveRequests: parseInt(process.env.BASEROW_TABLE_LEAVE_REQUESTS || "0"),
+  loans: parseInt(process.env.BASEROW_TABLE_LOANS || "0"),
+  pettyCash: parseInt(process.env.BASEROW_TABLE_PETTY_CASH || "0"),
+  onboardingChecklist: parseInt(process.env.BASEROW_TABLE_ONBOARDING_CHECKLIST || "0"),
+  budget: parseInt(process.env.BASEROW_TABLE_BUDGET || "0"),
+  ppe: parseInt(process.env.BASEROW_TABLE_PPE || "0"),
+  policyVersions: parseInt(process.env.BASEROW_TABLE_POLICY_VERSIONS || "0"),
+  contractorContracts: parseInt(process.env.BASEROW_TABLE_CONTRACTOR_CONTRACTS || "0"),
+  insuranceClaims: parseInt(process.env.BASEROW_TABLE_INSURANCE_CLAIMS || "0"),
 })
 
 // Check if Baserow is configured
 export const isBaserowConfigured = (): boolean => {
   const config = getConfig()
   return !!config.apiToken && !!config.databaseId
+}
+
+export function isIncidentsTableConfigured(): boolean {
+  const tableIds = getTableIds()
+  return isBaserowConfigured() && !!tableIds.incidents
+}
+
+export function isEmployeesTableConfigured(): boolean {
+  const tableIds = getTableIds()
+  return isBaserowConfigured() && !!tableIds.employees
+}
+
+export function isOnboardingTableConfigured(): boolean {
+  const tableIds = getTableIds()
+  return isBaserowConfigured() && !!tableIds.onboardingChecklist
 }
 
 // Generic fetch function
@@ -262,6 +303,80 @@ export async function getEmployee(id: number): Promise<Employee | null> {
     `/database/rows/table/${tableIds.employees}/${id}/?user_field_names=true`
   )
 
+  return row ? mapRowToEmployee(row) : null
+}
+
+export async function updateEmployee(
+  id: number,
+  updates: Partial<
+    Pick<
+      Employee,
+      | "leaveBalance"
+      | "contractRef"
+      | "probationStatus"
+      | "onboardingStatus"
+      | "itProvisionedAt"
+    >
+  >
+): Promise<Employee | null> {
+  const tableIds = getTableIds()
+
+  if (!isBaserowConfigured() || !tableIds.employees) {
+    const mock = getMockEmployees().find((e) => e.id === id)
+    return mock ? { ...mock, ...updates } : null
+  }
+
+  const body: Record<string, unknown> = {}
+  if (updates.leaveBalance !== undefined) body["Leave Balance"] = updates.leaveBalance
+  if (updates.contractRef !== undefined) body["Contract Ref"] = updates.contractRef
+  if (updates.probationStatus !== undefined)
+    body["Probation Status"] = updates.probationStatus
+  if (updates.onboardingStatus !== undefined)
+    body["Onboarding Status"] = updates.onboardingStatus
+  if (updates.itProvisionedAt !== undefined)
+    body["IT Provisioned At"] = updates.itProvisionedAt
+  if (Object.keys(body).length === 0) return getEmployee(id)
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.employees}/${id}/?user_field_names=true`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }
+  )
+
+  return row ? mapRowToEmployee(row) : null
+}
+
+function mapEmployeeToRow(emp: Partial<Employee>): Record<string, unknown> {
+  const row: Record<string, unknown> = {}
+  if (emp.fullName !== undefined) row["Full Name"] = emp.fullName
+  if (emp.idNumber !== undefined) row["ID Number"] = emp.idNumber
+  if (emp.role !== undefined) row["Role"] = emp.role
+  if (emp.employmentStartDate !== undefined)
+    row["Employment Start Date"] = emp.employmentStartDate
+  if (emp.probationStatus !== undefined) row["Probation Status"] = emp.probationStatus
+  if (emp.contractRef !== undefined) row["Contract Ref"] = emp.contractRef
+  if (emp.leaveBalance !== undefined) row["Leave Balance"] = emp.leaveBalance
+  if (emp.email !== undefined) row["Email"] = emp.email
+  if (emp.phone !== undefined) row["Phone"] = emp.phone
+  if (emp.onboardingStatus !== undefined) row["Onboarding Status"] = emp.onboardingStatus
+  return row
+}
+
+export async function createEmployee(
+  emp: Omit<Employee, "id">
+): Promise<Employee | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.employees) return null
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.employees}/?user_field_names=true`,
+    {
+      method: "POST",
+      body: JSON.stringify(mapEmployeeToRow(emp)),
+    }
+  )
   return row ? mapRowToEmployee(row) : null
 }
 
@@ -375,6 +490,29 @@ export async function updateTask(id: number, updates: Partial<Task>): Promise<Ta
   return row ? mapRowToTask(row) : null
 }
 
+export interface RecurringTaskTemplate {
+  id: number
+  Title?: string
+  Description?: string
+  "Assigned To"?: Array<{ id: number }>
+  Recurrence?: string
+  "Is Recurring"?: boolean
+  Priority?: { value?: string }
+  Project?: string
+}
+
+export async function getRecurringTaskTemplates(): Promise<RecurringTaskTemplate[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.tasks) return []
+  const result = await baserowFetch<{ results: BaserowRow[] }>(
+    `/database/rows/table/${tableIds.tasks}/?user_field_names=true&size=200`
+  )
+  if (!result?.results) return []
+  return result.results.filter(
+    (r) => r["Is Recurring"] && r["Recurrence"]
+  ) as RecurringTaskTemplate[]
+}
+
 // ==================== EXPENSES ====================
 
 export async function getExpenses(filters?: {
@@ -453,6 +591,20 @@ export async function createExpense(expense: Omit<Expense, "id">): Promise<Expen
   return row ? mapRowToExpense(row) : null
 }
 
+export async function getExpense(id: number): Promise<Expense | null> {
+  const tableIds = getTableIds()
+
+  if (!isBaserowConfigured() || !tableIds.expenses) {
+    return getMockExpenses().find((e) => e.id === id) || null
+  }
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.expenses}/${id}/?user_field_names=true`
+  )
+
+  return row ? mapRowToExpense(row) : null
+}
+
 export async function updateExpense(
   id: number,
   updates: Partial<Expense>
@@ -473,6 +625,550 @@ export async function updateExpense(
   )
 
   return row ? mapRowToExpense(row) : null
+}
+
+// ==================== LEAVE REQUESTS ====================
+
+function mapRowToLeaveRequest(row: BaserowRow): LeaveRequest {
+  return {
+    id: row.id,
+    employee: row["Employee"]?.[0]?.id ?? row.employee ?? 0,
+    startDate: row["Start Date"] || row.start_date || "",
+    endDate: row["End Date"] || row.end_date || "",
+    type: row["Type"]?.value || row.type || "Annual",
+    status: row["Status"]?.value || row.status || "Pending",
+    approver: row["Approver"]?.[0]?.id ?? row.approver,
+    approvedAt: row["Approved At"] || row.approved_at,
+    submittedAt: row["Submitted At"] || row.submitted_at || "",
+    notes: row["Notes"] || row.notes,
+  }
+}
+
+function mapLeaveRequestToRow(lr: Partial<LeaveRequest>): Record<string, unknown> {
+  const row: Record<string, unknown> = {}
+  if (lr.employee !== undefined) row["Employee"] = [lr.employee]
+  if (lr.startDate !== undefined) row["Start Date"] = lr.startDate
+  if (lr.endDate !== undefined) row["End Date"] = lr.endDate
+  if (lr.type !== undefined) row["Type"] = lr.type
+  if (lr.status !== undefined) row["Status"] = lr.status
+  if (lr.approver !== undefined) row["Approver"] = [lr.approver]
+  if (lr.approvedAt !== undefined) row["Approved At"] = lr.approvedAt
+  if (lr.submittedAt !== undefined) row["Submitted At"] = lr.submittedAt
+  if (lr.notes !== undefined) row["Notes"] = lr.notes
+  return row
+}
+
+export async function getLeaveRequests(filters?: {
+  employee?: number
+  status?: string
+}): Promise<LeaveRequest[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.leaveRequests) return []
+
+  let endpoint = `/database/rows/table/${tableIds.leaveRequests}/?user_field_names=true`
+  if (filters?.employee)
+    endpoint += `&filter__field_employee__link_row_has=${filters.employee}`
+  if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
+
+  const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
+  if (!result?.results) return []
+  return result.results.map(mapRowToLeaveRequest)
+}
+
+export async function getLeaveRequest(id: number): Promise<LeaveRequest | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.leaveRequests) {
+    return null
+  }
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.leaveRequests}/${id}/?user_field_names=true`
+  )
+  return row ? mapRowToLeaveRequest(row) : null
+}
+
+export async function createLeaveRequest(
+  lr: Omit<LeaveRequest, "id">
+): Promise<LeaveRequest | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.leaveRequests) {
+    return { ...lr, id: Date.now() } as LeaveRequest
+  }
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.leaveRequests}/?user_field_names=true`,
+    {
+      method: "POST",
+      body: JSON.stringify(mapLeaveRequestToRow(lr)),
+    }
+  )
+  return row ? mapRowToLeaveRequest(row) : null
+}
+
+export async function updateLeaveRequest(
+  id: number,
+  updates: Partial<LeaveRequest>
+): Promise<LeaveRequest | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.leaveRequests) return null
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.leaveRequests}/${id}/?user_field_names=true`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(mapLeaveRequestToRow(updates)),
+    }
+  )
+  return row ? mapRowToLeaveRequest(row) : null
+}
+
+// ==================== LOANS ====================
+
+function mapRowToLoan(row: BaserowRow): Loan {
+  return {
+    id: row.id,
+    employee: row["Employee"]?.[0]?.id ?? row.employee ?? 0,
+    amount: row["Amount"] ?? row.amount ?? 0,
+    purpose: row["Purpose"] || row.purpose || "",
+    repaymentSchedule: row["Repayment Schedule"] || row.repayment_schedule,
+    status: row["Status"]?.value || row.status || "Pending",
+    outstandingBalance: row["Outstanding Balance"] ?? row.outstanding_balance ?? 0,
+    nextRepaymentDate: row["Next Repayment Date"] || row.next_repayment_date,
+    approvedBy: row["Approved By"]?.[0]?.id ?? row.approved_by,
+    approvedAt: row["Approved At"] || row.approved_at,
+    disbursedAt: row["Disbursed At"] || row.disbursed_at,
+    createdAt: row["Created At"] || row.created_at || "",
+    notes: row["Notes"] || row.notes,
+  }
+}
+
+function mapLoanToRow(loan: Partial<Loan>): Record<string, unknown> {
+  const row: Record<string, unknown> = {}
+  if (loan.employee !== undefined) row["Employee"] = [loan.employee]
+  if (loan.amount !== undefined) row["Amount"] = loan.amount
+  if (loan.purpose !== undefined) row["Purpose"] = loan.purpose
+  if (loan.repaymentSchedule !== undefined) row["Repayment Schedule"] = loan.repaymentSchedule
+  if (loan.status !== undefined) row["Status"] = loan.status
+  if (loan.outstandingBalance !== undefined) row["Outstanding Balance"] = loan.outstandingBalance
+  if (loan.nextRepaymentDate !== undefined) row["Next Repayment Date"] = loan.nextRepaymentDate
+  if (loan.approvedBy !== undefined) row["Approved By"] = [loan.approvedBy]
+  if (loan.approvedAt !== undefined) row["Approved At"] = loan.approvedAt
+  if (loan.disbursedAt !== undefined) row["Disbursed At"] = loan.disbursedAt
+  if (loan.createdAt !== undefined) row["Created At"] = loan.createdAt
+  if (loan.notes !== undefined) row["Notes"] = loan.notes
+  return row
+}
+
+export async function getLoans(filters?: {
+  employee?: number
+  status?: string
+}): Promise<Loan[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.loans) return []
+
+  let endpoint = `/database/rows/table/${tableIds.loans}/?user_field_names=true`
+  if (filters?.employee)
+    endpoint += `&filter__field_employee__link_row_has=${filters.employee}`
+  if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
+
+  const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
+  if (!result?.results) return []
+  return result.results.map(mapRowToLoan)
+}
+
+export async function getLoan(id: number): Promise<Loan | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.loans) return null
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.loans}/${id}/?user_field_names=true`
+  )
+  return row ? mapRowToLoan(row) : null
+}
+
+export async function createLoan(loan: Omit<Loan, "id">): Promise<Loan | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.loans) {
+    return { ...loan, id: Date.now() } as Loan
+  }
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.loans}/?user_field_names=true`,
+    {
+      method: "POST",
+      body: JSON.stringify(mapLoanToRow(loan)),
+    }
+  )
+  return row ? mapRowToLoan(row) : null
+}
+
+export async function updateLoan(
+  id: number,
+  updates: Partial<Loan>
+): Promise<Loan | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.loans) return null
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.loans}/${id}/?user_field_names=true`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(mapLoanToRow(updates)),
+    }
+  )
+  return row ? mapRowToLoan(row) : null
+}
+
+// ==================== PETTY CASH ====================
+
+function mapRowToPettyCash(row: BaserowRow): PettyCash {
+  return {
+    id: row.id,
+    requester: row["Requester"]?.[0]?.id ?? row.requester ?? 0,
+    amount: row["Amount"] ?? row.amount ?? 0,
+    purpose: row["Purpose"] || row.purpose || "",
+    receipt: row["Receipt"]?.[0]?.url ?? row.receipt,
+    status: row["Status"]?.value || row.status || "Pending",
+    issuedBy: row["Issued By"]?.[0]?.id ?? row.issued_by,
+    issuedAt: row["Issued At"] || row.issued_at,
+    approvedBy: row["Approved By"]?.[0]?.id ?? row.approved_by,
+    approvedAt: row["Approved At"] || row.approved_at,
+    createdAt: row["Created At"] || row.created_at || "",
+    notes: row["Notes"] || row.notes,
+  }
+}
+
+function mapPettyCashToRow(pc: Partial<PettyCash>): Record<string, unknown> {
+  const row: Record<string, unknown> = {}
+  if (pc.requester !== undefined) row["Requester"] = [pc.requester]
+  if (pc.amount !== undefined) row["Amount"] = pc.amount
+  if (pc.purpose !== undefined) row["Purpose"] = pc.purpose
+  if (pc.receipt !== undefined) row["Receipt"] = pc.receipt
+  if (pc.status !== undefined) row["Status"] = pc.status
+  if (pc.issuedBy !== undefined) row["Issued By"] = [pc.issuedBy]
+  if (pc.issuedAt !== undefined) row["Issued At"] = pc.issuedAt
+  if (pc.approvedBy !== undefined) row["Approved By"] = [pc.approvedBy]
+  if (pc.approvedAt !== undefined) row["Approved At"] = pc.approvedAt
+  if (pc.createdAt !== undefined) row["Created At"] = pc.createdAt
+  if (pc.notes !== undefined) row["Notes"] = pc.notes
+  return row
+}
+
+export async function getPettyCashRequests(filters?: {
+  requester?: number
+  status?: string
+}): Promise<PettyCash[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.pettyCash) return []
+
+  let endpoint = `/database/rows/table/${tableIds.pettyCash}/?user_field_names=true`
+  if (filters?.requester)
+    endpoint += `&filter__field_requester__link_row_has=${filters.requester}`
+  if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
+
+  const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
+  if (!result?.results) return []
+  return result.results.map(mapRowToPettyCash)
+}
+
+export async function createPettyCashRequest(
+  pc: Omit<PettyCash, "id">
+): Promise<PettyCash | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.pettyCash) {
+    return { ...pc, id: Date.now() } as PettyCash
+  }
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.pettyCash}/?user_field_names=true`,
+    {
+      method: "POST",
+      body: JSON.stringify(mapPettyCashToRow(pc)),
+    }
+  )
+  return row ? mapRowToPettyCash(row) : null
+}
+
+export async function updatePettyCashRequest(
+  id: number,
+  updates: Partial<PettyCash>
+): Promise<PettyCash | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.pettyCash) return null
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.pettyCash}/${id}/?user_field_names=true`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(mapPettyCashToRow(updates)),
+    }
+  )
+  return row ? mapRowToPettyCash(row) : null
+}
+
+// ==================== CONTRACTOR CONTRACTS ====================
+
+function mapRowToContractorContract(row: BaserowRow): ContractorContract {
+  return {
+    id: row.id,
+    contractor: row["Contractor"] ?? row.contractor ?? "",
+    project: row["Project"] || row.project || "",
+    milestones: row["Milestones"] || row.milestones || "[]",
+    amounts: row["Amounts"] || row.amounts || "[]",
+    status: row["Status"]?.value || row.status || "Active",
+    startDate: row["Start Date"] || row.start_date,
+    endDate: row["End Date"] || row.end_date,
+    notes: row["Notes"] || row.notes,
+  }
+}
+
+export async function getContractorContracts(filters?: {
+  status?: string
+}): Promise<ContractorContract[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.contractorContracts) return []
+
+  let endpoint = `/database/rows/table/${tableIds.contractorContracts}/?user_field_names=true`
+  if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
+
+  const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
+  if (!result?.results) return []
+  return result.results.map(mapRowToContractorContract)
+}
+
+// ==================== ONBOARDING CHECKLIST ====================
+
+function mapRowToOnboardingChecklist(row: BaserowRow): OnboardingChecklist {
+  return {
+    id: row.id,
+    employee: row["Employee"]?.[0]?.id ?? row.employee ?? 0,
+    items: row["Items"] || row.items || "[]",
+    completedAt: row["Completed At"] || row.completed_at,
+    assignedBuddy: row["Assigned Buddy"]?.[0]?.id ?? row.assigned_buddy,
+    status: row["Status"]?.value || row.status || "In Progress",
+    createdAt: row["Created At"] || row.created_at || "",
+    notes: row["Notes"] || row.notes,
+  }
+}
+
+function mapOnboardingChecklistToRow(oc: Partial<OnboardingChecklist>): Record<string, unknown> {
+  const row: Record<string, unknown> = {}
+  if (oc.employee !== undefined) row["Employee"] = [oc.employee]
+  if (oc.items !== undefined) row["Items"] = oc.items
+  if (oc.completedAt !== undefined) row["Completed At"] = oc.completedAt
+  if (oc.assignedBuddy !== undefined) row["Assigned Buddy"] = [oc.assignedBuddy]
+  if (oc.status !== undefined) row["Status"] = oc.status
+  if (oc.createdAt !== undefined) row["Created At"] = oc.createdAt
+  if (oc.notes !== undefined) row["Notes"] = oc.notes
+  return row
+}
+
+export async function getOnboardingChecklists(filters?: {
+  employee?: number
+  status?: string
+}): Promise<OnboardingChecklist[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.onboardingChecklist) return []
+
+  let endpoint = `/database/rows/table/${tableIds.onboardingChecklist}/?user_field_names=true`
+  if (filters?.employee)
+    endpoint += `&filter__field_employee__link_row_has=${filters.employee}`
+  if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
+
+  const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
+  if (!result?.results) return []
+  return result.results.map(mapRowToOnboardingChecklist)
+}
+
+export async function createOnboardingChecklist(
+  oc: Omit<OnboardingChecklist, "id">
+): Promise<OnboardingChecklist | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.onboardingChecklist) {
+    return { ...oc, id: Date.now() } as OnboardingChecklist
+  }
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.onboardingChecklist}/?user_field_names=true`,
+    {
+      method: "POST",
+      body: JSON.stringify(mapOnboardingChecklistToRow(oc)),
+    }
+  )
+  return row ? mapRowToOnboardingChecklist(row) : null
+}
+
+export async function updateOnboardingChecklist(
+  id: number,
+  updates: Partial<OnboardingChecklist>
+): Promise<OnboardingChecklist | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.onboardingChecklist) return null
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.onboardingChecklist}/${id}/?user_field_names=true`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(mapOnboardingChecklistToRow(updates)),
+    }
+  )
+  return row ? mapRowToOnboardingChecklist(row) : null
+}
+
+// ==================== BUDGET ====================
+
+function mapRowToBudget(row: BaserowRow): Budget {
+  return {
+    id: row.id,
+    category: row["Category"]?.value || row.category || "",
+    amount: row["Amount"] ?? row.amount ?? 0,
+    period: row["Period"] || row.period || "",
+    version: row["Version"] ?? row.version ?? 1,
+    status: row["Status"]?.value || row.status || "Draft",
+    approvedBy: row["Approved By"]?.[0]?.id ?? row.approved_by,
+    approvedAt: row["Approved At"] || row.approved_at,
+    docuSealRef: row["DocuSeal Ref"] || row.docu_seal_ref,
+    notes: row["Notes"] || row.notes,
+  }
+}
+
+function mapBudgetToRow(b: Partial<Budget>): Record<string, unknown> {
+  const row: Record<string, unknown> = {}
+  if (b.category !== undefined) row["Category"] = b.category
+  if (b.amount !== undefined) row["Amount"] = b.amount
+  if (b.period !== undefined) row["Period"] = b.period
+  if (b.version !== undefined) row["Version"] = b.version
+  if (b.status !== undefined) row["Status"] = b.status
+  if (b.approvedBy !== undefined) row["Approved By"] = [b.approvedBy]
+  if (b.approvedAt !== undefined) row["Approved At"] = b.approvedAt
+  if (b.docuSealRef !== undefined) row["DocuSeal Ref"] = b.docuSealRef
+  if (b.notes !== undefined) row["Notes"] = b.notes
+  return row
+}
+
+export async function getBudgets(filters?: { period?: string; status?: string }): Promise<Budget[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.budget) return []
+
+  let endpoint = `/database/rows/table/${tableIds.budget}/?user_field_names=true`
+  if (filters?.period) endpoint += `&filter__field_period__equal=${filters.period}`
+  if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
+
+  const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
+  if (!result?.results) return []
+  return result.results.map(mapRowToBudget)
+}
+
+export async function createBudget(b: Omit<Budget, "id">): Promise<Budget | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.budget) {
+    return { ...b, id: Date.now() } as Budget
+  }
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.budget}/?user_field_names=true`,
+    {
+      method: "POST",
+      body: JSON.stringify(mapBudgetToRow(b)),
+    }
+  )
+  return row ? mapRowToBudget(row) : null
+}
+
+export async function updateBudget(id: number, updates: Partial<Budget>): Promise<Budget | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.budget) return null
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.budget}/${id}/?user_field_names=true`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(mapBudgetToRow(updates)),
+    }
+  )
+  return row ? mapRowToBudget(row) : null
+}
+
+// ==================== INSURANCE CLAIMS ====================
+
+function mapRowToInsuranceClaim(row: BaserowRow): InsuranceClaim {
+  return {
+    id: row.id,
+    incident: row["Incident"]?.[0]?.id ?? row.incident,
+    asset: row["Asset"]?.[0]?.id ?? row.asset,
+    description: row["Description"] || row.description || "",
+    amount: row["Amount"] ?? row.amount ?? 0,
+    status: row["Status"]?.value || row.status || "Draft",
+    claimId: row["Claim Id"] || row.claim_id,
+    submittedAt: row["Submitted At"] || row.submitted_at,
+    createdAt: row["Created At"] || row.created_at || "",
+    notes: row["Notes"] || row.notes,
+  }
+}
+
+function mapInsuranceClaimToRow(ic: Partial<InsuranceClaim>): Record<string, unknown> {
+  const row: Record<string, unknown> = {}
+  if (ic.incident !== undefined) row["Incident"] = [ic.incident]
+  if (ic.asset !== undefined) row["Asset"] = [ic.asset]
+  if (ic.description !== undefined) row["Description"] = ic.description
+  if (ic.amount !== undefined) row["Amount"] = ic.amount
+  if (ic.status !== undefined) row["Status"] = ic.status
+  if (ic.claimId !== undefined) row["Claim Id"] = ic.claimId
+  if (ic.submittedAt !== undefined) row["Submitted At"] = ic.submittedAt
+  if (ic.createdAt !== undefined) row["Created At"] = ic.createdAt
+  if (ic.notes !== undefined) row["Notes"] = ic.notes
+  return row
+}
+
+export async function getInsuranceClaims(filters?: {
+  incident?: number
+  status?: string
+}): Promise<InsuranceClaim[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.insuranceClaims) return []
+
+  let endpoint = `/database/rows/table/${tableIds.insuranceClaims}/?user_field_names=true`
+  if (filters?.incident)
+    endpoint += `&filter__field_incident__link_row_has=${filters.incident}`
+  if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
+
+  const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
+  if (!result?.results) return []
+  return result.results.map(mapRowToInsuranceClaim)
+}
+
+export async function createInsuranceClaim(
+  ic: Omit<InsuranceClaim, "id">
+): Promise<InsuranceClaim | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.insuranceClaims) {
+    return { ...ic, id: Date.now() } as InsuranceClaim
+  }
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.insuranceClaims}/?user_field_names=true`,
+    {
+      method: "POST",
+      body: JSON.stringify(mapInsuranceClaimToRow(ic)),
+    }
+  )
+  return row ? mapRowToInsuranceClaim(row) : null
+}
+
+export async function updateInsuranceClaim(
+  id: number,
+  updates: Partial<InsuranceClaim>
+): Promise<InsuranceClaim | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.insuranceClaims) return null
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.insuranceClaims}/${id}/?user_field_names=true`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(mapInsuranceClaimToRow(updates)),
+    }
+  )
+  return row ? mapRowToInsuranceClaim(row) : null
 }
 
 // ==================== ASSETS ====================
@@ -522,6 +1218,184 @@ export async function getAssetsPaginated(
     items: result.results.map(mapRowToAsset),
     count: result.count ?? result.results.length,
   }
+}
+
+export async function getAsset(id: number): Promise<Asset | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.assets) {
+    return getMockAssets().find((a) => a.id === id) ?? null
+  }
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.assets}/${id}/?user_field_names=true`
+  )
+  return row ? mapRowToAsset(row) : null
+}
+
+// ==================== INCIDENTS ====================
+
+function mapRowToIncident(row: BaserowRow): Incident {
+  return {
+    id: row.id,
+    type: row["Type"]?.value || row.type || "",
+    dateTime: row["Date Time"] || row.date_time || "",
+    location: row["Location"] || row.location,
+    reporter: row["Reporter"]?.[0]?.id ?? row.reporter,
+    description: row["Description"] || row.description || "",
+    severity: row["Severity"]?.value || row.severity || "Low",
+    status: row["Status"]?.value || row.status || "",
+    relatedAsset: row["Related Asset"]?.[0]?.id ?? row.related_asset,
+    relatedEmployee: row["Related Employee"]?.[0]?.id ?? row.related_employee,
+    relatedIncidentIds: row["Related Incident IDs"] || row.related_incident_ids,
+    victimSupportPath: row["Victim Support Path"] ?? row.victim_support_path,
+  }
+}
+
+export async function getIncidents(filters?: {
+  type?: string
+  status?: string
+}): Promise<Incident[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.incidents) return []
+
+  let endpoint = `/database/rows/table/${tableIds.incidents}/?user_field_names=true`
+  if (filters?.type) endpoint += `&filter__field_type__equal=${filters.type}`
+  if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
+
+  const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
+  if (!result?.results) return []
+  return result.results.map(mapRowToIncident)
+}
+
+function mapIncidentToRow(incident: Omit<Incident, "id">): Record<string, unknown> {
+  const row: Record<string, unknown> = {
+    Type: incident.type,
+    "Date Time": incident.dateTime,
+    Location: incident.location ?? "",
+    Description: incident.description,
+    Severity: incident.severity,
+    Status: incident.status || "Reported",
+  }
+  if (incident.reporter != null) row["Reporter"] = [incident.reporter]
+  if (incident.victimSupportPath !== undefined)
+    row["Victim Support Path"] = incident.victimSupportPath
+  return row
+}
+
+export async function createIncident(
+  incident: Omit<Incident, "id">
+): Promise<Incident | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.incidents) return null
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.incidents}/?user_field_names=true`,
+    {
+      method: "POST",
+      body: JSON.stringify(mapIncidentToRow(incident)),
+    }
+  )
+  return row ? mapRowToIncident(row) : null
+}
+
+export async function updateIncident(
+  id: number,
+  updates: Partial<Pick<Incident, "relatedIncidentIds" | "victimSupportPath" | "status">>
+): Promise<Incident | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.incidents) return null
+
+  const body: Record<string, unknown> = {}
+  if (updates.relatedIncidentIds !== undefined)
+    body["Related Incident IDs"] = updates.relatedIncidentIds
+  if (updates.victimSupportPath !== undefined)
+    body["Victim Support Path"] = updates.victimSupportPath
+  if (updates.status !== undefined) body["Status"] = updates.status
+  if (Object.keys(body).length === 0) return null
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.incidents}/${id}/?user_field_names=true`,
+    { method: "PATCH", body: JSON.stringify(body) }
+  )
+  return row ? mapRowToIncident(row) : null
+}
+
+// ==================== PPE ====================
+
+function mapRowToPPE(row: BaserowRow): PPE {
+  return {
+    id: row.id,
+    asset: row["Asset"]?.[0]?.id ?? row.asset ?? 0,
+    issuedTo: row["Issued To"]?.[0]?.id ?? row.issued_to ?? 0,
+    issueDate: row["Issue Date"] || row.issue_date || "",
+    expiryDate: row["Expiry Date"] || row.expiry_date,
+    returnDate: row["Return Date"] || row.return_date,
+    status: row["Status"]?.value || row.status || "Issued",
+    notes: row["Notes"] || row.notes,
+  }
+}
+
+function mapPPEToRow(ppe: Partial<PPE>): Record<string, unknown> {
+  const row: Record<string, unknown> = {}
+  if (ppe.asset !== undefined) row["Asset"] = [ppe.asset]
+  if (ppe.issuedTo !== undefined) row["Issued To"] = [ppe.issuedTo]
+  if (ppe.issueDate !== undefined) row["Issue Date"] = ppe.issueDate
+  if (ppe.expiryDate !== undefined) row["Expiry Date"] = ppe.expiryDate
+  if (ppe.returnDate !== undefined) row["Return Date"] = ppe.returnDate
+  if (ppe.status !== undefined) row["Status"] = ppe.status
+  if (ppe.notes !== undefined) row["Notes"] = ppe.notes
+  return row
+}
+
+export async function getPPERecords(filters?: {
+  issuedTo?: number
+  status?: string
+}): Promise<PPE[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.ppe) return []
+
+  let endpoint = `/database/rows/table/${tableIds.ppe}/?user_field_names=true`
+  if (filters?.issuedTo)
+    endpoint += `&filter__field_issued_to__link_row_has=${filters.issuedTo}`
+  if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
+
+  const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
+  if (!result?.results) return []
+  return result.results.map(mapRowToPPE)
+}
+
+export async function createPPERecord(
+  ppe: Omit<PPE, "id">
+): Promise<PPE | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.ppe) {
+    return { ...ppe, id: Date.now() } as PPE
+  }
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.ppe}/?user_field_names=true`,
+    {
+      method: "POST",
+      body: JSON.stringify(mapPPEToRow(ppe)),
+    }
+  )
+  return row ? mapRowToPPE(row) : null
+}
+
+export async function updatePPERecord(
+  id: number,
+  updates: Partial<PPE>
+): Promise<PPE | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.ppe) return null
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.ppe}/${id}/?user_field_names=true`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(mapPPEToRow(updates)),
+    }
+  )
+  return row ? mapRowToPPE(row) : null
 }
 
 // ==================== TIME CLOCK ====================
@@ -610,12 +1484,12 @@ export async function clockIn(employeeId: number): Promise<TimeClockEntry | null
   return row
     ? mapRowToTimeClockEntry(row)
     : ({
-        employee: employeeId,
-        date: toISODateString(now),
-        clockIn: clockTime,
-        approvalStatus: "Pending",
-        id: Date.now(),
-      } as TimeClockEntry)
+      employee: employeeId,
+      date: toISODateString(now),
+      clockIn: clockTime,
+      approvalStatus: "Pending",
+      id: Date.now(),
+    } as TimeClockEntry)
 }
 
 export async function clockOut(entryId: number): Promise<TimeClockEntry | null> {
@@ -634,6 +1508,22 @@ export async function clockOut(entryId: number): Promise<TimeClockEntry | null> 
     }
   )
 
+  return row ? mapRowToTimeClockEntry(row) : null
+}
+
+export async function updateTimeClockEntry(
+  entryId: number,
+  updates: { approvalStatus?: string }
+): Promise<TimeClockEntry | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.timeClock) return null
+  const body: Record<string, unknown> = {}
+  if (updates.approvalStatus) body["Approval Status"] = updates.approvalStatus
+  if (Object.keys(body).length === 0) return null
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.timeClock}/${entryId}/?user_field_names=true`,
+    { method: "PATCH", body: JSON.stringify(body) }
+  )
   return row ? mapRowToTimeClockEntry(row) : null
 }
 
@@ -744,6 +1634,9 @@ function mapRowToEmployee(row: BaserowRow): Employee {
     email: row["Email"] || row.email || "",
     phone: row["Phone"] || row.phone || "",
     photo: row["Photo"]?.[0]?.url || row.photo,
+    onboardingStatus: row["Onboarding Status"]?.value || row.onboarding_status,
+    buddyId: row["Buddy"]?.[0]?.id || row.buddy_id,
+    itProvisionedAt: row["IT Provisioned At"] || row.it_provisioned_at,
   }
 }
 
@@ -797,6 +1690,8 @@ function mapRowToExpense(row: BaserowRow): Expense {
     notes: row["Notes"] || row.notes,
     approver: row["Approver"]?.[0]?.id || row.approver,
     approvalDate: row["Approval Date"] || row.approval_date,
+    secondaryApprover: row["Secondary Approver"]?.[0]?.id ?? row.secondary_approver,
+    secondaryApprovalDate: row["Secondary Approval Date"] || row.secondary_approval_date,
   }
 }
 
@@ -813,6 +1708,10 @@ function mapExpenseToRow(expense: Partial<Expense>): Record<string, any> {
   if (expense.notes !== undefined) row["Notes"] = expense.notes
   if (expense.approver !== undefined) row["Approver"] = [expense.approver]
   if (expense.approvalDate !== undefined) row["Approval Date"] = expense.approvalDate
+  if (expense.secondaryApprover !== undefined)
+    row["Secondary Approver"] = [expense.secondaryApprover]
+  if (expense.secondaryApprovalDate !== undefined)
+    row["Secondary Approval Date"] = expense.secondaryApprovalDate
   return row
 }
 
@@ -829,7 +1728,48 @@ function mapRowToAsset(row: BaserowRow): Asset {
     checkedOutBy: row["Checked Out By"]?.[0]?.id || row.checked_out_by,
     checkOutDate: row["Check Out Date"] || row.check_out_date,
     photo: row["Photo"]?.[0]?.url || row.photo,
+    expectedReturnDate: row["Expected Return Date"] || row.expected_return_date,
+    lateReturnLockoutUntil: row["Late Return Lockout Until"] || row.late_return_lockout_until,
   }
+}
+
+type AssetUpdate = Partial<Omit<Asset, "checkedOutBy" | "expectedReturnDate" | "checkOutDate">> & {
+  checkedOutBy?: number | null
+  expectedReturnDate?: string | null
+  checkOutDate?: string | null
+}
+
+function mapAssetToRow(asset: AssetUpdate): Record<string, unknown> {
+  const row: Record<string, unknown> = {}
+  if (asset.expectedReturnDate !== undefined)
+    row["Expected Return Date"] = asset.expectedReturnDate ?? null
+  if (asset.lateReturnLockoutUntil !== undefined)
+    row["Late Return Lockout Until"] = asset.lateReturnLockoutUntil
+  if (asset.checkedOutBy !== undefined)
+    row["Checked Out By"] = asset.checkedOutBy == null ? [] : [asset.checkedOutBy]
+  if (asset.checkOutDate !== undefined) row["Check Out Date"] = asset.checkOutDate ?? null
+  return row
+}
+
+export async function updateAsset(
+  id: number,
+  updates: Partial<Pick<Asset, "lateReturnLockoutUntil">> & {
+    checkedOutBy?: number | null
+    expectedReturnDate?: string | null
+    checkOutDate?: string | null
+  }
+): Promise<Asset | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.assets) return null
+
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.assets}/${id}/?user_field_names=true`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(mapAssetToRow(updates)),
+    }
+  )
+  return row ? mapRowToAsset(row) : null
 }
 
 function mapRowToTimeClockEntry(row: BaserowRow): TimeClockEntry {
@@ -1121,4 +2061,175 @@ function getMockVehicleLogs(): VehicleLog[] {
       distance: 32,
     },
   ]
+}
+
+export interface DocumentExpiryRow {
+  id: number
+  "Doc Name"?: string
+  Type?: string
+  "Last Review"?: string
+  "Next Review"?: string
+  "Party Responsible"?: Array<{ id: number }>
+  "Superseded By"?: number[]
+  "Version Blocked"?: boolean
+}
+
+export interface LeaveRequest {
+  id: number
+  employee: number
+  startDate: string
+  endDate: string
+  type: string
+  status: "Pending" | "Approved" | "Rejected"
+  approver?: number
+  approvedAt?: string
+  submittedAt: string
+  notes?: string
+}
+
+export interface Loan {
+  id: number
+  employee: number
+  amount: number
+  purpose: string
+  repaymentSchedule?: string
+  status: "Pending" | "Approved" | "Rejected" | "Active" | "Repaid"
+  outstandingBalance: number
+  nextRepaymentDate?: string
+  approvedBy?: number
+  approvedAt?: string
+  disbursedAt?: string
+  createdAt: string
+  notes?: string
+}
+
+export interface PettyCash {
+  id: number
+  requester: number
+  amount: number
+  purpose: string
+  receipt?: string
+  status: "Pending" | "Approved" | "Rejected" | "Issued"
+  issuedBy?: number
+  issuedAt?: string
+  approvedBy?: number
+  approvedAt?: string
+  createdAt: string
+  notes?: string
+}
+
+export interface OnboardingChecklist {
+  id: number
+  employee: number
+  items: string
+  completedAt?: string
+  assignedBuddy?: number
+  status: "In Progress" | "Completed"
+  createdAt: string
+  notes?: string
+}
+
+export interface Budget {
+  id: number
+  category: string
+  amount: number
+  period: string
+  version: number
+  status: "Draft" | "Active" | "Superseded"
+  approvedBy?: number
+  approvedAt?: string
+  docuSealRef?: string
+  notes?: string
+}
+
+export interface PPE {
+  id: number
+  asset: number
+  issuedTo: number
+  issueDate: string
+  expiryDate?: string
+  returnDate?: string
+  status: "Issued" | "Returned" | "Expired"
+  notes?: string
+}
+
+export interface PolicyVersion {
+  id: number
+  document: number
+  version: string
+  effectiveDate: string
+  supersededBy?: number
+  status: "Current" | "Superseded"
+  docuSealRef?: string
+  notes?: string
+}
+
+export interface ContractorContract {
+  id: number
+  contractor: string | number
+  project: string
+  milestones: string
+  amounts: string
+  status: "Active" | "Completed" | "Terminated"
+  startDate?: string
+  endDate?: string
+  notes?: string
+}
+
+export interface InsuranceClaim {
+  id: number
+  incident?: number
+  asset?: number
+  description: string
+  amount: number
+  status: "Draft" | "Submitted" | "Under Review" | "Approved" | "Denied"
+  claimId?: string
+  submittedAt?: string
+  createdAt: string
+  notes?: string
+}
+
+export interface Incident {
+  id: number
+  type: string
+  dateTime: string
+  location?: string
+  reporter?: number
+  description: string
+  severity: "Low" | "Medium" | "High" | "Critical"
+  status: string
+  relatedAsset?: number
+  relatedEmployee?: number
+  relatedIncidentIds?: string
+  victimSupportPath?: boolean
+}
+
+export async function getDocumentExpiryRows(): Promise<DocumentExpiryRow[]> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.documentExpiry) {
+    return []
+  }
+  const result = await baserowFetch<{ results: BaserowRow[] }>(
+    `/database/rows/table/${tableIds.documentExpiry}/?user_field_names=true&size=200`
+  )
+  if (!result?.results) return []
+  return result.results as DocumentExpiryRow[]
+}
+
+export async function updateDocumentExpiryRow(
+  id: number,
+  updates: { docuSealRef?: string; lastReview?: string; status?: string }
+): Promise<DocumentExpiryRow | null> {
+  const tableIds = getTableIds()
+  if (!isBaserowConfigured() || !tableIds.documentExpiry) return null
+  const body: Record<string, unknown> = {}
+  if (updates.docuSealRef !== undefined) body["DocuSeal Ref"] = updates.docuSealRef
+  if (updates.lastReview !== undefined) body["Last Review"] = updates.lastReview
+  if (updates.status !== undefined) body["Status"] = updates.status
+  if (Object.keys(body).length === 0) return null
+  const row = await baserowFetch<BaserowRow>(
+    `/database/rows/table/${tableIds.documentExpiry}/${id}/?user_field_names=true`,
+    { method: "PATCH", body: JSON.stringify(body) }
+  )
+  return row as DocumentExpiryRow | null
 }

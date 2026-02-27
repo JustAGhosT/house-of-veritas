@@ -45,7 +45,7 @@ yarn install
 yarn dev
 ```
 
-See [Local Development Guide](docs/03-deployment/02-local-development.md) for Docker-based setup with DocuSeal, Baserow, and PostgreSQL.
+See [Local Development Guide](docs/03-deployment/02-local-development.md) for Docker-based setup with DocuSeal, Baserow, and PostgreSQL. For workflow env vars (e.g. `USE_INNGEST_APPROVALS`), see [Workflow env](docs/04-configuration/06-workflow-env.md).
 
 ### Azure Deployment
 

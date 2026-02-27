@@ -41,6 +41,9 @@
 | [06-access-control-adr.md](02-architecture/06-access-control-adr.md)             | ADR: Access control model — roles, responsibilities, project membership, task visibility |
 | [07-ai-integration-adr.md](02-architecture/07-ai-integration-adr.md)             | ADR: AI integration strategy — Azure Foundry, suggestion APIs, fallback behavior         |
 | [08-testing-strategy-adr.md](02-architecture/08-testing-strategy-adr.md)         | ADR: Testing strategy — Vitest, Playwright, coverage targets, CI integration             |
+| [09-workflow-orchestration-adr.md](02-architecture/09-workflow-orchestration-adr.md) | ADR: Workflow orchestration — Inngest, workflow layer, n8n roadmap, weighted decision matrix |
+| [10-workflow-specifications.md](02-architecture/10-workflow-specifications.md)       | Full workflow catalog — employee, asset, incident, safety, payroll, n8n rules                |
+| [11-operations-swimlane-process-maps.md](02-architecture/11-operations-swimlane-process-maps.md) | Operations swimlane process maps — onboarding, daily ops, assets, incidents, financial workflows |
 
 ## 03-deployment/ -- Deployment and Operations
 
@@ -64,6 +67,7 @@ _Note: 06 reserved for future deployment documentation._
 | [03-azure-functions.md](04-configuration/03-azure-functions.md)       | Azure Functions: 8 functions for webhooks, scheduling, backups          |
 | [04-document-templates.md](04-configuration/04-document-templates.md) | 19 governance document templates with fields and signing workflows      |
 | [05-persistence-env.md](04-configuration/05-persistence-env.md)       | Persistence env vars: PostgreSQL, Redis, MongoDB, Baserow, file uploads |
+| [06-integration-stubs.md](04-configuration/06-integration-stubs.md)   | Bank API and Insurance portal integration stubs, env vars, setup        |
 
 ## 05-project/ -- Project Management
 

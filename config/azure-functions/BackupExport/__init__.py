@@ -9,8 +9,8 @@ Schedule: 0 0 0 * * 0
 
 Backup Contents:
 - All 8 Baserow tables exported as CSV
-- Timestamped backup folders
-- 90-day retention policy
+- Timestamped backup folders (YYYY/MM/DD_HHMMSS/)
+- Retained in Azure: cool tier after 7 days, archive after 90 days, delete after 365 days
 """
 
 import io

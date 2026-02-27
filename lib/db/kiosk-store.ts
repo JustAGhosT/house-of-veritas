@@ -15,8 +15,13 @@ export interface KioskRequestDoc {
   notes?: string
 }
 
+export interface KioskFindOptions {
+  limit?: number
+  skip?: number
+}
+
 export interface KioskStore {
-  find(query: Record<string, unknown>): Promise<KioskRequestDoc[]>
+  find(query: Record<string, unknown>, options?: KioskFindOptions): Promise<KioskRequestDoc[]>
   insertOne(doc: Omit<KioskRequestDoc, "_id">): Promise<{ insertedId: ObjectId }>
   updateOne(filter: { _id: ObjectId }, update: { $set: Record<string, unknown> }): Promise<unknown>
   findOne(filter: { _id: ObjectId }): Promise<KioskRequestDoc | null>
@@ -132,13 +137,22 @@ function seedInMemory() {
 }
 
 const inMemoryStoreAdapter: KioskStore = {
-  async find(query: Record<string, unknown>) {
+  async find(query: Record<string, unknown>, options?: KioskFindOptions) {
     seedInMemory()
     let items = Array.from(inMemoryStore.values())
     if (query.employeeId) items = items.filter((r) => r.employeeId === query.employeeId)
     if (query.type) items = items.filter((r) => r.type === query.type)
     if (query.status) items = items.filter((r) => r.status === query.status)
-    return items.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1))
+    const ts = query.timestamp as { $gte?: string } | undefined
+    const cutoff = ts?.$gte
+    if (cutoff) items = items.filter((r) => r.timestamp >= cutoff)
+    items = items.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1))
+    const skip = options?.skip ?? 0
+    const limit = options?.limit
+    if (limit != null && limit > 0) {
+      return items.slice(skip, skip + limit)
+    }
+    return skip > 0 ? items.slice(skip) : items
   },
   async insertOne(doc: Omit<KioskRequestDoc, "_id">) {
     seedInMemory()
@@ -179,7 +193,12 @@ async function getMongoStore(): Promise<KioskStore> {
     logger.info("KioskStore: Seeded MongoDB", { count: KIOSK_SEED_DATA.length })
   }
   return {
-    find: (q) => collection.find(q).sort({ timestamp: -1 }).toArray(),
+    find: async (q, opts) => {
+      let cursor = collection.find(q).sort({ timestamp: -1 })
+      if (opts?.skip != null && opts.skip > 0) cursor = cursor.skip(opts.skip)
+      if (opts?.limit != null && opts.limit > 0) cursor = cursor.limit(opts.limit)
+      return cursor.toArray()
+    },
     insertOne: (doc) => collection.insertOne(doc as KioskRequestDoc),
     updateOne: async (filter, update) => {
       await collection.updateOne(filter, update)
@@ -197,6 +216,13 @@ let storeMode: "mongodb" | "memory" = "mongodb"
 
 export async function getKioskStore(): Promise<{ store: KioskStore; mode: "mongodb" | "memory" }> {
   if (cachedStore) return { store: cachedStore, mode: storeMode }
+  const isE2E = process.env.E2E_TEST === "1" || process.env.CI === "true"
+  const mongoConfigured = !!(process.env.MONGODB_URI || process.env.MONGO_URL)
+  if (isE2E || !mongoConfigured) {
+    cachedStore = inMemoryStoreAdapter
+    storeMode = "memory"
+    return { store: cachedStore, mode: "memory" }
+  }
   try {
     cachedStore = await getMongoStore()
     storeMode = "mongodb"

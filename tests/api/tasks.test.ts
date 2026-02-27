@@ -1,5 +1,7 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 import { GET, POST } from "@/app/api/tasks/route"
+
+vi.mock("@/lib/workflows", () => ({ routeToInngest: vi.fn().mockResolvedValue(undefined) }))
 
 const authHeaders = {
   "x-user-id": "hans",
@@ -20,6 +22,8 @@ describe("GET /api/tasks", () => {
 })
 
 describe("POST /api/tasks", () => {
+  beforeEach(() => vi.clearAllMocks())
+
   it("returns 400 when title is missing", async () => {
     const request = new Request("http://localhost/api/tasks", {
       method: "POST",

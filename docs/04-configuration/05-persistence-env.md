@@ -19,14 +19,14 @@ The `house_of_veritas` database is created automatically when using Docker Compo
 
 When set, rate limiting uses Redis instead of in-memory storage. Redis is already in Docker Compose for Baserow; use the same instance or a dedicated one.
 
-## MongoDB (kiosk requests, audit fallback)
+## MongoDB (Cosmos DB Mongo API)
 
-| Variable      | Description                | Example                                      |
-| ------------- | -------------------------- | -------------------------------------------- |
-| `MONGODB_URI` | MongoDB connection string  | `mongodb://localhost:27017/house_of_veritas` |
-| `MONGO_URL`   | Alternative to MONGODB_URI | Same format                                  |
+| Variable      | Description                | Example                                                                 |
+| ------------- | -------------------------- | ----------------------------------------------------------------------- |
+| `MONGODB_URI` | MongoDB connection string  | `mongodb://<account>.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb` |
+| `MONGO_URL`   | Alternative to MONGODB_URI | Same format                                                             |
 
-When set, kiosk requests (stock orders, salary advances, issue reports) are stored in MongoDB. When PostgreSQL is not configured, the audit log reads from MongoDB. When MongoDB is unavailable, kiosk uses an in-memory fallback. MongoDB is included in Docker Compose (`config/docker-compose.yml`) and CI/CD (`deploy.yml`).
+When set, kiosk requests (stock orders, salary advances, issue reports) are stored in MongoDB. When PostgreSQL is not configured, the audit log reads from MongoDB. When MongoDB is unavailable, kiosk uses an in-memory fallback. For local development, MongoDB is included in Docker Compose (`config/docker-compose.yml`).
 
 ## Baserow (time-clock persistence)
 

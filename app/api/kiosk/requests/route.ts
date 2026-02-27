@@ -1,14 +1,16 @@
-import { NextResponse } from "next/server"
+import { withAuth, withRole } from "@/lib/auth/rbac"
 import {
   getKioskStore,
   sanitizeKioskDoc,
   sanitizeKioskDocs,
   type KioskRequestDoc,
 } from "@/lib/db/kiosk-store"
-import { sendNotification, NotificationChannel } from "@/lib/services/notification-service"
-import { withRole, withAuth } from "@/lib/auth/rbac"
-import { ObjectId } from "mongodb"
+import { restockByName } from "@/lib/inventory-store"
 import { logger } from "@/lib/logger"
+import { NotificationChannel, sendNotification } from "@/lib/services/notification-service"
+import { routeToInngest } from "@/lib/workflows"
+import { ObjectId } from "mongodb"
+import { NextResponse } from "next/server"
 
 // Re-export for tests that may reference SEED_DATA
 export { KIOSK_SEED_DATA as SEED_DATA } from "@/lib/db/kiosk-store"
@@ -176,7 +178,30 @@ export const POST = withAuth(async (request) => {
       _id: result.insertedId,
     }
 
-    await notifyManager(insertedRequest)
+    const useInngest = process.env.USE_INNGEST_APPROVALS === "true"
+    try {
+      if (useInngest) {
+        await routeToInngest({
+          name: "house-of-veritas/kiosk.request.submitted",
+          data: {
+            requestId: result.insertedId.toString(),
+            type: insertedRequest.type,
+            employeeId: insertedRequest.employeeId,
+            employeeName: insertedRequest.employeeName,
+            data: insertedRequest.data,
+            timestamp: insertedRequest.timestamp,
+          },
+        })
+      } else {
+        await notifyManager(insertedRequest)
+      }
+    } catch (dispatchError) {
+      logger.error("Kiosk: dispatch failed after insert", {
+        requestId: result.insertedId.toString(),
+        type: insertedRequest.type,
+        error: dispatchError instanceof Error ? dispatchError.message : String(dispatchError),
+      })
+    }
     logger.info("Kiosk: New request", { type, employeeName: employeeName || employeeId, data })
 
     return NextResponse.json({
@@ -228,6 +253,8 @@ export const PATCH = withRole("admin")(async (request, context) => {
     if (!existingRequest) {
       return NextResponse.json({ success: false, error: "Request not found" }, { status: 404 })
     }
+    // Capture previous status BEFORE updating to avoid race conditions with in-memory stores
+    const previousStatus = existingRequest.status
 
     const updateData = {
       status,
@@ -239,8 +266,40 @@ export const PATCH = withRole("admin")(async (request, context) => {
     await store.updateOne({ _id: objectId }, { $set: updateData })
     const updatedRequest = { ...existingRequest, ...updateData }
 
-    if (status === "approved" || status === "rejected") {
+    const statusChanged = previousStatus !== status
+    if (statusChanged && (status === "approved" || status === "rejected")) {
       await notifyEmployee(updatedRequest, status, notes)
+    }
+
+    if (
+      statusChanged &&
+      previousStatus !== "approved" &&
+      status === "approved" &&
+      updatedRequest.type === "stock_order"
+    ) {
+      const d = updatedRequest.data as { itemName?: string; quantity?: number }
+      const itemName = d?.itemName
+      const quantity = typeof d?.quantity === "number" ? d.quantity : 0
+      if (itemName && quantity > 0) {
+        const restocked = restockByName(itemName, quantity)
+        if (restocked) {
+          logger.info("Kiosk: Auto-restocked inventory from approved stock order", {
+            itemName,
+            quantity,
+            itemId: restocked.id,
+          })
+        }
+        await routeToInngest({
+          name: "house-of-veritas/kiosk.stock_order.approved",
+          data: {
+            requestId: requestId,
+            itemName,
+            quantity,
+            employeeId: updatedRequest.employeeId,
+            reviewedBy: context.userId,
+          },
+        })
+      }
     }
 
     return NextResponse.json({

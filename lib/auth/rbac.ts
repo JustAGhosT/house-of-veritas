@@ -42,6 +42,10 @@ export function getAuthContext(request: Request): {
   return { userId, role, email, responsibilities }
 }
 
+export function isAdminOrOperator(role: UserRole): boolean {
+  return role === "admin" || role === "operator"
+}
+
 export type RouteContext = {
   userId: string
   role: UserRole

@@ -104,6 +104,42 @@ variable "db_admin_password" {
   sensitive   = true
 }
 
+variable "cosmos_account_name" {
+  description = "Cosmos DB account name (Mongo API)"
+  type        = string
+  default     = "nlprodhovcosmosan"
+}
+
+variable "cosmos_mongo_database_name" {
+  description = "Cosmos Mongo database name"
+  type        = string
+  default     = "house_of_veritas"
+}
+
+variable "cosmos_mongo_collection_name" {
+  description = "Cosmos Mongo collection name"
+  type        = string
+  default     = "kiosk_requests"
+}
+
+variable "cosmos_mongo_throughput" {
+  description = "Cosmos Mongo throughput (RU/s)"
+  type        = number
+  default     = 400
+}
+
+variable "cosmos_public_network_access_enabled" {
+  description = "Enable public network access for Cosmos DB"
+  type        = bool
+  default     = true
+}
+
+variable "cosmos_enable_free_tier" {
+  description = "Enable Cosmos DB free tier"
+  type        = bool
+  default     = false
+}
+
 # Container variables
 variable "docuseal_container_name" {
   description = "DocuSeal container instance name"

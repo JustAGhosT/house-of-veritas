@@ -575,6 +575,9 @@ az cognitiveservices account show `
 | `storage_account_name`       | `nlprodhovstsan`          | default                      |
 | `key_vault_name`             | `nl-prod-hov-kv-san`      | default                      |
 | `db_server_name`             | `nl-prod-hov-pg-san`      | default                      |
+| `cosmos_account_name`        | `nlprodhovcosmosan`       | default                      |
+| `cosmos_mongo_database_name` | `house_of_veritas`        | default                      |
+| `cosmos_mongo_collection_name` | `kiosk_requests`        | default                      |
 | `resource_group_name`        | `nl-prod-hov-rg-san`      | default                      |
 
 ### Terraform Outputs (post-deploy)
@@ -589,6 +592,8 @@ az cognitiveservices account show `
 | `asset_uploads_container`        | Container name for photos           |
 | `key_vault_uri`                  | Key Vault URI                       |
 | `database_server_fqdn`           | PostgreSQL FQDN                     |
+| `cosmos_mongo_connection_string` | Cosmos Mongo connection string      |
+| `cosmos_mongo_database_name`     | Cosmos Mongo database name          |
 | `docuseal_url`                   | `https://docs.nexamesh.ai`          |
 | `baserow_url`                    | `https://ops.nexamesh.ai`           |
 

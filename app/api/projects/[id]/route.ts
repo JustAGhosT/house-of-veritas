@@ -4,6 +4,7 @@ import { readFile, writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import type { Project } from "@/lib/projects"
 import { logger } from "@/lib/logger"
+import { routeToInngest } from "@/lib/workflows"
 
 const PROJECTS_PATH = join(process.cwd(), "data", "projects.json")
 
@@ -48,6 +49,7 @@ export const PATCH = withRole("admin")(async (request, context) => {
     if (idx === -1) return NextResponse.json({ error: "Project not found" }, { status: 404 })
 
     const p = projects[idx]
+    const prevStatus = p.status
     projects[idx] = {
       ...p,
       ...body,
@@ -56,6 +58,18 @@ export const PATCH = withRole("admin")(async (request, context) => {
       updatedAt: new Date().toISOString(),
     }
     await saveProjects(projects)
+
+    if (body.status === "in_progress" && prevStatus !== "in_progress") {
+      await routeToInngest({
+        name: "house-of-veritas/project.started",
+        data: {
+          projectId: p.id,
+          name: p.name,
+          type: p.type,
+        },
+      })
+    }
+
     return NextResponse.json({ project: projects[idx] })
   } catch (err) {
     logger.error("Failed to update project", {

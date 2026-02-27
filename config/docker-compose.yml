@@ -137,6 +137,36 @@ services:
       retries: 5
 
   # ============================================
+  # n8n - Workflow Automation (Business Rules)
+  # Phase 4: expense >R5k, incident High→SMS, task overdue, vehicle mileage
+  # ============================================
+  n8n:
+    image: n8nio/n8n:1.70.3
+    container_name: hov-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-changeme}
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678}
+      - GENERIC_TIMEZONE=Africa/Johannesburg
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - hov-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ============================================
   # Nginx - Reverse Proxy (Local Development)
   # ============================================
   nginx:
@@ -169,6 +199,8 @@ volumes:
     name: hov_baserow_data
   redis_data:
     name: hov_redis_data
+  n8n_data:
+    name: hov_n8n_data
 
 # ============================================
 # Networks
