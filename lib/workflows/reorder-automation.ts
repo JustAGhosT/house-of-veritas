@@ -1,5 +1,5 @@
-import { inngest } from "@/lib/inngest/client"
 import { getKioskStore } from "@/lib/db/kiosk-store"
+import { inngest } from "@/lib/inngest/client"
 import { getInventory } from "@/lib/inventory-store"
 import { sendNotification } from "@/lib/services/notification-service"
 import { getLowStockNotificationRecipient } from "@/lib/workflows/notification-recipients"

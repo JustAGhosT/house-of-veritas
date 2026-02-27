@@ -2,11 +2,10 @@ import { withRole } from "@/lib/auth/rbac"
 import { logger } from "@/lib/logger"
 import { routeToInngest } from "@/lib/workflows"
 import { randomUUID } from "crypto"
-import { existsSync } from "fs"
 import { mkdir, readFile, rename, writeFile } from "fs/promises"
+import Redis from "ioredis"
 import { NextResponse } from "next/server"
 import { join } from "path"
-import Redis from "ioredis"
 
 interface PurchaseOrder {
   id: string
@@ -176,16 +175,16 @@ export async function GET() {
   }
 }
 
-export const POST = withRole("admin", "operator")(async (request, context) => {
+export const POST = withRole(
+  "admin",
+  "operator"
+)(async (request, context) => {
   try {
     const body = await request.json()
     const { vendor, amount, items } = body
 
     if (!vendor || amount == null) {
-      return NextResponse.json(
-        { error: "vendor and amount are required" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "vendor and amount are required" }, { status: 400 })
     }
 
     const numericAmount = Number(amount)

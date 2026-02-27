@@ -1,12 +1,12 @@
 import { inngest } from "@/lib/inngest/client"
 import {
-  getEmployees,
   getDocumentExpiryRows,
-  updateEmployee,
+  getEmployees,
   updateDocumentExpiryRow,
+  updateEmployee,
 } from "@/lib/services/baserow"
-import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import type { DocuSealSubmissionPayload } from "./schema"
 
 export const docusealSubmissionCompleted = inngest.createFunction(

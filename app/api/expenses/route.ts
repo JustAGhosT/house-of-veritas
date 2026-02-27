@@ -28,21 +28,25 @@ function getDefaultRequesterId(): number {
     }
     // In production, throw an error instead of silently falling back
     if (process.env.NODE_ENV === "production") {
-      logger.error(`Invalid DEFAULT_EXPENSE_REQUESTER_ID: ${process.env.DEFAULT_EXPENSE_REQUESTER_ID}`)
+      logger.error(
+        `Invalid DEFAULT_EXPENSE_REQUESTER_ID: ${process.env.DEFAULT_EXPENSE_REQUESTER_ID}`
+      )
       throw new Error(
         `Invalid DEFAULT_EXPENSE_REQUESTER_ID: "${process.env.DEFAULT_EXPENSE_REQUESTER_ID}". ` +
-        `Must be a positive integer. Set a valid DEFAULT_EXPENSE_REQUESTER_ID environment variable.`
+          `Must be a positive integer. Set a valid DEFAULT_EXPENSE_REQUESTER_ID environment variable.`
       )
     }
     // Log warning for invalid env value but continue with fallback in non-production
-    console.warn(`Invalid DEFAULT_EXPENSE_REQUESTER_ID: ${process.env.DEFAULT_EXPENSE_REQUESTER_ID}, using fallback`)
+    console.warn(
+      `Invalid DEFAULT_EXPENSE_REQUESTER_ID: ${process.env.DEFAULT_EXPENSE_REQUESTER_ID}, using fallback`
+    )
   }
   // In production, require the environment variable to be set
   if (process.env.NODE_ENV === "production") {
     logger.error("DEFAULT_EXPENSE_REQUESTER_ID is not set")
     throw new Error(
       "DEFAULT_EXPENSE_REQUESTER_ID environment variable is required in production. " +
-      "Set a valid positive integer value."
+        "Set a valid positive integer value."
     )
   }
   return 1
@@ -71,11 +75,9 @@ export const GET = withRole(
       const { searchParams } = new URL(request.url)
       const status = searchParams.get("status")
 
-      const { employeeId: requester, error } = await resolveEmployeeForGet(
-        context,
-        searchParams,
-        { paramName: "requester" }
-      )
+      const { employeeId: requester, error } = await resolveEmployeeForGet(context, searchParams, {
+        paramName: "requester",
+      })
       if (error) return error
 
       const expenses = await getExpenses({
@@ -146,7 +148,10 @@ export const POST = withRole(
       const approverId = process.env.EXPENSE_APPROVER_ID || authenticatedUserId
       if (!approverId) {
         return NextResponse.json(
-          { error: "Unable to determine approver: EXPENSE_APPROVER_ID env var or authentication required" },
+          {
+            error:
+              "Unable to determine approver: EXPENSE_APPROVER_ID env var or authentication required",
+          },
           { status: 400 }
         )
       }
@@ -248,17 +253,21 @@ export const PATCH = withRole("admin")(async (request, context) => {
       return withDataSource({ expense })
     }
 
-    if (
-      status === "Approved" &&
-      existing.approvalStatus === "Pending Secondary"
-    ) {
+    if (status === "Approved" && existing.approvalStatus === "Pending Secondary") {
       let secondaryApproverId: number | undefined
       if (secondaryApprover != null) {
         // Validate secondaryApprover: must be a positive integer
         const numericApprover = Number(secondaryApprover)
-        if (!Number.isFinite(numericApprover) || !Number.isInteger(numericApprover) || numericApprover <= 0) {
+        if (
+          !Number.isFinite(numericApprover) ||
+          !Number.isInteger(numericApprover) ||
+          numericApprover <= 0
+        ) {
           return NextResponse.json(
-            { error: "Failed to resolve secondary approver. Provide secondaryApprover or ensure user has a valid employee mapping." },
+            {
+              error:
+                "Failed to resolve secondary approver. Provide secondaryApprover or ensure user has a valid employee mapping.",
+            },
             { status: 400 }
           )
         }
@@ -267,7 +276,10 @@ export const PATCH = withRole("admin")(async (request, context) => {
         const resolvedId = await getBaserowEmployeeIdByAppId(context.userId)
         if (!resolvedId) {
           return NextResponse.json(
-            { error: "Failed to resolve secondary approver. Provide secondaryApprover or ensure user has a valid employee mapping." },
+            {
+              error:
+                "Failed to resolve secondary approver. Provide secondaryApprover or ensure user has a valid employee mapping.",
+            },
             { status: 400 }
           )
         }

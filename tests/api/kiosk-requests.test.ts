@@ -19,7 +19,14 @@ vi.mock("@/lib/db/kiosk-store", async (importOriginal) => {
   const inMemoryStore = new Map<string, KioskDoc>()
   const { ObjectId } = await import("mongodb")
   const seed = [
-    { type: "stock_order", employeeId: "lucky", employeeName: "Lucky", data: {}, timestamp: new Date().toISOString(), status: "pending" },
+    {
+      type: "stock_order",
+      employeeId: "lucky",
+      employeeName: "Lucky",
+      data: {},
+      timestamp: new Date().toISOString(),
+      status: "pending",
+    },
   ]
   seed.forEach((d) => {
     const id = new ObjectId()
@@ -29,8 +36,9 @@ vi.mock("@/lib/db/kiosk-store", async (importOriginal) => {
     ...actual,
     getKioskStore: vi.fn().mockResolvedValue({
       store: {
-        find: async (q: Record<string, unknown>) => {
+        find: async (q?: Record<string, unknown>) => {
           let items = Array.from(inMemoryStore.values())
+          if (!q) return items
           const employeeId = typeof q.employeeId === "string" ? q.employeeId : undefined
           const type = typeof q.type === "string" ? q.type : undefined
           const status = typeof q.status === "string" ? q.status : undefined
@@ -39,16 +47,27 @@ vi.mock("@/lib/db/kiosk-store", async (importOriginal) => {
           if (status) items = items.filter((r) => r.status === status)
           return items
         },
-        insertOne: async (doc: { type: string; employeeId: string; employeeName: string; data: Record<string, unknown>; timestamp: string; status: string }) => {
+        insertOne: async (doc: {
+          type: string
+          employeeId: string
+          employeeName: string
+          data: Record<string, unknown>
+          timestamp: string
+          status: string
+        }) => {
           const id = new ObjectId()
           inMemoryStore.set(id.toString(), { ...doc, _id: id })
           return { insertedId: id }
         },
-        updateOne: async (filter: { _id: { toString: () => string } }, update: { $set: Record<string, unknown> }) => {
+        updateOne: async (
+          filter: { _id: { toString: () => string } },
+          update: { $set: Record<string, unknown> }
+        ) => {
           const doc = inMemoryStore.get(filter._id.toString())
           if (doc && update.$set) Object.assign(doc, update.$set)
         },
-        findOne: async (filter: { _id: { toString: () => string } }) => inMemoryStore.get(filter._id.toString()) ?? null,
+        findOne: async (filter: { _id: { toString: () => string } }) =>
+          inMemoryStore.get(filter._id.toString()) ?? null,
       },
       mode: "memory" as const,
     }),
