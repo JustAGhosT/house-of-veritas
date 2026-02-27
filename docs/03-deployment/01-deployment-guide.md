@@ -584,20 +584,20 @@ az cognitiveservices account show `
 
 ### Terraform Outputs (post-deploy)
 
-| Output                           | Purpose                             |
-| -------------------------------- | ----------------------------------- |
-| `application_gateway_public_ip`  | Public entry point IP               |
-| `document_intelligence_endpoint` | OCR API endpoint                    |
-| `document_intelligence_key`      | OCR API key (sensitive)             |
-| `storage_connection_string`      | Blob storage connection (sensitive) |
-| `storage_blob_endpoint`          | Blob endpoint URL                   |
-| `asset_uploads_container`        | Container name for photos           |
-| `key_vault_uri`                  | Key Vault URI                       |
-| `database_server_fqdn`           | PostgreSQL FQDN                     |
-| `cosmos_mongo_connection_string` | Cosmos Mongo connection string      |
-| `cosmos_mongo_database_name`     | Cosmos Mongo database name          |
-| `docuseal_url`                   | `https://docs.nexamesh.ai`          |
-| `baserow_url`                    | `https://ops.nexamesh.ai`           |
+| Output                           | Purpose                                    |
+| -------------------------------- | ------------------------------------------ |
+| `application_gateway_public_ip`  | Public entry point IP                      |
+| `document_intelligence_endpoint` | OCR API endpoint                           |
+| `document_intelligence_key`      | OCR API key (sensitive)                    |
+| `storage_connection_string`      | Blob storage connection (sensitive)        |
+| `storage_blob_endpoint`          | Blob endpoint URL                          |
+| `asset_uploads_container`        | Container name for photos                  |
+| `key_vault_uri`                  | Key Vault URI                              |
+| `database_server_fqdn`           | PostgreSQL FQDN                            |
+| `cosmos_mongo_connection_string` | Cosmos Mongo connection string (sensitive) |
+| `cosmos_mongo_database_name`     | Cosmos Mongo database name                 |
+| `docuseal_url`                   | `https://docs.nexamesh.ai`                 |
+| `baserow_url`                    | `https://ops.nexamesh.ai`                  |
 
 ---
 

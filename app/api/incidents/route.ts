@@ -2,11 +2,11 @@ import { withRole } from "@/lib/auth/rbac"
 import { logger } from "@/lib/logger"
 import type { Incident } from "@/lib/services/baserow"
 import {
-    createIncident,
-    getBaserowEmployeeIdByAppId,
-    getEmployee,
-    getIncidents,
-    isIncidentsTableConfigured,
+  createIncident,
+  getBaserowEmployeeIdByAppId,
+  getEmployee,
+  getIncidents,
+  isIncidentsTableConfigured,
 } from "@/lib/services/baserow"
 import { routeToInngest } from "@/lib/workflows"
 import { NextResponse } from "next/server"
@@ -62,8 +62,14 @@ const SEED_INCIDENTS: ReadonlyArray<Readonly<Incident & { reporterName?: string 
   },
 ].map(obj => Object.freeze(obj)))
 
-// Simple in-memory store to avoid mutating module-level SEED_INCIDENTS
+// NOTE: This in-memory store is NON-PERSISTENT and not shared across serverless invocations.
+// It is intended for local development and demo purposes only. In production, use Baserow.
+// The GET/POST handlers will prefer Baserow when isIncidentsTableConfigured() returns true.
 const inMemoryIncidents: Incident[] = []
+
+// Module-level ID counter for seed mode to avoid duplicate IDs under concurrent requests.
+// Initialized to max existing ID + 1 to avoid collisions with SEED_INCIDENTS.
+let incidentsIdCounter = Math.max(...SEED_INCIDENTS.map(i => i.id), 0) + 1
 
 function getIncidentsData(): Incident[] {
   return [...SEED_INCIDENTS, ...inMemoryIncidents]
@@ -198,7 +204,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
           : undefined
         apiIncident = formatIncidentForApi({ ...created, reporterName })
       } else {
-        const id = getIncidentsData().length + 1
+        const id = incidentsIdCounter++
         newIncident = {
           id,
           severity: severityValue,

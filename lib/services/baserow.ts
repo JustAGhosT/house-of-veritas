@@ -2239,11 +2239,11 @@ export async function getDocumentExpiryRows(): Promise<DocumentExpiryRow[]> {
   if (!isBaserowConfigured() || !tableIds.documentExpiry) {
     return []
   }
-  const result = await baserowFetch<{ results: BaserowRow[] }>(
+  const result = await baserowFetch<{ results: DocumentExpiryRowRaw[] }>(
     `/database/rows/table/${tableIds.documentExpiry}/?user_field_names=true&size=200`
   )
   if (!result?.results) return []
-  return result.results as DocumentExpiryRow[]
+  return result.results.map(mapBaserowToDocumentExpiryRow)
 }
 
 export async function updateDocumentExpiryRow(
@@ -2257,9 +2257,9 @@ export async function updateDocumentExpiryRow(
   if (updates.lastReview !== undefined) body["Last Review"] = updates.lastReview
   if (updates.status !== undefined) body["Status"] = updates.status
   if (Object.keys(body).length === 0) return null
-  const row = await baserowFetch<BaserowRow>(
+  const row = await baserowFetch<DocumentExpiryRowRaw>(
     `/database/rows/table/${tableIds.documentExpiry}/${id}/?user_field_names=true`,
     { method: "PATCH", body: JSON.stringify(body) }
   )
-  return row as DocumentExpiryRow | null
+  return row ? mapBaserowToDocumentExpiryRow(row) : null
 }

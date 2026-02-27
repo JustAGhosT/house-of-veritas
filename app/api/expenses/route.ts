@@ -31,13 +31,13 @@ function getDefaultRequesterId(): number {
       `Invalid DEFAULT_EXPENSE_REQUESTER_ID: "${envValue}". Expected a positive integer. Please check your environment configuration.`
     )
   }
-  
+
   if (process.env.NODE_ENV === "production") {
     throw new Error(
       "DEFAULT_EXPENSE_REQUESTER_ID environment variable is required in production but was not found."
     )
   }
-  
+
   // Only fallback in development/test if not provided
   return 1
 }
@@ -221,7 +221,6 @@ export const PATCH = withRole("admin")(async (request) => {
       }
 
       // Format amount using locale-aware formatter
-      const currencySymbol = process.env.CURRENCY_SYMBOL || "R"
       const formattedAmount = new Intl.NumberFormat("en-ZA", {
         style: "currency",
         currency: process.env.CURRENCY_CODE || "ZAR",
@@ -233,7 +232,7 @@ export const PATCH = withRole("admin")(async (request) => {
         title: "Secondary Approval Required",
         message: `Expense ${formattedAmount} needs secondary approval`,
         channels: ["in_app"],
-        data: { expenseId: id, amount: existing.amount },
+        data: { expenseId: numericId, amount: existing.amount },
         priority: "medium",
       })
       return withDataSource({ expense })
