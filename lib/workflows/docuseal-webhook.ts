@@ -38,7 +38,7 @@ export const docusealSubmissionCompleted = inngest.createFunction(
     const docRows = await getDocumentExpiryRows()
     const docRecord = docRows.find(
       (r) =>
-        r["Doc Name"]?.toLowerCase() === payload.templateName.toLowerCase()
+        r.docName?.toLowerCase() === payload.templateName.toLowerCase()
     )
     if (docRecord) {
       const lastReview = payload.completedAt.slice(0, 10)

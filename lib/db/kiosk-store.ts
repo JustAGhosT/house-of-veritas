@@ -19,8 +19,8 @@ export interface KioskFindOptions {
   limit?: number
   skip?: number
   employeeId?: string
-  type?: string
-  status?: string
+  type?: KioskRequestDoc["type"]
+  status?: KioskRequestDoc["status"]
   timestamp?: { $gte?: string }
 }
 

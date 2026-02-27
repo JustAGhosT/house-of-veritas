@@ -14,7 +14,7 @@ export const documentAgingAlert = inngest.createFunction(
     const aging: { id: number; name?: string; lastReview?: string }[] = []
 
     for (const d of docs) {
-      const lastReview = d["Last Review"]
+      const lastReview = d.lastReview
       if (!lastReview) continue
 
       const last = new Date(lastReview)
@@ -22,7 +22,7 @@ export const documentAgingAlert = inngest.createFunction(
       if (monthsSince >= AGING_MONTHS) {
         aging.push({
           id: d.id,
-          name: d["Doc Name"],
+          name: d.docName,
           lastReview,
         })
       }

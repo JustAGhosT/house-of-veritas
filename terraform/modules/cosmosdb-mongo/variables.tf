@@ -35,7 +35,7 @@ variable "throughput" {
 }
 
 variable "public_network_access_enabled" {
-  description = "Whether public network access is enabled. Defaults to false for production security."
+  description = "Whether public network access is enabled. Defaults to false for production security. All calling environments should explicitly set this value rather than relying on the default."
   type        = bool
   default     = false
 }

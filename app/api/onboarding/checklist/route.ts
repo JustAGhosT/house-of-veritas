@@ -1,10 +1,10 @@
 import { withRole } from "@/lib/auth/rbac"
 import { logger } from "@/lib/logger"
 import {
-    createOnboardingChecklist,
-    getOnboardingChecklists,
-    isOnboardingTableConfigured,
-    updateOnboardingChecklist,
+  createOnboardingChecklist,
+  getOnboardingChecklists,
+  isOnboardingTableConfigured,
+  updateOnboardingChecklist,
 } from "@/lib/services/baserow"
 import { toISODateString } from "@/lib/utils"
 import { routeToInngest } from "@/lib/workflows"
