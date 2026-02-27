@@ -46,13 +46,17 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
     setIsLoading(true)
     setError("")
 
-    const result = await login(email, password)
+    try {
+      const result = await login(email, password)
 
-    if (!result.success) {
-      setError(result.error || "Login failed")
-      setIsLoading(false)
-    } else {
-      onOpenChange(false)
+      if (!result.success) {
+        setError(result.error || "Login failed")
+      } else {
+        onOpenChange(false)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred")
+    } finally {
       setIsLoading(false)
     }
   }
@@ -217,20 +221,22 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
               </button>
             </form>
 
-            {/* Demo Credentials */}
-            <div className="mt-8 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
-              <p className="mb-2 text-sm font-medium text-amber-400">Demo Credentials</p>
-              <div className="grid grid-cols-2 gap-2 text-xs text-white/60">
-                <div>hans@houseofv.com</div>
-                <div className="text-white/40">hans123</div>
-                <div>charl@houseofv.com</div>
-                <div className="text-white/40">charl123</div>
-                <div>lucky@houseofv.com</div>
-                <div className="text-white/40">lucky123</div>
-                <div>irma@houseofv.com</div>
-                <div className="text-white/40">irma123</div>
+            {/* Demo Credentials - Development Only */}
+            {process.env.NODE_ENV === "development" && (
+              <div className="mt-8 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
+                <p className="mb-2 text-sm font-medium text-amber-400">Demo Credentials</p>
+                <div className="grid grid-cols-2 gap-2 text-xs text-white/60">
+                  <div>demo-user-1@example.com</div>
+                  <div className="text-white/40">password123</div>
+                  <div>demo-user-2@example.com</div>
+                  <div className="text-white/40">password123</div>
+                  <div>demo-user-3@example.com</div>
+                  <div className="text-white/40">password123</div>
+                  <div>demo-user-4@example.com</div>
+                  <div className="text-white/40">password123</div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
