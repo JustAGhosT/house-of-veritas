@@ -54,6 +54,8 @@ describe("GET /api/expenses", () => {
 describe("POST /api/expenses", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Set required env var for approver (different from submitter to avoid self-approval)
+    process.env.EXPENSE_APPROVER_ID = "charl"
   })
 
   it("returns 400 when required fields missing", async () => {
@@ -106,7 +108,7 @@ describe("POST /api/expenses", () => {
         category: "Supplies",
         approvalStatus: "Pending",
       }),
-      "hans"
+      "charl" // From EXPENSE_APPROVER_ID env var
     )
     process.env.USE_INNGEST_APPROVALS = orig
     spy.mockRestore()
