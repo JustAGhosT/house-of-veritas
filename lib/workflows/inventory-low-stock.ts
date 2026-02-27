@@ -15,10 +15,11 @@ function getNotifyUserId(category: string): string {
 export const inventoryLowStock = inngest.createFunction(
   { id: "inventory-low-stock", retries: 2 },
   { event: "house-of-veritas/inventory.low_stock" },
-  async ({ event }) => {
+  async ({ event, step }) => {
     const payload = event.data as InventoryLowStockPayload
     const userId = getNotifyUserId(payload.category)
-    await sendNotification({
+    await step.run("send-notification", async () => {
+      await sendNotification({
       type: "system_alert",
       userId,
       title: `Low Stock: ${payload.name}`,
@@ -32,6 +33,7 @@ export const inventoryLowStock = inngest.createFunction(
         urgency: payload.urgency,
       },
       priority: payload.urgency === "critical" ? "high" : "medium",
+      })
     })
     return { notified: true, itemId: payload.itemId }
   }

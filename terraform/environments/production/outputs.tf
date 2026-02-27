@@ -28,6 +28,27 @@ output "database_server_fqdn" {
   value       = module.database.server_fqdn
 }
 
+output "cosmos_account_name" {
+  description = "Cosmos DB account name"
+  value       = module.cosmos_mongo.account_name
+}
+
+output "cosmos_mongo_database_name" {
+  description = "Cosmos Mongo database name"
+  value       = module.cosmos_mongo.mongo_database_name
+}
+
+output "cosmos_mongo_collection_name" {
+  description = "Cosmos Mongo collection name"
+  value       = module.cosmos_mongo.mongo_collection_name
+}
+
+output "cosmos_mongo_connection_string" {
+  description = "Cosmos Mongo connection string"
+  value       = module.cosmos_mongo.mongo_connection_string
+  sensitive   = true
+}
+
 output "docuseal_container_id" {
   description = "ID of the DocuSeal container"
   value       = module.compute.docuseal_container_id

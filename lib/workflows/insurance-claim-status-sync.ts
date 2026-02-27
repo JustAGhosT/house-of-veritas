@@ -1,12 +1,13 @@
 import { inngest } from "@/lib/inngest/client"
-import { getInsuranceClaims, updateInsuranceClaim } from "@/lib/services/baserow"
 import { getClaimStatus } from "@/lib/integrations/insurance"
+import { getInsuranceClaims, updateInsuranceClaim } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 
 export const insuranceClaimStatusSync = inngest.createFunction(
   { id: "insurance-claim-status-sync", retries: 2 },
   { cron: "0 11 * * 1" },
-  async () => {
+  async ({ step }) => {
     const claims = await getInsuranceClaims({ status: "Submitted" })
     const claimsUnderReview = await getInsuranceClaims({ status: "Under Review" })
     const toSync = [...claims, ...claimsUnderReview]
@@ -32,14 +33,16 @@ export const insuranceClaimStatusSync = inngest.createFunction(
         updated++
 
         if (newStatus === "Approved" || newStatus === "Denied") {
-          await sendNotification({
+          await step.run(`notify-claim-${c.claimId}`, async () => {
+            await sendNotification({
             type: "system_alert",
-            userId: "hans",
+            userId: getAdminNotificationRecipient(),
             title: `Insurance Claim ${newStatus}`,
             message: `Claim ${c.claimId}: ${newStatus}`,
             channels: ["in_app"],
             data: { claimId: c.claimId, status: newStatus },
             priority: "medium",
+            })
           })
         }
       }

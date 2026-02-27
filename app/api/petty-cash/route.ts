@@ -5,6 +5,7 @@ import {
   updatePettyCashRequest,
   getBaserowEmployeeIdByAppId,
 } from "@/lib/services/baserow"
+import { resolveEmployeeForGet, resolveEmployeeForPost } from "@/lib/api/employee-resolver"
 import { withDataSource } from "@/lib/api/response"
 import { withRole } from "@/lib/auth/rbac"
 import { toISODateString } from "@/lib/utils"
@@ -19,19 +20,16 @@ export const GET = withRole(
   "operator",
   "employee",
   "resident"
-)(async (request) => {
+)(async (request, context) => {
   const { searchParams } = new URL(request.url)
-  const requesterParam = searchParams.get("requester")
-  const personaId = searchParams.get("personaId")
   const status = searchParams.get("status")
 
-  let requester: number | undefined
-  if (requesterParam) {
-    requester = parseInt(requesterParam, 10)
-    if (Number.isNaN(requester)) requester = undefined
-  } else if (personaId) {
-    requester = (await getBaserowEmployeeIdByAppId(personaId)) ?? undefined
-  }
+  const { employeeId: requester, error } = await resolveEmployeeForGet(
+    context,
+    searchParams,
+    { paramName: "requester" }
+  )
+  if (error) return error
 
   try {
     const requests = await getPettyCashRequests({
@@ -55,22 +53,19 @@ export const POST = withRole(
   "operator",
   "employee",
   "resident"
-)(async (request) => {
+)(async (request, context) => {
   try {
     const body = await request.json()
-    const { requester: reqParam, personaId, amount, purpose, receipt, notes } = body
+    const { amount, purpose, receipt, notes } = body
 
-    let requesterId = reqParam
-    if (!requesterId && personaId) {
-      requesterId = (await getBaserowEmployeeIdByAppId(personaId)) ?? undefined
-    }
-    if (!requesterId) {
-      const auth = request.headers.get("x-user-id")
-      requesterId = (await getBaserowEmployeeIdByAppId(auth || "")) ?? undefined
-    }
-    if (!requesterId) {
-      return NextResponse.json({ error: "Requester is required" }, { status: 400 })
-    }
+    const { employeeId: requesterId, error } = await resolveEmployeeForPost(
+      body,
+      request,
+      context,
+      { paramName: "requester", required: true }
+    )
+    if (error) return error
+    const resolvedRequesterId = requesterId!
 
     if (!amount || amount <= 0) {
       return NextResponse.json({ error: "Valid amount is required" }, { status: 400 })
@@ -80,7 +75,7 @@ export const POST = withRole(
       await routeToInngest({
         name: "house-of-veritas/petty.cash.policy.violation",
         data: {
-          requesterId,
+          requesterId: resolvedRequesterId,
           amount,
           purpose: purpose || "",
           reason: "Amount exceeds single-request limit",
@@ -95,7 +90,7 @@ export const POST = withRole(
     const now = new Date()
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
     const monthStartStr = toISODateString(monthStart)
-    const existing = await getPettyCashRequests({ requester: requesterId })
+    const existing = await getPettyCashRequests({ requester: resolvedRequesterId })
     const thisMonth = existing.filter((r) => {
       const created = r.createdAt || ""
       return created >= monthStartStr && (r.status === "Issued" || r.status === "Approved")
@@ -105,7 +100,7 @@ export const POST = withRole(
       await routeToInngest({
         name: "house-of-veritas/petty.cash.policy.violation",
         data: {
-          requesterId,
+          requesterId: resolvedRequesterId,
           amount,
           purpose: purpose || "",
           reason: "Monthly limit exceeded",
@@ -122,7 +117,7 @@ export const POST = withRole(
     }
 
     const pc = await createPettyCashRequest({
-      requester: requesterId,
+      requester: resolvedRequesterId,
       amount,
       purpose: purpose || "",
       receipt,
@@ -142,7 +137,7 @@ export const POST = withRole(
       name: "house-of-veritas/petty.cash.request.submitted",
       data: {
         id: pc.id,
-        requesterId,
+        requesterId: resolvedRequesterId,
         amount,
         purpose: pc.purpose,
       },
@@ -160,10 +155,10 @@ export const POST = withRole(
   }
 })
 
-export const PATCH = withRole("admin")(async (request) => {
+export const PATCH = withRole("admin")(async (request, context) => {
   try {
     const body = await request.json()
-    const { id, status, issuedBy, ...rest } = body
+    const { id, status, issuedBy, approvedBy, approvedAt, ...rest } = body
 
     if (!id) {
       return NextResponse.json({ error: "Petty cash ID is required" }, { status: 400 })
@@ -172,7 +167,35 @@ export const PATCH = withRole("admin")(async (request) => {
     const updates: Record<string, unknown> = { ...rest }
     if (status) updates.status = status
     if (issuedBy !== undefined) updates.issuedBy = issuedBy
+
+    if (status === "Approved" || status === "Issued") {
+      const approverId =
+        approvedBy ?? (await getBaserowEmployeeIdByAppId(context.userId))
+      if (!approverId || typeof approverId !== "number") {
+        return NextResponse.json(
+          {
+            error:
+              "Approved By (approver) is required when status is Approved or Issued",
+          },
+          { status: 400 }
+        )
+      }
+      updates.approvedBy = approverId
+      updates.approvedAt = approvedAt ?? toISODateString()
+    }
+
     if (status === "Issued") {
+      const issuerId = issuedBy ?? (await getBaserowEmployeeIdByAppId(context.userId))
+      if (!issuerId || typeof issuerId !== "number") {
+        return NextResponse.json(
+          {
+            error:
+              "Issued By (disbursement actor) is required when status is Issued",
+          },
+          { status: 400 }
+        )
+      }
+      updates.issuedBy = issuerId
       updates.issuedAt = toISODateString()
     }
 

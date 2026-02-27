@@ -226,7 +226,7 @@ Monthly leave accrual per BCEA.
 
 - Annual: 1.25 days/month (15/year)
 - Sick: 30 days/3-year cycle
-- Family: 3 days/year
+- Family Responsibility: 3 days/year
 
 ### 6. ExpenseNotification
 

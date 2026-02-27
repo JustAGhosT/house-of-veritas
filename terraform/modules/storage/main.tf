@@ -95,9 +95,9 @@ resource "azurerm_storage_management_policy" "lifecycle" {
 
     actions {
       base_blob {
-        tier_to_cool_after_days_since_modification_greater_than = 7
+        tier_to_cool_after_days_since_modification_greater_than    = 7
         tier_to_archive_after_days_since_modification_greater_than = 90
-        delete_after_days_since_modification_greater_than       = 365
+        delete_after_days_since_modification_greater_than          = 365
       }
     }
   }

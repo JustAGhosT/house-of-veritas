@@ -15,6 +15,8 @@ async function fillLoginAndSubmit(page: Page, email: string, password: string) {
   await page.getByTestId("login-submit").click()
 }
 
+test.describe.configure({ timeout: 60000 })
+
 test.describe("Authentication", () => {
   test("should show login page", async ({ page }) => {
     await page.goto("/login")

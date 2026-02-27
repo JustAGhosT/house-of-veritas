@@ -12,7 +12,7 @@ const SHOPPING_LEADER = process.env.SHOPPING_LEADER_USER_ID || "hans"
 export const shoppingListWeekly = inngest.createFunction(
   { id: "shopping-list-weekly", retries: 2 },
   { cron: "0 8 * * 1" },
-  async () => {
+  async ({ step }) => {
     try {
       const res = await fetch(`${BASE_URL}/api/inventory?lowStock=true`)
       if (!res.ok) return { generated: false }
@@ -32,7 +32,8 @@ export const shoppingListWeekly = inngest.createFunction(
         .filter(Boolean)
         .join("; ")
 
-      await sendNotification({
+      await step.run("send-notification", async () => {
+        await sendNotification({
         type: "system_alert",
         userId: SHOPPING_LEADER,
         title: `Weekly Shopping List: ${items.length} items to restock`,
@@ -40,6 +41,7 @@ export const shoppingListWeekly = inngest.createFunction(
         channels: ["in_app"],
         data: { itemCount: items.length },
         priority: "medium",
+        })
       })
 
       return { generated: true, itemCount: items.length }

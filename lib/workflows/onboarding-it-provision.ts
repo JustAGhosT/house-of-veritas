@@ -5,12 +5,13 @@ import {
   updateEmployee,
 } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { toISODateString } from "@/lib/utils"
 
 export const onboardingItProvision = inngest.createFunction(
   { id: "onboarding-it-provision", retries: 2 },
   { event: "house-of-veritas/onboarding.checklist.progressed" },
-  async ({ event }) => {
+  async ({ event, step }) => {
     const data = event.data as { checklistId?: number; employeeId?: number }
     const checklistId = data?.checklistId
     const employeeId = data?.employeeId
@@ -22,14 +23,16 @@ export const onboardingItProvision = inngest.createFunction(
       })
     }
 
-    await sendNotification({
-      type: "task_assigned",
-      userId: "hans",
-      title: "IT Provisioning Required",
-      message: `Create accounts and equipment for new employee ${employeeId || "unknown"}`,
-      channels: ["in_app"],
-      data: { checklistId, employeeId },
-      priority: "medium",
+    await step.run("send-notification", async () => {
+      await sendNotification({
+        type: "task_assigned",
+        userId: getAdminNotificationRecipient(),
+        title: "IT Provisioning Required",
+        message: `Create accounts and equipment for new employee ${employeeId || "unknown"}`,
+        channels: ["in_app"],
+        data: { checklistId, employeeId },
+        priority: "medium",
+      })
     })
 
     return { notified: true }

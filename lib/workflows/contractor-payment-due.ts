@@ -1,11 +1,13 @@
 import { inngest } from "@/lib/inngest/client"
 import { getContractorContracts } from "@/lib/services/baserow"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
+import { formatCurrency } from "@/lib/workflows/utils"
 
 export const contractorPaymentDue = inngest.createFunction(
   { id: "contractor-payment-due", retries: 2 },
   { cron: "0 8 * * *" },
-  async () => {
+  async ({ step }) => {
     const contracts = await getContractorContracts({ status: "Active" })
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -38,17 +40,19 @@ export const contractorPaymentDue = inngest.createFunction(
       }
     }
 
-    for (const p of duePayments) {
-      await sendNotification({
-        type: "approval_required",
-        userId: "hans",
-        title: "Contractor Payment Due",
-        message: `Contract ${p.contractId} (${p.project}): R${p.amount.toLocaleString()} due today`,
-        channels: ["in_app"],
-        data: { contractId: p.contractId, project: p.project, amount: p.amount },
-        priority: "medium",
-      })
-    }
+    await step.run("send-notifications", async () => {
+      for (const p of duePayments) {
+        await sendNotification({
+          type: "approval_required",
+          userId: getAdminNotificationRecipient(),
+          title: "Contractor Payment Due",
+          message: `Contract ${p.contractId} (${p.project}): ${formatCurrency(p.amount)} due today`,
+          channels: ["in_app"],
+          data: { contractId: p.contractId, project: p.project, amount: p.amount },
+          priority: "medium",
+        })
+      }
+    })
 
     return { contractsChecked: contracts.length, paymentsDue: duePayments.length }
   }

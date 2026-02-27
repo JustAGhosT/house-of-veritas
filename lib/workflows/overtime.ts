@@ -4,6 +4,7 @@ import {
   getTimeClockEntriesPaginated,
   updateTimeClockEntry,
 } from "@/lib/services/baserow"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
 import { toISODateString } from "@/lib/utils"
 
@@ -41,7 +42,7 @@ function parseHours(
 export const overtimeCalculate = inngest.createFunction(
   { id: "overtime-calculate", retries: 2 },
   { cron: "0 23 * * 0" },
-  async () => {
+  async ({ step }) => {
     const employees = await getEmployees()
     const now = new Date()
     const { start, end } = getWeekRange(now)
@@ -74,14 +75,16 @@ export const overtimeCalculate = inngest.createFunction(
     }
 
     if (reports.length > 0) {
-      await sendNotification({
+      await step.run("send-notification", async () => {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: `Weekly Overtime: ${reports.length} employees need approval`,
         message: reports.map((r) => `${r.name}: ${r.overtimeHours.toFixed(1)}h OT`).join("; "),
         channels: ["in_app"],
         data: { weekStart: start, weekEnd: end, count: reports.length },
         priority: "high",
+        })
       })
     }
 

@@ -72,6 +72,7 @@ terraform/
     ├── storage/                 Storage account, containers, lifecycle
     ├── security/                Key Vault, access policies, secrets
     ├── database/                PostgreSQL Flexible Server, databases, DNS
+    ├── cosmosdb-mongo/           Cosmos DB (Mongo API)
     ├── compute/                 Container Instances, file shares, KV access
     ├── gateway/                 Application Gateway, public IP, WAF
     ├── cognitive/               Document Intelligence (OCR)

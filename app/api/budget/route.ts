@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server"
-import {
-  getBudgets,
-  createBudget,
-  updateBudget,
-} from "@/lib/services/baserow"
 import { withDataSource } from "@/lib/api/response"
 import { withRole } from "@/lib/auth/rbac"
 import { logger } from "@/lib/logger"
+import {
+  createBudget,
+  getBudgets,
+  updateBudget,
+} from "@/lib/services/baserow"
+import { NextResponse } from "next/server"
 
 export const GET = withRole("admin", "operator")(async (request) => {
   const { searchParams } = new URL(request.url)
@@ -29,12 +29,34 @@ export const GET = withRole("admin", "operator")(async (request) => {
 
 export const POST = withRole("admin")(async (request) => {
   try {
-    const body = await request.json()
-    const { category, amount, period, notes } = body
+    let body: Record<string, unknown>
+    try {
+      body = await request.json()
+    } catch (err) {
+      if (err instanceof SyntaxError) {
+        return NextResponse.json(
+          { error: "Malformed JSON in request body" },
+          { status: 400 }
+        )
+      }
+      throw err
+    }
 
-    if (!category || amount == null) {
+    const { category, amount: rawAmount, period, notes } = body
+
+    // Validate category is present
+    if (!category || typeof category !== "string") {
       return NextResponse.json(
-        { error: "Category and amount are required" },
+        { error: "Category is required and must be a string" },
+        { status: 400 }
+      )
+    }
+
+    // Validate amount is numeric, finite, and positive
+    const amount = Number(rawAmount)
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return NextResponse.json(
+        { error: "Amount must be a positive finite number" },
         { status: 400 }
       )
     }
@@ -43,10 +65,10 @@ export const POST = withRole("admin")(async (request) => {
     const budget = await createBudget({
       category,
       amount,
-      period: period || String(year),
+      period: (typeof period === "string" ? period : String(year)),
       version: 1,
       status: "Draft",
-      notes,
+      notes: typeof notes === "string" ? notes : undefined,
     })
 
     if (!budget) {
@@ -62,16 +84,62 @@ export const POST = withRole("admin")(async (request) => {
   }
 })
 
+// Allowed fields for budget updates
+const ALLOWED_BUDGET_UPDATE_FIELDS = ["name", "amount", "category", "notes", "period", "status"] as const
+
+type AllowedBudgetUpdateField = (typeof ALLOWED_BUDGET_UPDATE_FIELDS)[number]
+
 export const PATCH = withRole("admin")(async (request) => {
   try {
-    const body = await request.json()
-    const { id, ...updates } = body
+    let body: Record<string, unknown>
+    try {
+      body = await request.json()
+    } catch (err) {
+      if (err instanceof SyntaxError) {
+        return NextResponse.json(
+          { error: "Malformed JSON in request body" },
+          { status: 400 }
+        )
+      }
+      throw err
+    }
+
+    const { id, ...rawUpdates } = body
 
     if (!id) {
       return NextResponse.json({ error: "Budget ID is required" }, { status: 400 })
     }
 
-    const budget = await updateBudget(id, updates)
+    // Explicitly pick and validate allowed update fields
+    const allowedUpdates: Partial<Record<AllowedBudgetUpdateField, unknown>> = {}
+
+    for (const field of ALLOWED_BUDGET_UPDATE_FIELDS) {
+      if (field in rawUpdates) {
+        allowedUpdates[field] = rawUpdates[field]
+      }
+    }
+
+    // Validate amount if present
+    if ("amount" in allowedUpdates) {
+      const amount = Number(allowedUpdates.amount)
+      if (!Number.isFinite(amount) || amount <= 0) {
+        return NextResponse.json(
+          { error: "Amount must be a positive finite number" },
+          { status: 400 }
+        )
+      }
+      allowedUpdates.amount = amount
+    }
+
+    // Check if any valid fields remain
+    if (Object.keys(allowedUpdates).length === 0) {
+      return NextResponse.json(
+        { error: "No valid fields to update. Allowed fields: " + ALLOWED_BUDGET_UPDATE_FIELDS.join(", ") },
+        { status: 400 }
+      )
+    }
+
+    const budget = await updateBudget(Number(id), allowedUpdates as Parameters<typeof updateBudget>[1])
 
     if (!budget) {
       return NextResponse.json({ error: "Budget not found" }, { status: 404 })

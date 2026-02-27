@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server"
 import { withAuth } from "@/lib/auth/rbac"
+import { withErrorHandling } from "@/lib/api/error-handler"
+import { createSuggestionHandler } from "@/lib/api/ai-suggestion-handler"
 import { suggestExpenseCategory } from "@/lib/ai/azure-foundry"
 
 const EXPENSE_CATEGORIES = [
@@ -12,23 +13,23 @@ const EXPENSE_CATEGORIES = [
   "Other",
 ]
 
-export const POST = withAuth(async (request: Request) => {
-  try {
-    const body = await request.json()
-    const { vendor, description } = body
-
-    const suggested = await suggestExpenseCategory({
-      vendor: vendor || undefined,
-      description: description || undefined,
+export const POST = withAuth(
+  withErrorHandling(
+    createSuggestionHandler<{ vendor?: string; description?: string }>({
+      validate: (body) => ({
+        input: {
+          vendor: body.vendor as string | undefined,
+          description: body.description as string | undefined,
+        },
+      }),
+      suggest: (input) =>
+        suggestExpenseCategory({
+          vendor: input.vendor,
+          description: input.description,
+          options: EXPENSE_CATEGORIES,
+        }),
       options: EXPENSE_CATEGORIES,
-    })
-
-    return NextResponse.json({
-      suggested: suggested || EXPENSE_CATEGORIES[0],
-      options: EXPENSE_CATEGORIES,
-      aiPowered: !!suggested,
-    })
-  } catch (err) {
-    return NextResponse.json({ error: "Suggestion failed" }, { status: 500 })
-  }
-})
+    }),
+    { operation: "Suggest expense category failed", fallbackMessage: "Suggestion failed" }
+  )
+)

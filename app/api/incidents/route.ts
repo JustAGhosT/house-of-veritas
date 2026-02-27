@@ -91,43 +91,45 @@ async function loadIncidentsWithNames(incidents: Incident[]) {
   return result
 }
 
-export async function GET() {
-  try {
-    const useBaserow = isIncidentsTableConfigured()
+export const GET = withRole("admin", "operator", "employee", "resident")(
+  async () => {
+    try {
+      const useBaserow = isIncidentsTableConfigured()
 
-    let incidents: Awaited<ReturnType<typeof loadIncidentsWithNames>>
-    if (useBaserow) {
-      const baserowIncidents = await getIncidents()
-      incidents = await loadIncidentsWithNames(baserowIncidents)
-    } else {
-      incidents = await loadIncidentsWithNames(SEED_INCIDENTS)
-    }
+      let incidents: Awaited<ReturnType<typeof loadIncidentsWithNames>>
+      if (useBaserow) {
+        const baserowIncidents = await getIncidents()
+        incidents = await loadIncidentsWithNames(baserowIncidents)
+      } else {
+        incidents = await loadIncidentsWithNames(SEED_INCIDENTS)
+      }
 
-    const summary = {
-      total: incidents.length,
-      resolved: incidents.filter((i) => i.status === "Resolved").length,
-      inProgress: incidents.filter((i) => i.status === "In Progress").length,
-      pending: incidents.filter((i) => i.status === "Pending" || i.status === "Reported").length,
-      bySeverity: {
-        High: incidents.filter((i) => i.severity === "High").length,
-        Medium: incidents.filter((i) => i.severity === "Medium").length,
-        Low: incidents.filter((i) => i.severity === "Low").length,
-        Critical: incidents.filter((i) => i.severity === "Critical").length,
-      },
-      byType: {} as Record<string, number>,
-    }
-    for (const i of incidents) {
-      summary.byType[i.type] = (summary.byType[i.type] || 0) + 1
-    }
+      const summary = {
+        total: incidents.length,
+        resolved: incidents.filter((i) => i.status === "Resolved").length,
+        inProgress: incidents.filter((i) => i.status === "In Progress").length,
+        pending: incidents.filter((i) => i.status === "Pending" || i.status === "Reported").length,
+        bySeverity: {
+          High: incidents.filter((i) => i.severity === "High").length,
+          Medium: incidents.filter((i) => i.severity === "Medium").length,
+          Low: incidents.filter((i) => i.severity === "Low").length,
+          Critical: incidents.filter((i) => i.severity === "Critical").length,
+        },
+        byType: {} as Record<string, number>,
+      }
+      for (const i of incidents) {
+        summary.byType[i.type] = (summary.byType[i.type] || 0) + 1
+      }
 
-    return NextResponse.json({ incidents, summary })
-  } catch (error) {
-    logger.error("GET incidents error", {
-      error: error instanceof Error ? error.message : String(error),
-    })
-    return NextResponse.json({ error: "Failed to fetch incidents" }, { status: 500 })
+      return NextResponse.json({ incidents, summary })
+    } catch (error) {
+      logger.error("GET incidents error", {
+        error: error instanceof Error ? error.message : String(error),
+      })
+      return NextResponse.json({ error: "Failed to fetch incidents" }, { status: 500 })
+    }
   }
-}
+)
 
 export const POST = withRole("admin", "operator", "employee", "resident")(
   async (request) => {
@@ -151,6 +153,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
         )
       }
 
+      const severityValue = severity as Incident["severity"]
       const now = new Date()
       const dateTime = now.toISOString().slice(0, 19)
       const reporterId =
@@ -158,7 +161,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
 
       const useBaserow = isIncidentsTableConfigured()
 
-      let newIncident: { id: number; severity: string; victimSupportPath: boolean }
+      let newIncident: { id: number; severity: Incident["severity"]; victimSupportPath: boolean }
       let apiIncident: ReturnType<typeof formatIncidentForApi>
 
       if (useBaserow) {
@@ -168,7 +171,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
           location,
           reporter: reporterId,
           description,
-          severity,
+          severity: severityValue,
           status: "Reported",
           victimSupportPath: !!victimSupportPath,
         })
@@ -191,7 +194,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
         const id = SEED_INCIDENTS.length + 1
         newIncident = {
           id,
-          severity,
+          severity: severityValue,
           victimSupportPath: !!victimSupportPath,
         }
         const inMemory: Incident = {
@@ -201,7 +204,7 @@ export const POST = withRole("admin", "operator", "employee", "resident")(
           location: location || "",
           reporter: reporterId,
           description,
-          severity,
+          severity: severityValue,
           status: "Reported",
           victimSupportPath: !!victimSupportPath,
         }

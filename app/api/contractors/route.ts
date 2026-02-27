@@ -1,15 +1,19 @@
-import { NextResponse } from "next/server"
 import { withRole } from "@/lib/auth/rbac"
-import { readFile, writeFile, mkdir } from "fs/promises"
-import { join } from "path"
-import { routeToInngest } from "@/lib/workflows"
 import { logger } from "@/lib/logger"
+import { routeToInngest } from "@/lib/workflows"
+import { existsSync } from "fs"
+import { mkdir, open, readFile, unlink, writeFile } from "fs/promises"
+import { NextResponse } from "next/server"
+import { join } from "path"
+
+const MILESTONE_STATUSES = ["Pending", "In Progress", "Paid", "Completed"] as const
+type MilestoneStatus = (typeof MILESTONE_STATUSES)[number]
 
 interface Milestone {
   stage: string
   percentage: number
   amount: number
-  status: "Pending" | "In Progress" | "Paid" | "Completed"
+  status: MilestoneStatus
   paidDate: string | null
   dueDate: string
 }
@@ -84,28 +88,65 @@ async function loadContractors(): Promise<Contractor[]> {
 
 async function saveContractors(contractors: Contractor[]): Promise<void> {
   await mkdir(join(process.cwd(), "data"), { recursive: true })
-  await writeFile(CONTRACTORS_PATH, JSON.stringify(contractors, null, 2), "utf-8")
+  if (!existsSync(CONTRACTORS_PATH)) {
+    await writeFile(CONTRACTORS_PATH, "[]", "utf-8")
+  }
+  const release = await acquireFileLock(CONTRACTORS_PATH)
+  try {
+    await writeFile(CONTRACTORS_PATH, JSON.stringify(contractors, null, 2), "utf-8")
+  } finally {
+    await release()
+  }
+}
+
+async function acquireFileLock(
+  targetPath: string,
+  retries = 5,
+  delayMs = 50
+): Promise<() => Promise<void>> {
+  const lockPath = `${targetPath}.lock`
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const handle = await open(lockPath, "wx")
+      return async () => {
+        await handle.close()
+        await unlink(lockPath).catch(() => {})
+      }
+    } catch (error) {
+      const err = error as NodeJS.ErrnoException
+      if (err?.code !== "EEXIST" || attempt === retries) {
+        throw error
+      }
+      await new Promise((resolve) => setTimeout(resolve, delayMs))
+    }
+  }
+  throw new Error("Failed to acquire lock")
 }
 
 function recalcContractor(c: Contractor): Contractor {
   const paid = c.milestones.filter((m) => m.status === "Paid" || m.status === "Completed")
   const totalPaid = paid.reduce((s, m) => s + m.amount, 0)
   const remaining = c.contractAmount - totalPaid
-  const progress = Math.round((totalPaid / c.contractAmount) * 100)
+  // Protect against division by zero: only calculate progress when contractAmount > 0
+  const progress = c.contractAmount > 0
+    ? Math.min(100, Math.max(0, Math.round((totalPaid / c.contractAmount) * 100)))
+    : 0
   return { ...c, totalPaid, remaining, progress }
 }
 
 export async function GET() {
   try {
     const contractors = await loadContractors()
+    // Protect against division by zero when contractors array is empty
+    const averageProgress = contractors.length
+      ? Math.round(contractors.reduce((sum, c) => sum + c.progress, 0) / contractors.length)
+      : 0
     const summary = {
       totalContracts: contractors.length,
       totalContractValue: contractors.reduce((sum, c) => sum + c.contractAmount, 0),
       totalPaid: contractors.reduce((sum, c) => sum + c.totalPaid, 0),
       totalRemaining: contractors.reduce((sum, c) => sum + c.remaining, 0),
-      averageProgress: Math.round(
-        contractors.reduce((sum, c) => sum + c.progress, 0) / contractors.length
-      ),
+      averageProgress,
     }
     return NextResponse.json({ contractors, summary })
   } catch (err) {
@@ -128,12 +169,21 @@ export const PATCH = withRole("admin")(async (request, context) => {
       )
     }
 
+    // Validate inputs as integers before using them to index arrays
+    const contractorIdNum = Number(contractorId)
+    const mIdx = Number(milestoneIndex)
+    if (!Number.isInteger(contractorIdNum) || !Number.isInteger(mIdx)) {
+      return NextResponse.json(
+        { error: "contractorId and milestoneIndex must be integers" },
+        { status: 400 }
+      )
+    }
+
     const contractors = await loadContractors()
-    const cIdx = contractors.findIndex((c) => c.id === contractorId)
+    const cIdx = contractors.findIndex((c) => c.id === contractorIdNum)
     if (cIdx === -1) return NextResponse.json({ error: "Contractor not found" }, { status: 404 })
 
     const contractor = contractors[cIdx]
-    const mIdx = Number(milestoneIndex)
     if (mIdx < 0 || mIdx >= contractor.milestones.length) {
       return NextResponse.json({ error: "Milestone not found" }, { status: 404 })
     }
@@ -142,7 +192,14 @@ export const PATCH = withRole("admin")(async (request, context) => {
     const milestone = contractor.milestones[mIdx]
 
     if (status) {
-      milestone.status = status as Milestone["status"]
+      // Validate status against allowed whitelist
+      if (!MILESTONE_STATUSES.includes(status as MilestoneStatus)) {
+        return NextResponse.json(
+          { error: `Invalid status. Allowed values: ${MILESTONE_STATUSES.join(", ")}` },
+          { status: 400 }
+        )
+      }
+      milestone.status = status as MilestoneStatus
     }
     if (paidDate !== undefined) {
       milestone.paidDate = paidDate || null
@@ -150,6 +207,10 @@ export const PATCH = withRole("admin")(async (request, context) => {
 
     contractors[cIdx] = recalcContractor(contractor)
 
+    // Persist changes before emitting events to ensure data is saved
+    await saveContractors(contractors)
+
+    // Emit event only after successful persistence
     if (
       (milestone.status === "Paid" || milestone.status === "Completed") &&
       prevStatus !== "Paid" &&
@@ -166,8 +227,6 @@ export const PATCH = withRole("admin")(async (request, context) => {
         },
       })
     }
-
-    await saveContractors(contractors)
     return NextResponse.json({ contractor: contractors[cIdx] })
   } catch (err) {
     logger.error("Failed to update contractor milestone", {

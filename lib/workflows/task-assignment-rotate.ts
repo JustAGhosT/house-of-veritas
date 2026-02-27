@@ -1,18 +1,13 @@
 import { inngest } from "@/lib/inngest/client"
 import { getTasks, getEmployees } from "@/lib/services/baserow"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
-
-const BASEROW_ID_TO_APP_ID: Record<number, string> = {
-  1: "hans",
-  2: "charl",
-  3: "lucky",
-  4: "irma",
-}
+import { BASEROW_ID_TO_APP_ID } from "./constants"
 
 export const taskAssignmentRotate = inngest.createFunction(
   { id: "task-assignment-rotate", retries: 2 },
   { cron: "0 6 * * 1" },
-  async () => {
+  async ({ step }) => {
     const allTasks = await getTasks()
     const tasks = allTasks.filter((t) => t.status !== "Completed")
     const employees = await getEmployees()
@@ -31,14 +26,16 @@ export const taskAssignmentRotate = inngest.createFunction(
     )
 
     if (overloaded.length > 0) {
-      await sendNotification({
-        type: "system_alert",
-        userId: "hans",
-        title: "Task Load Imbalance",
-        message: `${overloaded.length} employee(s) have significantly more tasks - consider rotation`,
-        channels: ["in_app"],
-        data: { overloadedCount: overloaded.length },
-        priority: "low",
+      await step.run("send-notification", async () => {
+        await sendNotification({
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: "Task Load Imbalance",
+          message: `${overloaded.length} employee(s) have significantly more tasks - consider rotation`,
+          channels: ["in_app"],
+          data: { overloadedCount: overloaded.length },
+          priority: "low",
+        })
       })
     }
 

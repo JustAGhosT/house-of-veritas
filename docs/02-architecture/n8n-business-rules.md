@@ -9,7 +9,7 @@ cd config
 docker compose up -d n8n
 ```
 
-Access n8n at http://localhost:5678. Default credentials: admin / changeme (override via `N8N_BASIC_AUTH_USER` and `N8N_BASIC_AUTH_PASSWORD`).
+Access n8n at http://localhost:5678. Create an owner account on first use or configure secure authentication before production. **MUST change before production** — never use default or guessable credentials. The env vars `N8N_BASIC_AUTH_USER` and `N8N_BASIC_AUTH_PASSWORD` are deprecated/legacy in n8n v1; use n8n's built-in user management instead.
 
 ## Connectors
 
@@ -17,7 +17,11 @@ Access n8n at http://localhost:5678. Default credentials: admin / changeme (over
 2. **SendGrid** — For email notifications
 3. **Twilio** — For SMS (incident escalation)
 4. **WhatsApp** — For staff notifications (optional)
+Verify each finding against the current code and only fix it if needed.
 
+In @docs/02-architecture/n8n-business-rules.md around lines 92 - 101, The example POST to n8n via the fetch call is unsafe: add an explicit environment guard for process.env.N8N_WEBHOOK_URL (throw or return early if missing), include an Authorization header or webhook secret when calling `${process.env.N8N_WEBHOOK_URL}/webhook/expense-created`, and wrap the fetch in try/catch plus check response.ok (and log or throw on non-2xx) so failures aren’t silently ignored; update the example around the fetch invocation, the N8N_WEBHOOK_URL usage, and headers to implement these checks and error handling.Verify each finding against the current code and only fix it if needed.
+
+In @docs/02-architecture/n8n-business-rules.md around lines 92 - 101, The webhook POST example lacks authentication, an env-var guard, and error handling; update the code around the fetch call that builds the URL using process.env.N8N_WEBHOOK_URL to first validate the env var and throw a clear config error if missing, add an Authorization header (or configurable WEBHOOK_SECRET) to the headers passed to fetch, and handle the fetch response by checking response.ok and throwing/logging a descriptive error (including response.status/text) or retrying as appropriate so non-2xx responses are not silently ignored.
 ## Business Rules to Implement
 
 ### Core Rules (Priority)
@@ -27,7 +31,7 @@ Access n8n at http://localhost:5678. Default credentials: admin / changeme (over
 | Expense > R5k | Webhook on expense created | `amount > 5000` | Notify Hans; secondary approval |
 | Incident High/Critical | Webhook on incident created | `severity` in [High, Critical] | SMS Hans via Twilio |
 | Task Overdue > 3 days | Daily or Baserow webhook | `status !== Completed` AND `dueDate` < today - 3 | Notify Hans; escalate |
-| Vehicle Mileage > 100k | Webhook on vehicle log | `odometerEnd` or `odometerStart` > 100000 | Create maintenance task; notify Charl |
+| Mileage > 100k | Vehicle log webhook | `odometerEnd` or `odometerStart` > 100k | Create task; notify Charl |
 
 ### Employee & Onboarding (n8n)
 
@@ -81,7 +85,7 @@ Events emitted by Inngest/Next.js that n8n can consume:
 | `house-of-veritas/petty.cash.request.submitted` | id, requesterId, amount, purpose | Petty cash approval |
 | `house-of-veritas/petty.cash.policy.violation` | requesterId, amount, reason | Policy violation alert |
 | `house-of-veritas/kitchen.cross.contamination` | taskId, description, location | Cross-contamination escalation |
-| `house-of-veritas/employee.created` | employeeId | Reference verification trigger |
+| `house-of-veritas/employee.created` | employeeId, name, email | Welcome email, checklist, ID doc upload |
 | `house-of-veritas/onboarding.checklist.progressed` | checklistId, employeeId | IT provisioning trigger |
 | `house-of-veritas/succession.live.test` | successorId, duration | Live succession test |
 

@@ -1,21 +1,31 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { GET, POST, PATCH } from "@/app/api/expenses/route"
+import { GET, PATCH, POST } from "@/app/api/expenses/route"
 import * as eventStore from "@/lib/realtime/event-store"
 import * as workflows from "@/lib/workflows"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+vi.mock("@/lib/services/notification-service", () => ({
+  sendNotification: vi.fn().mockResolvedValue([]),
+}))
 
 vi.mock("@/lib/services/baserow", () => {
   const mockExpenses = [
     { id: 1, requester: 1, requesterName: "Hans", category: "Supplies", amount: 100, approvalStatus: "Pending" as const },
     { id: 2, requester: 2, requesterName: "Charl", category: "Materials", amount: 200, approvalStatus: "Approved" as const },
+    { id: 3, requester: 1, requesterName: "Hans", category: "Materials", amount: 6000, approvalStatus: "Pending" as const },
+    { id: 4, requester: 2, requesterName: "Charl", category: "Supplies", amount: 8000, approvalStatus: "Pending Secondary" as const },
   ]
   return {
     getExpenses: vi.fn().mockResolvedValue(mockExpenses),
+    getExpense: vi.fn().mockImplementation((id: number) =>
+      Promise.resolve(mockExpenses.find((e) => e.id === id) || null)
+    ),
     createExpense: vi.fn().mockImplementation((expense: Record<string, unknown>) =>
       Promise.resolve({ ...expense, id: Date.now(), approvalStatus: "Pending" })
     ),
-    updateExpense: vi.fn().mockImplementation((id: number, updates: Record<string, unknown>) =>
-      Promise.resolve({ id, requester: 1, category: "Supplies", amount: 150, ...mockExpenses[0], ...updates })
-    ),
+    updateExpense: vi.fn().mockImplementation((id: number, updates: Record<string, unknown>) => {
+      const existing = mockExpenses.find((e) => e.id === id) || mockExpenses[0]
+      return Promise.resolve({ ...existing, ...updates })
+    }),
     getBaserowEmployeeIdByAppId: vi.fn().mockResolvedValue(1),
     isBaserowConfigured: vi.fn().mockReturnValue(false),
   }
@@ -147,7 +157,7 @@ describe("PATCH /api/expenses", () => {
         "x-user-email": "charl@houseofv.com",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: 1, approvalStatus: "Approved" }),
+      body: JSON.stringify({ id: 1, status: "Approved" }),
     })
     const response = await PATCH(request)
     expect(response.status).toBe(403)
@@ -157,11 +167,54 @@ describe("PATCH /api/expenses", () => {
     const request = new Request("http://localhost/api/expenses", {
       method: "PATCH",
       headers: { ...adminHeaders, "Content-Type": "application/json" },
-      body: JSON.stringify({ id: 1, approvalStatus: "Approved" }),
+      body: JSON.stringify({ id: 1, status: "Approved" }),
     })
     const response = await PATCH(request)
     expect(response.status).toBe(200)
     const data = await response.json()
     expect(data).toHaveProperty("expense")
+  })
+
+  it("transitions high-value Pending to Pending Secondary on first approval", async () => {
+    const request = new Request("http://localhost/api/expenses", {
+      method: "PATCH",
+      headers: { ...adminHeaders, "Content-Type": "application/json" },
+      body: JSON.stringify({ id: 3, status: "Approved" }),
+    })
+    const response = await PATCH(request)
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.expense.approvalStatus).toBe("Pending Secondary")
+  })
+
+  it("transitions Pending Secondary to Approved on secondary approval", async () => {
+    const request = new Request("http://localhost/api/expenses", {
+      method: "PATCH",
+      headers: { ...adminHeaders, "Content-Type": "application/json" },
+      body: JSON.stringify({ id: 4, status: "Approved" }),
+    })
+    const response = await PATCH(request)
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.expense.approvalStatus).toBe("Approved")
+  })
+
+  it("calls sendNotification during secondary approval step", async () => {
+    const { sendNotification } = await import("@/lib/services/notification-service")
+    vi.mocked(sendNotification).mockClear()
+
+    const request = new Request("http://localhost/api/expenses", {
+      method: "PATCH",
+      headers: { ...adminHeaders, "Content-Type": "application/json" },
+      body: JSON.stringify({ id: 3, status: "Approved" }),
+    })
+    await PATCH(request)
+    expect(sendNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "approval_required",
+        userId: "hans",
+        title: "Secondary Approval Required",
+      })
+    )
   })
 })

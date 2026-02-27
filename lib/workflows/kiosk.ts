@@ -1,5 +1,7 @@
 import { inngest } from "@/lib/inngest/client"
 import { sendNotification, type NotificationChannel } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
+import { formatCurrency, runNotificationStep } from "@/lib/workflows/utils"
 import type { KioskRequestPayload } from "./schema"
 
 const TYPE_LABELS: Record<string, string> = {
@@ -11,14 +13,14 @@ const TYPE_LABELS: Record<string, string> = {
 export const kioskRequestSubmitted = inngest.createFunction(
   { id: "kiosk-request-submitted", retries: 2 },
   { event: "house-of-veritas/kiosk.request.submitted" },
-  async ({ event }) => {
+  async ({ event, step }) => {
     const request = event.data as KioskRequestPayload
     const d = request.data as Record<string, unknown>
     let description = ""
     if (request.type === "stock_order") {
       description = `${d.quantity}x ${d.itemName}`
     } else if (request.type === "salary_advance") {
-      description = `R${d.amount} - ${d.reason}`
+      description = `${formatCurrency(Number(d.amount) || 0)} - ${d.reason}`
     } else if (request.type === "issue_report") {
       description = `${d.assetName} - ${d.issueType}`
     }
@@ -28,9 +30,10 @@ export const kioskRequestSubmitted = inngest.createFunction(
       channels.push("sms")
     }
 
-    await sendNotification({
+    await runNotificationStep(step, async () => {
+      await sendNotification({
       type: "approval_required",
-      userId: "hans",
+      userId: getAdminNotificationRecipient(),
       title: `New ${TYPE_LABELS[request.type]}`,
       message: `${request.employeeName} submitted: ${description}`,
       channels,
@@ -41,6 +44,7 @@ export const kioskRequestSubmitted = inngest.createFunction(
         description,
       },
       priority: d.urgency === "urgent" || d.issueType === "safety" ? "urgent" : "medium",
+      })
     })
 
     return { notified: true, requestId: request.requestId }

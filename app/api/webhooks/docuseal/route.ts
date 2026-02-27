@@ -24,7 +24,7 @@ function validateSignature(
     return true
   }
 
-  if (!signature) return false
+  if (!secret || !signature) return false
   try {
     const expected = createHmac("sha256", secret).update(body).digest("hex")
     const sigBuf = Buffer.from(signature, "hex")

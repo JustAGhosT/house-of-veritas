@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server"
-import {
-  getEmployees,
-  getEmployee,
-  createEmployee,
-  isEmployeesTableConfigured,
-} from "@/lib/services/baserow"
 import { withDataSource } from "@/lib/api/response"
 import { withRole } from "@/lib/auth/rbac"
-import { routeToInngest } from "@/lib/workflows"
 import { logger } from "@/lib/logger"
+import {
+  createEmployee,
+  getEmployee,
+  getEmployees,
+  isEmployeesTableConfigured,
+} from "@/lib/services/baserow"
+import { routeToInngest } from "@/lib/workflows"
+import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -46,7 +46,19 @@ export const POST = withRole("admin")(
           { status: 503 }
         )
       }
-      const body = await request.json()
+      let body: Record<string, unknown>
+      try {
+        body = await request.json()
+      } catch (err) {
+        if (err instanceof SyntaxError) {
+          return NextResponse.json(
+            { error: "Malformed JSON in request body" },
+            { status: 400 }
+          )
+        }
+        throw err
+      }
+
       const {
         fullName,
         idNumber,
@@ -55,7 +67,7 @@ export const POST = withRole("admin")(
         email,
         phone,
         leaveBalance = 0,
-      } = body
+      } = body as Record<string, unknown>
 
       if (!fullName || !email) {
         return NextResponse.json(
@@ -65,13 +77,13 @@ export const POST = withRole("admin")(
       }
 
       const employee = await createEmployee({
-        fullName,
-        idNumber,
-        role,
-        employmentStartDate: employmentStartDate || undefined,
-        email,
-        phone: phone || "",
-        leaveBalance,
+        fullName: String(fullName),
+        idNumber: idNumber ? String(idNumber) : undefined,
+        role: String(role),
+        employmentStartDate: typeof employmentStartDate === "string" ? employmentStartDate : undefined,
+        email: String(email),
+        phone: typeof phone === "string" ? phone : "",
+        leaveBalance: typeof leaveBalance === "number" ? leaveBalance : 0,
       })
 
       if (!employee) {
@@ -81,10 +93,25 @@ export const POST = withRole("admin")(
         )
       }
 
-      await routeToInngest({
-        name: "house-of-veritas/employee.created",
-        data: { employeeId: employee.id },
-      })
+      // Wrap routeToInngest in its own try-catch to prevent workflow errors from affecting response
+      try {
+        await routeToInngest({
+          name: "house-of-veritas/employee.created",
+          data: {
+            employeeId: employee.id,
+            name: employee.fullName,
+            email: employee.email,
+          },
+        })
+      } catch (inngestError) {
+        logger.error("Failed to emit employee.created event", {
+          error: inngestError instanceof Error ? inngestError.message : String(inngestError),
+          employeeId: employee.id,
+          email: employee.email,
+          name: employee.fullName,
+        })
+        // Continue with success response - employee was created successfully
+      }
 
       return withDataSource({ employee })
     } catch (error) {

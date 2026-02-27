@@ -2,18 +2,12 @@ import { inngest } from "@/lib/inngest/client"
 import { createTask, getEmployees } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
 import { toISODateString } from "@/lib/utils"
-
-const BASEROW_ID_TO_APP_ID: Record<number, string> = {
-  1: "hans",
-  2: "charl",
-  3: "lucky",
-  4: "irma",
-}
+import { BASEROW_ID_TO_APP_ID } from "./constants"
 
 export const incidentHazardWalk = inngest.createFunction(
   { id: "incident-hazard-walk", retries: 2 },
   { cron: "0 8 * * 1" },
-  async () => {
+  async ({ step }) => {
     const employees = await getEmployees()
     const assignees = employees.filter((e) => e.role === "Employee")
     const assignee = assignees[0]
@@ -31,7 +25,8 @@ export const incidentHazardWalk = inngest.createFunction(
 
     if (task) {
       const appId = BASEROW_ID_TO_APP_ID[assignee.id] ?? "hans"
-      await sendNotification({
+      await step.run("send-notification", async () => {
+        await sendNotification({
         type: "task_assigned",
         userId: appId,
         title: "Hazard Walk Assigned",
@@ -39,6 +34,7 @@ export const incidentHazardWalk = inngest.createFunction(
         channels: ["in_app"],
         data: { taskId: task.id },
         priority: "medium",
+        })
       })
     }
 

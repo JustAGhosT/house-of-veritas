@@ -1,11 +1,12 @@
 import { inngest } from "@/lib/inngest/client"
 import { getTasks } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 
 export const taskFailurePropagate = inngest.createFunction(
   { id: "task-failure-propagate", retries: 2 },
   { cron: "0 8 * * *" },
-  async () => {
+  async ({ step }) => {
     const allTasks = await getTasks()
     const tasks = allTasks.filter((t) => t.status !== "Completed")
     const overdue = tasks.filter((t) => {
@@ -16,9 +17,10 @@ export const taskFailurePropagate = inngest.createFunction(
     const criticalOverdue = overdue.filter((t) => t.priority === "High" || t.priority === "Urgent")
 
     if (criticalOverdue.length > 0) {
-      await sendNotification({
+      await step.run("send-notification", async () => {
+        await sendNotification({
         type: "system_alert",
-        userId: "hans",
+        userId: getAdminNotificationRecipient(),
         title: "Critical Task Failure - Blocking Risk",
         message: `${criticalOverdue.length} critical/urgent task(s) overdue - may block dependent workflows`,
         channels: ["in_app"],
@@ -27,6 +29,7 @@ export const taskFailurePropagate = inngest.createFunction(
           count: criticalOverdue.length,
         },
         priority: "urgent",
+        })
       })
     }
 

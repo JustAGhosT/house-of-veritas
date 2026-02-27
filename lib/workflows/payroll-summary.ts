@@ -1,5 +1,6 @@
 import { inngest } from "@/lib/inngest/client"
 import { getEmployees, getTimeClockEntriesPaginated } from "@/lib/services/baserow"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
 import { toISODateString } from "@/lib/utils"
 
@@ -12,7 +13,7 @@ function getMonthRange(d: Date): { start: string; end: string } {
 export const payrollSummary = inngest.createFunction(
   { id: "payroll-summary", retries: 2 },
   { cron: "0 8 1 * *" },
-  async () => {
+  async ({ step }) => {
     const now = new Date()
     const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
     const { start, end } = getMonthRange(prevMonth)
@@ -45,9 +46,10 @@ export const payrollSummary = inngest.createFunction(
     const totalRegular = summary.reduce((s, r) => s + r.totalHours - r.overtimeHours, 0)
     const totalOvertime = summary.reduce((s, r) => s + r.overtimeHours, 0)
 
-    await sendNotification({
+    await step.run("send-notification", async () => {
+      await sendNotification({
       type: "system_alert",
-      userId: "hans",
+      userId: getAdminNotificationRecipient(),
       title: `Payroll Summary: ${prevMonth.toLocaleString("default", { month: "long" })} ${prevMonth.getFullYear()}`,
       message: `Total regular: ${totalRegular.toFixed(1)}h, overtime: ${totalOvertime.toFixed(1)}h. ${summary.length} employees.`,
       channels: ["in_app"],
@@ -58,6 +60,7 @@ export const payrollSummary = inngest.createFunction(
         totalOvertime,
       },
       priority: "medium",
+      })
     })
 
     return { employeesReported: summary.length, totalRegular, totalOvertime }
