@@ -432,11 +432,11 @@ terraform output -raw cosmos_mongo_connection_string
 
 **App configuration keys:**
 
-| Key                         | Source                                                  |
-| --------------------------- | ------------------------------------------------------- |
-| `COSMOS_MONGO_CONNECTION`   | `terraform output -raw cosmos_mongo_connection_string`  |
-| `COSMOS_MONGO_DATABASE`     | `terraform output cosmos_mongo_database_name`           |
-| `COSMOS_MONGO_COLLECTION`   | `kiosk_requests` (default)                              |
+| Key                       | Source                                                 |
+| ------------------------- | ------------------------------------------------------ |
+| `COSMOS_MONGO_CONNECTION` | `terraform output -raw cosmos_mongo_connection_string` |
+| `COSMOS_MONGO_DATABASE`   | `terraform output cosmos_mongo_database_name`          |
+| `COSMOS_MONGO_COLLECTION` | `kiosk_requests` (default)                             |
 
 **Usage examples:**
 
@@ -491,14 +491,14 @@ const pending = await collection.find({ status: "pending" }).toArray();
 
 **Collection: `kiosk_requests`**
 
-| Field         | Type   | Description                              |
-| ------------- | ------ | ---------------------------------------- |
-| `type`        | string | `stock_order`, `salary_advance`, `issue_report` |
-| `employeeId`  | string | Employee identifier                      |
-| `employeeName`| string | Display name                             |
-| `data`        | object | Request-specific payload                 |
-| `timestamp`   | string | ISO 8601 timestamp                       |
-| `status`      | string | `pending`, `approved`, `rejected`, `completed` |
+| Field          | Type   | Description                                     |
+| -------------- | ------ | ----------------------------------------------- |
+| `type`         | string | `stock_order`, `salary_advance`, `issue_report` |
+| `employeeId`   | string | Employee identifier                             |
+| `employeeName` | string | Display name                                    |
+| `data`         | object | Request-specific payload                        |
+| `timestamp`    | string | ISO 8601 timestamp                              |
+| `status`       | string | `pending`, `approved`, `rejected`, `completed`  |
 
 **Configuring apps to use Cosmos Mongo API:**
 
