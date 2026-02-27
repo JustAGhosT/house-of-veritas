@@ -24,14 +24,14 @@ export const documentExpiryCheck = inngest.createFunction(
     }> = []
 
     for (const doc of documents) {
-      const nextReview = doc["Next Review"] ?? ""
+      const nextReview = doc.nextReview ?? ""
       const days = daysUntil(nextReview || undefined, 999) ?? 999
       const level = getAlertLevel(days)
       if (level !== "OK") {
         alerts.push({
           doc,
-          docName: doc["Doc Name"] ?? "Unknown",
-          docType: doc["Type"] ?? "Unknown",
+          docName: doc.docName ?? "Unknown",
+          docType: doc.type ?? "Unknown",
           nextReview,
           days,
           level,
