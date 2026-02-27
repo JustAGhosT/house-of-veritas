@@ -1,12 +1,12 @@
 import { inngest } from "@/lib/inngest/client"
 import {
-  getEmployees,
   getDocumentExpiryRows,
-  updateEmployee,
+  getEmployees,
   updateDocumentExpiryRow,
+  updateEmployee,
 } from "@/lib/services/baserow"
-import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import type { DocuSealSubmissionPayload } from "./schema"
 
 export const docusealSubmissionCompleted = inngest.createFunction(
@@ -38,7 +38,7 @@ export const docusealSubmissionCompleted = inngest.createFunction(
     const docRows = await getDocumentExpiryRows()
     const docRecord = docRows.find(
       (r) =>
-        r["Doc Name"]?.toLowerCase() === payload.templateName.toLowerCase()
+        r.docName?.toLowerCase() === payload.templateName.toLowerCase()
     )
     if (docRecord) {
       const lastReview = payload.completedAt.slice(0, 10)

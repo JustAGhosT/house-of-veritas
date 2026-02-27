@@ -114,16 +114,24 @@ export const GET = withAuth(async (request) => {
     const { store, mode } = await getKioskStore()
     const { searchParams } = new URL(request.url)
     const employeeId = searchParams.get("employeeId")
-    const type = searchParams.get("type")
-    const status = searchParams.get("status")
+    const typeParam = searchParams.get("type")
+    const statusParam = searchParams.get("status")
 
-    const query: Record<string, unknown> = {}
-    if (employeeId) query.employeeId = employeeId
-    if (type) query.type = type
-    if (status) query.status = status
+    const validTypes = ["stock_order", "salary_advance", "issue_report"] as const
+    const validStatuses = ["pending", "approved", "rejected", "completed"] as const
 
-    const requests = await store.find(query)
-    const allRequests = await store.find({})
+    const options = {
+      employeeId: employeeId || undefined,
+      type: validTypes.includes(typeParam as (typeof validTypes)[number])
+        ? (typeParam as KioskRequestDoc["type"])
+        : undefined,
+      status: validStatuses.includes(statusParam as (typeof validStatuses)[number])
+        ? (statusParam as KioskRequestDoc["status"])
+        : undefined,
+    }
+
+    const requests = await store.find(options)
+    const allRequests = await store.find()
     const summary = {
       total: allRequests.length,
       pending: allRequests.filter((r) => r.status === "pending").length,
@@ -289,16 +297,25 @@ export const PATCH = withRole("admin")(async (request, context) => {
             itemId: restocked.id,
           })
         }
-        await routeToInngest({
-          name: "house-of-veritas/kiosk.stock_order.approved",
-          data: {
-            requestId: requestId,
+        try {
+          await routeToInngest({
+            name: "house-of-veritas/kiosk.stock_order.approved",
+            data: {
+              requestId: requestId,
+              itemName,
+              quantity,
+              employeeId: updatedRequest.employeeId,
+              reviewedBy: context.userId,
+            },
+          })
+        } catch (inngestError) {
+          logger.error("Kiosk: Failed to route approved stock order to Inngest", {
+            requestId,
             itemName,
-            quantity,
-            employeeId: updatedRequest.employeeId,
             reviewedBy: context.userId,
-          },
-        })
+            error: inngestError instanceof Error ? inngestError.message : String(inngestError),
+          })
+        }
       }
     }
 

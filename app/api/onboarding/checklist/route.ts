@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server"
-import {
-  getOnboardingChecklists,
-  createOnboardingChecklist,
-  updateOnboardingChecklist,
-  isOnboardingTableConfigured,
-} from "@/lib/services/baserow"
 import { withRole } from "@/lib/auth/rbac"
-import { routeToInngest } from "@/lib/workflows"
 import { logger } from "@/lib/logger"
+import {
+  createOnboardingChecklist,
+  getOnboardingChecklists,
+  isOnboardingTableConfigured,
+  updateOnboardingChecklist,
+} from "@/lib/services/baserow"
 import { toISODateString } from "@/lib/utils"
+import { routeToInngest } from "@/lib/workflows"
+import { NextResponse } from "next/server"
 
 export const GET = withRole("admin", "operator")(
   async (request: Request) => {

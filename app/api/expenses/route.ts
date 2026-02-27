@@ -19,19 +19,47 @@ import { NextResponse } from "next/server"
 const HIGH_VALUE_THRESHOLD = 5000
 
 // Default requester ID fallback when employee resolution fails
-// In production, this should be configured via environment variable
+// In production, this must be configured via environment variable
 function getDefaultRequesterId(): number {
   if (process.env.DEFAULT_EXPENSE_REQUESTER_ID) {
     const parsed = parseInt(process.env.DEFAULT_EXPENSE_REQUESTER_ID, 10)
     if (Number.isInteger(parsed) && parsed > 0) {
       return parsed
     }
-    // Log warning for invalid env value but continue with fallback
-    console.warn(`Invalid DEFAULT_EXPENSE_REQUESTER_ID: ${process.env.DEFAULT_EXPENSE_REQUESTER_ID}, using fallback`)
+    // In production, throw an error instead of silently falling back
+    if (process.env.NODE_ENV === "production") {
+      logger.error(
+        `Invalid DEFAULT_EXPENSE_REQUESTER_ID: ${process.env.DEFAULT_EXPENSE_REQUESTER_ID}`
+      )
+      throw new Error(
+        `Invalid DEFAULT_EXPENSE_REQUESTER_ID: "${process.env.DEFAULT_EXPENSE_REQUESTER_ID}". ` +
+          `Must be a positive integer. Set a valid DEFAULT_EXPENSE_REQUESTER_ID environment variable.`
+      )
+    }
+    // Log warning for invalid env value but continue with fallback in non-production
+    console.warn(
+      `Invalid DEFAULT_EXPENSE_REQUESTER_ID: ${process.env.DEFAULT_EXPENSE_REQUESTER_ID}, using fallback`
+    )
+  }
+  // In production, require the environment variable to be set
+  if (process.env.NODE_ENV === "production") {
+    logger.error("DEFAULT_EXPENSE_REQUESTER_ID is not set")
+    throw new Error(
+      "DEFAULT_EXPENSE_REQUESTER_ID environment variable is required in production. " +
+        "Set a valid positive integer value."
+    )
   }
   return 1
 }
-const DEFAULT_REQUESTER_ID = getDefaultRequesterId()
+
+// Lazy-evaluated default requester ID to avoid build-time errors
+let _defaultRequesterId: number | undefined
+function getDefaultRequesterIdLazy(): number {
+  if (_defaultRequesterId === undefined) {
+    _defaultRequesterId = getDefaultRequesterId()
+  }
+  return _defaultRequesterId
+}
 
 export const GET = withRole(
   "admin",
@@ -47,11 +75,9 @@ export const GET = withRole(
       const { searchParams } = new URL(request.url)
       const status = searchParams.get("status")
 
-      const { employeeId: requester, error } = await resolveEmployeeForGet(
-        context,
-        searchParams,
-        { paramName: "requester" }
-      )
+      const { employeeId: requester, error } = await resolveEmployeeForGet(context, searchParams, {
+        paramName: "requester",
+      })
       if (error) return error
 
       const expenses = await getExpenses({
@@ -96,7 +122,7 @@ export const POST = withRole(
       { paramName: "requester", required: false, fallbackToCaller: true }
     )
     if (error) return error
-    const finalRequester = resolvedRequester ?? DEFAULT_REQUESTER_ID
+    const finalRequester = resolvedRequester ?? getDefaultRequesterIdLazy()
 
     if (!amount || !category) {
       return NextResponse.json({ error: "Amount and category are required" }, { status: 400 })
@@ -115,17 +141,30 @@ export const POST = withRole(
     })
 
     const useInngest = process.env.USE_INNGEST_APPROVALS === "true"
+    // Use authenticated context userId instead of trusting headers
+    const authenticatedUserId = context?.userId
     if (!useInngest) {
-      // Resolve approver dynamically from env or request context - no hardcoded fallback
-      const approverId = process.env.EXPENSE_APPROVER_ID || request.headers.get("x-user-id")
+      // Require EXPENSE_APPROVER_ID to be explicitly set - do not allow self-approval fallback
+      const approverId = process.env.EXPENSE_APPROVER_ID
       if (!approverId) {
         return NextResponse.json(
-          { error: "Unable to determine approver: EXPENSE_APPROVER_ID env var or x-user-id header required" },
+          {
+            error: "EXPENSE_APPROVER_ID environment variable must be configured",
+          },
+          { status: 400 }
+        )
+      }
+      // Prevent self-approval
+      if (approverId === authenticatedUserId) {
+        return NextResponse.json(
+          {
+            error: "Self-approval is not allowed. Approver must be different from submitter.",
+          },
           { status: 400 }
         )
       }
       emitApprovalRequired(
-        { ...expense, type: "expense", submittedBy: request.headers.get("x-user-id") || "unknown" },
+        { ...expense, type: "expense", submittedBy: authenticatedUserId || "unknown" },
         approverId
       )
     }
@@ -134,7 +173,7 @@ export const POST = withRole(
         name: "house-of-veritas/expense.created",
         data: {
           ...expense,
-          submittedBy: request.headers.get("x-user-id") || "unknown",
+          submittedBy: authenticatedUserId || "unknown",
         },
       })
     }
@@ -149,6 +188,9 @@ export const POST = withRole(
 })
 
 export const PATCH = withRole("admin")(async (request, context) => {
+  if (!context?.userId) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+  }
   try {
     const body = await request.json()
     const { id, status, secondaryApprover, ...rest } = body
@@ -174,28 +216,19 @@ export const PATCH = withRole("admin")(async (request, context) => {
 
     const isHighValue = existing.amount >= HIGH_VALUE_THRESHOLD
     if (status === "Approved" && isHighValue && existing.approvalStatus === "Pending") {
-      // Validate notification recipient BEFORE mutating state
-      const notificationUserId = request.headers.get("x-user-id") || process.env.EXPENSE_APPROVER_ID
+      // Use authenticated context.userId as the source of truth — avoids x-user-id spoofing
+      const notificationUserId = context.userId || process.env.EXPENSE_APPROVER_ID
       if (!notificationUserId) {
         return NextResponse.json(
-          { error: "Unable to determine notification recipient: x-user-id header or EXPENSE_APPROVER_ID env var required" },
+          { error: "Unable to determine notification recipient: authentication required" },
           { status: 400 }
         )
       }
 
-      // Validate x-user-id header for approver resolution
-      const currentUserId = request.headers.get("x-user-id")
-      if (!currentUserId) {
-        return NextResponse.json(
-          { error: "x-user-id header is required for approval" },
-          { status: 400 }
-        )
-      }
-
-      const approverId = await getBaserowEmployeeIdByAppId(currentUserId)
+      const approverId = await getBaserowEmployeeIdByAppId(context.userId)
       if (!approverId) {
         return NextResponse.json(
-          { error: "Could not resolve approver from x-user-id" },
+          { error: "Could not resolve approver from authenticated user" },
           { status: 400 }
         )
       }
@@ -211,7 +244,6 @@ export const PATCH = withRole("admin")(async (request, context) => {
       }
 
       // Format amount using locale-aware formatter
-      const currencySymbol = process.env.CURRENCY_SYMBOL || "R"
       const formattedAmount = new Intl.NumberFormat("en-ZA", {
         style: "currency",
         currency: process.env.CURRENCY_CODE || "ZAR",
@@ -223,18 +255,43 @@ export const PATCH = withRole("admin")(async (request, context) => {
         title: "Secondary Approval Required",
         message: `Expense ${formattedAmount} needs secondary approval`,
         channels: ["in_app"],
-        data: { expenseId: id, amount: existing.amount },
+        data: { expenseId: numericId, amount: existing.amount },
         priority: "medium",
       })
       return withDataSource({ expense })
     }
 
-    if (
-      status === "Approved" &&
-      existing.approvalStatus === "Pending Secondary"
-    ) {
-      const secondaryApproverId =
-        secondaryApprover ?? (await getBaserowEmployeeIdByAppId(context.userId)) ?? 1
+    if (status === "Approved" && existing.approvalStatus === "Pending Secondary") {
+      let secondaryApproverId: number | undefined
+      if (secondaryApprover != null) {
+        // Validate secondaryApprover: must be a positive integer
+        const numericApprover = Number(secondaryApprover)
+        if (
+          !Number.isFinite(numericApprover) ||
+          !Number.isInteger(numericApprover) ||
+          numericApprover <= 0
+        ) {
+          return NextResponse.json(
+            {
+              error: "Invalid secondaryApprover: must be a positive integer",
+            },
+            { status: 400 }
+          )
+        }
+        secondaryApproverId = numericApprover
+      } else {
+        const resolvedId = await getBaserowEmployeeIdByAppId(context.userId)
+        if (!resolvedId) {
+          return NextResponse.json(
+            {
+              error:
+                "Failed to resolve secondary approver. Provide secondaryApprover or ensure user has a valid employee mapping.",
+            },
+            { status: 400 }
+          )
+        }
+        secondaryApproverId = resolvedId
+      }
       Object.assign(updates, {
         approvalStatus: "Approved",
         secondaryApprover: secondaryApproverId,

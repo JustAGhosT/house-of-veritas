@@ -1,7 +1,7 @@
 import { inngest } from "@/lib/inngest/client"
 import { getDocumentExpiryRows } from "@/lib/services/baserow"
-import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
+import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { AGING_MONTHS } from "./constants"
 
 export const documentAgingAlert = inngest.createFunction(
@@ -14,7 +14,7 @@ export const documentAgingAlert = inngest.createFunction(
     const aging: { id: number; name?: string; lastReview?: string }[] = []
 
     for (const d of docs) {
-      const lastReview = d["Last Review"]
+      const lastReview = d.lastReview
       if (!lastReview) continue
 
       const last = new Date(lastReview)
@@ -22,7 +22,7 @@ export const documentAgingAlert = inngest.createFunction(
       if (monthsSince >= AGING_MONTHS) {
         aging.push({
           id: d.id,
-          name: d["Doc Name"],
+          name: d.docName,
           lastReview,
         })
       }
@@ -31,13 +31,13 @@ export const documentAgingAlert = inngest.createFunction(
     if (aging.length > 0) {
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: "Aging Documents - Mandatory Review",
-        message: `${aging.length} document(s) not reviewed in ${AGING_MONTHS}+ months`,
-        channels: ["in_app"],
-        data: { docIds: aging.map((a) => a.id) },
-        priority: "medium",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: "Aging Documents - Mandatory Review",
+          message: `${aging.length} document(s) not reviewed in ${AGING_MONTHS}+ months`,
+          channels: ["in_app"],
+          data: { docIds: aging.map((a) => a.id) },
+          priority: "medium",
         })
       })
     }

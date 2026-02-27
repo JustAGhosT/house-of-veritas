@@ -68,7 +68,18 @@ export async function resolveEmployeeForPost(
     fallbackToCaller = true,
   } = options
 
-  const paramValue = body[paramName] ?? body.requester ?? body.employee
+  // Read body[paramName] first; apply cross-fallback for requester/employee
+  let paramValue = body[paramName]
+  if (paramValue == null) {
+    if (paramName === "requester") {
+      paramValue = body.employee
+    } else if (paramName === "employee") {
+      paramValue = body.requester
+    } else {
+      paramValue = body.requester ?? body.employee
+    }
+  }
+
   const personaId = body.personaId as string | undefined
 
   let employeeId: number | undefined

@@ -29,6 +29,11 @@ Resource Groups
     │   ├── nl-prod-hov-pg-san         PostgreSQL Flexible (B_Standard_B1ms)
     │   │   ├── docuseal_production    Database
     │   │   └── baserow_production     Database
+    │   ├── nl-prod-hov-cosmos-san     Cosmos DB (Mongo API)
+    │   │   └── house_of_veritas       Database for kiosk requests, audit fallback
+    │   │       ├── Network: Private endpoints with VNet integration
+    │   │       ├── Private DNS Zone: privatelink.mongo.cosmos.azure.com
+    │   │       └── Access: Managed identity (production) / connection string fallback (local/dev)
     │   └── Private DNS Zone           private.postgres.database.azure.com
     │
     ├── Storage
@@ -43,6 +48,7 @@ Resource Groups
     ├── Security
     │   └── nl-prod-hov-kv-san         Key Vault (standard)
     │       ├── db-admin-password
+    │       ├── cosmos-connection-string  (fallback for local/dev; rotate regularly)
     │       ├── docuseal-secret-key
     │       ├── baserow-secret-key
     │       └── smtp-password
@@ -139,9 +145,10 @@ Document Intelligence (nl-prod-hov-di-san)
 | Service                  | SKU               | Est. Cost (ZAR)               |
 | ------------------------ | ----------------- | ----------------------------- |
 | PostgreSQL Flexible      | B_Standard_B1ms   | R400                          |
+| Cosmos DB (Mongo API)    | 400 RU/s          | R150                          |
 | Container Instances (x2) | 2 CPU / 4 GB each | R300                          |
 | Application Gateway      | WAF_v2 (1 unit)   | R150                          |
 | Storage Account          | Standard GRS      | R50                           |
 | Key Vault + DNS          | Standard          | R50                           |
 | Document Intelligence    | S0                | R0 (free tier for low volume) |
-| **Total**                |                   | **~R950**                     |
+| **Total**                |                   | **~R1100**                    |

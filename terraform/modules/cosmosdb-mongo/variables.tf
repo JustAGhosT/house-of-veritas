@@ -24,13 +24,18 @@ variable "mongo_collection_name" {
 }
 
 variable "throughput" {
-  description = "Provisioned throughput (RU/s)"
+  description = "Provisioned throughput (RU/s). Must be between 400 and 1000000."
   type        = number
   default     = 400
+
+  validation {
+    condition     = var.throughput >= 400 && var.throughput <= 1000000
+    error_message = "Throughput must be between 400 and 1000000 RU/s."
+  }
 }
 
 variable "public_network_access_enabled" {
-  description = "Whether public network access is enabled"
+  description = "Whether public network access is enabled. Defaults to true for backward compatibility. SECURITY NOTICE: This default will change to false in a future release. All calling modules/environments should explicitly set public_network_access_enabled = false for production security before the enforced change."
   type        = bool
   default     = true
 }
@@ -42,9 +47,14 @@ variable "enable_free_tier" {
 }
 
 variable "consistency_level" {
-  description = "Consistency level"
+  description = "Consistency level. Allowed values: Eventual, ConsistentPrefix, Session, BoundedStaleness, Strong"
   type        = string
   default     = "Session"
+
+  validation {
+    condition     = contains(["Eventual", "ConsistentPrefix", "Session", "BoundedStaleness", "Strong"], var.consistency_level)
+    error_message = "Consistency level must be one of: Eventual, ConsistentPrefix, Session, BoundedStaleness, Strong."
+  }
 }
 
 variable "tags" {

@@ -2063,15 +2063,45 @@ function getMockVehicleLogs(): VehicleLog[] {
   ]
 }
 
-export interface DocumentExpiryRow {
+export interface DocumentExpiryRowRaw {
   id: number
   "Doc Name"?: string
   Type?: string
   "Last Review"?: string
   "Next Review"?: string
-  "Party Responsible"?: Array<{ id: number }>
+  "Party Responsible"?: Array<{ id: number; value: string }>
   "Superseded By"?: number[]
   "Version Blocked"?: boolean
+  "DocuSeal Ref"?: string
+  Status?: string
+}
+
+export interface DocumentExpiryRow {
+  id: number
+  docName: string
+  type: string
+  lastReview?: string
+  nextReview?: string
+  partyResponsible?: number[]
+  supersededBy?: number[]
+  versionBlocked: boolean
+  docuSealRef?: string
+  status?: string
+}
+
+export function mapBaserowToDocumentExpiryRow(raw: DocumentExpiryRowRaw): DocumentExpiryRow {
+  return {
+    id: raw.id,
+    docName: raw["Doc Name"] || "Untitled Document",
+    type: raw.Type || "General",
+    lastReview: raw["Last Review"],
+    nextReview: raw["Next Review"],
+    partyResponsible: raw["Party Responsible"]?.map(p => p.id),
+    supersededBy: raw["Superseded By"],
+    versionBlocked: !!raw["Version Blocked"],
+    docuSealRef: raw["DocuSeal Ref"],
+    status: raw.Status,
+  }
 }
 
 export interface LeaveRequest {
@@ -2209,11 +2239,11 @@ export async function getDocumentExpiryRows(): Promise<DocumentExpiryRow[]> {
   if (!isBaserowConfigured() || !tableIds.documentExpiry) {
     return []
   }
-  const result = await baserowFetch<{ results: BaserowRow[] }>(
+  const result = await baserowFetch<{ results: DocumentExpiryRowRaw[] }>(
     `/database/rows/table/${tableIds.documentExpiry}/?user_field_names=true&size=200`
   )
   if (!result?.results) return []
-  return result.results as DocumentExpiryRow[]
+  return result.results.map(mapBaserowToDocumentExpiryRow)
 }
 
 export async function updateDocumentExpiryRow(
@@ -2227,9 +2257,9 @@ export async function updateDocumentExpiryRow(
   if (updates.lastReview !== undefined) body["Last Review"] = updates.lastReview
   if (updates.status !== undefined) body["Status"] = updates.status
   if (Object.keys(body).length === 0) return null
-  const row = await baserowFetch<BaserowRow>(
+  const row = await baserowFetch<DocumentExpiryRowRaw>(
     `/database/rows/table/${tableIds.documentExpiry}/${id}/?user_field_names=true`,
     { method: "PATCH", body: JSON.stringify(body) }
   )
-  return row as DocumentExpiryRow | null
+  return row ? mapBaserowToDocumentExpiryRow(row) : null
 }

@@ -11,6 +11,7 @@ This guide covers end-to-end deployment of the House of Veritas platform on Azur
 | DocuSeal              | Document signing & templates     | Container Instance |
 | Baserow               | Operational tracking & data      | Container Instance |
 | PostgreSQL            | Application databases            | Flexible Server    |
+| Cosmos DB (Mongo)     | Kiosk requests, audit fallback   | Cosmos DB          |
 | Blob Storage          | Documents, backups, asset photos | Storage Account    |
 | Document Intelligence | OCR scanning for documents       | Cognitive Services |
 | Application Gateway   | SSL termination, WAF, routing    | App Gateway WAF v2 |
@@ -24,11 +25,12 @@ Internet → Application Gateway (WAF + SSL) → Container Instances → Postgre
                                                     ↓
                                               Blob Storage
                                               Document Intelligence
+                                              Cosmos DB (Mongo API)
 ```
 
 - **Domain:** nexamesh.ai (docs.nexamesh.ai, ops.nexamesh.ai)
 - **Region:** South Africa North
-- **Monthly cost:** ~R950
+- **Monthly cost:** ~R1100
 
 ---
 
@@ -417,6 +419,94 @@ container.upload_blob(name=filename, data=file_data, overwrite=True)
 | `asset-uploads` | Asset registry photos          | No auto-tiering              |
 | `tfstate`       | Terraform state files          | Versioned                    |
 
+### 7.4 Cosmos DB (Mongo API)
+
+Provisioned automatically by the `cosmosdb-mongo` Terraform module as `nl-prod-hov-cosmos-san`.
+
+**Retrieve credentials:**
+
+```powershell
+terraform output cosmos_mongo_database_name
+terraform output -raw cosmos_mongo_connection_string
+```
+
+**App configuration keys:**
+
+| Key                         | Source                                                  |
+| --------------------------- | ------------------------------------------------------- |
+| `COSMOS_MONGO_CONNECTION`   | `terraform output -raw cosmos_mongo_connection_string`  |
+| `COSMOS_MONGO_DATABASE`     | `terraform output cosmos_mongo_database_name`           |
+| `COSMOS_MONGO_COLLECTION`   | `kiosk_requests` (default)                              |
+
+**Usage examples:**
+
+Python (pymongo):
+
+```python
+from pymongo import MongoClient
+import os
+
+client = MongoClient(os.environ["COSMOS_MONGO_CONNECTION"])
+db = client[os.environ["COSMOS_MONGO_DATABASE"]]
+collection = db["kiosk_requests"]
+
+# Insert a kiosk request
+doc = {
+    "type": "stock_order",
+    "employeeId": "lucky",
+    "employeeName": "Lucky",
+    "data": {"itemName": "Garden tools", "quantity": 5},
+    "timestamp": "2025-01-15T10:30:00Z",
+    "status": "pending"
+}
+collection.insert_one(doc)
+
+# Query pending requests
+pending = collection.find({"status": "pending"})
+```
+
+Node.js (mongodb driver):
+
+```typescript
+import { MongoClient } from "mongodb";
+
+const client = new MongoClient(process.env.COSMOS_MONGO_CONNECTION!);
+await client.connect();
+const db = client.db(process.env.COSMOS_MONGO_DATABASE);
+const collection = db.collection("kiosk_requests");
+
+// Insert a kiosk request
+await collection.insertOne({
+  type: "stock_order",
+  employeeId: "lucky",
+  employeeName: "Lucky",
+  data: { itemName: "Garden tools", quantity: 5 },
+  timestamp: new Date().toISOString(),
+  status: "pending"
+});
+
+// Query pending requests
+const pending = await collection.find({ status: "pending" }).toArray();
+```
+
+**Collection: `kiosk_requests`**
+
+| Field         | Type   | Description                              |
+| ------------- | ------ | ---------------------------------------- |
+| `type`        | string | `stock_order`, `salary_advance`, `issue_report` |
+| `employeeId`  | string | Employee identifier                      |
+| `employeeName`| string | Display name                             |
+| `data`        | object | Request-specific payload                 |
+| `timestamp`   | string | ISO 8601 timestamp                       |
+| `status`      | string | `pending`, `approved`, `rejected`, `completed` |
+
+**Configuring apps to use Cosmos Mongo API:**
+
+1. Set environment variables from Terraform outputs
+2. Install `pymongo` (Python) or use MongoDB drivers for your language
+3. Connect using the connection string (includes auth credentials)
+4. Use the database name `house_of_veritas` (or your configured value)
+
 ---
 
 ## Step 8: CI/CD Pipeline
@@ -562,40 +652,40 @@ az cognitiveservices account show `
 
 ### Terraform Variables
 
-| Variable                     | Default                   | Source                       |
-| ---------------------------- | ------------------------- | ---------------------------- |
-| `domain_name`                | `nexamesh.ai`             | tfvars                       |
-| `db_admin_password`          | —                         | tfvars (sensitive)           |
-| `smtp_password`              | —                         | tfvars (sensitive)           |
-| `ssl_certificate_data`       | `""`                      | tfvars (sensitive, optional) |
-| `ssl_certificate_password`   | `""`                      | tfvars (sensitive, optional) |
-| `dns_zone_name`              | `nexamesh.ai`             | default                      |
-| `dns_zone_resource_group`    | `nl-prod-nexamesh-rg-san` | default                      |
-| `document_intelligence_name` | `nl-prod-hov-di-san`      | default                      |
-| `storage_account_name`       | `nlprodhovstsan`          | default                      |
-| `key_vault_name`             | `nl-prod-hov-kv-san`      | default                      |
-| `db_server_name`             | `nl-prod-hov-pg-san`      | default                      |
-| `cosmos_account_name`        | `nlprodhovcosmosan`       | default                      |
-| `cosmos_mongo_database_name` | `house_of_veritas`        | default                      |
-| `cosmos_mongo_collection_name` | `kiosk_requests`        | default                      |
-| `resource_group_name`        | `nl-prod-hov-rg-san`      | default                      |
+| Variable                       | Default                   | Source                       |
+| ------------------------------ | ------------------------- | ---------------------------- |
+| `domain_name`                  | `nexamesh.ai`             | tfvars                       |
+| `db_admin_password`            | —                         | tfvars (sensitive)           |
+| `smtp_password`                | —                         | tfvars (sensitive)           |
+| `ssl_certificate_data`         | `""`                      | tfvars (sensitive, optional) |
+| `ssl_certificate_password`     | `""`                      | tfvars (sensitive, optional) |
+| `dns_zone_name`                | `nexamesh.ai`             | default                      |
+| `dns_zone_resource_group`      | `nl-prod-nexamesh-rg-san` | default                      |
+| `document_intelligence_name`   | `nl-prod-hov-di-san`      | default                      |
+| `storage_account_name`         | `nlprodhovstsan`          | default                      |
+| `key_vault_name`               | `nl-prod-hov-kv-san`      | default                      |
+| `db_server_name`               | `nl-prod-hov-pg-san`      | default                      |
+| `cosmos_account_name`          | `nlprodhovcosmosan`       | default                      |
+| `cosmos_mongo_database_name`   | `house_of_veritas`        | default                      |
+| `cosmos_mongo_collection_name` | `kiosk_requests`          | default                      |
+| `resource_group_name`          | `nl-prod-hov-rg-san`      | default                      |
 
 ### Terraform Outputs (post-deploy)
 
-| Output                           | Purpose                             |
-| -------------------------------- | ----------------------------------- |
-| `application_gateway_public_ip`  | Public entry point IP               |
-| `document_intelligence_endpoint` | OCR API endpoint                    |
-| `document_intelligence_key`      | OCR API key (sensitive)             |
-| `storage_connection_string`      | Blob storage connection (sensitive) |
-| `storage_blob_endpoint`          | Blob endpoint URL                   |
-| `asset_uploads_container`        | Container name for photos           |
-| `key_vault_uri`                  | Key Vault URI                       |
-| `database_server_fqdn`           | PostgreSQL FQDN                     |
-| `cosmos_mongo_connection_string` | Cosmos Mongo connection string      |
-| `cosmos_mongo_database_name`     | Cosmos Mongo database name          |
-| `docuseal_url`                   | `https://docs.nexamesh.ai`          |
-| `baserow_url`                    | `https://ops.nexamesh.ai`           |
+| Output                           | Purpose                                    |
+| -------------------------------- | ------------------------------------------ |
+| `application_gateway_public_ip`  | Public entry point IP                      |
+| `document_intelligence_endpoint` | OCR API endpoint                           |
+| `document_intelligence_key`      | OCR API key (sensitive)                    |
+| `storage_connection_string`      | Blob storage connection (sensitive)        |
+| `storage_blob_endpoint`          | Blob endpoint URL                          |
+| `asset_uploads_container`        | Container name for photos                  |
+| `key_vault_uri`                  | Key Vault URI                              |
+| `database_server_fqdn`           | PostgreSQL FQDN                            |
+| `cosmos_mongo_connection_string` | Cosmos Mongo connection string (sensitive) |
+| `cosmos_mongo_database_name`     | Cosmos Mongo database name                 |
+| `docuseal_url`                   | `https://docs.nexamesh.ai`                 |
+| `baserow_url`                    | `https://ops.nexamesh.ai`                  |
 
 ---
 
