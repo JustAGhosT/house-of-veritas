@@ -193,28 +193,19 @@ export const PATCH = withRole("admin")(async (request, context) => {
 
     const isHighValue = existing.amount >= HIGH_VALUE_THRESHOLD
     if (status === "Approved" && isHighValue && existing.approvalStatus === "Pending") {
-      // Validate notification recipient BEFORE mutating state
-      const notificationUserId = request.headers.get("x-user-id") || process.env.EXPENSE_APPROVER_ID
+      // Use authenticated context.userId as the source of truth — avoids x-user-id spoofing
+      const notificationUserId = context.userId || process.env.EXPENSE_APPROVER_ID
       if (!notificationUserId) {
         return NextResponse.json(
-          { error: "Unable to determine notification recipient: x-user-id header or EXPENSE_APPROVER_ID env var required" },
+          { error: "Unable to determine notification recipient: authentication required" },
           { status: 400 }
         )
       }
 
-      // Validate x-user-id header for approver resolution
-      const currentUserId = request.headers.get("x-user-id")
-      if (!currentUserId) {
-        return NextResponse.json(
-          { error: "x-user-id header is required for approval" },
-          { status: 400 }
-        )
-      }
-
-      const approverId = await getBaserowEmployeeIdByAppId(currentUserId)
+      const approverId = await getBaserowEmployeeIdByAppId(context.userId)
       if (!approverId) {
         return NextResponse.json(
-          { error: "Could not resolve approver from x-user-id" },
+          { error: "Could not resolve approver from authenticated user" },
           { status: 400 }
         )
       }

@@ -114,13 +114,20 @@ export const GET = withAuth(async (request) => {
     const { store, mode } = await getKioskStore()
     const { searchParams } = new URL(request.url)
     const employeeId = searchParams.get("employeeId")
-    const type = searchParams.get("type")
-    const status = searchParams.get("status")
+    const typeParam = searchParams.get("type")
+    const statusParam = searchParams.get("status")
+
+    const validTypes = ["stock_order", "salary_advance", "issue_report"] as const
+    const validStatuses = ["pending", "approved", "rejected", "completed"] as const
 
     const options = {
       employeeId: employeeId || undefined,
-      type: type || undefined,
-      status: status || undefined,
+      type: validTypes.includes(typeParam as (typeof validTypes)[number])
+        ? (typeParam as KioskRequestDoc["type"])
+        : undefined,
+      status: validStatuses.includes(statusParam as (typeof validStatuses)[number])
+        ? (statusParam as KioskRequestDoc["status"])
+        : undefined,
     }
 
     const requests = await store.find(options)
