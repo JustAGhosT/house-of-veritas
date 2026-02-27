@@ -37,16 +37,17 @@ export const reorderAutomation = inngest.createFunction(
       const { store } = await getKioskStore()
       const cutoff = new Date()
       cutoff.setDate(cutoff.getDate() - DAYS_LOOKBACK)
-      const query = {
-        type: "stock_order",
-        status: "pending",
-        timestamp: { $gte: cutoff.toISOString() },
-      }
       const accumulated: { data: Record<string, unknown> }[] = []
       let offset = 0
       let page: { data: Record<string, unknown> }[]
       do {
-        page = await store.find(query, { limit: PAGE_SIZE, skip: offset })
+        page = await store.find({
+          type: "stock_order",
+          status: "pending",
+          timestamp: { $gte: cutoff.toISOString() },
+          limit: PAGE_SIZE,
+          skip: offset,
+        })
         accumulated.push(...page)
         offset += PAGE_SIZE
       } while (page.length === PAGE_SIZE)
