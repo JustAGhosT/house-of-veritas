@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     } catch (invalidationError) {
       // Log the invalidation error but don't fail the session creation
       console.error("Failed to invalidate invite token:", invalidationError)
-      return NextResponse.redirect(new URL("/?error=token_invalidation_failed", request.url))
+      // Continue with session creation - the redirect will still happen below
     }
 
     return redirect

@@ -170,6 +170,13 @@ export function withAuth<P extends object>(
       }
     }, [isLoading, user, router, options?.allowedUsers])
 
+    // Handle navigation in useEffect to avoid side effects in render
+    useEffect(() => {
+      if (!isLoading && (!isAuthenticated || requiresAuth) && !options?.fallback) {
+        router.push("/login")
+      }
+    }, [isLoading, isAuthenticated, requiresAuth, options?.fallback, router])
+
     if (isLoading) {
       return (
         <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
@@ -180,11 +187,10 @@ export function withAuth<P extends object>(
 
     // requiresAuth is used to trigger login UI in consuming components
     if (!isAuthenticated || requiresAuth) {
-      // Render fallback if provided, otherwise redirect to login
+      // Render fallback if provided, otherwise return null and let useEffect handle navigation
       if (options?.fallback) {
         return <>{options.fallback}</>
       }
-      router.push("/login")
       return null
     }
 

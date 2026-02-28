@@ -4,7 +4,7 @@ import { useLoginModal } from "@/lib/login-modal-context"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 
-export function LoginRedirectHandler() {
+function LoginRedirectHandlerContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { openLoginModal } = useLoginModal()
@@ -24,4 +24,8 @@ export function LoginRedirectHandler() {
   }, [searchParams, openLoginModal, router])
 
   return null
+}
+
+export function LoginRedirectHandler() {
+  return <LoginRedirectHandlerContent />
 }

@@ -995,6 +995,7 @@ export default function KioskPage() {
                               className="h-8 w-8 bg-green-600 p-0 hover:bg-green-700"
                               onClick={() => completeTask(task.id)}
                               data-testid={`complete-task-${task.id}`}
+                              aria-label={`Complete task ${task.title}`}
                             >
                               <Check className="h-4 w-4" />
                             </Button>

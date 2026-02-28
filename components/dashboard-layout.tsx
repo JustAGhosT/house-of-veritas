@@ -65,12 +65,7 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
     }
   }, [requiresAuth, openLoginModal])
 
-  // Function to handle login modal close and reset the flag if user is still not authenticated
-  const handleLoginModalClose = () => {
-    if (!isAuthenticated) {
-      hasOpenedLogin.current = false
-    }
-  }
+  // Removed unused handleLoginModalClose function
 
   useEffect(() => {
     if (!isLoading && user) {

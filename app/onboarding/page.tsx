@@ -106,12 +106,13 @@ export default function OnboardingPage() {
         const isAuthError = status === 401 || status === 403
         if (isAuthError) {
           setAuthError(true)
+          setLoading(false) // Stop loading immediately
           openLoginModal()
         } else {
           setError(err instanceof Error ? err : new Error("Failed to fetch user"))
+          setLoading(false)
         }
       })
-      .finally(() => setLoading(false))
   }, [router, openLoginModal])
 
   useEffect(() => {
