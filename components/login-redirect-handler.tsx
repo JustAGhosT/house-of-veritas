@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
 import { useLoginModal } from "@/lib/login-modal-context"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect } from "react"
 
 export function LoginRedirectHandler() {
   const searchParams = useSearchParams()

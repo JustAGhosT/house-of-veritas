@@ -1,31 +1,31 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { ErrorBoundary } from "@/components/error-boundary"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Users,
-  CheckCircle,
-  Loader2,
-  ArrowRight,
-  Key,
-  FileSignature,
-  Camera,
-  Bell,
-  Shield,
-  X,
-  User,
-  ChevronDown,
-} from "lucide-react"
-import { apiFetch, apiFetchSafe } from "@/lib/api-client"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { RESPONSIBILITIES } from "@/lib/access-config"
-import { useLoginModal } from "@/lib/login-modal-context"
+import { apiFetch, apiFetchSafe } from "@/lib/api-client"
 import { useAuth } from "@/lib/auth-context"
+import { useLoginModal } from "@/lib/login-modal-context"
+import {
+  ArrowRight,
+  Bell,
+  Camera,
+  CheckCircle,
+  ChevronDown,
+  FileSignature,
+  Key,
+  Loader2,
+  Shield,
+  User,
+  Users,
+  X,
+} from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Administrator",

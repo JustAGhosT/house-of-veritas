@@ -1,7 +1,7 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react"
 
 interface User {
   id: string

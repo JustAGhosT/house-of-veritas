@@ -673,8 +673,8 @@ export default function KioskPage() {
           <Button
             data-testid="kiosk-clock-btn"
             className={`flex h-32 flex-col gap-2 text-base sm:h-36 sm:text-lg ${currentUser.clockedIn
-                ? "bg-red-600 hover:bg-red-700"
-                : "bg-green-600 hover:bg-green-700"
+              ? "bg-red-600 hover:bg-red-700"
+              : "bg-green-600 hover:bg-green-700"
               }`}
             onClick={handleClockInOut}
             disabled={loading}
@@ -1298,10 +1298,10 @@ export default function KioskPage() {
                         <div className="flex min-w-0 flex-1 items-start gap-3">
                           <div
                             className={`rounded-lg p-2 ${request.type === "stock_order"
-                                ? "bg-blue-500/20"
-                                : request.type === "salary_advance"
-                                  ? "bg-yellow-500/20"
-                                  : "bg-rose-500/20"
+                              ? "bg-blue-500/20"
+                              : request.type === "salary_advance"
+                                ? "bg-yellow-500/20"
+                                : "bg-rose-500/20"
                               }`}
                           >
                             {request.type === "stock_order" ? (
@@ -1323,12 +1323,12 @@ export default function KioskPage() {
                               </span>
                               <Badge
                                 className={`text-xs ${request.status === "pending"
-                                    ? "bg-yellow-500"
-                                    : request.status === "approved"
-                                      ? "bg-green-500"
-                                      : request.status === "rejected"
-                                        ? "bg-red-500"
-                                        : "bg-blue-500"
+                                  ? "bg-yellow-500"
+                                  : request.status === "approved"
+                                    ? "bg-green-500"
+                                    : request.status === "rejected"
+                                      ? "bg-red-500"
+                                      : "bg-blue-500"
                                   }`}
                               >
                                 {request.status === "pending"
@@ -1359,8 +1359,8 @@ export default function KioskPage() {
                             {request.notes && request.status !== "pending" && (
                               <div
                                 className={`mt-2 rounded p-2 text-xs ${request.status === "approved"
-                                    ? "bg-green-500/10 text-green-300"
-                                    : "bg-red-500/10 text-red-300"
+                                  ? "bg-green-500/10 text-green-300"
+                                  : "bg-red-500/10 text-red-300"
                                   }`}
                               >
                                 <span className="font-medium">
@@ -1411,8 +1411,8 @@ export default function KioskPage() {
                 onClick={() => saveNotificationPref("sms")}
                 disabled={loading}
                 className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${notificationPref === "sms"
-                    ? "border-blue-500 bg-blue-500/10"
-                    : "border-white/10 hover:border-white/20 hover:bg-white/5"
+                  ? "border-blue-500 bg-blue-500/10"
+                  : "border-white/10 hover:border-white/20 hover:bg-white/5"
                   }`}
                 data-testid="pref-sms"
               >
@@ -1433,8 +1433,8 @@ export default function KioskPage() {
                 onClick={() => saveNotificationPref("whatsapp")}
                 disabled={loading}
                 className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${notificationPref === "whatsapp"
-                    ? "border-green-500 bg-green-500/10"
-                    : "border-white/10 hover:border-white/20 hover:bg-white/5"
+                  ? "border-green-500 bg-green-500/10"
+                  : "border-white/10 hover:border-white/20 hover:bg-white/5"
                   }`}
                 data-testid="pref-whatsapp"
               >
@@ -1457,8 +1457,8 @@ export default function KioskPage() {
                 onClick={() => saveNotificationPref("email")}
                 disabled={loading}
                 className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${notificationPref === "email"
-                    ? "border-purple-500 bg-purple-500/10"
-                    : "border-white/10 hover:border-white/20 hover:bg-white/5"
+                  ? "border-purple-500 bg-purple-500/10"
+                  : "border-white/10 hover:border-white/20 hover:bg-white/5"
                   }`}
                 data-testid="pref-email"
               >

@@ -168,8 +168,8 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
                             href={item.href}
                             onClick={() => setSidebarOpen(false)}
                             className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive
-                                ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
-                                : "text-white/60 hover:bg-white/5 hover:text-white"
+                              ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
+                              : "text-white/60 hover:bg-white/5 hover:text-white"
                               } `}
                           >
                             <Icon className="h-4 w-4" />
@@ -190,8 +190,8 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
                 href={entry.href}
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${isActive
-                    ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
-                    : "text-white/60 hover:bg-white/5 hover:text-white"
+                  ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
+                  : "text-white/60 hover:bg-white/5 hover:text-white"
                   } `}
               >
                 <Icon className="h-5 w-5" />

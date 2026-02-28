@@ -64,6 +64,11 @@ const complianceData = [
   { month: "Dec", compliance: 100 },
 ]
 
+// Compute current compliance percentage from the latest data point
+const currentCompliancePercentage = complianceData.length > 0
+  ? `${complianceData[complianceData.length - 1].compliance}%`
+  : "—"
+
 // Task status distribution
 const taskStatusData = [
   { name: "Completed", value: 38, color: "#10b981" },
@@ -557,7 +562,7 @@ export default function HansDashboard() {
                 <p className="text-sm text-blue-200/50">6-month trend</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-green-400">100%</p>
+                <p className="text-2xl font-bold text-green-400">{currentCompliancePercentage}</p>
                 <p className="text-sm text-blue-200/50">Current</p>
               </div>
             </div>
@@ -602,7 +607,7 @@ export default function HansDashboard() {
                 <p className="text-sm text-blue-200/50">Items requiring your action</p>
               </div>
               <span className="rounded-full border border-amber-500/30 bg-amber-500/20 px-3 py-1 text-sm font-medium text-amber-400">
-                5 pending
+                {stats?.expenses?.pending || 5} pending
               </span>
             </div>
             <div className="max-h-96 space-y-3 overflow-y-auto p-4">

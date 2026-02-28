@@ -1,6 +1,6 @@
-import { NextResponse, type NextRequest } from "next/server"
-import { verifyToken, COOKIE_NAME } from "@/lib/auth/jwt"
+import { COOKIE_NAME, verifyToken } from "@/lib/auth/jwt"
 import { rateLimitAsync } from "@/lib/auth/rate-limit-edge"
+import { NextResponse, type NextRequest } from "next/server"
 
 const PUBLIC_PATHS = [
   "/api/auth/login",

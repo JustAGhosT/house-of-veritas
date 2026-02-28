@@ -1,7 +1,7 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode, useCallback } from "react"
 import { LoginModal } from "@/components/login-modal"
+import { createContext, ReactNode, useCallback, useContext, useState } from "react"
 
 interface LoginModalContextType {
   openLoginModal: () => void

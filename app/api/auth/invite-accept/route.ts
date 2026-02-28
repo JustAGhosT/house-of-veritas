@@ -1,7 +1,7 @@
+import { getSessionCookieConfig, signToken } from "@/lib/auth/jwt"
+import { invalidateInviteToken, validateInviteToken } from "@/lib/invite"
+import { findUserByIdAsync } from "@/lib/users"
 import { NextResponse } from "next/server"
-import { validateInviteToken, invalidateInviteToken } from "@/lib/invite"
-import { findUserByIdAsync, safeUser } from "@/lib/users"
-import { signToken, getSessionCookieConfig } from "@/lib/auth/jwt"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -20,24 +20,31 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/?error=invalid_token", request.url))
   }
 
-  // Invalidate token to prevent reuse
-  await invalidateInviteToken(token)
+  try {
+    const jwt = await signToken({
+      userId: user.id,
+      role: user.role,
+      email: user.email,
+    })
 
-  const jwt = await signToken({
-    userId: user.id,
-    role: user.role,
-    email: user.email,
-  })
+    const cookie = getSessionCookieConfig(jwt)
+    const base = new URL(request.url).origin
+    const redirect = NextResponse.redirect(new URL("/onboarding", base))
+    redirect.cookies.set(cookie.name, cookie.value, {
+      httpOnly: cookie.httpOnly,
+      secure: cookie.secure,
+      sameSite: cookie.sameSite,
+      path: cookie.path,
+      maxAge: cookie.maxAge,
+    })
 
-  const cookie = getSessionCookieConfig(jwt)
-  const base = new URL(request.url).origin
-  const redirect = NextResponse.redirect(new URL("/onboarding", base))
-  redirect.cookies.set(cookie.name, cookie.value, {
-    httpOnly: cookie.httpOnly,
-    secure: cookie.secure,
-    sameSite: cookie.sameSite,
-    path: cookie.path,
-    maxAge: cookie.maxAge,
-  })
-  return redirect
+    // Invalidate token only after successful session creation
+    await invalidateInviteToken(token)
+
+    return redirect
+  } catch (error) {
+    // If session creation fails, token remains valid for retry
+    console.error("Failed to create session:", error)
+    return NextResponse.redirect(new URL("/?error=session_failed", request.url))
+  }
 }

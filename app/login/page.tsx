@@ -191,8 +191,8 @@ export default function LoginPage() {
                     type="submit"
                     disabled={isLoading || !email || !password}
                     className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium transition-all ${isLoading || !email || !password
-                        ? "cursor-not-allowed bg-white/10 text-white/40"
-                        : "bg-linear-to-r from-blue-600 to-blue-700 text-white hover:from-blue-500 hover:to-blue-600"
+                      ? "cursor-not-allowed bg-white/10 text-white/40"
+                      : "bg-linear-to-r from-blue-600 to-blue-700 text-white hover:from-blue-500 hover:to-blue-600"
                       }`}
                     data-testid="login-submit"
                   >
@@ -300,8 +300,8 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setResetMethod("sms")}
                     className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${resetMethod === "sms"
-                        ? "border-blue-500/30 bg-blue-500/10"
-                        : "border-white/10 bg-white/5 hover:border-white/20"
+                      ? "border-blue-500/30 bg-blue-500/10"
+                      : "border-white/10 bg-white/5 hover:border-white/20"
                       }`}
                     data-testid="reset-method-sms"
                   >
@@ -331,8 +331,8 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setResetMethod("email")}
                     className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${resetMethod === "email"
-                        ? "border-blue-500/30 bg-blue-500/10"
-                        : "border-white/10 bg-white/5 hover:border-white/20"
+                      ? "border-blue-500/30 bg-blue-500/10"
+                      : "border-white/10 bg-white/5 hover:border-white/20"
                       }`}
                     data-testid="reset-method-email"
                   >
@@ -381,8 +381,8 @@ export default function LoginPage() {
                   onClick={handleResetPassword}
                   disabled={isLoading || !resetEmail || !!resetSuccess}
                   className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium transition-all ${isLoading || !resetEmail || !!resetSuccess
-                      ? "cursor-not-allowed bg-white/10 text-white/40"
-                      : "bg-linear-to-r from-amber-600 to-amber-700 text-white hover:from-amber-500 hover:to-amber-600"
+                    ? "cursor-not-allowed bg-white/10 text-white/40"
+                    : "bg-linear-to-r from-amber-600 to-amber-700 text-white hover:from-amber-500 hover:to-amber-600"
                     }`}
                   data-testid="reset-submit"
                 >

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { useLoginModal } from "@/lib/login-modal-context"
 import { useMotion } from "@/lib/motion-context"
-import { motion, AnimatePresence } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { Menu, X, Zap } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -113,38 +113,38 @@ export function Navbar() {
             transition={motionEnabled ? undefined : { duration: 0 }}
             className="absolute top-full right-0 left-0 border-b border-zinc-800 bg-zinc-900/98 p-4 backdrop-blur-md"
           >
-          <div className="mx-auto flex max-w-6xl flex-col gap-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="cursor-pointer rounded-lg px-4 py-3 text-sm text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
-                onClick={() => setMobileMenuOpen(false)}
+            <div className="mx-auto flex max-w-6xl flex-col gap-2">
+              {navItems.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="cursor-pointer rounded-lg px-4 py-3 text-sm text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <hr className="my-2 border-zinc-800" />
+              <Button
+                variant="ghost"
+                className="cursor-pointer justify-start text-zinc-400 hover:text-white"
+                onClick={() => {
+                  openLoginModal()
+                  setMobileMenuOpen(false)
+                }}
               >
-                {item.label}
-              </Link>
-            ))}
-            <hr className="my-2 border-zinc-800" />
-            <Button
-              variant="ghost"
-              className="cursor-pointer justify-start text-zinc-400 hover:text-white"
-              onClick={() => {
-                openLoginModal()
-                setMobileMenuOpen(false)
-              }}
-            >
-              Login
-            </Button>
-            <Button
-              className="shimmer-btn cursor-pointer rounded-full bg-blue-600 text-white hover:bg-blue-700"
-              onClick={() => {
-                openLoginModal()
-                setMobileMenuOpen(false)
-              }}
-            >
-              Access Documents
-            </Button>
-          </div>
+                Login
+              </Button>
+              <Button
+                className="shimmer-btn cursor-pointer rounded-full bg-blue-600 text-white hover:bg-blue-700"
+                onClick={() => {
+                  openLoginModal()
+                  setMobileMenuOpen(false)
+                }}
+              >
+                Access Documents
+              </Button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
