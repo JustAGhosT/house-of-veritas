@@ -53,7 +53,7 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
   const [showTutorial, setShowTutorial] = useState(false)
   const hasOpenedLogin = useRef(false)
 
-  // Auth protection - open login modal when auth is required (only once)
+  // Auth protection - open login modal when auth is required
   useEffect(() => {
     if (requiresAuth && !hasOpenedLogin.current) {
       hasOpenedLogin.current = true
@@ -64,6 +64,13 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
       hasOpenedLogin.current = false
     }
   }, [requiresAuth, openLoginModal])
+
+  // Function to handle login modal close and reset the flag if user is still not authenticated
+  const handleLoginModalClose = () => {
+    if (!isAuthenticated) {
+      hasOpenedLogin.current = false
+    }
+  }
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -85,8 +92,19 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
   // Show loading while checking auth
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0f]">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
+        {requiresAuth && (
+          <button
+            onClick={() => {
+              hasOpenedLogin.current = false;
+              openLoginModal();
+            }}
+            className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            Login
+          </button>
+        )}
       </div>
     )
   }

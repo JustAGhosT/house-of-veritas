@@ -101,10 +101,9 @@ export default function OnboardingPage() {
       })
       .catch((err) => {
         console.error("Failed to fetch user:", err)
-        // Check if it's an auth error (401/403)
-        const isAuthError = err instanceof Response
-          ? err.status === 401 || err.status === 403
-          : err?.status === 401 || err?.status === 403
+        // Extract status from error response
+        const status = err?.status ?? err?.response?.status ?? (err instanceof Response ? err.status : undefined)
+        const isAuthError = status === 401 || status === 403
         if (isAuthError) {
           setAuthError(true)
           openLoginModal()

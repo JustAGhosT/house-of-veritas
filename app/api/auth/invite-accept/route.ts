@@ -39,7 +39,13 @@ export async function GET(request: Request) {
     })
 
     // Invalidate token only after successful session creation
-    await invalidateInviteToken(token)
+    try {
+      await invalidateInviteToken(token)
+    } catch (invalidationError) {
+      // Log the invalidation error but don't fail the session creation
+      console.error("Failed to invalidate invite token:", invalidationError)
+      return NextResponse.redirect(new URL("/?error=token_invalidation_failed", request.url))
+    }
 
     return redirect
   } catch (error) {

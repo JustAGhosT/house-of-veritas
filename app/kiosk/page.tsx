@@ -273,12 +273,15 @@ export default function KioskPage() {
     setLoading(true)
 
     try {
+      const parsedQuantity = parseFloat(quantity);
+      const safeQuantity = Math.max(0, parsedQuantity);
+      
       await apiFetch("/api/inventory", {
         method: "POST",
         body: {
           action: actionType,
           itemId: scannedItem.id,
-          quantity: parseFloat(quantity),
+          quantity: safeQuantity,
           usedBy: currentUser.id,
           purpose: purpose || `Kiosk ${actionType}`,
         },
@@ -886,8 +889,9 @@ export default function KioskPage() {
                     </div>
                     <Input
                       type="number"
+                      min="0"
                       value={quantity}
-                      onChange={(e) => setQuantity(e.target.value)}
+                      onChange={(e) => setQuantity(Math.max(0, parseInt(e.target.value) || 0).toString())}
                       className="h-14 border-white/10 bg-white/5 text-center text-xl"
                     />
                   </div>

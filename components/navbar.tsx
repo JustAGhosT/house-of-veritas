@@ -107,9 +107,9 @@ export function Navbar() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            initial={motionEnabled ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
+            initial={motionEnabled ? { opacity: 0, y: -10 } : { opacity: 0, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={motionEnabled ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
+            exit={motionEnabled ? { opacity: 0, y: -10 } : { opacity: 0 }}
             transition={motionEnabled ? undefined : { duration: 0 }}
             className="absolute top-full right-0 left-0 border-b border-zinc-800 bg-zinc-900/98 p-4 backdrop-blur-md"
           >
@@ -125,6 +125,19 @@ export function Navbar() {
                 </Link>
               ))}
               <hr className="my-2 border-zinc-800" />
+              {/* Motion Toggle */}
+              <div className="flex items-center justify-between gap-2 border-b border-zinc-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <Zap size={14} className={motionEnabled ? "text-yellow-400" : "text-zinc-500"} />
+                  <span className="text-sm text-zinc-400">Animations</span>
+                </div>
+                <Switch
+                  checked={motionEnabled}
+                  onCheckedChange={setMotionEnabled}
+                  className="scale-75"
+                  aria-label="Toggle animations"
+                />
+              </div>
               <Button
                 variant="ghost"
                 className="cursor-pointer justify-start text-zinc-400 hover:text-white"
