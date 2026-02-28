@@ -48,7 +48,7 @@ import {
   XCircle
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface KioskUser {
   id: string
@@ -116,6 +116,12 @@ export default function KioskPage() {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [successMessage, setSuccessMessage] = useState("")
 
+  // Timeout refs for cleanup
+  const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const successTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  // Ref for random clock-in state (to avoid impure function during render)
+  const clockedInRef = useRef<boolean>(false)
+
   // Modal states
   const [showScanner, setShowScanner] = useState(false)
   const [showTasks, setShowTasks] = useState(false)
@@ -159,10 +165,28 @@ export default function KioskPage() {
     return () => clearInterval(timer)
   }, [])
 
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current)
+        errorTimeoutRef.current = null
+      }
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current)
+        successTimeoutRef.current = null
+      }
+    }
+  }, [])
+
   // Show error toast with auto-clear
   const showError = (message: string) => {
+    // Clear any existing timeout before creating a new one
+    if (errorTimeoutRef.current) {
+      clearTimeout(errorTimeoutRef.current)
+    }
     setError(message)
-    setTimeout(() => setError(""), 5000)
+    errorTimeoutRef.current = setTimeout(() => setError(""), 5000)
   }
 
   // Simple PIN-based login for kiosk
@@ -183,7 +207,9 @@ export default function KioskPage() {
     const user = pinMap[pin]
     if (user) {
       // Check if already clocked in (would be from API)
-      setCurrentUser({ ...user, clockedIn: Math.random() > 0.5 })
+      // Use ref to avoid impure function during render
+      clockedInRef.current = !clockedInRef.current
+      setCurrentUser({ ...user, clockedIn: clockedInRef.current })
       setPin("")
     } else {
       showError("Invalid PIN")
@@ -393,15 +419,21 @@ export default function KioskPage() {
   // Submit stock request
   const submitStockRequest = async () => {
     if (!currentUser || !stockRequest.itemName) return
+    // Validate and clamp quantity to at least 1
+    const validQuantity = Math.max(1, stockRequest.quantity || 1)
+    if (stockRequest.quantity !== validQuantity) {
+      setStockRequest((s) => ({ ...s, quantity: validQuantity }))
+    }
     setLoading(true)
     try {
+      const requestData = { ...stockRequest, quantity: validQuantity }
       await apiFetch("/api/kiosk/requests", {
         method: "POST",
         body: {
           type: "stock_order",
           employeeId: currentUser.id,
           employeeName: currentUser.name,
-          data: stockRequest,
+          data: requestData,
           timestamp: new Date().toISOString(),
         },
         label: "SubmitStockRequest",
@@ -476,8 +508,12 @@ export default function KioskPage() {
 
   // Show success message
   const showSuccess = (message: string) => {
+    // Clear any existing timeout before creating a new one
+    if (successTimeoutRef.current) {
+      clearTimeout(successTimeoutRef.current)
+    }
     setSuccessMessage(message)
-    setTimeout(() => setSuccessMessage(""), 3000)
+    successTimeoutRef.current = setTimeout(() => setSuccessMessage(""), 3000)
   }
 
   // PIN Entry Screen
@@ -998,9 +1034,11 @@ export default function KioskPage() {
                     id="stock-quantity"
                     type="number"
                     value={stockRequest.quantity}
-                    onChange={(e) =>
-                      setStockRequest((s) => ({ ...s, quantity: parseInt(e.target.value) || 1 }))
-                    }
+                    onChange={(e) => {
+                      const parsed = parseInt(e.target.value)
+                      const safeValue = isNaN(parsed) ? 1 : Math.max(1, parsed)
+                      setStockRequest((s) => ({ ...s, quantity: safeValue }))
+                    }}
                     min="1"
                     className="border-white/10 bg-white/5"
                     data-testid="stock-quantity-input"

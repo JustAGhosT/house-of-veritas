@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
   const user = await findUserByIdAsync(parsed.userId)
   if (!user) {
-    return NextResponse.redirect(new URL("/?error=user_not_found", request.url))
+    return NextResponse.redirect(new URL("/?error=invalid_token", request.url))
   }
 
   const jwt = await signToken({
