@@ -274,7 +274,7 @@ export default function KioskPage() {
 
     try {
       const parsedQuantity = parseFloat(quantity);
-      const safeQuantity = Math.max(0, parsedQuantity);
+      const safeQuantity = Number.isFinite(parsedQuantity) ? Math.max(0, parsedQuantity) : 0;
       
       await apiFetch("/api/inventory", {
         method: "POST",
@@ -457,7 +457,7 @@ export default function KioskPage() {
 
   // Submit salary advance request
   const submitAdvanceRequest = async () => {
-    if (!currentUser || advanceRequest.amount <= 0) return
+    if (!currentUser || advanceRequest.amount < 100) return
     setLoading(true)
     try {
       await apiFetch("/api/kiosk/requests", {

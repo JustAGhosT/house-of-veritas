@@ -17,8 +17,8 @@ function LoginRedirectHandlerContent() {
       const newParams = new URLSearchParams(searchParams.toString())
       newParams.delete("login")
       const newUrl = newParams.toString()
-        ? `${window.location.pathname}?${newParams.toString()}`
-        : window.location.pathname
+        ? `${window.location.pathname}?${newParams.toString()}${window.location.hash}`
+        : `${window.location.pathname}${window.location.hash}`
       router.replace(newUrl)
     }
   }, [searchParams, openLoginModal, router])

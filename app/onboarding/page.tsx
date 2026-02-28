@@ -240,7 +240,11 @@ export default function OnboardingPage() {
     console.error("Onboarding load error:", error)
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-black/60 p-4">
-        <div className="rounded-lg border border-red-800/50 bg-red-900/20 p-6 text-center">
+        <div 
+          className="rounded-lg border border-red-800/50 bg-red-900/20 p-6 text-center"
+          role="alert"
+          aria-live="polite"
+        >
           <p className="mb-2 text-red-400">Unable to load onboarding</p>
           <p className="mb-4 text-sm text-red-300/70">Please try again.</p>
           <Button onClick={() => window.location.reload()} variant="outline" className="border-red-800/50">

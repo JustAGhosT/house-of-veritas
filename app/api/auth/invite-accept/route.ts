@@ -38,13 +38,39 @@ export async function GET(request: Request) {
       maxAge: cookie.maxAge,
     })
 
-    // Invalidate token only after successful session creation
+    // Invalidate token with retry logic after successful session creation
     try {
-      await invalidateInviteToken(token)
+      let retries = 3
+      let lastError: unknown = null
+      
+      while (retries > 0) {
+        try {
+          await invalidateInviteToken(token)
+          lastError = null
+          break
+        } catch (error) {
+          lastError = error
+          retries--
+          if (retries > 0) {
+            // Short backoff: 100ms, 200ms, 300ms
+            await new Promise(resolve => setTimeout(resolve, (4 - retries) * 100))
+          }
+        }
+      }
+      
+      if (lastError) {
+        // All retries failed - emit monitored alert
+        console.error("Failed to invalidate invite token after retries", {
+          tokenId: token.slice(0, 8) + "...",
+          error: lastError instanceof Error ? lastError.message : String(lastError),
+          timestamp: new Date().toISOString(),
+        })
+        // Note: In production, integrate with monitoring service like App Insights
+        // Example: telemetryClient.trackException({ exception: lastError as Error })
+      }
     } catch (invalidationError) {
-      // Log the invalidation error but don't fail the session creation
+      // Fallback error handling
       console.error("Failed to invalidate invite token:", invalidationError)
-      // Continue with session creation - the redirect will still happen below
     }
 
     return redirect
