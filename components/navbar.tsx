@@ -20,7 +20,19 @@ const navItems = [
 export function Navbar() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { motionEnabled, setMotionEnabled } = useMotion()
+  const [motionEnabled, setMotionEnabled] = useMotion()
+  
+  // Keyboard accessibility for mobile menu
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && mobileMenuOpen) {
+        setMobileMenuOpen(false)
+      }
+    }
+      
+    document.addEventListener("keydown", handleEscape)
+    return () => document.removeEventListener("keydown", handleEscape)
+  }, [mobileMenuOpen])
   const { openLoginModal } = useLoginModal()
   const navRef = useRef<HTMLDivElement>(null)
 

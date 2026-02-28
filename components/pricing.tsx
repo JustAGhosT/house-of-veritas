@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { useMotion } from "@/lib/motion-context"
 import { motion, useInView } from "framer-motion"
+import { useRouter } from "next/navigation"
 import { Check } from "lucide-react"
 import { useRef, useState } from "react"
 
@@ -68,18 +69,19 @@ function BorderBeam() {
   )
 }
 
-export function Pricing() {
+export default function PricingSection() {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly")
+  const inView = useInView(ref, { once: true, amount: 0.3 })
   const { motionEnabled } = useMotion()
+  const router = useRouter()
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly")
 
   return (
     <section id="pricing" className="px-4 py-24">
       <div className="mx-auto max-w-6xl">
         <motion.div
           initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={motionEnabled ? { duration: 0.6 } : { duration: 0 }}
           className="mb-12 text-center"
         >
@@ -132,7 +134,7 @@ export function Pricing() {
         <motion.div
           ref={ref}
           initial={motionEnabled ? { opacity: 0, y: 40 } : { opacity: 1, y: 0 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={motionEnabled ? { duration: 0.6, delay: 0.2 } : { duration: 0 }}
           className="grid grid-cols-1 gap-6 md:grid-cols-3"
         >
@@ -140,7 +142,7 @@ export function Pricing() {
             <motion.div
               key={plan.name}
               initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={motionEnabled ? { duration: 0.6, delay: 0.3 + index * 0.1 } : { duration: 0 }}
               className={`relative rounded-2xl border p-6 transition-all duration-300 hover:scale-[1.02] ${plan.highlighted
                   ? "border-zinc-700 bg-zinc-900"
@@ -186,6 +188,15 @@ export function Pricing() {
                     ? "shimmer-btn bg-white text-zinc-950 hover:bg-zinc-200"
                     : "border border-zinc-700 bg-zinc-800 text-white hover:bg-zinc-700"
                   }`}
+                onClick={() => {
+                  if (plan.name === "Starter") {
+                    router.push("/signup?plan=starter")
+                  } else if (plan.name === "Pro") {
+                    router.push("/signup?plan=pro")
+                  } else if (plan.name === "Enterprise") {
+                    router.push("/contact-sales?plan=enterprise")
+                  }
+                }}
               >
                 {plan.cta}
               </Button>

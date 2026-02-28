@@ -38,14 +38,8 @@ const ROLES = ["operator", "employee", "resident"] as const
 
 export default function OnboardingPage() {
   const router = useRouter()
+  const { user, isAuthenticated } = useAuth()
   const { openLoginModal } = useLoginModal()
-  const { requiresAuth } = useAuth()
-  const [user, setUser] = useState<{
-    id: string
-    name: string
-    role: string
-    responsibilities?: string[]
-  } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
   const [authError, setAuthError] = useState(false)
@@ -113,7 +107,7 @@ export default function OnboardingPage() {
           setLoading(false)
         }
       })
-  }, [router, openLoginModal])
+  }, [router, openLoginModal, isAuthenticated])
 
   useEffect(() => {
     if (!user) return

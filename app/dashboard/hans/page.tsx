@@ -21,6 +21,7 @@ import {
   Users,
   XCircle
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import {
   Area,
@@ -338,7 +339,9 @@ function ActivityItem({
   )
 }
 
-export default function HansDashboard() {
+export default function DashboardPage() {
+  const router = useRouter()
+  const [currentTime, setCurrentTime] = useState(new Date())
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -647,7 +650,11 @@ export default function HansDashboard() {
               />
             </div>
             <div className="border-t border-blue-500/20 p-4">
-              <button className="flex w-full items-center justify-center gap-2 text-center text-sm font-medium text-blue-400 hover:text-blue-300">
+              <button 
+                className="flex w-full items-center justify-center gap-2 text-center text-sm font-medium text-blue-400 hover:text-blue-300"
+                onClick={() => router.push("/dashboard/hans/approvals")}
+                aria-label="View all pending items"
+              >
                 View all pending items
                 <ArrowUpRight className="h-4 w-4" />
               </button>

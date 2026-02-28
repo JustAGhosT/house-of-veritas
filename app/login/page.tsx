@@ -2,7 +2,6 @@
 
 import { ErrorBoundary } from "@/components/error-boundary"
 import { useAuth } from "@/lib/auth-context"
-import { Fragment } from "react"
 import {
   ArrowLeft,
   ArrowRight,
@@ -18,6 +17,19 @@ import React, { Fragment, useState } from "react"
 export default function LoginPage() {
   const { login, isLoading: authLoading } = useAuth()
   const [view, setView] = useState<"login" | "reset">("login")
+  const [error, setError] = useState("")
+
+  // Safe JSON parsing helper
+  const safeParseDemoUsers = (jsonString: string | undefined) => {
+    if (!jsonString) return []
+    try {
+      const parsed = JSON.parse(jsonString)
+      return Array.isArray(parsed) ? parsed : []
+    } catch (e) {
+      console.warn("Failed to parse demo users JSON:", e)
+      return []
+    }
+  }
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -227,7 +239,7 @@ export default function LoginPage() {
                     <p className="mb-2 text-sm font-medium text-amber-400">Demo Credentials</p>
                     <div className="grid grid-cols-2 gap-2 text-xs text-white/60">
                       {process.env.NEXT_PUBLIC_DEMO_USERS
-                        ? JSON.parse(process.env.NEXT_PUBLIC_DEMO_USERS).map((user: { email: string; password: string }, index: number) => (
+                        ? safeParseDemoUsers(process.env.NEXT_PUBLIC_DEMO_USERS).map((user: { email: string; password: string }, index: number) => (
                           <Fragment key={index}>
                             <div>{user.email}</div>
                             <div className="text-white/40">{user.password}</div>

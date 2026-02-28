@@ -84,22 +84,34 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
     }
   }, [user, pathname])
 
-  // Show loading while checking auth
-  if (isLoading || !isAuthenticated) {
+  // Show loading while checking auth (only for protected routes)
+  if (isLoading && requiresAuth) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0f]">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
-        {requiresAuth && (
-          <button
-            onClick={() => {
-              hasOpenedLogin.current = false;
-              openLoginModal();
-            }}
-            className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          >
-            Login
-          </button>
-        )}
+        <button
+          onClick={() => {
+            hasOpenedLogin.current = true;
+            openLoginModal();
+          }}
+          className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
+          Login
+        </button>
+      </div>
+    )
+  }
+  
+  // For non-authenticated users on non-requiresAuth pages, show content
+  if (!isAuthenticated && !requiresAuth) {
+    return <>{children}</>
+  }
+  
+  // For authenticated users or requiresAuth pages, show loading or content
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0f]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
       </div>
     )
   }

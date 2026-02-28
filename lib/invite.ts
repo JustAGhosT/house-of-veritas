@@ -72,7 +72,22 @@ class FileTokenRevocationStore implements TokenRevocationStore {
           return
         }
         
-        this.tokens = new Map(Object.entries(parsed))
+        // Validate each entry
+        const validTokens = new Map<string, number>()
+        Object.entries(parsed).forEach(([token, expiry]) => {
+          // Ensure expiry is a valid number
+          const expiryNum = typeof expiry === "number" ? expiry : Number(expiry)
+          if (isNaN(expiryNum)) {
+            logger.warn("Invalid expiry timestamp in revoked tokens file", { 
+              token: token.substring(0, 20), 
+              expiry 
+            })
+            return
+          }
+          validTokens.set(token, expiryNum)
+        })
+        
+        this.tokens = validTokens
         logger.debug("Loaded revoked tokens from file", { count: this.tokens.size })
       }
     } catch (error) {
@@ -138,17 +153,17 @@ class FileTokenRevocationStore implements TokenRevocationStore {
       }
     }
     if (cleaned > 0) {
-      this.saveToFile()
+      await this.saveToFile()
       logger.debug("Cleaned up expired revoked tokens", { count: cleaned })
     }
   }
 
-  stop(): void {
+  async stop(): Promise<void> {
     if (this.cleanupInterval) {
       clearInterval(this.cleanupInterval)
       this.cleanupInterval = null
     }
-    this.saveToFile()
+    await this.saveToFile()
   }
 }
 
@@ -239,6 +254,28 @@ export async function validateInviteToken(token: string): Promise<{ userId: stri
 }
 
 export async function invalidateInviteToken(token: string): Promise<void> {
+  // Validate token format
+  if (!token || typeof token !== "string" || token.trim().length === 0) {
+    logger.warn("Invalid token provided to invalidateInviteToken", { token: token?.substring(0, 10) })
+    return
+  }
+  
+  // Validate token structure (basic JWT format check)
+  if (!token.includes(".") || token.split(".").length !== 3) {
+    logger.warn("Invalid token format", { token: token.substring(0, 20) })
+    return
+  }
+  
+  // Verify token signature/claims
+  try {
+    const secret = getSecret()
+    await jwtVerify(token, secret)
+    // Token is valid - proceed with revocation
+  } catch (error) {
+    logger.warn("Token verification failed", { error, token: token.substring(0, 20) })
+    return
+  }
+  
   // Store token with expiry (72 hours from now, matching token expiry) using persistent store
   const expiryMs = Date.now() + INVITE_EXPIRY_HOURS * 60 * 60 * 1000
   await tokenRevocationStore.add(token, expiryMs)
