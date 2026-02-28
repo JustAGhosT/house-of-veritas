@@ -1,7 +1,8 @@
 "use client"
 
-import { Suspense, useEffect } from "react"
+import { ErrorBoundary } from "@/components/error-boundary"
 import { useSearchParams } from "next/navigation"
+import { Suspense, useEffect } from "react"
 
 function InviteRedirect() {
   const searchParams = useSearchParams()
@@ -24,14 +25,16 @@ function InviteRedirect() {
 
 export default function OnboardingInvitePage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
-        </div>
-      }
-    >
-      <InviteRedirect />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
+          </div>
+        }
+      >
+        <InviteRedirect />
+      </Suspense>
+    </ErrorBoundary>
   )
 }

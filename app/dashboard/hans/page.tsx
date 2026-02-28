@@ -1,44 +1,40 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { apiFetchSafe } from "@/lib/api-client"
 import DashboardLayout from "@/components/dashboard-layout"
+import { WidgetErrorBoundary } from "@/components/widget-error-boundary"
+import { apiFetchSafe } from "@/lib/api-client"
 import {
-  FileText,
-  Users,
-  Package,
-  ClipboardList,
-  Clock,
-  DollarSign,
   AlertTriangle,
-  TrendingUp,
-  TrendingDown,
-  CheckCircle,
-  XCircle,
   ArrowUpRight,
   Calendar,
-  Shield,
-  Zap,
-  Monitor,
+  CheckCircle,
+  ClipboardList,
+  Clock,
   Cpu,
+  DollarSign,
+  Monitor,
   Network,
   Server,
+  Shield,
+  TrendingDown,
+  TrendingUp,
+  Users,
+  XCircle
 } from "lucide-react"
+import { useEffect, useState } from "react"
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-  AreaChart,
   Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
 } from "recharts"
 
 // Budget data
@@ -384,346 +380,370 @@ export default function HansDashboard() {
 
       {/* Stats Grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Active Tasks"
-          value={stats?.tasks?.total || 0}
-          change={`${stats?.tasks?.completed || 0} completed`}
-          changeType="up"
-          icon={ClipboardList}
-          color="blue"
-        />
-        <StatCard
-          title="Active Employees"
-          value={stats?.users?.total || 4}
-          icon={Users}
-          color="green"
-        />
-        <StatCard
-          title="Pending Approvals"
-          value={stats?.expenses?.pending || 0}
-          change={stats?.tasks?.overdue ? `${stats.tasks.overdue} overdue` : undefined}
-          changeType={stats?.tasks?.overdue > 0 ? "down" : "neutral"}
-          icon={AlertTriangle}
-          color="amber"
-        />
-        <StatCard
-          title="Monthly Expenses"
-          value={`R${(stats?.expenses?.thisMonth || 0).toLocaleString()}`}
-          change={`${stats?.budget?.percentage || 0}% of budget`}
-          changeType="neutral"
-          icon={DollarSign}
-          color="purple"
-        />
+        <WidgetErrorBoundary>
+          <StatCard
+            title="Active Tasks"
+            value={stats?.tasks?.total || 0}
+            change={`${stats?.tasks?.completed || 0} completed`}
+            changeType="up"
+            icon={ClipboardList}
+            color="blue"
+          />
+        </WidgetErrorBoundary>
+        <WidgetErrorBoundary>
+          <StatCard
+            title="Active Employees"
+            value={stats?.users?.total || 4}
+            icon={Users}
+            color="green"
+          />
+        </WidgetErrorBoundary>
+        <WidgetErrorBoundary>
+          <StatCard
+            title="Pending Approvals"
+            value={stats?.expenses?.pending || 0}
+            change={stats?.tasks?.overdue ? `${stats.tasks.overdue} overdue` : undefined}
+            changeType={stats?.tasks?.overdue > 0 ? "down" : "neutral"}
+            icon={AlertTriangle}
+            color="amber"
+          />
+        </WidgetErrorBoundary>
+        <WidgetErrorBoundary>
+          <StatCard
+            title="Monthly Expenses"
+            value={`R${(stats?.expenses?.thisMonth || 0).toLocaleString()}`}
+            change={`${stats?.budget?.percentage || 0}% of budget`}
+            changeType="neutral"
+            icon={DollarSign}
+            color="purple"
+          />
+        </WidgetErrorBoundary>
       </div>
 
       {/* Charts Row */}
       <div className="mb-8 grid gap-6 lg:grid-cols-3">
         {/* Budget Overview */}
-        <div
-          className="rounded-2xl border border-blue-500/20 bg-blue-950/40 p-6 backdrop-blur-sm lg:col-span-2"
-          data-testid="budget-chart"
-        >
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-blue-100">Budget Overview</h3>
-              <p className="text-sm text-blue-200/50">6-month spending trend</p>
+        <WidgetErrorBoundary className="lg:col-span-2">
+          <div
+            className="rounded-2xl border border-blue-500/20 bg-blue-950/40 p-6 backdrop-blur-sm"
+            data-testid="budget-chart"
+          >
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-blue-100">Budget Overview</h3>
+                <p className="text-sm text-blue-200/50">6-month spending trend</p>
+              </div>
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-blue-500" />
+                  <span className="text-blue-200/60">Allocated</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-green-500" />
+                  <span className="text-blue-200/60">Spent</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-blue-500" />
-                <span className="text-blue-200/60">Allocated</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-green-500" />
-                <span className="text-blue-200/60">Spent</span>
-              </div>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={budgetData} barGap={8}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(59,130,246,0.1)" />
+                  <XAxis dataKey="month" stroke="rgba(59,130,246,0.6)" fontSize={12} />
+                  <YAxis
+                    stroke="rgba(59,130,246,0.6)"
+                    fontSize={12}
+                    tickFormatter={(v) => `R${(v / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="allocated" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Allocated" />
+                  <Bar dataKey="spent" fill="#10b981" radius={[4, 4, 0, 0]} name="Spent" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={budgetData} barGap={8}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(59,130,246,0.1)" />
-                <XAxis dataKey="month" stroke="rgba(59,130,246,0.6)" fontSize={12} />
-                <YAxis
-                  stroke="rgba(59,130,246,0.6)"
-                  fontSize={12}
-                  tickFormatter={(v) => `R${(v / 1000).toFixed(0)}k`}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="allocated" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Allocated" />
-                <Bar dataKey="spent" fill="#10b981" radius={[4, 4, 0, 0]} name="Spent" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        </WidgetErrorBoundary>
 
         {/* Task Status */}
-        <div
-          className="rounded-2xl border border-blue-500/20 bg-blue-950/40 p-6 backdrop-blur-sm"
-          data-testid="task-status-chart"
-        >
-          <h3 className="mb-2 font-semibold text-blue-100">Task Status</h3>
-          <p className="mb-4 text-sm text-blue-200/50">Current overview</p>
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={taskStatusData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={40}
-                  outerRadius={70}
-                  paddingAngle={4}
-                  dataKey="value"
-                >
-                  {taskStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-4 space-y-2">
-            {taskStatusData.map((status) => (
-              <div key={status.name} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: status.color }} />
-                  <span className="text-blue-200/60">{status.name}</span>
+        <WidgetErrorBoundary>
+          <div
+            className="rounded-2xl border border-blue-500/20 bg-blue-950/40 p-6 backdrop-blur-sm"
+            data-testid="task-status-chart"
+          >
+            <h3 className="mb-2 font-semibold text-blue-100">Task Status</h3>
+            <p className="mb-4 text-sm text-blue-200/50">Current overview</p>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={taskStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={70}
+                    paddingAngle={4}
+                    dataKey="value"
+                  >
+                    {taskStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4 space-y-2">
+              {taskStatusData.map((status) => (
+                <div key={status.name} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: status.color }} />
+                    <span className="text-blue-200/60">{status.name}</span>
+                  </div>
+                  <span className="font-medium text-blue-100">{status.value}</span>
                 </div>
-                <span className="font-medium text-blue-100">{status.value}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        </WidgetErrorBoundary>
       </div>
 
       {/* Employee Performance & Compliance */}
       <div className="mb-8 grid gap-6 lg:grid-cols-2">
         {/* Employee Task Performance */}
-        <div
-          className="rounded-2xl border border-blue-500/20 bg-blue-950/40 p-6 backdrop-blur-sm"
-          data-testid="employee-performance-chart"
-        >
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-blue-100">Employee Performance</h3>
-              <p className="text-sm text-blue-200/50">Tasks completed this month</p>
+        <WidgetErrorBoundary>
+          <div
+            className="rounded-2xl border border-blue-500/20 bg-blue-950/40 p-6 backdrop-blur-sm"
+            data-testid="employee-performance-chart"
+          >
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-blue-100">Employee Performance</h3>
+                <p className="text-sm text-blue-200/50">Tasks completed this month</p>
+              </div>
+            </div>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={employeeTaskData} layout="vertical" barGap={4}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(59,130,246,0.1)"
+                    horizontal={false}
+                  />
+                  <XAxis type="number" stroke="rgba(59,130,246,0.6)" fontSize={12} />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    stroke="rgba(59,130,246,0.6)"
+                    fontSize={12}
+                    width={60}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="completed" fill="#10b981" radius={[0, 4, 4, 0]} name="Completed" />
+                  <Bar dataKey="pending" fill="#f59e0b" radius={[0, 4, 4, 0]} name="Pending" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={employeeTaskData} layout="vertical" barGap={4}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="rgba(59,130,246,0.1)"
-                  horizontal={false}
-                />
-                <XAxis type="number" stroke="rgba(59,130,246,0.6)" fontSize={12} />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  stroke="rgba(59,130,246,0.6)"
-                  fontSize={12}
-                  width={60}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="completed" fill="#10b981" radius={[0, 4, 4, 0]} name="Completed" />
-                <Bar dataKey="pending" fill="#f59e0b" radius={[0, 4, 4, 0]} name="Pending" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        </WidgetErrorBoundary>
 
         {/* Compliance Trend */}
-        <div
-          className="rounded-2xl border border-blue-500/20 bg-blue-950/40 p-6 backdrop-blur-sm"
-          data-testid="compliance-chart"
-        >
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-blue-100">Document Compliance</h3>
-              <p className="text-sm text-blue-200/50">6-month trend</p>
+        <WidgetErrorBoundary>
+          <div
+            className="rounded-2xl border border-blue-500/20 bg-blue-950/40 p-6 backdrop-blur-sm"
+            data-testid="compliance-chart"
+          >
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-blue-100">Document Compliance</h3>
+                <p className="text-sm text-blue-200/50">6-month trend</p>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-green-400">100%</p>
+                <p className="text-sm text-blue-200/50">Current</p>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="text-2xl font-bold text-green-400">100%</p>
-              <p className="text-sm text-blue-200/50">Current</p>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={complianceData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(59,130,246,0.1)" />
+                  <XAxis dataKey="month" stroke="rgba(59,130,246,0.6)" fontSize={12} />
+                  <YAxis
+                    stroke="rgba(59,130,246,0.6)"
+                    fontSize={12}
+                    domain={[80, 100]}
+                    tickFormatter={(v) => `${v}%`}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area
+                    type="monotone"
+                    dataKey="compliance"
+                    stroke="#3b82f6"
+                    fill="rgba(59,130,246,0.2)"
+                    strokeWidth={2}
+                    name="Compliance"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={complianceData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(59,130,246,0.1)" />
-                <XAxis dataKey="month" stroke="rgba(59,130,246,0.6)" fontSize={12} />
-                <YAxis
-                  stroke="rgba(59,130,246,0.6)"
-                  fontSize={12}
-                  domain={[80, 100]}
-                  tickFormatter={(v) => `${v}%`}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="compliance"
-                  stroke="#3b82f6"
-                  fill="rgba(59,130,246,0.2)"
-                  strokeWidth={2}
-                  name="Compliance"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        </WidgetErrorBoundary>
       </div>
 
       {/* Three Column Layout */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Pending Approvals - 2 columns */}
-        <div
-          className="overflow-hidden rounded-2xl border border-blue-500/20 bg-blue-950/40 backdrop-blur-sm lg:col-span-2"
-          data-testid="pending-approvals"
-        >
-          <div className="flex items-center justify-between border-b border-blue-500/20 p-6">
-            <div>
-              <h3 className="text-lg font-semibold text-blue-100">Pending Approvals</h3>
-              <p className="text-sm text-blue-200/50">Items requiring your action</p>
+        <WidgetErrorBoundary className="lg:col-span-2">
+          <div
+            className="overflow-hidden rounded-2xl border border-blue-500/20 bg-blue-950/40 backdrop-blur-sm"
+            data-testid="pending-approvals"
+          >
+            <div className="flex items-center justify-between border-b border-blue-500/20 p-6">
+              <div>
+                <h3 className="text-lg font-semibold text-blue-100">Pending Approvals</h3>
+                <p className="text-sm text-blue-200/50">Items requiring your action</p>
+              </div>
+              <span className="rounded-full border border-amber-500/30 bg-amber-500/20 px-3 py-1 text-sm font-medium text-amber-400">
+                5 pending
+              </span>
             </div>
-            <span className="rounded-full border border-amber-500/30 bg-amber-500/20 px-3 py-1 text-sm font-medium text-amber-400">
-              5 pending
-            </span>
+            <div className="max-h-96 space-y-3 overflow-y-auto p-4">
+              <ApprovalItem
+                type="expense"
+                title="Workshop Materials"
+                subtitle="Charl Pieterse"
+                amount="R850"
+                date="Today"
+              />
+              <ApprovalItem
+                type="overtime"
+                title="Weekend Work"
+                subtitle="Lucky Mokoena - 4.5 hours"
+                amount="R540"
+                date="Yesterday"
+              />
+              <ApprovalItem
+                type="leave"
+                title="Annual Leave - 3 days"
+                subtitle="Charl Pieterse - Dec 20-22"
+                date="2 days ago"
+              />
+              <ApprovalItem
+                type="expense"
+                title="Garden Supplies"
+                subtitle="Lucky Mokoena"
+                amount="R320"
+                date="3 days ago"
+              />
+              <ApprovalItem
+                type="expense"
+                title="Vehicle Fuel"
+                subtitle="Charl Pieterse"
+                amount="R450"
+                date="3 days ago"
+              />
+            </div>
+            <div className="border-t border-blue-500/20 p-4">
+              <button className="flex w-full items-center justify-center gap-2 text-center text-sm font-medium text-blue-400 hover:text-blue-300">
+                View all pending items
+                <ArrowUpRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
-          <div className="max-h-96 space-y-3 overflow-y-auto p-4">
-            <ApprovalItem
-              type="expense"
-              title="Workshop Materials"
-              subtitle="Charl Pieterse"
-              amount="R850"
-              date="Today"
-            />
-            <ApprovalItem
-              type="overtime"
-              title="Weekend Work"
-              subtitle="Lucky Mokoena - 4.5 hours"
-              amount="R540"
-              date="Yesterday"
-            />
-            <ApprovalItem
-              type="leave"
-              title="Annual Leave - 3 days"
-              subtitle="Charl Pieterse - Dec 20-22"
-              date="2 days ago"
-            />
-            <ApprovalItem
-              type="expense"
-              title="Garden Supplies"
-              subtitle="Lucky Mokoena"
-              amount="R320"
-              date="3 days ago"
-            />
-            <ApprovalItem
-              type="expense"
-              title="Vehicle Fuel"
-              subtitle="Charl Pieterse"
-              amount="R450"
-              date="3 days ago"
-            />
-          </div>
-          <div className="border-t border-blue-500/20 p-4">
-            <button className="flex w-full items-center justify-center gap-2 text-center text-sm font-medium text-blue-400 hover:text-blue-300">
-              View all pending items
-              <ArrowUpRight className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
+        </WidgetErrorBoundary>
 
         {/* Sidebar - 1 column */}
         <div className="space-y-6">
           {/* Document Expiry Alerts */}
-          <div
-            className="overflow-hidden rounded-2xl border border-blue-500/20 bg-blue-950/40 backdrop-blur-sm"
-            data-testid="document-expiry"
-          >
-            <div className="flex items-center justify-between border-b border-blue-500/20 p-6">
-              <div>
-                <h3 className="font-semibold text-blue-100">Expiring Documents</h3>
-                <p className="text-sm text-blue-200/50">Requiring review</p>
+          <WidgetErrorBoundary>
+            <div
+              className="overflow-hidden rounded-2xl border border-blue-500/20 bg-blue-950/40 backdrop-blur-sm"
+              data-testid="document-expiry"
+            >
+              <div className="flex items-center justify-between border-b border-blue-500/20 p-6">
+                <div>
+                  <h3 className="font-semibold text-blue-100">Expiring Documents</h3>
+                  <p className="text-sm text-blue-200/50">Requiring review</p>
+                </div>
+                <AlertTriangle className="h-5 w-5 text-amber-400" />
               </div>
-              <AlertTriangle className="h-5 w-5 text-amber-400" />
+              <div className="space-y-3 p-4">
+                <ExpiryItem name="Emergency Contact List" daysLeft={7} responsible="All" />
+                <ExpiryItem name="Expense Policy" daysLeft={23} responsible="Hans" />
+                <ExpiryItem name="Leave Policy" daysLeft={45} responsible="HR" />
+              </div>
             </div>
-            <div className="space-y-3 p-4">
-              <ExpiryItem name="Emergency Contact List" daysLeft={7} responsible="All" />
-              <ExpiryItem name="Expense Policy" daysLeft={23} responsible="Hans" />
-              <ExpiryItem name="Leave Policy" daysLeft={45} responsible="HR" />
-            </div>
-          </div>
+          </WidgetErrorBoundary>
 
           {/* Recent Activity */}
-          <div
-            className="overflow-hidden rounded-2xl border border-blue-500/20 bg-blue-950/40 backdrop-blur-sm"
-            data-testid="recent-activity"
-          >
-            <div className="border-b border-blue-500/20 p-6">
-              <h3 className="font-semibold text-blue-100">Recent Activity</h3>
+          <WidgetErrorBoundary>
+            <div
+              className="overflow-hidden rounded-2xl border border-blue-500/20 bg-blue-950/40 backdrop-blur-sm"
+              data-testid="recent-activity"
+            >
+              <div className="border-b border-blue-500/20 p-6">
+                <h3 className="font-semibold text-blue-100">Recent Activity</h3>
+              </div>
+              <div className="divide-y divide-blue-500/10 p-4">
+                <ActivityItem
+                  action="Completed workshop cleanup task"
+                  user="Charl"
+                  time="30 min ago"
+                  icon={CheckCircle}
+                />
+                <ActivityItem
+                  action="Submitted fuel expense"
+                  user="Lucky"
+                  time="1 hour ago"
+                  icon={DollarSign}
+                />
+                <ActivityItem
+                  action="Clocked in for shift"
+                  user="Charl"
+                  time="3 hours ago"
+                  icon={Clock}
+                />
+                <ActivityItem
+                  action="Updated vehicle mileage"
+                  user="Lucky"
+                  time="5 hours ago"
+                  icon={Calendar}
+                />
+              </div>
             </div>
-            <div className="divide-y divide-blue-500/10 p-4">
-              <ActivityItem
-                action="Completed workshop cleanup task"
-                user="Charl"
-                time="30 min ago"
-                icon={CheckCircle}
-              />
-              <ActivityItem
-                action="Submitted fuel expense"
-                user="Lucky"
-                time="1 hour ago"
-                icon={DollarSign}
-              />
-              <ActivityItem
-                action="Clocked in for shift"
-                user="Charl"
-                time="3 hours ago"
-                icon={Clock}
-              />
-              <ActivityItem
-                action="Updated vehicle mileage"
-                user="Lucky"
-                time="5 hours ago"
-                icon={Calendar}
-              />
-            </div>
-          </div>
+          </WidgetErrorBoundary>
 
           {/* System Status */}
-          <div
-            className="rounded-2xl border border-blue-500/20 bg-blue-950/40 p-6 backdrop-blur-sm"
-            data-testid="system-status"
-          >
-            <div className="mb-4 flex items-center gap-3">
-              <Server className="h-5 w-5 text-blue-400" />
-              <h3 className="font-semibold text-blue-100">System Status</h3>
+          <WidgetErrorBoundary>
+            <div
+              className="rounded-2xl border border-blue-500/20 bg-blue-950/40 p-6 backdrop-blur-sm"
+              data-testid="system-status"
+            >
+              <div className="mb-4 flex items-center gap-3">
+                <Server className="h-5 w-5 text-blue-400" />
+                <h3 className="font-semibold text-blue-100">System Status</h3>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-blue-200/60">Uptime</span>
+                  <span className="text-sm font-medium text-green-400">99.9%</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-blue-200/60">Documents Signed</span>
+                  <span className="text-sm font-medium text-blue-100">18/18</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-blue-200/60">Last Backup</span>
+                  <span className="text-sm font-medium text-blue-100">2 hours ago</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-blue-200/60">API Status</span>
+                  <span className="flex items-center gap-1 text-sm font-medium text-green-400">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
+                    Online
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-blue-200/60">Uptime</span>
-                <span className="text-sm font-medium text-green-400">99.9%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-blue-200/60">Documents Signed</span>
-                <span className="text-sm font-medium text-blue-100">18/18</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-blue-200/60">Last Backup</span>
-                <span className="text-sm font-medium text-blue-100">2 hours ago</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-blue-200/60">API Status</span>
-                <span className="flex items-center gap-1 text-sm font-medium text-green-400">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
-                  Online
-                </span>
-              </div>
-            </div>
-          </div>
+          </WidgetErrorBoundary>
         </div>
       </div>
     </DashboardLayout>

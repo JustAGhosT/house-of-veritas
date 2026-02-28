@@ -1,22 +1,23 @@
 "use client"
 
-import { useState, useEffect, startTransition } from "react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { useAuth } from "@/lib/auth-context"
-import { useLoginModal } from "@/lib/login-modal-context"
-import { apiFetch } from "@/lib/api-client"
-import { NotificationPanel } from "@/components/notification-panel"
-import { RealTimeIndicator } from "@/components/realtime-indicator"
 import { ConnectionStatus } from "@/components/connection-status"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { SimpleGridBackground } from "@/components/grid-room-background"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { NotificationPanel } from "@/components/notification-panel"
 import { OnboardingTutorial } from "@/components/onboarding-tutorial"
-import { LogOut, Menu, X, ChevronDown, ChevronRight } from "lucide-react"
+import { RealTimeIndicator } from "@/components/realtime-indicator"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { UserProfileDropdown } from "@/components/user-profile-dropdown"
-import { getNavForPersona, isCategory } from "@/lib/nav-config"
+import { WidgetErrorBoundary } from "@/components/widget-error-boundary"
+import { apiFetch } from "@/lib/api-client"
+import { useAuth } from "@/lib/auth-context"
+import { useLoginModal } from "@/lib/login-modal-context"
 import type { NavEntry } from "@/lib/nav-config"
+import { getNavForPersona, isCategory } from "@/lib/nav-config"
+import { ChevronRight, Menu, X } from "lucide-react"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { startTransition, useEffect, useRef, useState } from "react"
 
 const PERSONA_INFO = {
   hans: { name: "Hans", role: "Owner & Administrator", color: "blue", icon: "👔" },
@@ -50,11 +51,17 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
   const { openLoginModal } = useLoginModal()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
+  const hasOpenedLogin = useRef(false)
 
-  // Auth protection - open login modal when auth is required
+  // Auth protection - open login modal when auth is required (only once)
   useEffect(() => {
-    if (requiresAuth) {
+    if (requiresAuth && !hasOpenedLogin.current) {
+      hasOpenedLogin.current = true
       openLoginModal()
+    }
+    // Reset flag when user becomes authenticated
+    if (!requiresAuth) {
+      hasOpenedLogin.current = false
     }
   }, [requiresAuth, openLoginModal])
 
@@ -160,11 +167,10 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
                             key={item.href}
                             href={item.href}
                             onClick={() => setSidebarOpen(false)}
-                            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-                              isActive
+                            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive
                                 ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
                                 : "text-white/60 hover:bg-white/5 hover:text-white"
-                            } `}
+                              } `}
                           >
                             <Icon className="h-4 w-4" />
                             <span className="text-sm">{item.name}</span>
@@ -183,11 +189,10 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
                 key={entry.href}
                 href={entry.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
-                  isActive
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${isActive
                     ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
                     : "text-white/60 hover:bg-white/5 hover:text-white"
-                } `}
+                  } `}
               >
                 <Icon className="h-5 w-5" />
                 <span className="text-sm font-medium">{entry.name}</span>
@@ -270,28 +275,34 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
             {/* Right Side Actions */}
             <div className="flex items-center gap-4">
               <ConnectionStatus />
-              <RealTimeIndicator />
+              <WidgetErrorBoundary>
+                <RealTimeIndicator />
+              </WidgetErrorBoundary>
 
               {/* Notifications */}
-              <NotificationPanel />
+              <WidgetErrorBoundary>
+                <NotificationPanel />
+              </WidgetErrorBoundary>
 
               {/* User Profile Dropdown */}
               <div className="hidden md:block">
-                <UserProfileDropdown
-                  user={{
-                    id: user?.id ?? persona,
-                    name: user?.name ?? "",
-                    email: user?.email ?? "",
-                    phone: user?.phone,
-                    role: user?.role ?? "",
-                    color: (user as { color?: string })?.color,
-                    icon: (user as { icon?: string })?.icon,
-                    photoUrl: (user as { photoUrl?: string })?.photoUrl,
-                  }}
-                  personaInfo={personaInfo}
-                  onLogout={handleLogout}
-                  onRepeatTutorial={() => setShowTutorial(true)}
-                />
+                <WidgetErrorBoundary>
+                  <UserProfileDropdown
+                    user={{
+                      id: user?.id ?? persona,
+                      name: user?.name ?? "",
+                      email: user?.email ?? "",
+                      phone: user?.phone,
+                      role: user?.role ?? "",
+                      color: (user as { color?: string })?.color,
+                      icon: (user as { icon?: string })?.icon,
+                      photoUrl: (user as { photoUrl?: string })?.photoUrl,
+                    }}
+                    personaInfo={personaInfo}
+                    onLogout={handleLogout}
+                    onRepeatTutorial={() => setShowTutorial(true)}
+                  />
+                </WidgetErrorBoundary>
               </div>
             </div>
           </div>

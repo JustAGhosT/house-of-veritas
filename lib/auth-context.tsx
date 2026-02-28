@@ -25,6 +25,8 @@ interface AuthContextType {
   logout: () => void
   isAuthenticated: boolean
   requiresAuth: boolean
+  setRequiresAuth: (value: boolean) => void
+  clearRequiresAuth: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -42,11 +44,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const data = await res.json()
         setUser(data.user)
+        setRequiresAuth(false)
       } else {
         setUser(null)
+        setRequiresAuth(true)
       }
     } catch {
       setUser(null)
+      setRequiresAuth(true)
     } finally {
       setIsLoading(false)
     }
@@ -65,7 +70,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!user && isDashboardPage) {
       setRequiresAuth(true)
-    } else if (user && isAuthPage) {
+    } else if (user) {
+      setRequiresAuth(false)
+    }
+
+    if (user && isAuthPage) {
       router.push(`/dashboard/${user.id}`)
     } else if (user && isOnboardingPage && user.onboardingStatus === "completed") {
       router.push(`/dashboard/${user.id}`)
@@ -97,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       setUser(data.user)
+      setRequiresAuth(false)
       router.push(data.redirectTo)
       return { success: true }
     } catch {
@@ -127,6 +137,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         isAuthenticated: !!user,
         requiresAuth,
+        setRequiresAuth,
+        clearRequiresAuth,
       }}
     >
       {children}
@@ -166,7 +178,8 @@ export function withAuth<P extends object>(
       )
     }
 
-    if (!isAuthenticated) {
+    // requiresAuth is used to trigger login UI in consuming components
+    if (!isAuthenticated || requiresAuth) {
       return null
     }
 

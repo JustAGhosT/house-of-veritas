@@ -80,7 +80,7 @@ export async function proxy(request: NextRequest) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
     const homeUrl = new URL("/", request.url)
-    homeUrl.searchParams.set("redirect", pathname)
+    homeUrl.searchParams.set("redirect", pathname + request.nextUrl.search)
     homeUrl.searchParams.set("login", "true")
     return NextResponse.redirect(homeUrl)
   }
@@ -92,6 +92,7 @@ export async function proxy(request: NextRequest) {
     }
     const homeUrl = new URL("/", request.url)
     homeUrl.searchParams.set("login", "true")
+    homeUrl.searchParams.set("redirect", pathname + request.nextUrl.search)
     return NextResponse.redirect(homeUrl)
   }
 

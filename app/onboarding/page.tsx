@@ -47,13 +47,14 @@ export default function OnboardingPage() {
     responsibilities?: string[]
   } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
-  // Open login modal when auth is required
+  // Open login modal when auth is required (but not when error is showing)
   useEffect(() => {
-    if (requiresAuth) {
+    if (requiresAuth && !error) {
       openLoginModal()
     }
-  }, [requiresAuth, openLoginModal])
+  }, [requiresAuth, openLoginModal, error])
   const [confirmedRole, setConfirmedRole] = useState(false)
   const [confirmedResponsibilities, setConfirmedResponsibilities] = useState(false)
   const [selectedResponsibilities, setSelectedResponsibilities] = useState<Set<string>>(new Set())
@@ -97,7 +98,10 @@ export default function OnboardingPage() {
           }
         }
       })
-      .catch(() => {})
+      .catch((err) => {
+        console.error("Failed to fetch user:", err)
+        setError(err instanceof Error ? err : new Error("Failed to fetch user"))
+      })
       .finally(() => setLoading(false))
   }, [router])
 
@@ -219,6 +223,22 @@ export default function OnboardingPage() {
 
   const handleClose = () => {
     router.push(`/dashboard/${user?.id || ""}`)
+  }
+
+  if (error) {
+    // Log full error details for debugging, but show generic message to users
+    console.error("Onboarding load error:", error)
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-black/60 p-4">
+        <div className="rounded-lg border border-red-800/50 bg-red-900/20 p-6 text-center">
+          <p className="mb-2 text-red-400">Unable to load onboarding</p>
+          <p className="mb-4 text-sm text-red-300/70">Please try again.</p>
+          <Button onClick={() => window.location.reload()} variant="outline" className="border-red-800/50">
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   if (loading || !user) {

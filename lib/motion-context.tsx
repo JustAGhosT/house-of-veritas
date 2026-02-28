@@ -18,27 +18,37 @@ export function MotionProvider({ children }: { children: ReactNode }) {
 
     // Load from localStorage on mount
     useEffect(() => {
-        const saved = localStorage.getItem(STORAGE_KEY)
-        if (saved !== null) {
-            setMotionEnabledState(saved === "true")
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY)
+            if (saved !== null) {
+                setMotionEnabledState(saved === "true")
+            }
+        } catch (e) {
+            // Silently fail if localStorage is not available
+            console.warn("Failed to read motion preference from localStorage:", e)
         }
         setMounted(true)
     }, [])
 
     const setMotionEnabled = (enabled: boolean) => {
         setMotionEnabledState(enabled)
-        localStorage.setItem(STORAGE_KEY, String(enabled))
+        try {
+            localStorage.setItem(STORAGE_KEY, String(enabled))
+        } catch (e) {
+            // Silently fail if localStorage is not available (e.g., quota exceeded, private mode)
+            console.warn("Failed to save motion preference to localStorage:", e)
+        }
     }
 
     const toggleMotion = () => {
         setMotionEnabled(!motionEnabled)
     }
 
-    // Prevent hydration mismatch - render without animations initially
+    // Initial render disables animations until preferences load to prevent hydration mismatch and flash
     if (!mounted) {
         return (
             <MotionContext.Provider
-                value={{ motionEnabled: true, setMotionEnabled, toggleMotion }}
+                value={{ motionEnabled: false, setMotionEnabled, toggleMotion }}
             >
                 {children}
             </MotionContext.Provider>
