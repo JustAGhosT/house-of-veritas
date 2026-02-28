@@ -60,6 +60,18 @@ class FileTokenRevocationStore implements TokenRevocationStore {
       if (fs.existsSync(this.filePath)) {
         const data = fs.readFileSync(this.filePath, 'utf8')
         const parsed = JSON.parse(data)
+        
+        // Validate that parsed is a non-null plain object
+        if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+          logger.warn("Invalid token data format in file", { 
+            filePath: this.filePath,
+            type: typeof parsed,
+            isArray: Array.isArray(parsed),
+            isNull: parsed === null
+          })
+          return
+        }
+        
         this.tokens = new Map(Object.entries(parsed))
         logger.debug("Loaded revoked tokens from file", { count: this.tokens.size })
       }
@@ -68,16 +80,14 @@ class FileTokenRevocationStore implements TokenRevocationStore {
     }
   }
 
-  private saveToFile(): void {
+  private async saveToFile(): Promise<void> {
     try {
       if (typeof window !== 'undefined') return // Skip in browser
-      const fs = require('fs')
+      const fs = require('fs').promises
       const dir = require('path').dirname(this.filePath)
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true })
-      }
+      await fs.mkdir(dir, { recursive: true })
       const obj = Object.fromEntries(this.tokens)
-      fs.writeFileSync(this.filePath, JSON.stringify(obj, null, 2))
+      await fs.writeFile(this.filePath, JSON.stringify(obj, null, 2))
     } catch (error) {
       logger.warn("Failed to save revoked tokens to file", { error })
     }
@@ -97,9 +107,13 @@ class FileTokenRevocationStore implements TokenRevocationStore {
       if (expiry > Date.now()) {
         return true
       }
-      // Token expired, remove it
+      // Token expired, remove it and schedule async save
       this.tokens.delete(token)
-      this.saveToFile()
+      setImmediate(() => {
+        this.saveToFile().catch(err => {
+          logger.warn("Failed to save after token expiration", { error: err })
+        })
+      })
       return false
     }
     return false
@@ -107,7 +121,7 @@ class FileTokenRevocationStore implements TokenRevocationStore {
 
   async add(token: string, expiry: number): Promise<void> {
     this.tokens.set(token, expiry)
-    this.saveToFile()
+    await this.saveToFile()
     logger.info("Invite token revoked and persisted", { 
       tokenPrefix: token.slice(0, 8) + "...",
       expiry: new Date(expiry).toISOString()

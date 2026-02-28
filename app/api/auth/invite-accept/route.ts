@@ -42,7 +42,7 @@ export async function GET(request: Request) {
     try {
       let retries = 3
       let lastError: unknown = null
-      
+
       while (retries > 0) {
         try {
           await invalidateInviteToken(token)
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
           }
         }
       }
-      
+
       if (lastError) {
         // All retries failed - emit monitored alert
         console.error("Failed to invalidate invite token after retries", {

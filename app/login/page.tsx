@@ -2,6 +2,7 @@
 
 import { ErrorBoundary } from "@/components/error-boundary"
 import { useAuth } from "@/lib/auth-context"
+import { Fragment } from "react"
 import {
   ArrowLeft,
   ArrowRight,
@@ -12,7 +13,7 @@ import {
   Shield,
   Smartphone
 } from "lucide-react"
-import { useState } from "react"
+import React, { Fragment, useState } from "react"
 
 export default function LoginPage() {
   const { login, isLoading: authLoading } = useAuth()
@@ -225,14 +226,26 @@ export default function LoginPage() {
                   <div className="mt-8 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
                     <p className="mb-2 text-sm font-medium text-amber-400">Demo Credentials</p>
                     <div className="grid grid-cols-2 gap-2 text-xs text-white/60">
-                      <div>hans@houseofv.com</div>
-                      <div className="text-white/40">hans123</div>
-                      <div>charl@houseofv.com</div>
-                      <div className="text-white/40">charl123</div>
-                      <div>lucky@houseofv.com</div>
-                      <div className="text-white/40">lucky123</div>
-                      <div>irma@houseofv.com</div>
-                      <div className="text-white/40">irma123</div>
+                      {process.env.NEXT_PUBLIC_DEMO_USERS
+                        ? JSON.parse(process.env.NEXT_PUBLIC_DEMO_USERS).map((user: { email: string; password: string }, index: number) => (
+                          <Fragment key={index}>
+                            <div>{user.email}</div>
+                            <div className="text-white/40">{user.password}</div>
+                          </Fragment>
+                        ))
+                        : (
+                          <>
+                            <div>hans@houseofv.com</div>
+                            <div className="text-white/40">hans123</div>
+                            <div>charl@houseofv.com</div>
+                            <div className="text-white/40">charl123</div>
+                            <div>lucky@houseofv.com</div>
+                            <div className="text-white/40">lucky123</div>
+                            <div>irma@houseofv.com</div>
+                            <div className="text-white/40">irma123</div>
+                          </>
+                        )
+                      }
                     </div>
                   </div>
                 )}

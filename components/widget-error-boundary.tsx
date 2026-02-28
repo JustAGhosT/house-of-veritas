@@ -28,7 +28,7 @@ export class WidgetErrorBoundary extends Component<Props, State> {
         if (this.state.hasError) {
             if (fallback) {
                 // Wrap fallback in container with className for consistent layout
-                return <div className={className}>{fallback}</div>
+                return <div className={className} role="alert">{fallback}</div>
             }
             return (
                 <div className={`rounded-lg border border-red-800/50 bg-red-900/20 p-4 ${className || ""}`} role="alert">

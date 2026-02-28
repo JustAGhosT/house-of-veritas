@@ -172,10 +172,10 @@ export function withAuth<P extends object>(
 
     // Handle navigation in useEffect to avoid side effects in render
     useEffect(() => {
-      if (!isLoading && (!isAuthenticated || requiresAuth) && !options?.fallback) {
+      if (!isLoading && requiresAuth && !isAuthenticated && !options?.fallback) {
         router.push("/login")
       }
-    }, [isLoading, isAuthenticated, requiresAuth, options?.fallback, router])
+    }, [isLoading, isAuthenticated, requiresAuth, router])
 
     if (isLoading) {
       return (
@@ -185,8 +185,8 @@ export function withAuth<P extends object>(
       )
     }
 
-    // requiresAuth is used to trigger login UI in consuming components
-    if (!isAuthenticated || requiresAuth) {
+    // Only block rendering when user is not authenticated
+    if (!isAuthenticated) {
       // Render fallback if provided, otherwise return null and let useEffect handle navigation
       if (options?.fallback) {
         return <>{options.fallback}</>

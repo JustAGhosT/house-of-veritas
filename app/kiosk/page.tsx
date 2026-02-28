@@ -274,8 +274,8 @@ export default function KioskPage() {
 
     try {
       const parsedQuantity = parseFloat(quantity);
-      const safeQuantity = Number.isFinite(parsedQuantity) ? Math.max(0, parsedQuantity) : 0;
-      
+      const safeQuantity = Number.isFinite(parsedQuantity) ? Math.max(1, parsedQuantity) : 1;
+
       await apiFetch("/api/inventory", {
         method: "POST",
         body: {
@@ -889,9 +889,9 @@ export default function KioskPage() {
                     </div>
                     <Input
                       type="number"
-                      min="0"
+                      min="1"
                       value={quantity}
-                      onChange={(e) => setQuantity(Math.max(0, parseInt(e.target.value) || 0).toString())}
+                      onChange={(e) => setQuantity(Math.max(1, parseFloat(e.target.value) || 1).toString())}
                       className="h-14 border-white/10 bg-white/5 text-center text-xl"
                     />
                   </div>
@@ -1171,7 +1171,7 @@ export default function KioskPage() {
               </Button>
               <Button
                 onClick={submitAdvanceRequest}
-                disabled={loading || advanceRequest.amount <= 0 || !advanceRequest.reason}
+                disabled={loading || advanceRequest.amount < 100 || !advanceRequest.reason}
                 className="bg-yellow-600 hover:bg-yellow-700"
                 data-testid="submit-advance-request-btn"
               >
