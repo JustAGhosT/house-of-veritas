@@ -4,7 +4,7 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 
 interface MotionContextType {
     motionEnabled: boolean
-    setMotionEnabled: (enabled: boolean) => void
+    setMotionEnabled: (enabled: boolean | ((prev: boolean) => boolean)) => void
     toggleMotion: () => void
 }
 
@@ -30,18 +30,21 @@ export function MotionProvider({ children }: { children: ReactNode }) {
         setMounted(true)
     }, [])
 
-    const setMotionEnabled = (enabled: boolean) => {
-        setMotionEnabledState(enabled)
-        try {
-            localStorage.setItem(STORAGE_KEY, String(enabled))
-        } catch (e) {
-            // Silently fail if localStorage is not available (e.g., quota exceeded, private mode)
-            console.warn("Failed to save motion preference to localStorage:", e)
-        }
+    const setMotionEnabled = (value: boolean | ((prev: boolean) => boolean)) => {
+        setMotionEnabledState((prev) => {
+            const newValue = typeof value === "function" ? (value as (prev: boolean) => boolean)(prev) : value
+            try {
+                localStorage.setItem(STORAGE_KEY, String(newValue))
+            } catch (e) {
+                // Silently fail if localStorage is not available (e.g., quota exceeded, private mode)
+                console.warn("Failed to save motion preference to localStorage:", e)
+            }
+            return newValue
+        })
     }
 
     const toggleMotion = () => {
-        setMotionEnabled(!motionEnabled)
+        setMotionEnabled((prev) => !prev)
     }
 
     // Initial render disables animations until preferences load to prevent hydration mismatch and flash

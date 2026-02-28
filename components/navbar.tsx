@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { useLoginModal } from "@/lib/login-modal-context"
 import { useMotion } from "@/lib/motion-context"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X, Zap } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -104,14 +104,15 @@ export function Navbar() {
       </nav>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <motion.div
-          initial={motionEnabled ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={motionEnabled ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
-          transition={motionEnabled ? undefined : { duration: 0 }}
-          className="absolute top-full right-0 left-0 border-b border-zinc-800 bg-zinc-900/98 p-4 backdrop-blur-md"
-        >
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={motionEnabled ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={motionEnabled ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
+            transition={motionEnabled ? undefined : { duration: 0 }}
+            className="absolute top-full right-0 left-0 border-b border-zinc-800 bg-zinc-900/98 p-4 backdrop-blur-md"
+          >
           <div className="mx-auto flex max-w-6xl flex-col gap-2">
             {navItems.map((item) => (
               <Link
@@ -144,8 +145,9 @@ export function Navbar() {
               Access Documents
             </Button>
           </div>
-        </motion.div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </motion.header>
   )

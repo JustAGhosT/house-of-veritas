@@ -48,13 +48,14 @@ export default function OnboardingPage() {
   } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [authError, setAuthError] = useState(false)
 
-  // Open login modal when auth is required (but not when error is showing)
+  // Open login modal when auth is required (but not when auth error is already handled)
   useEffect(() => {
-    if (requiresAuth && !error) {
+    if (requiresAuth && !authError) {
       openLoginModal()
     }
-  }, [requiresAuth, openLoginModal, error])
+  }, [requiresAuth, openLoginModal, authError])
   const [confirmedRole, setConfirmedRole] = useState(false)
   const [confirmedResponsibilities, setConfirmedResponsibilities] = useState(false)
   const [selectedResponsibilities, setSelectedResponsibilities] = useState<Set<string>>(new Set())
@@ -100,7 +101,16 @@ export default function OnboardingPage() {
       })
       .catch((err) => {
         console.error("Failed to fetch user:", err)
-        setError(err instanceof Error ? err : new Error("Failed to fetch user"))
+        // Check if it's an auth error (401/403)
+        const isAuthError = err instanceof Response
+          ? err.status === 401 || err.status === 403
+          : err?.status === 401 || err?.status === 403
+        if (isAuthError) {
+          setAuthError(true)
+          openLoginModal()
+        } else {
+          setError(err instanceof Error ? err : new Error("Failed to fetch user"))
+        }
       })
       .finally(() => setLoading(false))
   }, [router])

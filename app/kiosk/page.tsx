@@ -119,8 +119,6 @@ export default function KioskPage() {
   // Timeout refs for cleanup
   const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const successTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  // Ref for random clock-in state (to avoid impure function during render)
-  const clockedInRef = useRef<boolean>(false)
 
   // Modal states
   const [showScanner, setShowScanner] = useState(false)
@@ -206,10 +204,9 @@ export default function KioskPage() {
 
     const user = pinMap[pin]
     if (user) {
-      // Check if already clocked in (would be from API)
-      // Use ref to avoid impure function during render
-      clockedInRef.current = !clockedInRef.current
-      setCurrentUser({ ...user, clockedIn: clockedInRef.current })
+      // In production, clockedIn status would come from the API response
+      // For demo, users start as clocked out and toggle via handleClockInOut
+      setCurrentUser({ ...user, clockedIn: false })
       setPin("")
     } else {
       showError("Invalid PIN")
@@ -363,6 +360,11 @@ export default function KioskPage() {
   // Save notification preference
   const saveNotificationPref = async (channel: "sms" | "whatsapp" | "email") => {
     if (!currentUser) return
+    // Short-circuit if preference is already set to the requested channel
+    if (notificationPref === channel) {
+      setShowNotificationPrefs(false)
+      return
+    }
     setLoading(true)
     try {
       await apiFetch("/api/notifications/preferences", {

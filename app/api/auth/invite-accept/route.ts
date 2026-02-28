@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { validateInviteToken } from "@/lib/invite"
+import { validateInviteToken, invalidateInviteToken } from "@/lib/invite"
 import { findUserByIdAsync, safeUser } from "@/lib/users"
 import { signToken, getSessionCookieConfig } from "@/lib/auth/jwt"
 
@@ -19,6 +19,9 @@ export async function GET(request: Request) {
   if (!user) {
     return NextResponse.redirect(new URL("/?error=invalid_token", request.url))
   }
+
+  // Invalidate token to prevent reuse
+  await invalidateInviteToken(token)
 
   const jwt = await signToken({
     userId: user.id,

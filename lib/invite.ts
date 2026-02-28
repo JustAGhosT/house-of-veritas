@@ -30,14 +30,26 @@ export async function createInviteToken(userId: string): Promise<string> {
     .sign(getSecret())
 }
 
+// Simple in-memory store for invalidated tokens (in production, use Redis or database)
+const invalidatedTokens = new Set<string>()
+
 export async function validateInviteToken(token: string): Promise<{ userId: string } | null> {
   try {
+    // Check if token has been invalidated
+    if (invalidatedTokens.has(token)) {
+      return null
+    }
     const { payload } = await jwtVerify(token, getSecret())
     const userId = payload.userId as string
     return userId ? { userId } : null
   } catch {
     return null
   }
+}
+
+export async function invalidateInviteToken(token: string): Promise<void> {
+  invalidatedTokens.add(token)
+  logger.info("Invite token invalidated", { tokenPrefix: token.slice(0, 8) + "..." })
 }
 
 export async function sendInvite(
