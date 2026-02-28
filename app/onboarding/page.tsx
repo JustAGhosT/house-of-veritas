@@ -113,7 +113,7 @@ export default function OnboardingPage() {
         }
       })
       .finally(() => setLoading(false))
-  }, [router])
+  }, [router, openLoginModal])
 
   useEffect(() => {
     if (!user) return

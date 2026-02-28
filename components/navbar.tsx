@@ -11,7 +11,7 @@ import Link from "next/link"
 import { useRef, useState } from "react"
 
 const navItems = [
-  { label: "Documents", href: "#documents" },
+  { label: "Compliance", href: "#compliance" },
   { label: "Operations", href: "#features" },
   { label: "Reports", href: "#dashboard" },
   { label: "Help", href: "#help" },

@@ -4,6 +4,7 @@ import { sendNotification } from "@/lib/services/notification-service"
 import { logger } from "@/lib/logger"
 
 const INVITE_EXPIRY_HOURS = 72
+const CLEANUP_INTERVAL_MS = 60 * 60 * 1000 // 1 hour
 
 function getSecret() {
   const secret = process.env.INVITE_JWT_SECRET || process.env.JWT_SECRET
@@ -30,14 +31,40 @@ export async function createInviteToken(userId: string): Promise<string> {
     .sign(getSecret())
 }
 
-// Simple in-memory store for invalidated tokens (in production, use Redis or database)
-const invalidatedTokens = new Set<string>()
+// In-memory store for invalidated tokens with expiry timestamps (token -> expiryTimestamp)
+// In production, use Redis or database
+const invalidatedTokens = new Map<string, number>()
+
+// Cleanup expired tokens periodically
+const cleanupInterval = setInterval(() => {
+  const now = Date.now()
+  let cleaned = 0
+  for (const [token, expiry] of invalidatedTokens.entries()) {
+    if (expiry <= now) {
+      invalidatedTokens.delete(token)
+      cleaned++
+    }
+  }
+  if (cleaned > 0) {
+    logger.debug("Cleaned up expired invalidated tokens", { count: cleaned })
+  }
+}, CLEANUP_INTERVAL_MS)
+
+// Export cleanup function for tests or graceful shutdown
+export function stopInviteTokenCleanup(): void {
+  clearInterval(cleanupInterval)
+}
 
 export async function validateInviteToken(token: string): Promise<{ userId: string } | null> {
   try {
-    // Check if token has been invalidated
-    if (invalidatedTokens.has(token)) {
-      return null
+    // Check if token has been invalidated and cleanup expired entries
+    const expiry = invalidatedTokens.get(token)
+    if (expiry) {
+      if (expiry > Date.now()) {
+        return null
+      }
+      // Token expired, remove it
+      invalidatedTokens.delete(token)
     }
     const { payload } = await jwtVerify(token, getSecret())
     const userId = payload.userId as string
@@ -48,7 +75,9 @@ export async function validateInviteToken(token: string): Promise<{ userId: stri
 }
 
 export async function invalidateInviteToken(token: string): Promise<void> {
-  invalidatedTokens.add(token)
+  // Store token with expiry (72 hours from now, matching token expiry)
+  const expiryMs = Date.now() + INVITE_EXPIRY_HOURS * 60 * 60 * 1000
+  invalidatedTokens.set(token, expiryMs)
   logger.info("Invite token invalidated", { tokenPrefix: token.slice(0, 8) + "..." })
 }
 

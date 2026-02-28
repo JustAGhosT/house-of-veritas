@@ -156,7 +156,7 @@ export function useAuth() {
 
 export function withAuth<P extends object>(
   WrappedComponent: React.ComponentType<P>,
-  options?: { allowedUsers?: string[] }
+  options?: { allowedUsers?: string[]; fallback?: ReactNode }
 ) {
   return function ProtectedComponent(props: P) {
     const { user, isLoading, isAuthenticated, requiresAuth } = useAuth()
@@ -168,7 +168,7 @@ export function withAuth<P extends object>(
           router.push(`/dashboard/${user.id}`)
         }
       }
-    }, [isLoading, user, router])
+    }, [isLoading, user, router, options?.allowedUsers])
 
     if (isLoading) {
       return (
@@ -180,6 +180,11 @@ export function withAuth<P extends object>(
 
     // requiresAuth is used to trigger login UI in consuming components
     if (!isAuthenticated || requiresAuth) {
+      // Render fallback if provided, otherwise redirect to login
+      if (options?.fallback) {
+        return <>{options.fallback}</>
+      }
+      router.push("/login")
       return null
     }
 
