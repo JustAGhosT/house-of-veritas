@@ -8,9 +8,7 @@ const DEFAULT_ADMIN = "hans"
 /** User ID for low-stock / reorder alerts. REORDER_ALERT_RECIPIENT or LOW_STOCK_NOTIFY_USER_ID. */
 export function getLowStockNotificationRecipient(): string {
   return (
-    process.env.REORDER_ALERT_RECIPIENT ??
-    process.env.LOW_STOCK_NOTIFY_USER_ID ??
-    DEFAULT_ADMIN
+    process.env.REORDER_ALERT_RECIPIENT ?? process.env.LOW_STOCK_NOTIFY_USER_ID ?? DEFAULT_ADMIN
   )
 }
 

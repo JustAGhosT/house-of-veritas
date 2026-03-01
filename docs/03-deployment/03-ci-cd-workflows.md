@@ -4,14 +4,14 @@ This document describes the GitHub Actions workflows for continuous integration 
 
 ## Workflows Overview
 
-| Workflow                   | Trigger                            | Purpose                     |
-| -------------------------- | ---------------------------------- | --------------------------- |
-| `deployment-checklist.yml` | PR, Push, Schedule (daily), Manual | Infrastructure verification |
-| `deploy-on-merge.yml`      | Push to main (app changes)         | **Auto-deploy web app**     |
+| Workflow                   | Trigger                            | Purpose                                  |
+| -------------------------- | ---------------------------------- | ---------------------------------------- |
+| `deployment-checklist.yml` | PR, Push, Schedule (daily), Manual | Infrastructure verification              |
+| `deploy-on-merge.yml`      | Push to main (app changes)         | **Auto-deploy web app**                  |
 | `terraform-apply.yml`      | Push to main (terraform changes)   | Terraform apply (infra only when needed) |
-| `deploy-functions.yml`     | Push to main (function code)       | Azure Functions deployment  |
-| `terraform-plan.yml`       | PR to main (terraform changes)     | Terraform plan preview      |
-| `deploy.yml`               | Manual, Release                    | Full deployment pipeline    |
+| `deploy-functions.yml`     | Push to main (function code)       | Azure Functions deployment               |
+| `terraform-plan.yml`       | PR to main (terraform changes)     | Terraform plan preview                   |
+| `deploy.yml`               | Manual, Release                    | Full deployment pipeline                 |
 
 ---
 

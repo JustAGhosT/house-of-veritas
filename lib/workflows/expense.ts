@@ -21,15 +21,15 @@ export const expenseCreated = inngest.createFunction(
           ? `High-Value Expense (${formatCurrency(amount)}) - Approval Required`
           : "New Expense Pending Approval",
         message: `${expense.submittedBy || "Unknown"} submitted ${formatCurrency(amount)} - ${expense.category ?? ""}${isHighValue ? " (requires additional approval)" : ""}`,
-      channels: isHighValue ? ["in_app", "sms"] : ["in_app"],
-      data: {
-        expenseId: expense.id,
-        amount: expense.amount,
-        category: expense.category,
-        submittedBy: expense.submittedBy,
-        highValue: isHighValue,
-      },
-      priority: isHighValue ? "urgent" : "medium",
+        channels: isHighValue ? ["in_app", "sms"] : ["in_app"],
+        data: {
+          expenseId: expense.id,
+          amount: expense.amount,
+          category: expense.category,
+          submittedBy: expense.submittedBy,
+          highValue: isHighValue,
+        },
+        priority: isHighValue ? "urgent" : "medium",
       })
     })
 

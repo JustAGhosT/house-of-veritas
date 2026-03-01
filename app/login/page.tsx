@@ -2,16 +2,7 @@
 
 import { ErrorBoundary } from "@/components/error-boundary"
 import { useAuth } from "@/lib/auth-context"
-import {
-  ArrowLeft,
-  ArrowRight,
-  Eye,
-  EyeOff,
-  Lock,
-  Mail,
-  Shield,
-  Smartphone
-} from "lucide-react"
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail, Shield, Smartphone } from "lucide-react"
 import React, { Fragment, useState } from "react"
 
 export default function LoginPage() {
@@ -34,7 +25,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
   const [resetEmail, setResetEmail] = useState("")
   const [resetMethod, setResetMethod] = useState<"sms" | "email">("sms")
   const [resetSuccess, setResetSuccess] = useState<string | null>(null)
@@ -186,7 +176,11 @@ export default function LoginPage() {
                         aria-label={showPassword ? "Hide password" : "Show password"}
                         aria-pressed={showPassword ? "true" : "false"}
                       >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -203,10 +197,11 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isLoading || !email || !password}
-                    className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium transition-all ${isLoading || !email || !password
-                      ? "cursor-not-allowed bg-white/10 text-white/40"
-                      : "bg-linear-to-r from-blue-600 to-blue-700 text-white hover:from-blue-500 hover:to-blue-600"
-                      }`}
+                    className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium transition-all ${
+                      isLoading || !email || !password
+                        ? "cursor-not-allowed bg-white/10 text-white/40"
+                        : "bg-linear-to-r from-blue-600 to-blue-700 text-white hover:from-blue-500 hover:to-blue-600"
+                    }`}
                     data-testid="login-submit"
                   >
                     {isLoading ? (
@@ -238,26 +233,27 @@ export default function LoginPage() {
                   <div className="mt-8 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
                     <p className="mb-2 text-sm font-medium text-amber-400">Demo Credentials</p>
                     <div className="grid grid-cols-2 gap-2 text-xs text-white/60">
-                      {process.env.NEXT_PUBLIC_DEMO_USERS
-                        ? safeParseDemoUsers(process.env.NEXT_PUBLIC_DEMO_USERS).map((user: { email: string; password: string }, index: number) => (
-                          <Fragment key={index}>
-                            <div>{user.email}</div>
-                            <div className="text-white/40">{user.password}</div>
-                          </Fragment>
-                        ))
-                        : (
-                          <>
-                            <div>hans@houseofv.com</div>
-                            <div className="text-white/40">hans123</div>
-                            <div>charl@houseofv.com</div>
-                            <div className="text-white/40">charl123</div>
-                            <div>lucky@houseofv.com</div>
-                            <div className="text-white/40">lucky123</div>
-                            <div>irma@houseofv.com</div>
-                            <div className="text-white/40">irma123</div>
-                          </>
+                      {process.env.NEXT_PUBLIC_DEMO_USERS ? (
+                        safeParseDemoUsers(process.env.NEXT_PUBLIC_DEMO_USERS).map(
+                          (user: { email: string; password: string }, index: number) => (
+                            <Fragment key={index}>
+                              <div>{user.email}</div>
+                              <div className="text-white/40">{user.password}</div>
+                            </Fragment>
+                          )
                         )
-                      }
+                      ) : (
+                        <>
+                          <div>hans@houseofv.com</div>
+                          <div className="text-white/40">hans123</div>
+                          <div>charl@houseofv.com</div>
+                          <div className="text-white/40">charl123</div>
+                          <div>lucky@houseofv.com</div>
+                          <div className="text-white/40">lucky123</div>
+                          <div>irma@houseofv.com</div>
+                          <div className="text-white/40">irma123</div>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
@@ -324,15 +320,17 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setResetMethod("sms")}
-                    className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${resetMethod === "sms"
-                      ? "border-blue-500/30 bg-blue-500/10"
-                      : "border-white/10 bg-white/5 hover:border-white/20"
-                      }`}
+                    className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${
+                      resetMethod === "sms"
+                        ? "border-blue-500/30 bg-blue-500/10"
+                        : "border-white/10 bg-white/5 hover:border-white/20"
+                    }`}
                     data-testid="reset-method-sms"
                   >
                     <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-xl ${resetMethod === "sms" ? "bg-blue-500/20" : "bg-white/10"
-                        }`}
+                      className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                        resetMethod === "sms" ? "bg-blue-500/20" : "bg-white/10"
+                      }`}
                     >
                       <Smartphone
                         className={`h-5 w-5 ${resetMethod === "sms" ? "text-blue-400" : "text-white/60"}`}
@@ -347,23 +345,26 @@ export default function LoginPage() {
                       <p className="text-sm text-white/50">Send to registered cellphone</p>
                     </div>
                     <div
-                      className={`h-4 w-4 rounded-full border-2 ${resetMethod === "sms" ? "border-blue-400 bg-blue-400" : "border-white/30"
-                        }`}
+                      className={`h-4 w-4 rounded-full border-2 ${
+                        resetMethod === "sms" ? "border-blue-400 bg-blue-400" : "border-white/30"
+                      }`}
                     />
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setResetMethod("email")}
-                    className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${resetMethod === "email"
-                      ? "border-blue-500/30 bg-blue-500/10"
-                      : "border-white/10 bg-white/5 hover:border-white/20"
-                      }`}
+                    className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${
+                      resetMethod === "email"
+                        ? "border-blue-500/30 bg-blue-500/10"
+                        : "border-white/10 bg-white/5 hover:border-white/20"
+                    }`}
                     data-testid="reset-method-email"
                   >
                     <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-xl ${resetMethod === "email" ? "bg-blue-500/20" : "bg-white/10"
-                        }`}
+                      className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                        resetMethod === "email" ? "bg-blue-500/20" : "bg-white/10"
+                      }`}
                     >
                       <Mail
                         className={`h-5 w-5 ${resetMethod === "email" ? "text-blue-400" : "text-white/60"}`}
@@ -378,8 +379,9 @@ export default function LoginPage() {
                       <p className="text-sm text-white/50">Send to registered email</p>
                     </div>
                     <div
-                      className={`h-4 w-4 rounded-full border-2 ${resetMethod === "email" ? "border-blue-400 bg-blue-400" : "border-white/30"
-                        }`}
+                      className={`h-4 w-4 rounded-full border-2 ${
+                        resetMethod === "email" ? "border-blue-400 bg-blue-400" : "border-white/30"
+                      }`}
                     />
                   </button>
                 </div>
@@ -405,10 +407,11 @@ export default function LoginPage() {
                 <button
                   onClick={handleResetPassword}
                   disabled={isLoading || !resetEmail || !!resetSuccess}
-                  className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium transition-all ${isLoading || !resetEmail || !!resetSuccess
-                    ? "cursor-not-allowed bg-white/10 text-white/40"
-                    : "bg-linear-to-r from-amber-600 to-amber-700 text-white hover:from-amber-500 hover:to-amber-600"
-                    }`}
+                  className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium transition-all ${
+                    isLoading || !resetEmail || !!resetSuccess
+                      ? "cursor-not-allowed bg-white/10 text-white/40"
+                      : "bg-linear-to-r from-amber-600 to-amber-700 text-white hover:from-amber-500 hover:to-amber-600"
+                  }`}
                   data-testid="reset-submit"
                 >
                   {isLoading ? (

@@ -53,7 +53,7 @@ export async function GET(request: Request) {
           retries--
           if (retries > 0) {
             // Short backoff: 100ms, 200ms, 300ms
-            await new Promise(resolve => setTimeout(resolve, (4 - retries) * 100))
+            await new Promise((resolve) => setTimeout(resolve, (4 - retries) * 100))
           }
         }
       }

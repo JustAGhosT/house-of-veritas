@@ -12,13 +12,13 @@ export const projectSuggestionApproved = inngest.createFunction(
 
     await step.run("send-notification", async () => {
       await sendNotification({
-      type: "system_alert",
-      userId: getAdminNotificationRecipient(),
-      title: `New project approved: ${name}`,
-      message: `${suggestedBy} suggested → ${reviewedBy} approved. Type: ${type}. Project ID: ${projectId}`,
-      channels: ["in_app"],
-      data: { projectId, name, type, suggestedBy, reviewedBy },
-      priority: "medium",
+        type: "system_alert",
+        userId: getAdminNotificationRecipient(),
+        title: `New project approved: ${name}`,
+        message: `${suggestedBy} suggested → ${reviewedBy} approved. Type: ${type}. Project ID: ${projectId}`,
+        channels: ["in_app"],
+        data: { projectId, name, type, suggestedBy, reviewedBy },
+        priority: "medium",
       })
     })
 

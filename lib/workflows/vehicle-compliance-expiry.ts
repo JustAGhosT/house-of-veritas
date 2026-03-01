@@ -23,13 +23,13 @@ export const vehicleComplianceExpiry = inngest.createFunction(
     if (task) {
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "task_assigned",
-        userId: getAdminNotificationRecipient(),
-        title: "Vehicle Compliance Review Due",
-        message: "Monthly vehicle license/roadworthy/insurance expiry check",
-        channels: ["in_app"],
-        data: { taskId: task.id },
-        priority: "medium",
+          type: "task_assigned",
+          userId: getAdminNotificationRecipient(),
+          title: "Vehicle Compliance Review Due",
+          message: "Monthly vehicle license/roadworthy/insurance expiry check",
+          channels: ["in_app"],
+          data: { taskId: task.id },
+          priority: "medium",
         })
       })
     }

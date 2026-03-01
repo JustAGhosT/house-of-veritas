@@ -8,8 +8,7 @@ export const purchaseOrderCreated = inngest.createFunction(
   { id: "purchase-order-created", retries: 2 },
   { event: "house-of-veritas/purchase_order.created" },
   async ({ event, step }) => {
-    const { poId, vendor, amount, items, createdBy } =
-      event.data as PurchaseOrderCreatedPayload
+    const { poId, vendor, amount, items, createdBy } = event.data as PurchaseOrderCreatedPayload
 
     await runNotificationStep(step, async () => {
       await sendNotification({

@@ -19,7 +19,7 @@ import {
   TrendingDown,
   TrendingUp,
   Users,
-  XCircle
+  XCircle,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -35,7 +35,7 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis
+  YAxis,
 } from "recharts"
 
 // Budget data
@@ -66,9 +66,8 @@ const complianceData = [
 ]
 
 // Compute current compliance percentage from the latest data point
-const currentCompliancePercentage = complianceData.length > 0
-  ? `${complianceData[complianceData.length - 1].compliance}%`
-  : "—"
+const currentCompliancePercentage =
+  complianceData.length > 0 ? `${complianceData[complianceData.length - 1].compliance}%` : "—"
 
 // Task status distribution
 const taskStatusData = [
@@ -503,7 +502,10 @@ export default function DashboardPage() {
               {taskStatusData.map((status) => (
                 <div key={status.name} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: status.color }} />
+                    <div
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: status.color }}
+                    />
                     <span className="text-blue-200/60">{status.name}</span>
                   </div>
                   <span className="font-medium text-blue-100">{status.value}</span>
@@ -650,7 +652,7 @@ export default function DashboardPage() {
               />
             </div>
             <div className="border-t border-blue-500/20 p-4">
-              <button 
+              <button
                 className="flex w-full items-center justify-center gap-2 text-center text-sm font-medium text-blue-400 hover:text-blue-300"
                 onClick={() => router.push("/dashboard/hans/approvals")}
                 aria-label="View all pending items"

@@ -10,7 +10,10 @@ import { withRole } from "@/lib/auth/rbac"
 import { toISODateString } from "@/lib/utils"
 import { logger } from "@/lib/logger"
 
-export const GET = withRole("admin", "operator")(async (request) => {
+export const GET = withRole(
+  "admin",
+  "operator"
+)(async (request) => {
   const { searchParams } = new URL(request.url)
   const incident = searchParams.get("incident")
   const status = searchParams.get("status")
@@ -25,10 +28,7 @@ export const GET = withRole("admin", "operator")(async (request) => {
     logger.error("Error fetching insurance claims", {
       error: error instanceof Error ? error.message : String(error),
     })
-    return NextResponse.json(
-      { error: "Failed to fetch insurance claims" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch insurance claims" }, { status: 500 })
   }
 })
 
@@ -38,10 +38,7 @@ export const POST = withRole("admin")(async (request) => {
     const { incident, asset, description, amount, notes } = body
 
     if (!description || amount == null) {
-      return NextResponse.json(
-        { error: "Description and amount are required" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Description and amount are required" }, { status: 400 })
     }
 
     const claim = await createInsuranceClaim({
@@ -55,10 +52,7 @@ export const POST = withRole("admin")(async (request) => {
     })
 
     if (!claim) {
-      return NextResponse.json(
-        { error: "Failed to create insurance claim" },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: "Failed to create insurance claim" }, { status: 500 })
     }
 
     return withDataSource({ claim })
@@ -66,10 +60,7 @@ export const POST = withRole("admin")(async (request) => {
     logger.error("Error creating insurance claim", {
       error: error instanceof Error ? error.message : String(error),
     })
-    return NextResponse.json(
-      { error: "Failed to create insurance claim" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to create insurance claim" }, { status: 500 })
   }
 })
 
@@ -123,9 +114,6 @@ export const PATCH = withRole("admin")(async (request) => {
     logger.error("Error updating insurance claim", {
       error: error instanceof Error ? error.message : String(error),
     })
-    return NextResponse.json(
-      { error: "Failed to update insurance claim" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to update insurance claim" }, { status: 500 })
   }
 })

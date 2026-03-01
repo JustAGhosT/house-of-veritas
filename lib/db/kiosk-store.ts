@@ -177,7 +177,10 @@ const inMemoryStoreAdapter: KioskStore = {
     inMemoryStore.set(id.toString(), { ...doc, _id: id } as KioskRequestDoc)
     return { insertedId: id }
   },
-  async updateOne(filter: { _id: ObjectId }, update: { $set: Record<string, unknown> }): Promise<void> {
+  async updateOne(
+    filter: { _id: ObjectId },
+    update: { $set: Record<string, unknown> }
+  ): Promise<void> {
     const existing = inMemoryStore.get(filter._id.toString())
     if (existing) {
       Object.assign(existing, update.$set)

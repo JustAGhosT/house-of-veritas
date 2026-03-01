@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import { Menu, X, Zap } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const navItems = [
   { label: "Compliance", href: "#compliance" },
@@ -20,8 +20,8 @@ const navItems = [
 export function Navbar() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [motionEnabled, setMotionEnabled] = useMotion()
-  
+  const { motionEnabled, setMotionEnabled } = useMotion()
+
   // Keyboard accessibility for mobile menu
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -29,7 +29,7 @@ export function Navbar() {
         setMobileMenuOpen(false)
       }
     }
-      
+
     document.addEventListener("keydown", handleEscape)
     return () => document.removeEventListener("keydown", handleEscape)
   }, [mobileMenuOpen])
@@ -40,12 +40,14 @@ export function Navbar() {
     <motion.header
       initial={motionEnabled ? { y: -100, opacity: 0 } : false}
       animate={{ y: 0, opacity: 1 }}
-      transition={motionEnabled ? { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const } : { duration: 0 }}
-      className="fixed top-0 left-0 right-0 z-50 w-full min-w-full"
+      transition={
+        motionEnabled ? { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const } : { duration: 0 }
+      }
+      className="fixed top-0 right-0 left-0 z-50 w-full min-w-full"
     >
       <nav
         ref={navRef}
-        className="flex w-full min-w-full max-w-none items-center justify-between border-b border-zinc-800 bg-zinc-900/95 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8"
+        className="flex w-full max-w-none min-w-full items-center justify-between border-b border-zinc-800 bg-zinc-900/95 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8"
       >
         {/* Logo */}
         <Link href="/" className="flex cursor-pointer items-center gap-3">
@@ -68,7 +70,11 @@ export function Navbar() {
                   layoutId={motionEnabled ? "navbar-hover" : undefined}
                   className="absolute inset-0 rounded-full bg-zinc-800"
                   initial={false}
-                  transition={motionEnabled ? { type: "spring", stiffness: 500, damping: 30 } : { duration: 0 }}
+                  transition={
+                    motionEnabled
+                      ? { type: "spring", stiffness: 500, damping: 30 }
+                      : { duration: 0 }
+                  }
                 />
               )}
               <span className="relative z-10">{item.label}</span>
@@ -173,7 +179,6 @@ export function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-
     </motion.header>
   )
 }

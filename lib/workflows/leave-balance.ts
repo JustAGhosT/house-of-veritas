@@ -37,13 +37,13 @@ export const leaveBalanceUpdate = inngest.createFunction(
         const appUserId = BASEROW_ID_TO_APP_ID[emp.id] ?? "hans"
         await step.run(`notify-balance-${emp.id}`, async () => {
           await sendNotification({
-          type: "leave_balance_updated",
-          userId: appUserId,
-          title: "Leave Balance Updated",
-          message: `Your annual leave is now ${newBalance.toFixed(1)} days (+${accrued.toFixed(1)} this month).`,
-          channels: ["in_app"],
-          data: { employeeId: emp.id, newBalance, accrued },
-          priority: "low",
+            type: "leave_balance_updated",
+            userId: appUserId,
+            title: "Leave Balance Updated",
+            message: `Your annual leave is now ${newBalance.toFixed(1)} days (+${accrued.toFixed(1)} this month).`,
+            channels: ["in_app"],
+            data: { employeeId: emp.id, newBalance, accrued },
+            priority: "low",
           })
         })
       }
@@ -52,15 +52,15 @@ export const leaveBalanceUpdate = inngest.createFunction(
     if (updates.length > 0) {
       await step.run("send-summary", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: `Leave Balance Update: ${updates.length} employees`,
-        message: updates
-          .map((u) => `${u.name}: ${u.newBalance.toFixed(1)} days (+${u.accrued.toFixed(1)})`)
-          .join("; "),
-        channels: ["in_app"],
-        data: { count: updates.length, month: new Date().getMonth() + 1 },
-        priority: "medium",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: `Leave Balance Update: ${updates.length} employees`,
+          message: updates
+            .map((u) => `${u.name}: ${u.newBalance.toFixed(1)} days (+${u.accrued.toFixed(1)})`)
+            .join("; "),
+          channels: ["in_app"],
+          data: { count: updates.length, month: new Date().getMonth() + 1 },
+          priority: "medium",
         })
       })
     }

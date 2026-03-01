@@ -28,10 +28,12 @@ const getItemVariants = (motionEnabled: boolean) => ({
   visible: {
     opacity: 1,
     y: 0,
-    transition: motionEnabled ? {
-      duration: 0.6,
-      ease: [0.22, 1, 0.36, 1] as const,
-    } : { duration: 0 },
+    transition: motionEnabled
+      ? {
+          duration: 0.6,
+          ease: [0.22, 1, 0.36, 1] as const,
+        }
+      : { duration: 0 },
   },
 })
 
@@ -47,12 +49,13 @@ function ComplianceAlerts() {
       {alerts.map((alert, i) => (
         <div key={i} className="flex items-center gap-3 text-sm">
           <div
-            className={`h-2 w-2 rounded-full ${alert.status === "green"
+            className={`h-2 w-2 rounded-full ${
+              alert.status === "green"
                 ? "bg-green-500"
                 : alert.status === "yellow"
                   ? "bg-yellow-500"
                   : "bg-orange-500"
-              }`}
+            }`}
           />
           <span className="text-zinc-400">{alert.doc}</span>
           <span className="ml-auto text-zinc-500">{alert.days}d</span>

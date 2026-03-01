@@ -37,10 +37,7 @@ export function getAlertLevel(
  * @param alerts - Array of alerts with level property
  * @param prefix - Optional prefix (e.g. "Document Expiry Summary:")
  */
-export function buildSummaryMessage(
-  alerts: { level: string }[],
-  prefix = ""
-): string {
+export function buildSummaryMessage(alerts: { level: string }[], prefix = ""): string {
   const urgent = alerts.filter((a) => a.level === "URGENT").length
   const warning = alerts.filter((a) => a.level === "WARNING").length
   const notice = alerts.filter((a) => a.level === "NOTICE").length

@@ -10,13 +10,13 @@ export const successionLiveTest = inngest.createFunction(
 
     await step.run("send-notifications", async () => {
       await sendNotification({
-      type: "system_alert",
-      userId: data.successorId ?? getAdminNotificationRecipient(),
-      title: "Live Succession/Role Transfer Test",
-      message: `Dry-run initiated - use credentials/data for test window (${data.duration ?? "1 hour"})`,
-      channels: ["in_app"],
-      data: { type: "live_test" },
-      priority: "high",
+        type: "system_alert",
+        userId: data.successorId ?? getAdminNotificationRecipient(),
+        title: "Live Succession/Role Transfer Test",
+        message: `Dry-run initiated - use credentials/data for test window (${data.duration ?? "1 hour"})`,
+        channels: ["in_app"],
+        data: { type: "live_test" },
+        priority: "high",
       })
 
       await sendNotification({

@@ -20,9 +20,7 @@ export const docusealSubmissionCompleted = inngest.createFunction(
       const employees = await getEmployees()
       for (const email of payload.submitterEmails) {
         if (!email) continue
-        const emp = employees.find(
-          (e) => e.email?.toLowerCase() === email.toLowerCase()
-        )
+        const emp = employees.find((e) => e.email?.toLowerCase() === email.toLowerCase())
         if (emp) {
           const updated = await updateEmployee(emp.id, {
             contractRef: payload.documentUrl,
@@ -37,8 +35,7 @@ export const docusealSubmissionCompleted = inngest.createFunction(
 
     const docRows = await getDocumentExpiryRows()
     const docRecord = docRows.find(
-      (r) =>
-        r.docName?.toLowerCase() === payload.templateName.toLowerCase()
+      (r) => r.docName?.toLowerCase() === payload.templateName.toLowerCase()
     )
     if (docRecord) {
       const lastReview = payload.completedAt.slice(0, 10)

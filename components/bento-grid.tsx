@@ -19,10 +19,12 @@ const getItemVariants = (motionEnabled: boolean) => ({
   visible: {
     opacity: 1,
     y: 0,
-    transition: motionEnabled ? {
-      duration: 0.6,
-      ease: [0.22, 1, 0.36, 1] as const,
-    } : { duration: 0 },
+    transition: motionEnabled
+      ? {
+          duration: 0.6,
+          ease: [0.22, 1, 0.36, 1] as const,
+        }
+      : { duration: 0 },
   },
 })
 
@@ -43,7 +45,11 @@ function SystemStatus({ motionEnabled }: { motionEnabled: boolean }) {
           key={i}
           className={`h-2 w-2 rounded-full ${active ? "bg-emerald-500" : "bg-zinc-700"}`}
           animate={active && motionEnabled ? { scale: [1, 1.2, 1] } : { scale: 1 }}
-          transition={motionEnabled ? { duration: 1, repeat: Number.POSITIVE_INFINITY, delay: i * 0.2 } : { duration: 0 }}
+          transition={
+            motionEnabled
+              ? { duration: 1, repeat: Number.POSITIVE_INFINITY, delay: i * 0.2 }
+              : { duration: 0 }
+          }
         />
       ))}
     </div>

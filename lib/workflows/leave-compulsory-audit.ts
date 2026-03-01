@@ -39,13 +39,13 @@ export const leaveCompulsoryAudit = inngest.createFunction(
     if (findings.length > 0) {
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: "Leave Compliance Audit Report",
-        message: findings.join("\n"),
-        channels: ["in_app"],
-        data: { findings, count: findings.length },
-        priority: "medium",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: "Leave Compliance Audit Report",
+          message: findings.join("\n"),
+          channels: ["in_app"],
+          data: { findings, count: findings.length },
+          priority: "medium",
         })
       })
     }

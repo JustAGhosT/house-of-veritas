@@ -8,21 +8,19 @@ export const improvementPrompt = inngest.createFunction(
   { cron: "0 9 1 * *" },
   async ({ step }) => {
     const employees = await getEmployees()
-    const toPrompt = employees.filter(
-      (e) => e.role === "Employee" || e.role === "Resident"
-    )
+    const toPrompt = employees.filter((e) => e.role === "Employee" || e.role === "Resident")
 
     await step.run("send-prompts", async () => {
       for (const emp of toPrompt) {
         const appId = BASEROW_ID_TO_APP_ID[emp.id] ?? "hans"
         await sendNotification({
-        type: "system_alert",
-        userId: appId,
-        title: "Workflow Feedback",
-        message: "Which workflow slowed you down this month? Share feedback for improvement.",
-        channels: ["in_app"],
-        data: { type: "improvement_prompt" },
-        priority: "low",
+          type: "system_alert",
+          userId: appId,
+          title: "Workflow Feedback",
+          message: "Which workflow slowed you down this month? Share feedback for improvement.",
+          channels: ["in_app"],
+          data: { type: "improvement_prompt" },
+          priority: "low",
         })
       }
     })

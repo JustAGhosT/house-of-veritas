@@ -10,11 +10,13 @@ const getTextRevealVariants = (motionEnabled: boolean) => ({
   hidden: { y: motionEnabled ? "100%" : 0 },
   visible: (i: number) => ({
     y: 0,
-    transition: motionEnabled ? {
-      duration: 0.8,
-      ease: [0.22, 1, 0.36, 1] as const,
-      delay: i * 0.1,
-    } : { duration: 0 },
+    transition: motionEnabled
+      ? {
+          duration: 0.8,
+          ease: [0.22, 1, 0.36, 1] as const,
+          delay: i * 0.1,
+        }
+      : { duration: 0 },
   }),
 })
 

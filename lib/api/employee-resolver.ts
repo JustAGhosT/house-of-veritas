@@ -1,6 +1,6 @@
-import { isAdminOrOperator, type RouteContext } from "@/lib/auth/rbac";
-import { getBaserowEmployeeIdByAppId } from "@/lib/services/baserow";
-import { NextResponse } from "next/server";
+import { isAdminOrOperator, type RouteContext } from "@/lib/auth/rbac"
+import { getBaserowEmployeeIdByAppId } from "@/lib/services/baserow"
+import { NextResponse } from "next/server"
 
 export interface ResolveEmployeeForGetOptions {
   /** Query param name for employee filter, e.g. "employee" | "requester" | "issuedTo" | "driver" */
@@ -33,8 +33,7 @@ export async function resolveEmployeeForGet(
     return { employeeId }
   }
 
-  const callerEmployeeId =
-    (await getBaserowEmployeeIdByAppId(context.userId)) ?? undefined
+  const callerEmployeeId = (await getBaserowEmployeeIdByAppId(context.userId)) ?? undefined
   if (!callerEmployeeId) {
     return {
       employeeId: undefined,
@@ -62,11 +61,7 @@ export async function resolveEmployeeForPost(
   context: RouteContext,
   options: ResolveEmployeeForPostOptions = {}
 ): Promise<{ employeeId: number | undefined; error?: NextResponse }> {
-  const {
-    paramName = "employee",
-    required = true,
-    fallbackToCaller = true,
-  } = options
+  const { paramName = "employee", required = true, fallbackToCaller = true } = options
 
   // Read body[paramName] first; apply cross-fallback for requester/employee
   let paramValue = body[paramName]
@@ -108,10 +103,7 @@ export async function resolveEmployeeForPost(
     const label = paramName === "requester" ? "Requester" : "Employee"
     return {
       employeeId: undefined,
-      error: NextResponse.json(
-        { error: `${label} is required` },
-        { status: 400 }
-      ),
+      error: NextResponse.json({ error: `${label} is required` }, { status: 400 }),
     }
   }
 

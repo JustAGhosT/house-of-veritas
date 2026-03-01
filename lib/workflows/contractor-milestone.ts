@@ -8,8 +8,7 @@ export const contractorMilestoneCompleted = inngest.createFunction(
   { id: "contractor-milestone-completed", retries: 2 },
   { event: "house-of-veritas/contractor.milestone.completed" },
   async ({ event, step }) => {
-    const { contractorName, project, stage, amount } =
-      event.data as ContractorMilestonePayload
+    const { contractorName, project, stage, amount } = event.data as ContractorMilestonePayload
 
     await runNotificationStep(step, async () => {
       await sendNotification({
@@ -17,9 +16,9 @@ export const contractorMilestoneCompleted = inngest.createFunction(
         userId: getAdminNotificationRecipient(),
         title: `Contractor milestone: ${stage} - ${contractorName}`,
         message: `${project}: ${stage} completed (${formatCurrency(amount)}). Review and process payment if applicable.`,
-      channels: ["in_app"],
-      data: { contractorName, project, stage, amount },
-      priority: "medium",
+        channels: ["in_app"],
+        data: { contractorName, project, stage, amount },
+        priority: "medium",
       })
     })
 

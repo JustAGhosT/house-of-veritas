@@ -38,10 +38,38 @@ const DEFAULT_CONTRACTORS: Contractor[] = [
     project: "Renovation Project",
     contractAmount: 85000,
     milestones: [
-      { stage: "Deposit", percentage: 20, amount: 17000, status: "Paid", paidDate: "2024-12-15", dueDate: "2024-12-15" },
-      { stage: "Foundation Complete", percentage: 30, amount: 25500, status: "Paid", paidDate: "2025-01-10", dueDate: "2025-01-10" },
-      { stage: "Framing Complete", percentage: 25, amount: 21250, status: "In Progress", paidDate: null, dueDate: "2025-02-15" },
-      { stage: "Final Completion", percentage: 25, amount: 21250, status: "Pending", paidDate: null, dueDate: "2025-03-30" },
+      {
+        stage: "Deposit",
+        percentage: 20,
+        amount: 17000,
+        status: "Paid",
+        paidDate: "2024-12-15",
+        dueDate: "2024-12-15",
+      },
+      {
+        stage: "Foundation Complete",
+        percentage: 30,
+        amount: 25500,
+        status: "Paid",
+        paidDate: "2025-01-10",
+        dueDate: "2025-01-10",
+      },
+      {
+        stage: "Framing Complete",
+        percentage: 25,
+        amount: 21250,
+        status: "In Progress",
+        paidDate: null,
+        dueDate: "2025-02-15",
+      },
+      {
+        stage: "Final Completion",
+        percentage: 25,
+        amount: 21250,
+        status: "Pending",
+        paidDate: null,
+        dueDate: "2025-03-30",
+      },
     ],
     totalPaid: 42500,
     remaining: 42500,
@@ -53,9 +81,30 @@ const DEFAULT_CONTRACTORS: Contractor[] = [
     project: "Garden Redesign",
     contractAmount: 28000,
     milestones: [
-      { stage: "Deposit", percentage: 30, amount: 8400, status: "Paid", paidDate: "2025-01-05", dueDate: "2025-01-05" },
-      { stage: "Phase 1 - Clearing", percentage: 35, amount: 9800, status: "In Progress", paidDate: null, dueDate: "2025-02-01" },
-      { stage: "Final - Planting", percentage: 35, amount: 9800, status: "Pending", paidDate: null, dueDate: "2025-02-28" },
+      {
+        stage: "Deposit",
+        percentage: 30,
+        amount: 8400,
+        status: "Paid",
+        paidDate: "2025-01-05",
+        dueDate: "2025-01-05",
+      },
+      {
+        stage: "Phase 1 - Clearing",
+        percentage: 35,
+        amount: 9800,
+        status: "In Progress",
+        paidDate: null,
+        dueDate: "2025-02-01",
+      },
+      {
+        stage: "Final - Planting",
+        percentage: 35,
+        amount: 9800,
+        status: "Pending",
+        paidDate: null,
+        dueDate: "2025-02-28",
+      },
     ],
     totalPaid: 8400,
     remaining: 19600,
@@ -67,8 +116,22 @@ const DEFAULT_CONTRACTORS: Contractor[] = [
     project: "Workshop Upgrade",
     contractAmount: 15500,
     milestones: [
-      { stage: "Deposit", percentage: 40, amount: 6200, status: "Paid", paidDate: "2025-01-12", dueDate: "2025-01-12" },
-      { stage: "Completion", percentage: 60, amount: 9300, status: "Pending", paidDate: null, dueDate: "2025-02-10" },
+      {
+        stage: "Deposit",
+        percentage: 40,
+        amount: 6200,
+        status: "Paid",
+        paidDate: "2025-01-12",
+        dueDate: "2025-01-12",
+      },
+      {
+        stage: "Completion",
+        percentage: 60,
+        amount: 9300,
+        status: "Pending",
+        paidDate: null,
+        dueDate: "2025-02-10",
+      },
     ],
     totalPaid: 6200,
     remaining: 9300,
@@ -128,9 +191,10 @@ function recalcContractor(c: Contractor): Contractor {
   const totalPaid = paid.reduce((s, m) => s + m.amount, 0)
   const remaining = c.contractAmount - totalPaid
   // Protect against division by zero: only calculate progress when contractAmount > 0
-  const progress = c.contractAmount > 0
-    ? Math.min(100, Math.max(0, Math.round((totalPaid / c.contractAmount) * 100)))
-    : 0
+  const progress =
+    c.contractAmount > 0
+      ? Math.min(100, Math.max(0, Math.round((totalPaid / c.contractAmount) * 100)))
+      : 0
   return { ...c, totalPaid, remaining, progress }
 }
 

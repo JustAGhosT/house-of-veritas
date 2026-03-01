@@ -30,9 +30,7 @@ function isConfigured(): boolean {
   return !!(process.env.BANK_API_URL && process.env.BANK_API_KEY)
 }
 
-export async function submitPayment(
-  payment: PaymentRequest
-): Promise<PaymentResult> {
+export async function submitPayment(payment: PaymentRequest): Promise<PaymentResult> {
   if (!isConfigured()) {
     logger.info("Bank API not configured, payment logged only", {
       recipientId: payment.recipientId,

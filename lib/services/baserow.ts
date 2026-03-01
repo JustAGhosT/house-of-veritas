@@ -311,11 +311,7 @@ export async function updateEmployee(
   updates: Partial<
     Pick<
       Employee,
-      | "leaveBalance"
-      | "contractRef"
-      | "probationStatus"
-      | "onboardingStatus"
-      | "itProvisionedAt"
+      "leaveBalance" | "contractRef" | "probationStatus" | "onboardingStatus" | "itProvisionedAt"
     >
   >
 ): Promise<Employee | null> {
@@ -329,12 +325,9 @@ export async function updateEmployee(
   const body: Record<string, unknown> = {}
   if (updates.leaveBalance !== undefined) body["Leave Balance"] = updates.leaveBalance
   if (updates.contractRef !== undefined) body["Contract Ref"] = updates.contractRef
-  if (updates.probationStatus !== undefined)
-    body["Probation Status"] = updates.probationStatus
-  if (updates.onboardingStatus !== undefined)
-    body["Onboarding Status"] = updates.onboardingStatus
-  if (updates.itProvisionedAt !== undefined)
-    body["IT Provisioned At"] = updates.itProvisionedAt
+  if (updates.probationStatus !== undefined) body["Probation Status"] = updates.probationStatus
+  if (updates.onboardingStatus !== undefined) body["Onboarding Status"] = updates.onboardingStatus
+  if (updates.itProvisionedAt !== undefined) body["IT Provisioned At"] = updates.itProvisionedAt
   if (Object.keys(body).length === 0) return getEmployee(id)
 
   const row = await baserowFetch<BaserowRow>(
@@ -353,8 +346,7 @@ function mapEmployeeToRow(emp: Partial<Employee>): Record<string, unknown> {
   if (emp.fullName !== undefined) row["Full Name"] = emp.fullName
   if (emp.idNumber !== undefined) row["ID Number"] = emp.idNumber
   if (emp.role !== undefined) row["Role"] = emp.role
-  if (emp.employmentStartDate !== undefined)
-    row["Employment Start Date"] = emp.employmentStartDate
+  if (emp.employmentStartDate !== undefined) row["Employment Start Date"] = emp.employmentStartDate
   if (emp.probationStatus !== undefined) row["Probation Status"] = emp.probationStatus
   if (emp.contractRef !== undefined) row["Contract Ref"] = emp.contractRef
   if (emp.leaveBalance !== undefined) row["Leave Balance"] = emp.leaveBalance
@@ -364,9 +356,7 @@ function mapEmployeeToRow(emp: Partial<Employee>): Record<string, unknown> {
   return row
 }
 
-export async function createEmployee(
-  emp: Omit<Employee, "id">
-): Promise<Employee | null> {
+export async function createEmployee(emp: Omit<Employee, "id">): Promise<Employee | null> {
   const tableIds = getTableIds()
   if (!isBaserowConfigured() || !tableIds.employees) return null
 
@@ -666,8 +656,7 @@ export async function getLeaveRequests(filters?: {
   if (!isBaserowConfigured() || !tableIds.leaveRequests) return []
 
   let endpoint = `/database/rows/table/${tableIds.leaveRequests}/?user_field_names=true`
-  if (filters?.employee)
-    endpoint += `&filter__field_employee__link_row_has=${filters.employee}`
+  if (filters?.employee) endpoint += `&filter__field_employee__link_row_has=${filters.employee}`
   if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
 
   const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
@@ -759,16 +748,12 @@ function mapLoanToRow(loan: Partial<Loan>): Record<string, unknown> {
   return row
 }
 
-export async function getLoans(filters?: {
-  employee?: number
-  status?: string
-}): Promise<Loan[]> {
+export async function getLoans(filters?: { employee?: number; status?: string }): Promise<Loan[]> {
   const tableIds = getTableIds()
   if (!isBaserowConfigured() || !tableIds.loans) return []
 
   let endpoint = `/database/rows/table/${tableIds.loans}/?user_field_names=true`
-  if (filters?.employee)
-    endpoint += `&filter__field_employee__link_row_has=${filters.employee}`
+  if (filters?.employee) endpoint += `&filter__field_employee__link_row_has=${filters.employee}`
   if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
 
   const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
@@ -801,10 +786,7 @@ export async function createLoan(loan: Omit<Loan, "id">): Promise<Loan | null> {
   return row ? mapRowToLoan(row) : null
 }
 
-export async function updateLoan(
-  id: number,
-  updates: Partial<Loan>
-): Promise<Loan | null> {
+export async function updateLoan(id: number, updates: Partial<Loan>): Promise<Loan | null> {
   const tableIds = getTableIds()
   if (!isBaserowConfigured() || !tableIds.loans) return null
 
@@ -861,8 +843,7 @@ export async function getPettyCashRequests(filters?: {
   if (!isBaserowConfigured() || !tableIds.pettyCash) return []
 
   let endpoint = `/database/rows/table/${tableIds.pettyCash}/?user_field_names=true`
-  if (filters?.requester)
-    endpoint += `&filter__field_requester__link_row_has=${filters.requester}`
+  if (filters?.requester) endpoint += `&filter__field_requester__link_row_has=${filters.requester}`
   if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
 
   const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
@@ -870,9 +851,7 @@ export async function getPettyCashRequests(filters?: {
   return result.results.map(mapRowToPettyCash)
 }
 
-export async function createPettyCashRequest(
-  pc: Omit<PettyCash, "id">
-): Promise<PettyCash | null> {
+export async function createPettyCashRequest(pc: Omit<PettyCash, "id">): Promise<PettyCash | null> {
   const tableIds = getTableIds()
   if (!isBaserowConfigured() || !tableIds.pettyCash) {
     return { ...pc, id: Date.now() } as PettyCash
@@ -970,8 +949,7 @@ export async function getOnboardingChecklists(filters?: {
   if (!isBaserowConfigured() || !tableIds.onboardingChecklist) return []
 
   let endpoint = `/database/rows/table/${tableIds.onboardingChecklist}/?user_field_names=true`
-  if (filters?.employee)
-    endpoint += `&filter__field_employee__link_row_has=${filters.employee}`
+  if (filters?.employee) endpoint += `&filter__field_employee__link_row_has=${filters.employee}`
   if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
 
   const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
@@ -1045,7 +1023,10 @@ function mapBudgetToRow(b: Partial<Budget>): Record<string, unknown> {
   return row
 }
 
-export async function getBudgets(filters?: { period?: string; status?: string }): Promise<Budget[]> {
+export async function getBudgets(filters?: {
+  period?: string
+  status?: string
+}): Promise<Budget[]> {
   const tableIds = getTableIds()
   if (!isBaserowConfigured() || !tableIds.budget) return []
 
@@ -1127,8 +1108,7 @@ export async function getInsuranceClaims(filters?: {
   if (!isBaserowConfigured() || !tableIds.insuranceClaims) return []
 
   let endpoint = `/database/rows/table/${tableIds.insuranceClaims}/?user_field_names=true`
-  if (filters?.incident)
-    endpoint += `&filter__field_incident__link_row_has=${filters.incident}`
+  if (filters?.incident) endpoint += `&filter__field_incident__link_row_has=${filters.incident}`
   if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
 
   const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
@@ -1281,9 +1261,7 @@ function mapIncidentToRow(incident: Omit<Incident, "id">): Record<string, unknow
   return row
 }
 
-export async function createIncident(
-  incident: Omit<Incident, "id">
-): Promise<Incident | null> {
+export async function createIncident(incident: Omit<Incident, "id">): Promise<Incident | null> {
   const tableIds = getTableIds()
   if (!isBaserowConfigured() || !tableIds.incidents) return null
 
@@ -1354,8 +1332,7 @@ export async function getPPERecords(filters?: {
   if (!isBaserowConfigured() || !tableIds.ppe) return []
 
   let endpoint = `/database/rows/table/${tableIds.ppe}/?user_field_names=true`
-  if (filters?.issuedTo)
-    endpoint += `&filter__field_issued_to__link_row_has=${filters.issuedTo}`
+  if (filters?.issuedTo) endpoint += `&filter__field_issued_to__link_row_has=${filters.issuedTo}`
   if (filters?.status) endpoint += `&filter__field_status__equal=${filters.status}`
 
   const result = await baserowFetch<{ results: BaserowRow[] }>(endpoint)
@@ -1363,9 +1340,7 @@ export async function getPPERecords(filters?: {
   return result.results.map(mapRowToPPE)
 }
 
-export async function createPPERecord(
-  ppe: Omit<PPE, "id">
-): Promise<PPE | null> {
+export async function createPPERecord(ppe: Omit<PPE, "id">): Promise<PPE | null> {
   const tableIds = getTableIds()
   if (!isBaserowConfigured() || !tableIds.ppe) {
     return { ...ppe, id: Date.now() } as PPE
@@ -1381,10 +1356,7 @@ export async function createPPERecord(
   return row ? mapRowToPPE(row) : null
 }
 
-export async function updatePPERecord(
-  id: number,
-  updates: Partial<PPE>
-): Promise<PPE | null> {
+export async function updatePPERecord(id: number, updates: Partial<PPE>): Promise<PPE | null> {
   const tableIds = getTableIds()
   if (!isBaserowConfigured() || !tableIds.ppe) return null
 
@@ -1484,12 +1456,12 @@ export async function clockIn(employeeId: number): Promise<TimeClockEntry | null
   return row
     ? mapRowToTimeClockEntry(row)
     : ({
-      employee: employeeId,
-      date: toISODateString(now),
-      clockIn: clockTime,
-      approvalStatus: "Pending",
-      id: Date.now(),
-    } as TimeClockEntry)
+        employee: employeeId,
+        date: toISODateString(now),
+        clockIn: clockTime,
+        approvalStatus: "Pending",
+        id: Date.now(),
+      } as TimeClockEntry)
 }
 
 export async function clockOut(entryId: number): Promise<TimeClockEntry | null> {
@@ -2096,7 +2068,7 @@ export function mapBaserowToDocumentExpiryRow(raw: DocumentExpiryRowRaw): Docume
     type: raw.Type || "General",
     lastReview: raw["Last Review"],
     nextReview: raw["Next Review"],
-    partyResponsible: raw["Party Responsible"]?.map(p => p.id),
+    partyResponsible: raw["Party Responsible"]?.map((p) => p.id),
     supersededBy: raw["Superseded By"],
     versionBlocked: !!raw["Version Blocked"],
     docuSealRef: raw["DocuSeal Ref"],

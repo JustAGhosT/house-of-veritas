@@ -45,7 +45,7 @@ import {
   Smartphone,
   User,
   Wrench,
-  XCircle
+  XCircle,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
@@ -273,8 +273,8 @@ export default function KioskPage() {
     setLoading(true)
 
     try {
-      const parsedQuantity = parseFloat(quantity);
-      const safeQuantity = Number.isFinite(parsedQuantity) ? Math.max(1, parsedQuantity) : 1;
+      const parsedQuantity = parseFloat(quantity)
+      const safeQuantity = Number.isFinite(parsedQuantity) ? Math.max(1, parsedQuantity) : 1
 
       await apiFetch("/api/inventory", {
         method: "POST",
@@ -656,7 +656,10 @@ export default function KioskPage() {
 
         {/* Success Toast */}
         {successMessage && (
-          <div role="alert" className="animate-in fade-in slide-in-from-top fixed top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-white shadow-lg">
+          <div
+            role="alert"
+            className="animate-in fade-in slide-in-from-top fixed top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-white shadow-lg"
+          >
             <CheckCircle className="h-5 w-5" />
             {successMessage}
           </div>
@@ -664,7 +667,10 @@ export default function KioskPage() {
 
         {/* Error Toast */}
         {error && (
-          <div role="alert" className="animate-in fade-in slide-in-from-top fixed top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-xl bg-red-600 px-6 py-3 text-white shadow-lg">
+          <div
+            role="alert"
+            className="animate-in fade-in slide-in-from-top fixed top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-xl bg-red-600 px-6 py-3 text-white shadow-lg"
+          >
             <XCircle className="h-5 w-5" />
             {error}
           </div>
@@ -675,10 +681,11 @@ export default function KioskPage() {
           {/* Clock In/Out */}
           <Button
             data-testid="kiosk-clock-btn"
-            className={`flex h-32 flex-col gap-2 text-base sm:h-36 sm:text-lg ${currentUser.clockedIn
-              ? "bg-red-600 hover:bg-red-700"
-              : "bg-green-600 hover:bg-green-700"
-              }`}
+            className={`flex h-32 flex-col gap-2 text-base sm:h-36 sm:text-lg ${
+              currentUser.clockedIn
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
             onClick={handleClockInOut}
             disabled={loading}
           >
@@ -891,7 +898,9 @@ export default function KioskPage() {
                       type="number"
                       min="1"
                       value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, parseFloat(e.target.value) || 1).toString())}
+                      onChange={(e) =>
+                        setQuantity(Math.max(1, parseFloat(e.target.value) || 1).toString())
+                      }
                       className="h-14 border-white/10 bg-white/5 text-center text-xl"
                     />
                   </div>
@@ -1302,12 +1311,13 @@ export default function KioskPage() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex min-w-0 flex-1 items-start gap-3">
                           <div
-                            className={`rounded-lg p-2 ${request.type === "stock_order"
-                              ? "bg-blue-500/20"
-                              : request.type === "salary_advance"
-                                ? "bg-yellow-500/20"
-                                : "bg-rose-500/20"
-                              }`}
+                            className={`rounded-lg p-2 ${
+                              request.type === "stock_order"
+                                ? "bg-blue-500/20"
+                                : request.type === "salary_advance"
+                                  ? "bg-yellow-500/20"
+                                  : "bg-rose-500/20"
+                            }`}
                           >
                             {request.type === "stock_order" ? (
                               <ShoppingCart className="h-5 w-5 text-blue-400" />
@@ -1327,14 +1337,15 @@ export default function KioskPage() {
                                     : "Issue Report"}
                               </span>
                               <Badge
-                                className={`text-xs ${request.status === "pending"
-                                  ? "bg-yellow-500"
-                                  : request.status === "approved"
-                                    ? "bg-green-500"
-                                    : request.status === "rejected"
-                                      ? "bg-red-500"
-                                      : "bg-blue-500"
-                                  }`}
+                                className={`text-xs ${
+                                  request.status === "pending"
+                                    ? "bg-yellow-500"
+                                    : request.status === "approved"
+                                      ? "bg-green-500"
+                                      : request.status === "rejected"
+                                        ? "bg-red-500"
+                                        : "bg-blue-500"
+                                }`}
                               >
                                 {request.status === "pending"
                                   ? "Pending"
@@ -1363,10 +1374,11 @@ export default function KioskPage() {
                             </p>
                             {request.notes && request.status !== "pending" && (
                               <div
-                                className={`mt-2 rounded p-2 text-xs ${request.status === "approved"
-                                  ? "bg-green-500/10 text-green-300"
-                                  : "bg-red-500/10 text-red-300"
-                                  }`}
+                                className={`mt-2 rounded p-2 text-xs ${
+                                  request.status === "approved"
+                                    ? "bg-green-500/10 text-green-300"
+                                    : "bg-red-500/10 text-red-300"
+                                }`}
                               >
                                 <span className="font-medium">
                                   {request.status === "approved" ? (
@@ -1415,10 +1427,11 @@ export default function KioskPage() {
               <button
                 onClick={() => saveNotificationPref("sms")}
                 disabled={loading}
-                className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${notificationPref === "sms"
-                  ? "border-blue-500 bg-blue-500/10"
-                  : "border-white/10 hover:border-white/20 hover:bg-white/5"
-                  }`}
+                className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${
+                  notificationPref === "sms"
+                    ? "border-blue-500 bg-blue-500/10"
+                    : "border-white/10 hover:border-white/20 hover:bg-white/5"
+                }`}
                 data-testid="pref-sms"
               >
                 <div
@@ -1437,10 +1450,11 @@ export default function KioskPage() {
               <button
                 onClick={() => saveNotificationPref("whatsapp")}
                 disabled={loading}
-                className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${notificationPref === "whatsapp"
-                  ? "border-green-500 bg-green-500/10"
-                  : "border-white/10 hover:border-white/20 hover:bg-white/5"
-                  }`}
+                className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${
+                  notificationPref === "whatsapp"
+                    ? "border-green-500 bg-green-500/10"
+                    : "border-white/10 hover:border-white/20 hover:bg-white/5"
+                }`}
                 data-testid="pref-whatsapp"
               >
                 <div
@@ -1461,10 +1475,11 @@ export default function KioskPage() {
               <button
                 onClick={() => saveNotificationPref("email")}
                 disabled={loading}
-                className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${notificationPref === "email"
-                  ? "border-purple-500 bg-purple-500/10"
-                  : "border-white/10 hover:border-white/20 hover:bg-white/5"
-                  }`}
+                className={`flex w-full items-center gap-4 rounded-xl border p-4 transition-all ${
+                  notificationPref === "email"
+                    ? "border-purple-500 bg-purple-500/10"
+                    : "border-white/10 hover:border-white/20 hover:bg-white/5"
+                }`}
                 data-testid="pref-email"
               >
                 <div
@@ -1476,7 +1491,9 @@ export default function KioskPage() {
                   <p className="font-medium text-white">Email</p>
                   <p className="text-sm text-white/60">Receive email notifications</p>
                 </div>
-                {notificationPref === "email" && <CheckCircle className="h-5 w-5 text-purple-400" />}
+                {notificationPref === "email" && (
+                  <CheckCircle className="h-5 w-5 text-purple-400" />
+                )}
               </button>
             </div>
             <div className="rounded-lg bg-white/5 p-3 text-sm text-white/60">

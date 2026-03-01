@@ -9,7 +9,7 @@ import {
   getEmployee,
   getLoan,
   getLoans,
-  updateLoan
+  updateLoan,
 } from "@/lib/services/baserow"
 import { toISODateString } from "@/lib/utils"
 import { routeToInngest } from "@/lib/workflows"
@@ -18,17 +18,11 @@ import { NextResponse } from "next/server"
 const MAX_LOAN_AMOUNT = 50000
 const MAX_OUTSTANDING = 20000
 
-const MUTABLE_LOAN_FIELDS = [
-  "purpose",
-  "repaymentSchedule",
-  "notes",
-] as const
+const MUTABLE_LOAN_FIELDS = ["purpose", "repaymentSchedule", "notes"] as const
 
 const LOAN_STATUSES = ["Pending", "Approved", "Rejected", "Active", "Repaid"] as const
 
-function pickMutableUpdates(
-  body: Record<string, unknown>
-): Record<string, unknown> {
+function pickMutableUpdates(body: Record<string, unknown>): Record<string, unknown> {
   const updates: Record<string, unknown> = {}
   for (const key of MUTABLE_LOAN_FIELDS) {
     const value = body[key]
@@ -53,11 +47,9 @@ export const GET = withRole(
   const { searchParams } = new URL(request.url)
   const status = searchParams.get("status")
 
-  const { employeeId: employee, error } = await resolveEmployeeForGet(
-    context,
-    searchParams,
-    { paramName: "employee" }
-  )
+  const { employeeId: employee, error } = await resolveEmployeeForGet(context, searchParams, {
+    paramName: "employee",
+  })
   if (error) return error
 
   try {
@@ -208,7 +200,10 @@ export const PATCH = withRole("admin")(async (request) => {
       updates.approvedBy = approverNum
     }
     if (outstandingBalance !== undefined) {
-      const bal = typeof outstandingBalance === "number" ? outstandingBalance : parseFloat(String(outstandingBalance))
+      const bal =
+        typeof outstandingBalance === "number"
+          ? outstandingBalance
+          : parseFloat(String(outstandingBalance))
       if (Number.isNaN(bal) || bal < 0) {
         return NextResponse.json({ error: "Invalid outstandingBalance" }, { status: 400 })
       }
@@ -216,7 +211,10 @@ export const PATCH = withRole("admin")(async (request) => {
     }
     if (nextRepaymentDate !== undefined) {
       if (typeof nextRepaymentDate !== "string" || !/^\d{4}-\d{2}-\d{2}/.test(nextRepaymentDate)) {
-        return NextResponse.json({ error: "Invalid nextRepaymentDate (expected ISO date)" }, { status: 400 })
+        return NextResponse.json(
+          { error: "Invalid nextRepaymentDate (expected ISO date)" },
+          { status: 400 }
+        )
       }
       updates.nextRepaymentDate = nextRepaymentDate
     }
@@ -256,10 +254,7 @@ export const PATCH = withRole("admin")(async (request) => {
           loanId,
           error: err instanceof Error ? err.message : String(err),
         })
-        return NextResponse.json(
-          { error: "Failed to process disbursement" },
-          { status: 500 }
-        )
+        return NextResponse.json({ error: "Failed to process disbursement" }, { status: 500 })
       }
     }
 

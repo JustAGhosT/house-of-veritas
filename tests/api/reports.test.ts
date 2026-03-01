@@ -3,13 +3,36 @@ import { GET } from "@/app/api/reports/route"
 
 vi.mock("@/lib/services/baserow", () => {
   const mockExpenses = [
-    { id: 1, requester: 1, requesterName: "Hans", category: "Supplies", amount: 100, approvalStatus: "Pending", date: "2025-01-15" },
+    {
+      id: 1,
+      requester: 1,
+      requesterName: "Hans",
+      category: "Supplies",
+      amount: 100,
+      approvalStatus: "Pending",
+      date: "2025-01-15",
+    },
   ]
   const mockTasks = [
-    { id: 1, title: "Task 1", assignedToName: "Charl", status: "Completed", priority: "High", completedDate: null },
+    {
+      id: 1,
+      title: "Task 1",
+      assignedToName: "Charl",
+      status: "Completed",
+      priority: "High",
+      completedDate: null,
+    },
   ]
   const mockTimeEntries = [
-    { id: 1, date: "2025-01-15", employeeName: "Charl", clockIn: "08:00", clockOut: "17:00", totalHours: 9, overtimeHours: 0 },
+    {
+      id: 1,
+      date: "2025-01-15",
+      employeeName: "Charl",
+      clockIn: "08:00",
+      clockOut: "17:00",
+      totalHours: 9,
+      overtimeHours: 0,
+    },
   ]
   return {
     getExpenses: vi.fn().mockResolvedValue(mockExpenses),

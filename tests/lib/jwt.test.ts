@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest"
-import { signToken, verifyToken } from "@/lib/auth/jwt"
+import {
+  signToken,
+  verifyToken,
+  getSessionCookieConfig,
+  getClearSessionCookieConfig,
+  COOKIE_NAME,
+} from "@/lib/auth/jwt"
 
 describe("JWT", () => {
   const payload = { userId: "hans", role: "admin" as const, email: "hans@houseofv.com" }
@@ -31,5 +37,26 @@ describe("JWT", () => {
   it("should reject garbage input", async () => {
     const result = await verifyToken("not.a.jwt")
     expect(result).toBeNull()
+  })
+
+  describe("getSessionCookieConfig", () => {
+    it("returns cookie config with token", async () => {
+      const token = await signToken(payload)
+      const config = getSessionCookieConfig(token)
+      expect(config.name).toBe(COOKIE_NAME)
+      expect(config.value).toBe(token)
+      expect(config.httpOnly).toBe(true)
+      expect(config.path).toBe("/")
+      expect(config.maxAge).toBe(8 * 60 * 60)
+    })
+  })
+
+  describe("getClearSessionCookieConfig", () => {
+    it("returns cookie config to clear session", () => {
+      const config = getClearSessionCookieConfig()
+      expect(config.name).toBe(COOKIE_NAME)
+      expect(config.value).toBe("")
+      expect(config.maxAge).toBe(0)
+    })
   })
 })

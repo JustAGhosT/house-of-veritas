@@ -31,25 +31,25 @@ export const ppeExpiryReminder = inngest.createFunction(
       for (const e of expiring) {
         const appId = BASEROW_ID_TO_APP_ID[e.issuedTo] ?? getAdminNotificationRecipient()
         await sendNotification({
-        type: "system_alert",
-        userId: appId,
-        title: "PPE Expiry Reminder",
-        message: `PPE expires on ${e.expiryDate} - renew or return`,
-        channels: ["in_app"],
-        data: { ppeId: e.id },
-        priority: "medium",
+          type: "system_alert",
+          userId: appId,
+          title: "PPE Expiry Reminder",
+          message: `PPE expires on ${e.expiryDate} - renew or return`,
+          channels: ["in_app"],
+          data: { ppeId: e.id },
+          priority: "medium",
         })
       }
 
       if (expired.length > 0) {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: "PPE Expired - Block Access",
-        message: `${expired.length} PPE record(s) expired - block access until renewed`,
-        channels: ["in_app"],
-        data: { expiredIds: expired.map((e) => e.id) },
-        priority: "high",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: "PPE Expired - Block Access",
+          message: `${expired.length} PPE record(s) expired - block access until renewed`,
+          channels: ["in_app"],
+          data: { expiredIds: expired.map((e) => e.id) },
+          priority: "high",
         })
       }
     })

@@ -27,15 +27,13 @@ export const inventoryLowStockCron = inngest.createFunction(
 
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: getLowStockNotificationRecipient(),
-        title: `Daily Inventory: ${alerts.length} low-stock items`,
-        message: alerts
-          .map((a) => `${a.name} (${a.currentStock}/${a.reorderPoint})`)
-          .join("; "),
-        channels: ["in_app"],
-        data: { count: alerts.length },
-        priority: "medium",
+          type: "system_alert",
+          userId: getLowStockNotificationRecipient(),
+          title: `Daily Inventory: ${alerts.length} low-stock items`,
+          message: alerts.map((a) => `${a.name} (${a.currentStock}/${a.reorderPoint})`).join("; "),
+          channels: ["in_app"],
+          data: { count: alerts.length },
+          priority: "medium",
         })
       })
 

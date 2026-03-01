@@ -99,28 +99,38 @@ export default function PricingSection() {
           <div className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900 p-1">
             <button
               onClick={() => setBillingCycle("monthly")}
-              className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors ${billingCycle === "monthly" ? "text-white" : "text-zinc-400"
-                }`}
+              className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                billingCycle === "monthly" ? "text-white" : "text-zinc-400"
+              }`}
             >
               {billingCycle === "monthly" && (
                 <motion.div
                   layoutId={motionEnabled ? "billing-toggle" : undefined}
                   className="absolute inset-0 rounded-full bg-zinc-800"
-                  transition={motionEnabled ? { type: "spring", stiffness: 500, damping: 30 } : { duration: 0 }}
+                  transition={
+                    motionEnabled
+                      ? { type: "spring", stiffness: 500, damping: 30 }
+                      : { duration: 0 }
+                  }
                 />
               )}
               <span className="relative z-10">Monthly</span>
             </button>
             <button
               onClick={() => setBillingCycle("yearly")}
-              className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors ${billingCycle === "yearly" ? "text-white" : "text-zinc-400"
-                }`}
+              className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                billingCycle === "yearly" ? "text-white" : "text-zinc-400"
+              }`}
             >
               {billingCycle === "yearly" && (
                 <motion.div
                   layoutId={motionEnabled ? "billing-toggle" : undefined}
                   className="absolute inset-0 rounded-full bg-zinc-800"
-                  transition={motionEnabled ? { type: "spring", stiffness: 500, damping: 30 } : { duration: 0 }}
+                  transition={
+                    motionEnabled
+                      ? { type: "spring", stiffness: 500, damping: 30 }
+                      : { duration: 0 }
+                  }
                 />
               )}
               <span className="relative z-10">Yearly</span>
@@ -143,11 +153,14 @@ export default function PricingSection() {
               key={plan.name}
               initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={motionEnabled ? { duration: 0.6, delay: 0.3 + index * 0.1 } : { duration: 0 }}
-              className={`relative rounded-2xl border p-6 transition-all duration-300 hover:scale-[1.02] ${plan.highlighted
+              transition={
+                motionEnabled ? { duration: 0.6, delay: 0.3 + index * 0.1 } : { duration: 0 }
+              }
+              className={`relative rounded-2xl border p-6 transition-all duration-300 hover:scale-[1.02] ${
+                plan.highlighted
                   ? "border-zinc-700 bg-zinc-900"
                   : "border-zinc-800 bg-zinc-900/50 hover:border-zinc-600"
-                }`}
+              }`}
             >
               {plan.highlighted && <BorderBeam />}
 
@@ -184,10 +197,11 @@ export default function PricingSection() {
               </ul>
 
               <Button
-                className={`w-full rounded-full ${plan.highlighted
+                className={`w-full rounded-full ${
+                  plan.highlighted
                     ? "shimmer-btn bg-white text-zinc-950 hover:bg-zinc-200"
                     : "border border-zinc-700 bg-zinc-800 text-white hover:bg-zinc-700"
-                  }`}
+                }`}
                 onClick={() => {
                   if (plan.name === "Starter") {
                     router.push("/signup?plan=starter")

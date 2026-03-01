@@ -25,25 +25,25 @@ export const leaveCarryoverExpiry = inngest.createFunction(
     await step.run("send-carryover-notifications", async () => {
       for (const a of alerts) {
         await sendNotification({
-        type: "system_alert",
-        userId: a.appId,
-        title: "Leave Balance Expiring Soon",
-        message: `You have ${a.balance.toFixed(1)} days of annual leave. Use it before year-end or lose it.`,
-        channels: ["in_app"],
-        data: { balance: a.balance },
-        priority: "medium",
+          type: "system_alert",
+          userId: a.appId,
+          title: "Leave Balance Expiring Soon",
+          message: `You have ${a.balance.toFixed(1)} days of annual leave. Use it before year-end or lose it.`,
+          channels: ["in_app"],
+          data: { balance: a.balance },
+          priority: "medium",
         })
       }
 
       if (alerts.length > 0) {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: `Leave Carry-over: ${alerts.length} employees with expiring balance`,
-        message: alerts.map((a) => `${a.name}: ${a.balance.toFixed(1)} days`).join("; "),
-        channels: ["in_app"],
-        data: { count: alerts.length },
-        priority: "medium",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: `Leave Carry-over: ${alerts.length} employees with expiring balance`,
+          message: alerts.map((a) => `${a.name}: ${a.balance.toFixed(1)} days`).join("; "),
+          channels: ["in_app"],
+          data: { count: alerts.length },
+          priority: "medium",
         })
       }
     })

@@ -19,16 +19,16 @@ export const taskFailurePropagate = inngest.createFunction(
     if (criticalOverdue.length > 0) {
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: "Critical Task Failure - Blocking Risk",
-        message: `${criticalOverdue.length} critical/urgent task(s) overdue - may block dependent workflows`,
-        channels: ["in_app"],
-        data: {
-          taskIds: criticalOverdue.map((t) => t.id),
-          count: criticalOverdue.length,
-        },
-        priority: "urgent",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: "Critical Task Failure - Blocking Risk",
+          message: `${criticalOverdue.length} critical/urgent task(s) overdue - may block dependent workflows`,
+          channels: ["in_app"],
+          data: {
+            taskIds: criticalOverdue.map((t) => t.id),
+            count: criticalOverdue.length,
+          },
+          priority: "urgent",
         })
       })
     }

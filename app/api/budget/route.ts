@@ -1,14 +1,13 @@
 import { withDataSource } from "@/lib/api/response"
 import { withRole } from "@/lib/auth/rbac"
 import { logger } from "@/lib/logger"
-import {
-  createBudget,
-  getBudgets,
-  updateBudget,
-} from "@/lib/services/baserow"
+import { createBudget, getBudgets, updateBudget } from "@/lib/services/baserow"
 import { NextResponse } from "next/server"
 
-export const GET = withRole("admin", "operator")(async (request) => {
+export const GET = withRole(
+  "admin",
+  "operator"
+)(async (request) => {
   const { searchParams } = new URL(request.url)
   const period = searchParams.get("period")
   const status = searchParams.get("status")
@@ -34,10 +33,7 @@ export const POST = withRole("admin")(async (request) => {
       body = await request.json()
     } catch (err) {
       if (err instanceof SyntaxError) {
-        return NextResponse.json(
-          { error: "Malformed JSON in request body" },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: "Malformed JSON in request body" }, { status: 400 })
       }
       throw err
     }
@@ -65,7 +61,7 @@ export const POST = withRole("admin")(async (request) => {
     const budget = await createBudget({
       category,
       amount,
-      period: (typeof period === "string" ? period : String(year)),
+      period: typeof period === "string" ? period : String(year),
       version: 1,
       status: "Draft",
       notes: typeof notes === "string" ? notes : undefined,
@@ -85,7 +81,14 @@ export const POST = withRole("admin")(async (request) => {
 })
 
 // Allowed fields for budget updates
-const ALLOWED_BUDGET_UPDATE_FIELDS = ["name", "amount", "category", "notes", "period", "status"] as const
+const ALLOWED_BUDGET_UPDATE_FIELDS = [
+  "name",
+  "amount",
+  "category",
+  "notes",
+  "period",
+  "status",
+] as const
 
 type AllowedBudgetUpdateField = (typeof ALLOWED_BUDGET_UPDATE_FIELDS)[number]
 
@@ -96,10 +99,7 @@ export const PATCH = withRole("admin")(async (request) => {
       body = await request.json()
     } catch (err) {
       if (err instanceof SyntaxError) {
-        return NextResponse.json(
-          { error: "Malformed JSON in request body" },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: "Malformed JSON in request body" }, { status: 400 })
       }
       throw err
     }
@@ -134,12 +134,18 @@ export const PATCH = withRole("admin")(async (request) => {
     // Check if any valid fields remain
     if (Object.keys(allowedUpdates).length === 0) {
       return NextResponse.json(
-        { error: "No valid fields to update. Allowed fields: " + ALLOWED_BUDGET_UPDATE_FIELDS.join(", ") },
+        {
+          error:
+            "No valid fields to update. Allowed fields: " + ALLOWED_BUDGET_UPDATE_FIELDS.join(", "),
+        },
         { status: 400 }
       )
     }
 
-    const budget = await updateBudget(Number(id), allowedUpdates as Parameters<typeof updateBudget>[1])
+    const budget = await updateBudget(
+      Number(id),
+      allowedUpdates as Parameters<typeof updateBudget>[1]
+    )
 
     if (!budget) {
       return NextResponse.json({ error: "Budget not found" }, { status: 404 })

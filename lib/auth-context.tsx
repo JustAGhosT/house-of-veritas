@@ -168,7 +168,7 @@ export function withAuth<P extends object>(
           router.push(`/dashboard/${user.id}`)
         }
       }
-    }, [isLoading, user, router, options?.allowedUsers])
+    }, [isLoading, user, router])
 
     // Handle navigation in useEffect to avoid side effects in render
     useEffect(() => {

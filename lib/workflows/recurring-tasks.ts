@@ -61,16 +61,16 @@ export const recurringTasksCreate = inngest.createFunction(
         const appUserId = BASEROW_ID_TO_APP_ID[assigneeId] ?? "hans"
         await step.run(`notify-assignee-${t.id}-${assigneeId}`, async () => {
           await sendNotification({
-          type: "task_assigned",
-          userId: appUserId,
-          title: "Weekly Tasks Assigned",
-          message:
-            templateCreated.length === 1
-              ? `${templateCreated[0].title}`
-              : `${t.Title ?? "Task"}: ${templateCreated.length} tasks created`,
-          channels: ["in_app"],
-          data: { taskIds: templateCreated.map((c) => c.id), assigneeId },
-          priority: "medium",
+            type: "task_assigned",
+            userId: appUserId,
+            title: "Weekly Tasks Assigned",
+            message:
+              templateCreated.length === 1
+                ? `${templateCreated[0].title}`
+                : `${t.Title ?? "Task"}: ${templateCreated.length} tasks created`,
+            channels: ["in_app"],
+            data: { taskIds: templateCreated.map((c) => c.id), assigneeId },
+            priority: "medium",
           })
         })
       }
@@ -79,13 +79,16 @@ export const recurringTasksCreate = inngest.createFunction(
     if (created.length > 0) {
       await step.run("send-summary", async () => {
         await sendNotification({
-        type: "weekly_summary",
-        userId: getAdminNotificationRecipient(),
-        title: `Weekly Tasks Created: ${created.length} tasks`,
-        message: created.slice(0, 5).map((c) => c.title).join("; "),
-        channels: ["in_app"],
-        data: { count: created.length },
-        priority: "medium",
+          type: "weekly_summary",
+          userId: getAdminNotificationRecipient(),
+          title: `Weekly Tasks Created: ${created.length} tasks`,
+          message: created
+            .slice(0, 5)
+            .map((c) => c.title)
+            .join("; "),
+          channels: ["in_app"],
+          data: { count: created.length },
+          priority: "medium",
         })
       })
     }

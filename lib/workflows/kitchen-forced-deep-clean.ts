@@ -33,13 +33,13 @@ export const kitchenForcedDeepClean = inngest.createFunction(
     if (task) {
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: "Forced Deep Clean - Action Required",
-        message: "Mandatory kitchen deep clean task created - assign and ensure completion",
-        channels: ["in_app"],
-        data: { taskId: task.id },
-        priority: "high",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: "Forced Deep Clean - Action Required",
+          message: "Mandatory kitchen deep clean task created - assign and ensure completion",
+          channels: ["in_app"],
+          data: { taskId: task.id },
+          priority: "high",
         })
       })
     }

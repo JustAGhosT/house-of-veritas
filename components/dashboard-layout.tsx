@@ -91,8 +91,8 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
         <button
           onClick={() => {
-            hasOpenedLogin.current = true;
-            openLoginModal();
+            hasOpenedLogin.current = true
+            openLoginModal()
           }}
           className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
@@ -101,12 +101,12 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
       </div>
     )
   }
-  
+
   // For non-authenticated users on non-requiresAuth pages, show content
   if (!isAuthenticated && !requiresAuth) {
     return <>{children}</>
   }
-  
+
   // For authenticated users or requiresAuth pages, show loading or content
   if (isLoading) {
     return (
@@ -192,10 +192,11 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
                             key={item.href}
                             href={item.href}
                             onClick={() => setSidebarOpen(false)}
-                            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive
-                              ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
-                              : "text-white/60 hover:bg-white/5 hover:text-white"
-                              } `}
+                            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+                              isActive
+                                ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
+                                : "text-white/60 hover:bg-white/5 hover:text-white"
+                            } `}
                           >
                             <Icon className="h-4 w-4" />
                             <span className="text-sm">{item.name}</span>
@@ -214,10 +215,11 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
                 key={entry.href}
                 href={entry.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${isActive
-                  ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
-                  : "text-white/60 hover:bg-white/5 hover:text-white"
-                  } `}
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
+                  isActive
+                    ? `bg-linear-to-r ${colorClasses[personaInfo.color as keyof typeof colorClasses]} text-white`
+                    : "text-white/60 hover:bg-white/5 hover:text-white"
+                } `}
               >
                 <Icon className="h-5 w-5" />
                 <span className="text-sm font-medium">{entry.name}</span>

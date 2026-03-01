@@ -33,7 +33,7 @@ function getDefaultRequesterId(): number {
       )
       throw new Error(
         `Invalid DEFAULT_EXPENSE_REQUESTER_ID: "${process.env.DEFAULT_EXPENSE_REQUESTER_ID}". ` +
-        `Must be a positive integer. Set a valid DEFAULT_EXPENSE_REQUESTER_ID environment variable.`
+          `Must be a positive integer. Set a valid DEFAULT_EXPENSE_REQUESTER_ID environment variable.`
       )
     }
     // Log warning for invalid env value but continue with fallback in non-production
@@ -46,7 +46,7 @@ function getDefaultRequesterId(): number {
     logger.error("DEFAULT_EXPENSE_REQUESTER_ID is not set")
     throw new Error(
       "DEFAULT_EXPENSE_REQUESTER_ID environment variable is required in production. " +
-      "Set a valid positive integer value."
+        "Set a valid positive integer value."
     )
   }
   return 1

@@ -10,13 +10,13 @@ export const kitchenCrossContamination = inngest.createFunction(
 
     await step.run("send-notification", async () => {
       await sendNotification({
-      type: "system_alert",
-      userId: getAdminNotificationRecipient(),
-      title: "Cross-Contamination Hazard Reported",
-      message: `${data.location || "Kitchen"}: ${data.description || "Hazard reported"} - Priority action required`,
-      channels: ["in_app", "sms"],
-      data: { taskId: data.taskId },
-      priority: "urgent",
+        type: "system_alert",
+        userId: getAdminNotificationRecipient(),
+        title: "Cross-Contamination Hazard Reported",
+        message: `${data.location || "Kitchen"}: ${data.description || "Hazard reported"} - Priority action required`,
+        channels: ["in_app", "sms"],
+        data: { taskId: data.taskId },
+        priority: "urgent",
       })
     })
 

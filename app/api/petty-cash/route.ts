@@ -24,11 +24,9 @@ export const GET = withRole(
   const { searchParams } = new URL(request.url)
   const status = searchParams.get("status")
 
-  const { employeeId: requester, error } = await resolveEmployeeForGet(
-    context,
-    searchParams,
-    { paramName: "requester" }
-  )
+  const { employeeId: requester, error } = await resolveEmployeeForGet(context, searchParams, {
+    paramName: "requester",
+  })
   if (error) return error
 
   try {
@@ -41,10 +39,7 @@ export const GET = withRole(
     logger.error("Error fetching petty cash requests", {
       error: error instanceof Error ? error.message : String(error),
     })
-    return NextResponse.json(
-      { error: "Failed to fetch petty cash requests" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch petty cash requests" }, { status: 500 })
   }
 })
 
@@ -127,10 +122,7 @@ export const POST = withRole(
     })
 
     if (!pc) {
-      return NextResponse.json(
-        { error: "Failed to create petty cash request" },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: "Failed to create petty cash request" }, { status: 500 })
     }
 
     await routeToInngest({
@@ -148,10 +140,7 @@ export const POST = withRole(
     logger.error("Error creating petty cash request", {
       error: error instanceof Error ? error.message : String(error),
     })
-    return NextResponse.json(
-      { error: "Failed to create petty cash request" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to create petty cash request" }, { status: 500 })
   }
 })
 
@@ -169,13 +158,11 @@ export const PATCH = withRole("admin")(async (request, context) => {
     if (issuedBy !== undefined) updates.issuedBy = issuedBy
 
     if (status === "Approved" || status === "Issued") {
-      const approverId =
-        approvedBy ?? (await getBaserowEmployeeIdByAppId(context.userId))
+      const approverId = approvedBy ?? (await getBaserowEmployeeIdByAppId(context.userId))
       if (!approverId || typeof approverId !== "number") {
         return NextResponse.json(
           {
-            error:
-              "Approved By (approver) is required when status is Approved or Issued",
+            error: "Approved By (approver) is required when status is Approved or Issued",
           },
           { status: 400 }
         )
@@ -189,8 +176,7 @@ export const PATCH = withRole("admin")(async (request, context) => {
       if (!issuerId || typeof issuerId !== "number") {
         return NextResponse.json(
           {
-            error:
-              "Issued By (disbursement actor) is required when status is Issued",
+            error: "Issued By (disbursement actor) is required when status is Issued",
           },
           { status: 400 }
         )
@@ -213,9 +199,6 @@ export const PATCH = withRole("admin")(async (request, context) => {
     logger.error("Error updating petty cash request", {
       error: error instanceof Error ? error.message : String(error),
     })
-    return NextResponse.json(
-      { error: "Failed to update petty cash request" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to update petty cash request" }, { status: 500 })
   }
 })

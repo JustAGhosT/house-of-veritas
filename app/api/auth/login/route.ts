@@ -35,16 +35,12 @@ export async function POST(request: Request) {
     const cookie = getSessionCookieConfig(token)
     const userWithMgmt = await getUserWithManagement(user.id)
     const redirectTo =
-      userWithMgmt &&
-      userWithMgmt.onboardingStatus !== "completed" &&
-      userWithMgmt.role !== "admin"
+      userWithMgmt && userWithMgmt.onboardingStatus !== "completed" && userWithMgmt.role !== "admin"
         ? "/onboarding"
         : `/dashboard/${user.id}`
     const response = NextResponse.json({
       success: true,
-      user: userWithMgmt
-        ? { ...safeUser(user), ...userWithMgmt }
-        : safeUser(user),
+      user: userWithMgmt ? { ...safeUser(user), ...userWithMgmt } : safeUser(user),
       redirectTo,
     })
 

@@ -24,9 +24,7 @@ export const expenseApprovalReminder = inngest.createFunction(
   { id: "expense-approval-reminder", retries: 2 },
   { cron: "TZ=Africa/Johannesburg 0 9 * * *" },
   async ({ step }) => {
-    const expenses = await step.run("fetch_expenses", () =>
-      getExpenses({ status: "Pending" })
-    )
+    const expenses = await step.run("fetch_expenses", () => getExpenses({ status: "Pending" }))
     const pending = expenses.filter((e) => {
       const hours = hoursSince(e.date)
       return hours >= REMINDER_HOURS
@@ -38,10 +36,11 @@ export const expenseApprovalReminder = inngest.createFunction(
           type: "system_alert",
           userId: EXPENSE_APPROVER_ID,
           title: `Expense Approval Reminder: ${pending.length} pending > 48h`,
-          message: pending
-            .slice(0, 5)
-            .map((e) => `${e.requesterName || "Unknown"}: R${e.amount} (${e.category})`)
-            .join("; ") + (pending.length > 5 ? ` +${pending.length - 5} more` : ""),
+          message:
+            pending
+              .slice(0, 5)
+              .map((e) => `${e.requesterName || "Unknown"}: R${e.amount} (${e.category})`)
+              .join("; ") + (pending.length > 5 ? ` +${pending.length - 5} more` : ""),
           channels: ["in_app"],
           data: {
             count: pending.length,

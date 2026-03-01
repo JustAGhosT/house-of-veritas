@@ -154,8 +154,7 @@ function findByName(name: string): number {
   const lower = name.toLowerCase().trim()
   if (!lower) return -1
   return inventory.findIndex(
-    (i) =>
-      i.name.toLowerCase().includes(lower) || lower.includes(i.name.toLowerCase())
+    (i) => i.name.toLowerCase().includes(lower) || lower.includes(i.name.toLowerCase())
   )
 }
 

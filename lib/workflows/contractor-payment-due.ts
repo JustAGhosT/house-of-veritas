@@ -12,8 +12,12 @@ export const contractorPaymentDue = inngest.createFunction(
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    const duePayments: { contractId: number; project: string; milestone: string; amount: number }[] =
-      []
+    const duePayments: {
+      contractId: number
+      project: string
+      milestone: string
+      amount: number
+    }[] = []
 
     for (const c of contracts) {
       let milestones: string[] = []

@@ -55,38 +55,38 @@ class FileTokenRevocationStore implements TokenRevocationStore {
 
   private loadFromFile(): void {
     try {
-      if (typeof window !== 'undefined') return // Skip in browser
-      const fs = require('fs')
+      if (typeof window !== "undefined") return // Skip in browser
+      const fs = require("fs")
       if (fs.existsSync(this.filePath)) {
-        const data = fs.readFileSync(this.filePath, 'utf8')
+        const data = fs.readFileSync(this.filePath, "utf8")
         const parsed = JSON.parse(data)
-        
+
         // Validate that parsed is a non-null plain object
-        if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-          logger.warn("Invalid token data format in file", { 
+        if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+          logger.warn("Invalid token data format in file", {
             filePath: this.filePath,
             type: typeof parsed,
             isArray: Array.isArray(parsed),
-            isNull: parsed === null
+            isNull: parsed === null,
           })
           return
         }
-        
+
         // Validate each entry
         const validTokens = new Map<string, number>()
         Object.entries(parsed).forEach(([token, expiry]) => {
           // Ensure expiry is a valid number
           const expiryNum = typeof expiry === "number" ? expiry : Number(expiry)
           if (isNaN(expiryNum)) {
-            logger.warn("Invalid expiry timestamp in revoked tokens file", { 
-              token: token.substring(0, 20), 
-              expiry 
+            logger.warn("Invalid expiry timestamp in revoked tokens file", {
+              token: token.substring(0, 20),
+              expiry,
             })
             return
           }
           validTokens.set(token, expiryNum)
         })
-        
+
         this.tokens = validTokens
         logger.debug("Loaded revoked tokens from file", { count: this.tokens.size })
       }
@@ -97,9 +97,9 @@ class FileTokenRevocationStore implements TokenRevocationStore {
 
   private async saveToFile(): Promise<void> {
     try {
-      if (typeof window !== 'undefined') return // Skip in browser
-      const fs = require('fs').promises
-      const dir = require('path').dirname(this.filePath)
+      if (typeof window !== "undefined") return // Skip in browser
+      const fs = require("fs").promises
+      const dir = require("path").dirname(this.filePath)
       await fs.mkdir(dir, { recursive: true })
       const obj = Object.fromEntries(this.tokens)
       await fs.writeFile(this.filePath, JSON.stringify(obj, null, 2))
@@ -110,7 +110,7 @@ class FileTokenRevocationStore implements TokenRevocationStore {
 
   private startCleanup(): void {
     this.cleanupInterval = setInterval(() => {
-      this.cleanup().catch(err => {
+      this.cleanup().catch((err) => {
         logger.warn("Token cleanup failed", { error: err })
       })
     }, this.CLEANUP_INTERVAL_MS)
@@ -125,7 +125,7 @@ class FileTokenRevocationStore implements TokenRevocationStore {
       // Token expired, remove it and schedule async save
       this.tokens.delete(token)
       setImmediate(() => {
-        this.saveToFile().catch(err => {
+        this.saveToFile().catch((err) => {
           logger.warn("Failed to save after token expiration", { error: err })
         })
       })
@@ -137,9 +137,9 @@ class FileTokenRevocationStore implements TokenRevocationStore {
   async add(token: string, expiry: number): Promise<void> {
     this.tokens.set(token, expiry)
     await this.saveToFile()
-    logger.info("Invite token revoked and persisted", { 
+    logger.info("Invite token revoked and persisted", {
       tokenPrefix: token.slice(0, 8) + "...",
-      expiry: new Date(expiry).toISOString()
+      expiry: new Date(expiry).toISOString(),
     })
   }
 
@@ -225,7 +225,7 @@ class InMemoryTokenRevocationStore implements TokenRevocationStore {
 // Factory function to create appropriate store
 function createTokenRevocationStore(): TokenRevocationStore {
   // Use file-based store in production, in-memory for development
-  if (process.env.NODE_ENV === 'production' || process.env.USE_PERSISTENT_TOKENS === 'true') {
+  if (process.env.NODE_ENV === "production" || process.env.USE_PERSISTENT_TOKENS === "true") {
     return new FileTokenRevocationStore()
   }
   return new InMemoryTokenRevocationStore()
@@ -256,16 +256,18 @@ export async function validateInviteToken(token: string): Promise<{ userId: stri
 export async function invalidateInviteToken(token: string): Promise<void> {
   // Validate token format
   if (!token || typeof token !== "string" || token.trim().length === 0) {
-    logger.warn("Invalid token provided to invalidateInviteToken", { token: token?.substring(0, 10) })
+    logger.warn("Invalid token provided to invalidateInviteToken", {
+      token: token?.substring(0, 10),
+    })
     return
   }
-  
+
   // Validate token structure (basic JWT format check)
   if (!token.includes(".") || token.split(".").length !== 3) {
     logger.warn("Invalid token format", { token: token.substring(0, 20) })
     return
   }
-  
+
   // Verify token signature/claims
   try {
     const secret = getSecret()
@@ -275,7 +277,7 @@ export async function invalidateInviteToken(token: string): Promise<void> {
     logger.warn("Token verification failed", { error, token: token.substring(0, 20) })
     return
   }
-  
+
   // Store token with expiry (72 hours from now, matching token expiry) using persistent store
   const expiryMs = Date.now() + INVITE_EXPIRY_HOURS * 60 * 60 * 1000
   await tokenRevocationStore.add(token, expiryMs)

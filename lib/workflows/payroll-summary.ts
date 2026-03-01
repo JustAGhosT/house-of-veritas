@@ -25,17 +25,9 @@ export const payrollSummary = inngest.createFunction(
 
     for (const emp of toReport) {
       const { items } = await getTimeClockEntriesPaginated(1, 200, { employee: emp.id })
-      const monthEntries = items.filter(
-        (e) => e.date >= start && e.date <= end && e.clockOut
-      )
-      const totalHours = monthEntries.reduce(
-        (sum, e) => sum + (e.totalHours ?? 0),
-        0
-      )
-      const overtimeHours = monthEntries.reduce(
-        (sum, e) => sum + (e.overtimeHours ?? 0),
-        0
-      )
+      const monthEntries = items.filter((e) => e.date >= start && e.date <= end && e.clockOut)
+      const totalHours = monthEntries.reduce((sum, e) => sum + (e.totalHours ?? 0), 0)
+      const overtimeHours = monthEntries.reduce((sum, e) => sum + (e.overtimeHours ?? 0), 0)
       summary.push({
         name: emp.fullName,
         totalHours,
@@ -48,18 +40,18 @@ export const payrollSummary = inngest.createFunction(
 
     await step.run("send-notification", async () => {
       await sendNotification({
-      type: "system_alert",
-      userId: getAdminNotificationRecipient(),
-      title: `Payroll Summary: ${prevMonth.toLocaleString("default", { month: "long" })} ${prevMonth.getFullYear()}`,
-      message: `Total regular: ${totalRegular.toFixed(1)}h, overtime: ${totalOvertime.toFixed(1)}h. ${summary.length} employees.`,
-      channels: ["in_app"],
-      data: {
-        month: start,
-        summary,
-        totalRegular,
-        totalOvertime,
-      },
-      priority: "medium",
+        type: "system_alert",
+        userId: getAdminNotificationRecipient(),
+        title: `Payroll Summary: ${prevMonth.toLocaleString("default", { month: "long" })} ${prevMonth.getFullYear()}`,
+        message: `Total regular: ${totalRegular.toFixed(1)}h, overtime: ${totalOvertime.toFixed(1)}h. ${summary.length} employees.`,
+        channels: ["in_app"],
+        data: {
+          month: start,
+          summary,
+          totalRegular,
+          totalOvertime,
+        },
+        priority: "medium",
       })
     })
 

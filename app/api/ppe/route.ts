@@ -20,11 +20,9 @@ export const GET = withRole(
   const { searchParams } = new URL(request.url)
   const status = searchParams.get("status")
 
-  const { employeeId, error } = await resolveEmployeeForGet(
-    context,
-    searchParams,
-    { paramName: "issuedTo" }
-  )
+  const { employeeId, error } = await resolveEmployeeForGet(context, searchParams, {
+    paramName: "issuedTo",
+  })
   if (error) return error
 
   try {
@@ -37,23 +35,20 @@ export const GET = withRole(
     logger.error("Error fetching PPE records", {
       error: error instanceof Error ? error.message : String(error),
     })
-    return NextResponse.json(
-      { error: "Failed to fetch PPE records" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch PPE records" }, { status: 500 })
   }
 })
 
-export const POST = withRole("admin", "operator")(async (request) => {
+export const POST = withRole(
+  "admin",
+  "operator"
+)(async (request) => {
   try {
     const body = await request.json()
     const { asset, issuedTo, expiryDate, notes } = body
 
     if (!asset || !issuedTo) {
-      return NextResponse.json(
-        { error: "Asset and issuedTo are required" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Asset and issuedTo are required" }, { status: 400 })
     }
 
     const ppe = await createPPERecord({
@@ -66,10 +61,7 @@ export const POST = withRole("admin", "operator")(async (request) => {
     })
 
     if (!ppe) {
-      return NextResponse.json(
-        { error: "Failed to create PPE record" },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: "Failed to create PPE record" }, { status: 500 })
     }
 
     return withDataSource({ ppe })
@@ -77,14 +69,14 @@ export const POST = withRole("admin", "operator")(async (request) => {
     logger.error("Error creating PPE record", {
       error: error instanceof Error ? error.message : String(error),
     })
-    return NextResponse.json(
-      { error: "Failed to create PPE record" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to create PPE record" }, { status: 500 })
   }
 })
 
-export const PATCH = withRole("admin", "operator")(async (request) => {
+export const PATCH = withRole(
+  "admin",
+  "operator"
+)(async (request) => {
   try {
     const body = await request.json()
     const { id, ...updates } = body
@@ -104,9 +96,6 @@ export const PATCH = withRole("admin", "operator")(async (request) => {
     logger.error("Error updating PPE record", {
       error: error instanceof Error ? error.message : String(error),
     })
-    return NextResponse.json(
-      { error: "Failed to update PPE record" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to update PPE record" }, { status: 500 })
   }
 })

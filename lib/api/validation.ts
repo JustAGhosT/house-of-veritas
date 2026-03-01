@@ -9,20 +9,14 @@ export function requireId(
   if (value == null) {
     return {
       id: 0,
-      error: NextResponse.json(
-        { error: `${label} is required` },
-        { status: 400 }
-      ),
+      error: NextResponse.json({ error: `${label} is required` }, { status: 400 }),
     }
   }
   const id = typeof value === "number" ? value : parseInt(String(value), 10)
   if (Number.isNaN(id)) {
     return {
       id: 0,
-      error: NextResponse.json(
-        { error: `Invalid ${label} ID` },
-        { status: 400 }
-      ),
+      error: NextResponse.json({ error: `Invalid ${label} ID` }, { status: 400 }),
     }
   }
   return { id }

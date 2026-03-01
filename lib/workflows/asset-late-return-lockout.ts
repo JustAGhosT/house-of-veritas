@@ -39,13 +39,13 @@ export const assetLateReturnLockout = inngest.createFunction(
       for (const o of overdue) {
         await updateAsset(o.id, { lateReturnLockoutUntil: lockoutStr })
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: "Asset Late Return - Lockout Applied",
-        message: `Asset ${o.assetId} overdue - checkout locked until ${lockoutStr}`,
-        channels: ["in_app"],
-        data: { assetId: o.id, lockoutUntil: lockoutStr },
-        priority: "high",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: "Asset Late Return - Lockout Applied",
+          message: `Asset ${o.assetId} overdue - checkout locked until ${lockoutStr}`,
+          channels: ["in_app"],
+          data: { assetId: o.id, lockoutUntil: lockoutStr },
+          priority: "high",
         })
       }
     })

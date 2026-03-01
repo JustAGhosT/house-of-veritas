@@ -35,18 +35,18 @@ export const budgetBreachAlert = inngest.createFunction(
     if (breaches.length > 0) {
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: "Budget Breach Alert",
-        message: breaches
-          .map(
-            (x) =>
-              `${x.category}: ${formatCurrency(x.spent)} spent (budget ${formatCurrency(x.budget)})`
-          )
-          .join("\n"),
-        channels: ["in_app"],
-        data: { breaches },
-        priority: "high",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: "Budget Breach Alert",
+          message: breaches
+            .map(
+              (x) =>
+                `${x.category}: ${formatCurrency(x.spent)} spent (budget ${formatCurrency(x.budget)})`
+            )
+            .join("\n"),
+          channels: ["in_app"],
+          data: { breaches },
+          priority: "high",
         })
       })
     }

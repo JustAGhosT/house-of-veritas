@@ -1,9 +1,5 @@
 import { inngest } from "@/lib/inngest/client"
-import {
-  getExpenses,
-  getLoans,
-  getPettyCashRequests,
-} from "@/lib/services/baserow"
+import { getExpenses, getLoans, getPettyCashRequests } from "@/lib/services/baserow"
 import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
 import { sendNotification } from "@/lib/services/notification-service"
 
@@ -29,31 +25,27 @@ export const monthlyFinancialAudit = inngest.createFunction(
       lines.push(`Pending expenses: ${expenses.length} (R${pendingExpenseTotal.toLocaleString()})`)
     }
     if (overdueLoans.length > 0) {
-      lines.push(
-        `Overdue loans: ${overdueLoans.length} (R${overdueLoanTotal.toLocaleString()})`
-      )
+      lines.push(`Overdue loans: ${overdueLoans.length} (R${overdueLoanTotal.toLocaleString()})`)
     }
     if (pettyCash.length > 0) {
-      lines.push(
-        `Pending petty cash: ${pettyCash.length} (R${pendingPettyTotal.toLocaleString()})`
-      )
+      lines.push(`Pending petty cash: ${pettyCash.length} (R${pendingPettyTotal.toLocaleString()})`)
     }
 
     const hasOpenItems = lines.length > 0
     if (hasOpenItems) {
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: "Monthly Financial Audit Report",
-        message: lines.join("\n") || "No open items",
-        channels: ["in_app"],
-        data: {
-          pendingExpenses: expenses.length,
-          overdueLoans: overdueLoans.length,
-          pendingPettyCash: pettyCash.length,
-        },
-        priority: "medium",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: "Monthly Financial Audit Report",
+          message: lines.join("\n") || "No open items",
+          channels: ["in_app"],
+          data: {
+            pendingExpenses: expenses.length,
+            overdueLoans: overdueLoans.length,
+            pendingPettyCash: pettyCash.length,
+          },
+          priority: "medium",
         })
       })
     }

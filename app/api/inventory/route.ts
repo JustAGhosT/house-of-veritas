@@ -46,85 +46,89 @@ function guessUnit(name: string): string {
 
 function findInventoryItemByName(inventory: InventoryItem[], name: string): number {
   const normalized = name.toLowerCase().trim()
-  const exact = inventory.findIndex(
-    (i) => i.name.toLowerCase().trim() === normalized
-  )
+  const exact = inventory.findIndex((i) => i.name.toLowerCase().trim() === normalized)
   if (exact >= 0) return exact
   return -1
 }
 
 // GET - List inventory with filters
-export const GET = withRole("admin", "operator", "employee", "resident")(
-  async (request: Request) => {
-    const inventory = getInventory()
-    const { searchParams } = new URL(request.url)
-    const category = searchParams.get("category")
-    const lowStock = searchParams.get("lowStock") === "true"
-    const location = searchParams.get("location")
-    const barcode = searchParams.get("barcode")
-    const search = searchParams.get("search")
+export const GET = withRole(
+  "admin",
+  "operator",
+  "employee",
+  "resident"
+)(async (request: Request) => {
+  const inventory = getInventory()
+  const { searchParams } = new URL(request.url)
+  const category = searchParams.get("category")
+  const lowStock = searchParams.get("lowStock") === "true"
+  const location = searchParams.get("location")
+  const barcode = searchParams.get("barcode")
+  const search = searchParams.get("search")
 
-    let items = [...inventory]
+  let items = [...inventory]
 
-    if (barcode) {
-      items = items.filter((i) => i.barcode === barcode)
-      return NextResponse.json({ items })
-    }
-
-    if (search) {
-      const searchLower = search.toLowerCase()
-      items = items.filter(
-        (i) => i.name.toLowerCase().includes(searchLower) || i.barcode?.includes(search)
-      )
-    }
-
-    if (category) {
-      items = items.filter((i) => i.category === category)
-    }
-    if (lowStock) {
-      items = items.filter((i) => i.currentStock <= i.reorderPoint)
-    }
-    if (location) {
-      items = items.filter((i) => i.location.toLowerCase().includes(location.toLowerCase()))
-    }
-
-    const alerts = inventory
-      .filter((i) => i.currentStock <= i.reorderPoint)
-      .map((i) => ({
-        id: i.id,
-        name: i.name,
-        currentStock: i.currentStock,
-        reorderPoint: i.reorderPoint,
-        urgency: i.currentStock <= i.minStock ? "critical" : "warning",
-        estimatedDaysLeft:
-          i.averageConsumption > 0 ? Math.round((i.currentStock / i.averageConsumption) * 30) : null,
-      }))
-
-    const summary = {
-      totalItems: items.length,
-      totalValue: items.reduce((sum, i) => sum + i.totalValue, 0),
-      lowStockCount: alerts.filter((a) => a.urgency === "warning").length,
-      criticalCount: alerts.filter((a) => a.urgency === "critical").length,
-      byCategory: items.reduce(
-        (acc, i) => {
-          acc[i.category] = (acc[i.category] || 0) + 1
-          return acc
-        },
-        {} as Record<string, number>
-      ),
-    }
-
-    return NextResponse.json({
-      items,
-      alerts,
-      summary,
-    })
+  if (barcode) {
+    items = items.filter((i) => i.barcode === barcode)
+    return NextResponse.json({ items })
   }
-)
+
+  if (search) {
+    const searchLower = search.toLowerCase()
+    items = items.filter(
+      (i) => i.name.toLowerCase().includes(searchLower) || i.barcode?.includes(search)
+    )
+  }
+
+  if (category) {
+    items = items.filter((i) => i.category === category)
+  }
+  if (lowStock) {
+    items = items.filter((i) => i.currentStock <= i.reorderPoint)
+  }
+  if (location) {
+    items = items.filter((i) => i.location.toLowerCase().includes(location.toLowerCase()))
+  }
+
+  const alerts = inventory
+    .filter((i) => i.currentStock <= i.reorderPoint)
+    .map((i) => ({
+      id: i.id,
+      name: i.name,
+      currentStock: i.currentStock,
+      reorderPoint: i.reorderPoint,
+      urgency: i.currentStock <= i.minStock ? "critical" : "warning",
+      estimatedDaysLeft:
+        i.averageConsumption > 0 ? Math.round((i.currentStock / i.averageConsumption) * 30) : null,
+    }))
+
+  const summary = {
+    totalItems: items.length,
+    totalValue: items.reduce((sum, i) => sum + i.totalValue, 0),
+    lowStockCount: alerts.filter((a) => a.urgency === "warning").length,
+    criticalCount: alerts.filter((a) => a.urgency === "critical").length,
+    byCategory: items.reduce(
+      (acc, i) => {
+        acc[i.category] = (acc[i.category] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>
+    ),
+  }
+
+  return NextResponse.json({
+    items,
+    alerts,
+    summary,
+  })
+})
 
 // POST - Add inventory item or record consumption
-export const POST = withRole("admin", "operator", "employee")(
-  async (request: Request) => {
+export const POST = withRole(
+  "admin",
+  "operator",
+  "employee"
+)(async (request: Request) => {
   const inventory = getInventory()
   try {
     const body = await request.json()
@@ -252,12 +256,14 @@ export const POST = withRole("admin", "operator", "employee")(
   } catch (error) {
     return NextResponse.json({ error: "Operation failed" }, { status: 500 })
   }
-  }
-)
+})
 
 // Generate shopping list from low stock items OR import from OCR
-export const PUT = withRole("admin", "operator", "employee")(
-  async (request: Request) => {
+export const PUT = withRole(
+  "admin",
+  "operator",
+  "employee"
+)(async (request: Request) => {
   const inventory = getInventory()
   try {
     const body = await request.json()
@@ -366,5 +372,4 @@ export const PUT = withRole("admin", "operator", "employee")(
   } catch (error) {
     return NextResponse.json({ error: "Operation failed" }, { status: 500 })
   }
-  }
-)
+})

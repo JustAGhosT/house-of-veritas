@@ -168,7 +168,6 @@ type InMemoryLockEntry = {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var _inMemoryLocks: Map<string, InMemoryLockEntry> | undefined
 }
 

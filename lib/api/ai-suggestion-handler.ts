@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server"
 
-type RouteHandler = (
-  request: Request,
-  context?: unknown
-) => Promise<NextResponse> | NextResponse
+type RouteHandler = (request: Request, context?: unknown) => Promise<NextResponse> | NextResponse
 
 export function createSuggestionHandler<T>(config: {
   validate: (body: Record<string, unknown>) => { error?: NextResponse; input?: T }

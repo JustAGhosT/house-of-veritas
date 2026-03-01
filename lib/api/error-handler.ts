@@ -1,5 +1,5 @@
-import { logger } from "@/lib/logger";
-import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger"
+import { NextResponse } from "next/server"
 
 type RouteHandler<TContext = unknown> = (
   request: Request,

@@ -168,12 +168,13 @@ function DocumentExpiry() {
         <div key={i} className="flex items-center justify-between rounded bg-zinc-900/30 p-2">
           <div className="flex items-center gap-2">
             <div
-              className={`h-2 w-2 rounded-full ${doc.urgency === "green"
+              className={`h-2 w-2 rounded-full ${
+                doc.urgency === "green"
                   ? "bg-green-500"
                   : doc.urgency === "yellow"
                     ? "bg-yellow-500"
                     : "bg-orange-500"
-                }`}
+              }`}
             />
             <span className="text-sm text-zinc-300">{doc.name}</span>
           </div>

@@ -32,18 +32,18 @@ export const kioskRequestSubmitted = inngest.createFunction(
 
     await runNotificationStep(step, async () => {
       await sendNotification({
-      type: "approval_required",
-      userId: getAdminNotificationRecipient(),
-      title: `New ${TYPE_LABELS[request.type]}`,
-      message: `${request.employeeName} submitted: ${description}`,
-      channels,
-      data: {
-        requestType: request.type,
-        requestId: request.requestId,
-        submittedBy: request.employeeName,
-        description,
-      },
-      priority: d.urgency === "urgent" || d.issueType === "safety" ? "urgent" : "medium",
+        type: "approval_required",
+        userId: getAdminNotificationRecipient(),
+        title: `New ${TYPE_LABELS[request.type]}`,
+        message: `${request.employeeName} submitted: ${description}`,
+        channels,
+        data: {
+          requestType: request.type,
+          requestId: request.requestId,
+          submittedBy: request.employeeName,
+          description,
+        },
+        priority: d.urgency === "urgent" || d.issueType === "safety" ? "urgent" : "medium",
       })
     })
 

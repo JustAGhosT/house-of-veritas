@@ -31,25 +31,25 @@ export const onboardingFeedbackSurvey = inngest.createFunction(
       for (const { emp, day } of toSurvey) {
         const appId = BASEROW_ID_TO_APP_ID[emp.id] ?? "hans"
         await sendNotification({
-        type: "system_alert",
-        userId: appId,
-        title: `${day}-Day Onboarding Feedback`,
-        message: `Please complete the confidential ${day}-day onboarding feedback survey.`,
-        channels: ["in_app"],
-        data: { employeeId: emp.id, day },
-        priority: "medium",
+          type: "system_alert",
+          userId: appId,
+          title: `${day}-Day Onboarding Feedback`,
+          message: `Please complete the confidential ${day}-day onboarding feedback survey.`,
+          channels: ["in_app"],
+          data: { employeeId: emp.id, day },
+          priority: "medium",
         })
       }
 
       if (toSurvey.length > 0) {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: "Onboarding Feedback Due",
-        message: `${toSurvey.length} employee(s) at ${toSurvey.map((x) => x.day).join("/")}-day mark - surveys sent`,
-        channels: ["in_app"],
-        data: { count: toSurvey.length },
-        priority: "low",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: "Onboarding Feedback Due",
+          message: `${toSurvey.length} employee(s) at ${toSurvey.map((x) => x.day).join("/")}-day mark - surveys sent`,
+          channels: ["in_app"],
+          data: { count: toSurvey.length },
+          priority: "low",
         })
       }
     })

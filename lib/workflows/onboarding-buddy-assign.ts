@@ -24,9 +24,7 @@ export const onboardingBuddyAssign = inngest.createFunction(
       const emp = employees.find((e) => e.id === oc.employee)
       if (!emp || emp.role !== "Employee") continue
 
-      const buddies = employees.filter(
-        (e) => e.id !== emp.id && e.role === "Employee"
-      )
+      const buddies = employees.filter((e) => e.id !== emp.id && e.role === "Employee")
       if (buddies.length === 0) continue
 
       const buddy = buddies[0]
@@ -36,13 +34,13 @@ export const onboardingBuddyAssign = inngest.createFunction(
       const buddyAppId = BASEROW_ID_TO_APP_ID[buddy.id] ?? "hans"
       await step.run(`notify-buddy-${oc.id}`, async () => {
         await sendNotification({
-        type: "task_assigned",
-        userId: buddyAppId,
-        title: "Buddy Assignment",
-        message: `You are assigned as buddy/mentor for ${emp.fullName} (${BUDDY_DURATION_DAYS} days)`,
-        channels: ["in_app"],
-        data: { employeeId: emp.id, buddyId: buddy.id },
-        priority: "medium",
+          type: "task_assigned",
+          userId: buddyAppId,
+          title: "Buddy Assignment",
+          message: `You are assigned as buddy/mentor for ${emp.fullName} (${BUDDY_DURATION_DAYS} days)`,
+          channels: ["in_app"],
+          data: { employeeId: emp.id, buddyId: buddy.id },
+          priority: "medium",
         })
       })
     }
