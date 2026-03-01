@@ -5,8 +5,8 @@ import {
 import {
   getAlertLevel,
   buildSummaryMessage,
-  DEFAULT_EXPIRY_THRESHOLDS,
 } from "@/lib/workflows/utils/alert-helpers"
+import { runNotificationStep } from "@/lib/workflows/utils/notification-helpers"
 import {
   normalizeDate,
   todayNormalized,
@@ -153,6 +153,27 @@ describe("workflows utils", () => {
           "Document Expiry: URGENT: 1, WARNING: 0, NOTICE: 0"
         )
       })
+    })
+  })
+
+  describe("notification-helpers", () => {
+    it("runNotificationStep calls step.run with fn", async () => {
+      const fn = vi.fn().mockResolvedValue(undefined)
+      const step = {
+        run: vi.fn().mockImplementation(async (_id, f) => f()),
+      }
+      await runNotificationStep(step, fn, "custom-id")
+      expect(step.run).toHaveBeenCalledWith("custom-id", expect.any(Function))
+      expect(fn).toHaveBeenCalled()
+    })
+
+    it("uses default stepId when not provided", async () => {
+      const fn = vi.fn().mockResolvedValue(undefined)
+      const step = {
+        run: vi.fn().mockImplementation(async (_id, f) => f()),
+      }
+      await runNotificationStep(step, fn)
+      expect(step.run).toHaveBeenCalledWith("send-notification", expect.any(Function))
     })
   })
 })

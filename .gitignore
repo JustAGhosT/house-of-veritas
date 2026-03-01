@@ -45,6 +45,9 @@ terraform/crash.log
 .claude/reports/
 .claude/state/*.json
 
+# Coverage
+coverage/
+
 # Playwright
 test-results/
 playwright-report/

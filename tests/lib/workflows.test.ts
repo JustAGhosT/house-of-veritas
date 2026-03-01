@@ -47,4 +47,25 @@ describe("lib/workflows", () => {
       data: expect.objectContaining({ requestId: "req-123", type: "stock_order" }),
     })
   })
+
+  it("routeToInngest handles send failure gracefully", async () => {
+    vi.spyOn(inngestModule.inngest, "send").mockRejectedValue(new Error("Inngest unavailable"))
+    await expect(
+      routeToInngest({
+        name: "house-of-veritas/expense.created",
+        data: { id: 1 },
+      })
+    ).resolves.toBeUndefined()
+  })
+
+  it("routeToInngest uses empty object when data undefined", async () => {
+    const sendSpy = vi.spyOn(inngestModule.inngest, "send").mockResolvedValue({ ids: ["evt-3"] })
+    await routeToInngest({
+      name: "house-of-veritas/document.expiry.check",
+    })
+    expect(sendSpy).toHaveBeenCalledWith({
+      name: "house-of-veritas/document.expiry.check",
+      data: {},
+    })
+  })
 })
