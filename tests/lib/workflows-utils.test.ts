@@ -1,17 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import {
-  formatCurrency,
-} from "@/lib/workflows/utils/format-helpers"
-import {
-  getAlertLevel,
-  buildSummaryMessage,
-} from "@/lib/workflows/utils/alert-helpers"
+import { formatCurrency } from "@/lib/workflows/utils/format-helpers"
+import { getAlertLevel, buildSummaryMessage } from "@/lib/workflows/utils/alert-helpers"
 import { runNotificationStep } from "@/lib/workflows/utils/notification-helpers"
-import {
-  normalizeDate,
-  todayNormalized,
-  daysUntil,
-} from "@/lib/workflows/utils/date-helpers"
+import { normalizeDate, todayNormalized, daysUntil } from "@/lib/workflows/utils/date-helpers"
 
 describe("workflows utils", () => {
   describe("format-helpers", () => {
@@ -142,9 +133,7 @@ describe("workflows utils", () => {
           { level: "WARNING" },
           { level: "NOTICE" },
         ]
-        expect(buildSummaryMessage(alerts)).toBe(
-          "URGENT: 2, WARNING: 1, NOTICE: 1"
-        )
+        expect(buildSummaryMessage(alerts)).toBe("URGENT: 2, WARNING: 1, NOTICE: 1")
       })
 
       it("adds prefix when provided", () => {

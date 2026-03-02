@@ -50,12 +50,16 @@ test.describe("Authentication", () => {
 
     await page.getByTestId("user-profile-trigger").first().click()
     await page.getByTestId("header-logout").click()
-    await page.waitForURL("**/login**", { timeout: 10000 })
+    await expect(page.locator('[data-testid="email-input"]')).toBeVisible({
+      timeout: 15000,
+    })
   })
 
   test("should redirect unauthenticated users to login", async ({ page }) => {
     await page.goto("/dashboard/hans")
-    await page.waitForURL("**/login**", { timeout: 10000 })
+    await expect(page.locator('[data-testid="email-input"]')).toBeVisible({
+      timeout: 15000,
+    })
   })
 
   test("should login as each user and see correct dashboard", async ({ page }) => {

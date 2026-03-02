@@ -1,6 +1,7 @@
 import nextConfig from "eslint-config-next"
 
 const eslintConfig = [
+  { ignores: ["coverage/**", "**/coverage/**"] },
   ...nextConfig,
   {
     rules: {

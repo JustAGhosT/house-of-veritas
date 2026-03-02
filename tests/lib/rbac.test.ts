@@ -74,17 +74,13 @@ describe("RBAC", () => {
 
   describe("withRole", () => {
     it("returns 401 when no auth", async () => {
-      const handler = withRole("admin")(async () =>
-        new Response("ok")
-      )
+      const handler = withRole("admin")(async () => new Response("ok"))
       const res = await handler(makeRequest())
       expect(res.status).toBe(401)
     })
 
     it("calls handler when role allowed", async () => {
-      const handler = withRole("admin")(async () =>
-        new Response("ok")
-      )
+      const handler = withRole("admin")(async () => new Response("ok"))
       const res = await handler(
         makeRequest({
           "x-user-id": "hans",
@@ -97,9 +93,7 @@ describe("RBAC", () => {
     })
 
     it("returns 403 when role not allowed", async () => {
-      const handler = withRole("admin")(async () =>
-        new Response("ok")
-      )
+      const handler = withRole("admin")(async () => new Response("ok"))
       const res = await handler(
         makeRequest({
           "x-user-id": "irma",
@@ -113,17 +107,13 @@ describe("RBAC", () => {
 
   describe("withResponsibility", () => {
     it("returns 401 when no auth", async () => {
-      const handler = withResponsibility("Projects")(async () =>
-        new Response("ok")
-      )
+      const handler = withResponsibility("Projects")(async () => new Response("ok"))
       const res = await handler(makeRequest())
       expect(res.status).toBe(401)
     })
 
     it("allows admin without responsibility", async () => {
-      const handler = withResponsibility("Expenses")(async () =>
-        new Response("ok")
-      )
+      const handler = withResponsibility("Expenses")(async () => new Response("ok"))
       const res = await handler(
         makeRequest({
           "x-user-id": "hans",
@@ -135,9 +125,7 @@ describe("RBAC", () => {
     })
 
     it("returns 403 when responsibility missing", async () => {
-      const handler = withResponsibility("Expenses")(async () =>
-        new Response("ok")
-      )
+      const handler = withResponsibility("Expenses")(async () => new Response("ok"))
       const res = await handler(
         makeRequest({
           "x-user-id": "irma",

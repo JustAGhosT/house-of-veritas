@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest"
-import {
-  requireId,
-  parseOptionalInt,
-  requireFields,
-} from "@/lib/api/validation"
+import { requireId, parseOptionalInt, requireFields } from "@/lib/api/validation"
 
 describe("validation", () => {
   describe("requireId", () => {
@@ -53,9 +49,7 @@ describe("validation", () => {
 
   describe("requireFields", () => {
     it("returns empty when all fields present", () => {
-      expect(
-        requireFields({ name: "x", email: "y" }, ["name", "email"], "Form")
-      ).toEqual({})
+      expect(requireFields({ name: "x", email: "y" }, ["name", "email"], "Form")).toEqual({})
     })
 
     it("returns error when field is missing", () => {
