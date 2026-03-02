@@ -107,6 +107,15 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
     return <>{children}</>
   }
 
+  // Block rendering of protected pages for unauthenticated users
+  if (requiresAuth && !isAuthenticated) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0f]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
+      </div>
+    )
+  }
+
   // For authenticated users or requiresAuth pages, show loading or content
   if (isLoading) {
     return (
