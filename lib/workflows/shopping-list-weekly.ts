@@ -34,13 +34,13 @@ export const shoppingListWeekly = inngest.createFunction(
 
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: SHOPPING_LEADER,
-        title: `Weekly Shopping List: ${items.length} items to restock`,
-        message: listPreview + (items.length > 5 ? ` ... and ${items.length - 5} more` : ""),
-        channels: ["in_app"],
-        data: { itemCount: items.length },
-        priority: "medium",
+          type: "system_alert",
+          userId: SHOPPING_LEADER,
+          title: `Weekly Shopping List: ${items.length} items to restock`,
+          message: listPreview + (items.length > 5 ? ` ... and ${items.length - 5} more` : ""),
+          channels: ["in_app"],
+          data: { itemCount: items.length },
+          priority: "medium",
         })
       })
 

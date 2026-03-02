@@ -30,11 +30,9 @@ export const GET = withRole(
   const { searchParams } = new URL(request.url)
   const status = searchParams.get("status")
 
-  const { employeeId: employee, error } = await resolveEmployeeForGet(
-    context,
-    searchParams,
-    { paramName: "employee" }
-  )
+  const { employeeId: employee, error } = await resolveEmployeeForGet(context, searchParams, {
+    paramName: "employee",
+  })
   if (error) return error
 
   try {
@@ -71,10 +69,7 @@ export const POST = withRole(
     const employeeId = resolvedEmployeeId!
 
     if (!startDate || !endDate) {
-      return NextResponse.json(
-        { error: "Start date and end date are required" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Start date and end date are required" }, { status: 400 })
     }
 
     const days = daysBetween(startDate, endDate)
@@ -155,7 +150,10 @@ export const PATCH = withRole("admin")(async (request) => {
       updates.approvedAt = toISODateString()
     }
 
-    const leaveRequest = await updateLeaveRequest(id, updates as Parameters<typeof updateLeaveRequest>[1])
+    const leaveRequest = await updateLeaveRequest(
+      id,
+      updates as Parameters<typeof updateLeaveRequest>[1]
+    )
 
     if (!leaveRequest) {
       return NextResponse.json({ error: "Leave request not found" }, { status: 404 })

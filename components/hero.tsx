@@ -1,24 +1,29 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLoginModal } from "@/lib/login-modal-context"
+import { useMotion } from "@/lib/motion-context"
+import { motion } from "framer-motion"
+import { ArrowRight } from "lucide-react"
 
-const textRevealVariants = {
-  hidden: { y: "100%" },
+const getTextRevealVariants = (motionEnabled: boolean) => ({
+  hidden: { y: motionEnabled ? "100%" : 0 },
   visible: (i: number) => ({
     y: 0,
-    transition: {
-      duration: 0.8,
-      ease: [0.22, 1, 0.36, 1] as const,
-      delay: i * 0.1,
-    },
+    transition: motionEnabled
+      ? {
+          duration: 0.8,
+          ease: [0.22, 1, 0.36, 1] as const,
+          delay: i * 0.1,
+        }
+      : { duration: 0 },
   }),
-}
+})
 
 export function Hero() {
   const { openLoginModal } = useLoginModal()
+  const { motionEnabled } = useMotion()
+  const textRevealVariants = getTextRevealVariants(motionEnabled)
 
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pt-24 pb-16">
@@ -31,9 +36,9 @@ export function Hero() {
       <div className="relative z-10 mx-auto max-w-5xl text-center">
         {/* Badge */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={motionEnabled ? { duration: 0.6, delay: 0.2 } : { duration: 0 }}
           className="mb-8 inline-flex items-center gap-2 rounded-full border border-blue-800/50 bg-zinc-900 px-4 py-2"
         >
           <span className="pulse-glow h-2 w-2 rounded-full bg-blue-500" />
@@ -71,9 +76,9 @@ export function Hero() {
 
         {/* Subheadline */}
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
+          transition={motionEnabled ? { duration: 0.6, delay: 0.5 } : { duration: 0 }}
           className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-zinc-400 sm:text-xl"
         >
           The complete platform for estate management, document compliance, and operational
@@ -82,9 +87,9 @@ export function Hero() {
 
         {/* CTAs */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+          transition={motionEnabled ? { duration: 0.6, delay: 0.6 } : { duration: 0 }}
           className="mb-16 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
           <Button

@@ -9,19 +9,51 @@ vi.mock("@/lib/services/notification-service", () => ({
 
 vi.mock("@/lib/services/baserow", () => {
   const mockExpenses = [
-    { id: 1, requester: 1, requesterName: "Hans", category: "Supplies", amount: 100, approvalStatus: "Pending" as const },
-    { id: 2, requester: 2, requesterName: "Charl", category: "Materials", amount: 200, approvalStatus: "Approved" as const },
-    { id: 3, requester: 1, requesterName: "Hans", category: "Materials", amount: 6000, approvalStatus: "Pending" as const },
-    { id: 4, requester: 2, requesterName: "Charl", category: "Supplies", amount: 8000, approvalStatus: "Pending Secondary" as const },
+    {
+      id: 1,
+      requester: 1,
+      requesterName: "Hans",
+      category: "Supplies",
+      amount: 100,
+      approvalStatus: "Pending" as const,
+    },
+    {
+      id: 2,
+      requester: 2,
+      requesterName: "Charl",
+      category: "Materials",
+      amount: 200,
+      approvalStatus: "Approved" as const,
+    },
+    {
+      id: 3,
+      requester: 1,
+      requesterName: "Hans",
+      category: "Materials",
+      amount: 6000,
+      approvalStatus: "Pending" as const,
+    },
+    {
+      id: 4,
+      requester: 2,
+      requesterName: "Charl",
+      category: "Supplies",
+      amount: 8000,
+      approvalStatus: "Pending Secondary" as const,
+    },
   ]
   return {
     getExpenses: vi.fn().mockResolvedValue(mockExpenses),
-    getExpense: vi.fn().mockImplementation((id: number) =>
-      Promise.resolve(mockExpenses.find((e) => e.id === id) || null)
-    ),
-    createExpense: vi.fn().mockImplementation((expense: Record<string, unknown>) =>
-      Promise.resolve({ ...expense, id: Date.now(), approvalStatus: "Pending" })
-    ),
+    getExpense: vi
+      .fn()
+      .mockImplementation((id: number) =>
+        Promise.resolve(mockExpenses.find((e) => e.id === id) || null)
+      ),
+    createExpense: vi
+      .fn()
+      .mockImplementation((expense: Record<string, unknown>) =>
+        Promise.resolve({ ...expense, id: Date.now(), approvalStatus: "Pending" })
+      ),
     updateExpense: vi.fn().mockImplementation((id: number, updates: Record<string, unknown>) => {
       const existing = mockExpenses.find((e) => e.id === id) || mockExpenses[0]
       return Promise.resolve({ ...existing, ...updates })

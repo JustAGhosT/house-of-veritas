@@ -37,13 +37,15 @@ test.describe("Kiosk approval flow", () => {
     await page.getByTestId("email-input").fill("hans@houseofv.com")
     await page.getByTestId("password-input").fill("hans123")
     await page.getByTestId("login-submit").click()
-    
+
     // Increased timeout and wait for load state to be more resilient
-    await page.waitForURL("**/dashboard/hans**", { timeout: 30000, waitUntil: 'load' })
+    await page.waitForURL("**/dashboard/hans**", { timeout: 30000, waitUntil: "load" })
 
     // Use a direct page object check if navigation is slow
     await page.goto("/dashboard/hans/approvals", { timeout: 30000 })
-    await expect(page.getByRole("heading", { name: /Approval Center|Approvals|Pending/i })).toBeVisible({
+    await expect(
+      page.getByRole("heading", { name: /Approval Center|Approvals|Pending/i })
+    ).toBeVisible({
       timeout: 20000,
     })
   })

@@ -1,24 +1,28 @@
 "use client"
 
-import { motion, useInView } from "framer-motion"
-import { useRef } from "react"
-import { ArrowRight } from "lucide-react"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useLoginModal } from "@/lib/login-modal-context"
+import { useMotion } from "@/lib/motion-context"
+import { motion, useInView } from "framer-motion"
+import { ArrowRight } from "lucide-react"
+import Link from "next/link"
+import { useRef } from "react"
 
 export function FinalCTA() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
   const { openLoginModal } = useLoginModal()
+  const { motionEnabled } = useMotion()
 
   return (
     <section className="px-4 py-24">
       <motion.div
         ref={ref}
-        initial={{ opacity: 0, y: 40 }}
+        initial={motionEnabled ? { opacity: 0, y: 40 } : { opacity: 1, y: 0 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
+        transition={
+          motionEnabled ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const } : { duration: 0 }
+        }
         className="mx-auto max-w-4xl text-center"
       >
         <h2

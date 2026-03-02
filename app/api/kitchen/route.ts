@@ -17,10 +17,7 @@ export const POST = withRole(
     const { type, description, location } = body
 
     if (!type || !description) {
-      return NextResponse.json(
-        { error: "Type and description are required" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Type and description are required" }, { status: 400 })
     }
 
     if (type === "cross_contamination") {
@@ -52,9 +49,6 @@ export const POST = withRole(
     logger.error("Error creating kitchen report", {
       error: error instanceof Error ? error.message : String(error),
     })
-    return NextResponse.json(
-      { error: "Failed to create kitchen report" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to create kitchen report" }, { status: 500 })
   }
 })

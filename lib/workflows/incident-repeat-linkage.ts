@@ -54,12 +54,12 @@ export const incidentRepeatLinkage = inngest.createFunction(
       await step.run(`notify-repeat-${idsStr}`, async () => {
         await sendNotification({
           type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: "Repeat Incident - Policy Review Required",
-        message: `${group.length} similar incidents in ${REPEAT_WINDOW_DAYS} days - formal policy review or intervention needed`,
-        channels: ["in_app", "sms"],
-        data: { incidentIds: ids, count: group.length },
-        priority: "urgent",
+          userId: getAdminNotificationRecipient(),
+          title: "Repeat Incident - Policy Review Required",
+          message: `${group.length} similar incidents in ${REPEAT_WINDOW_DAYS} days - formal policy review or intervention needed`,
+          channels: ["in_app", "sms"],
+          data: { incidentIds: ids, count: group.length },
+          priority: "urgent",
         })
       })
       escalated++

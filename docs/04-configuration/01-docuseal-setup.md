@@ -42,10 +42,10 @@ Navigate to Settings → API and generate an API key. Store this in Azure Key Va
 
 Add to `.env.local` (create from `.env.example`):
 
-| Variable           | Description                                      | Example                          |
-| ------------------ | ------------------------------------------------ | -------------------------------- |
-| `DOCUSEAL_API_URL` | DocuSeal API base URL                            | `https://api.docuseal.com`       |
-| `DOCUSEAL_API_KEY` | API key (X-Auth-Token); the token from Settings → API | *(your generated key)*          |
+| Variable           | Description                                           | Example                    |
+| ------------------ | ----------------------------------------------------- | -------------------------- |
+| `DOCUSEAL_API_URL` | DocuSeal API base URL                                 | `https://api.docuseal.com` |
+| `DOCUSEAL_API_KEY` | API key (X-Auth-Token); the token from Settings → API | _(your generated key)_     |
 
 - **DocuSeal Cloud:** Use `https://api.docuseal.com` as base URL; the API key is the token.
 - **Self-hosted:** Use `https://docs.nexamesh.ai/api` (or your instance URL + `/api`).

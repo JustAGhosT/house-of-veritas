@@ -31,13 +31,13 @@ export const loanOverdueEscalation = inngest.createFunction(
       for (const o of overdue) {
         const appId = BASEROW_ID_TO_APP_ID[o.employeeId] ?? getAdminNotificationRecipient()
         await sendNotification({
-        type: "system_alert",
-        userId: appId,
-        title: "Overdue Loan Repayment",
-        message: `Your repayment of ${formatCurrency(o.amount)} was due on ${o.dueDate}. Please resolve immediately.`,
-        channels: ["in_app", "sms"],
-        data: { loanId: o.loanId, amount: o.amount, dueDate: o.dueDate },
-        priority: "urgent",
+          type: "system_alert",
+          userId: appId,
+          title: "Overdue Loan Repayment",
+          message: `Your repayment of ${formatCurrency(o.amount)} was due on ${o.dueDate}. Please resolve immediately.`,
+          channels: ["in_app", "sms"],
+          data: { loanId: o.loanId, amount: o.amount, dueDate: o.dueDate },
+          priority: "urgent",
         })
 
         await sendNotification({

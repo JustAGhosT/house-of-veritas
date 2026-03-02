@@ -47,6 +47,7 @@ The application uses a tiered persistence approach:
 4. **File Storage:** Azure Blob Storage with local `/tmp` fallback
 
 Data flows:
+
 - Kiosk requests → MongoDB (with in-memory fallback)
 - Audit logs → PostgreSQL → MongoDB fallback (if PostgreSQL unavailable)
 - File uploads → Azure Blob → Local disk fallback

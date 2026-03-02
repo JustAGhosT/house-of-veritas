@@ -1,7 +1,7 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from "react"
 import { LoginModal } from "@/components/login-modal"
+import { createContext, ReactNode, useCallback, useContext, useState } from "react"
 
 interface LoginModalContextType {
   openLoginModal: () => void
@@ -14,8 +14,8 @@ const LoginModalContext = createContext<LoginModalContextType | undefined>(undef
 export function LoginModalProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const openLoginModal = () => setIsOpen(true)
-  const closeLoginModal = () => setIsOpen(false)
+  const openLoginModal = useCallback(() => setIsOpen(true), [])
+  const closeLoginModal = useCallback(() => setIsOpen(false), [])
 
   return (
     <LoginModalContext.Provider value={{ openLoginModal, closeLoginModal, isOpen }}>

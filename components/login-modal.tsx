@@ -120,9 +120,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
               <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-500/30 bg-blue-500/20">
                 <Shield className="h-8 w-8 text-blue-400" />
               </div>
-              <DialogTitle className="mb-2 text-2xl font-bold text-white">
-                Welcome Back
-              </DialogTitle>
+              <DialogTitle className="mb-2 text-2xl font-bold text-white">Welcome Back</DialogTitle>
               <DialogDescription className="text-white/60">
                 Sign in to access your dashboard
               </DialogDescription>
@@ -149,10 +147,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
               </div>
 
               <div>
-                <label
-                  htmlFor="password"
-                  className="mb-2 block text-sm font-medium text-white/80"
-                >
+                <label htmlFor="password" className="mb-2 block text-sm font-medium text-white/80">
                   Password
                 </label>
                 <div className="relative">
@@ -271,10 +266,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
             {/* Email Input */}
             <div className="mb-6">
-              <label
-                htmlFor="reset-email"
-                className="mb-2 block text-sm font-medium text-white/80"
-              >
+              <label htmlFor="reset-email" className="mb-2 block text-sm font-medium text-white/80">
                 Email Address
               </label>
               <div className="relative">

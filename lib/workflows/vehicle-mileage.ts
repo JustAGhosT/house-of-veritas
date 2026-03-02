@@ -65,13 +65,13 @@ export const vehicleMileageCheck = inngest.createFunction(
     if (created.length > 0) {
       await step.run("send-notifications", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: `${created.length} vehicle(s) over 100k km - maintenance tasks created`,
-        message: created.map((c) => c.title).join("; "),
-        channels: ["in_app"],
-        data: { taskIds: created.map((c) => c.id) },
-        priority: "medium",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: `${created.length} vehicle(s) over 100k km - maintenance tasks created`,
+          message: created.map((c) => c.title).join("; "),
+          channels: ["in_app"],
+          data: { taskIds: created.map((c) => c.id) },
+          priority: "medium",
         })
         const charlId = BASEROW_ID_TO_APP_ID[2] ?? "charl"
         await sendNotification({

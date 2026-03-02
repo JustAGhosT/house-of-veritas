@@ -71,9 +71,9 @@ vi.mock("@/lib/db/kiosk-store", async (importOriginal) => {
       },
       mode: "memory" as const,
     }),
-    sanitizeKioskDoc: (d: { _id?: { toString: () => string };[k: string]: unknown }) =>
+    sanitizeKioskDoc: (d: { _id?: { toString: () => string }; [k: string]: unknown }) =>
       d._id ? { ...d, id: d._id.toString() } : d,
-    sanitizeKioskDocs: (docs: { _id?: { toString: () => string };[k: string]: unknown }[]) =>
+    sanitizeKioskDocs: (docs: { _id?: { toString: () => string }; [k: string]: unknown }[]) =>
       docs.map((d) => (d._id ? { ...d, id: d._id.toString() } : d)),
   }
 })

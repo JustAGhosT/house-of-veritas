@@ -8,13 +8,13 @@ export const successionPremortem = inngest.createFunction(
   async ({ step }) => {
     await step.run("send-notification", async () => {
       await sendNotification({
-      type: "system_alert",
-      userId: getAdminNotificationRecipient(),
-      title: "Pre-Mortem Scenario Review",
-      message: "Quarterly 'what if' review - walkthrough fallback role/access scenarios",
-      channels: ["in_app"],
-      data: { type: "premortem" },
-      priority: "medium",
+        type: "system_alert",
+        userId: getAdminNotificationRecipient(),
+        title: "Pre-Mortem Scenario Review",
+        message: "Quarterly 'what if' review - walkthrough fallback role/access scenarios",
+        channels: ["in_app"],
+        data: { type: "premortem" },
+        priority: "medium",
       })
     })
 

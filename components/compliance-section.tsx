@@ -1,8 +1,9 @@
 "use client"
 
+import { useMotion } from "@/lib/motion-context"
 import { motion, useInView } from "framer-motion"
+import { Activity, Clock, Database, FileCheck, Lock, Shield } from "lucide-react"
 import { useRef } from "react"
-import { Shield, Lock, FileCheck, Activity, Database, Clock } from "lucide-react"
 
 const trustIndicators = [
   {
@@ -40,14 +41,15 @@ const trustIndicators = [
 export function ComplianceSection() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const { motionEnabled } = useMotion()
 
   return (
-    <section id="documents" className="bg-zinc-950/50 px-4 py-24">
+    <section id="compliance" className="bg-zinc-950/50 px-4 py-24">
       <div className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={motionEnabled ? { duration: 0.6 } : { duration: 0 }}
           className="mb-16 text-center"
         >
           <h2
@@ -67,9 +69,9 @@ export function ComplianceSection() {
             return (
               <motion.div
                 key={indicator.title}
-                initial={{ opacity: 0, y: 20 }}
+                initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                transition={motionEnabled ? { duration: 0.6, delay: index * 0.1 } : { duration: 0 }}
                 className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all duration-300 hover:border-zinc-700"
               >
                 <div className="mb-4 w-fit rounded-lg bg-emerald-900/20 p-2">
@@ -84,9 +86,9 @@ export function ComplianceSection() {
 
         {/* Additional Security Info */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.6 }}
+          transition={motionEnabled ? { duration: 0.6, delay: 0.6 } : { duration: 0 }}
           className="mt-12 rounded-2xl border border-emerald-900/30 bg-linear-to-br from-emerald-950/20 to-zinc-900/50 p-8"
         >
           <div className="grid gap-8 text-center md:grid-cols-3">

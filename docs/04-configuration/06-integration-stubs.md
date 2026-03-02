@@ -10,10 +10,10 @@ House of Veritas uses placeholder integrations for Bank and Insurance until prod
 
 **Environment Variables:**
 
-| Variable       | Description                    | Example                          |
-| -------------- | ------------------------------ | -------------------------------- |
-| `BANK_API_URL` | Bank API base URL              | `https://bank-api.example.com`   |
-| `BANK_API_KEY` | API key or bearer token        | (secret, store in Key Vault)     |
+| Variable       | Description             | Example                        |
+| -------------- | ----------------------- | ------------------------------ |
+| `BANK_API_URL` | Bank API base URL       | `https://bank-api.example.com` |
+| `BANK_API_KEY` | API key or bearer token | (secret, store in Key Vault)   |
 
 **Usage:**
 
@@ -40,10 +40,10 @@ const result = await submitPayment({
 
 **Environment Variables:**
 
-| Variable               | Description                    | Example                                |
-| ---------------------- | ------------------------------ | -------------------------------------- |
-| `INSURANCE_PORTAL_URL` | Insurance portal API base URL   | `https://insurer.example.com/api`      |
-| `INSURANCE_API_KEY`    | API key or bearer token         | (secret, store in Key Vault)           |
+| Variable               | Description                   | Example                           |
+| ---------------------- | ----------------------------- | --------------------------------- |
+| `INSURANCE_PORTAL_URL` | Insurance portal API base URL | `https://insurer.example.com/api` |
+| `INSURANCE_API_KEY`    | API key or bearer token       | (secret, store in Key Vault)      |
 
 **Usage:**
 

@@ -10,7 +10,8 @@ const PROBATION_MONTHS = 3
 function monthsSince(startDate: string): number {
   const start = new Date(startDate)
   const now = new Date()
-  const months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth())
+  const months =
+    (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth())
   return months
 }
 
@@ -35,13 +36,13 @@ export const probationReminder = inngest.createFunction(
         const appUserId = BASEROW_ID_TO_APP_ID[emp.id] ?? "hans"
         await step.run(`notify-probation-${emp.id}`, async () => {
           await sendNotification({
-          type: "system_alert",
-          userId: appUserId,
-          title: "Probation Review Due",
-          message: `Your ${PROBATION_MONTHS}-month probation period is complete. Please schedule a review with Hans.`,
-          channels: ["in_app"],
-          data: { employeeId: emp.id, startDate, monthsSinceStart: months },
-          priority: "medium",
+            type: "system_alert",
+            userId: appUserId,
+            title: "Probation Review Due",
+            message: `Your ${PROBATION_MONTHS}-month probation period is complete. Please schedule a review with Hans.`,
+            channels: ["in_app"],
+            data: { employeeId: emp.id, startDate, monthsSinceStart: months },
+            priority: "medium",
           })
         })
       }
@@ -50,13 +51,13 @@ export const probationReminder = inngest.createFunction(
     if (reminders.length > 0) {
       await step.run("send-summary", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: `Probation Review: ${reminders.length} employee(s) due`,
-        message: reminders.map((r) => `${r.name} (${r.monthsSinceStart} months)`).join("; "),
-        channels: ["in_app"],
-        data: { count: reminders.length, employees: reminders },
-        priority: "high",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: `Probation Review: ${reminders.length} employee(s) due`,
+          message: reminders.map((r) => `${r.name} (${r.monthsSinceStart} months)`).join("; "),
+          channels: ["in_app"],
+          data: { count: reminders.length, employees: reminders },
+          priority: "high",
         })
       })
     }

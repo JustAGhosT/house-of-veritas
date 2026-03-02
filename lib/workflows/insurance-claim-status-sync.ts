@@ -35,13 +35,13 @@ export const insuranceClaimStatusSync = inngest.createFunction(
         if (newStatus === "Approved" || newStatus === "Denied") {
           await step.run(`notify-claim-${c.claimId}`, async () => {
             await sendNotification({
-            type: "system_alert",
-            userId: getAdminNotificationRecipient(),
-            title: `Insurance Claim ${newStatus}`,
-            message: `Claim ${c.claimId}: ${newStatus}`,
-            channels: ["in_app"],
-            data: { claimId: c.claimId, status: newStatus },
-            priority: "medium",
+              type: "system_alert",
+              userId: getAdminNotificationRecipient(),
+              title: `Insurance Claim ${newStatus}`,
+              message: `Claim ${c.claimId}: ${newStatus}`,
+              channels: ["in_app"],
+              data: { claimId: c.claimId, status: newStatus },
+              priority: "medium",
             })
           })
         }

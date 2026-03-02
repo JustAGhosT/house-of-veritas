@@ -1,10 +1,11 @@
 "use client"
 
-import { motion, useInView } from "framer-motion"
-import { useRef, useEffect, useState } from "react"
-import { TrendingUp, CheckCircle2, AlertCircle, Clock } from "lucide-react"
 import { apiFetchSafe } from "@/lib/api-client"
 import { useLoginModal } from "@/lib/login-modal-context"
+import { useMotion } from "@/lib/motion-context"
+import { motion, useInView } from "framer-motion"
+import { AlertCircle, CheckCircle2, Clock, TrendingUp } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 interface ContractorData {
   contractors: Array<{
@@ -26,7 +27,7 @@ const EMPTY_CONTRACTORS: ContractorData = {
   summary: { totalPaid: 0, totalRemaining: 0, averageProgress: 0 },
 }
 
-function ContractorMilestones() {
+function ContractorMilestones({ motionEnabled }: { motionEnabled: boolean }) {
   const [data, setData] = useState<ContractorData | null>(null)
 
   useEffect(() => {
@@ -55,7 +56,7 @@ function ContractorMilestones() {
               className="h-full bg-green-500"
               initial={{ width: 0 }}
               animate={{ width: `${contractor.progress}%` }}
-              transition={{ duration: 1, delay: i * 0.2 }}
+              transition={motionEnabled ? { duration: 1, delay: i * 0.2 } : { duration: 0 }}
             />
           </div>
           <div className="mt-2 flex justify-between text-xs">
@@ -72,7 +73,7 @@ function ContractorMilestones() {
   )
 }
 
-function QuickStats() {
+function QuickStats({ motionEnabled }: { motionEnabled: boolean }) {
   const [stats, setStats] = useState<{
     tasksCompleted: number
     tasksTotal: number
@@ -137,9 +138,9 @@ function QuickStats() {
         return (
           <motion.div
             key={i}
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={motionEnabled ? { opacity: 0, scale: 0.9 } : { opacity: 1, scale: 1 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.1 }}
+            transition={motionEnabled ? { delay: i * 0.1 } : { duration: 0 }}
             className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4"
           >
             <Icon className={`h-5 w-5 ${metric.color} mb-2`} />
@@ -188,14 +189,15 @@ export function DashboardPreview() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
   const { openLoginModal } = useLoginModal()
+  const { motionEnabled } = useMotion()
 
   return (
     <section id="dashboard" className="bg-zinc-950/50 px-4 py-24">
       <div className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={motionEnabled ? { duration: 0.6 } : { duration: 0 }}
           className="mb-12 text-center"
         >
           <h2
@@ -212,9 +214,9 @@ export function DashboardPreview() {
 
         <motion.div
           ref={ref}
-          initial={{ opacity: 0, y: 40 }}
+          initial={motionEnabled ? { opacity: 0, y: 40 } : { opacity: 1, y: 0 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={motionEnabled ? { duration: 0.8, delay: 0.2 } : { duration: 0 }}
           className="relative rounded-3xl border border-zinc-800 bg-linear-to-br from-zinc-900 to-zinc-950 p-8 shadow-2xl"
         >
           {/* Dashboard Header */}
@@ -237,7 +239,7 @@ export function DashboardPreview() {
               <h4 className="text-sm font-semibold tracking-wider text-zinc-400 uppercase">
                 Quick Stats
               </h4>
-              <QuickStats />
+              <QuickStats motionEnabled={motionEnabled} />
             </div>
 
             {/* Contractor Milestones */}
@@ -245,7 +247,7 @@ export function DashboardPreview() {
               <h4 className="text-sm font-semibold tracking-wider text-zinc-400 uppercase">
                 Contractor Milestones
               </h4>
-              <ContractorMilestones />
+              <ContractorMilestones motionEnabled={motionEnabled} />
             </div>
 
             {/* Document Expiry */}

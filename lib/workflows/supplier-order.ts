@@ -9,8 +9,7 @@ function findSupplierForItem(itemName: string): string | undefined {
   const items = getInventory()
   const lower = itemName.toLowerCase()
   const item = items.find(
-    (i) =>
-      i.name.toLowerCase().includes(lower) || lower.includes(i.name.toLowerCase())
+    (i) => i.name.toLowerCase().includes(lower) || lower.includes(i.name.toLowerCase())
   )
   return item?.supplier
 }

@@ -13,6 +13,7 @@ Full review of the House of Veritas operations implementation: bugs, gaps, misse
 **Impact:** Repeat incident escalation, policy review triggers, and related workflows are ineffective for incidents created through the app.
 
 **Fix:** Either:
+
 - Add `createIncident` to Baserow and persist incidents there when Baserow is configured, or
 - Migrate incidents API to use Baserow as the primary store when configured, with in-memory fallback for dev.
 
@@ -25,6 +26,7 @@ Full review of the House of Veritas operations implementation: bugs, gaps, misse
 **Impact:** Reference verification and IT provisioning workflows are dead code.
 
 **Fix:** Emit events when:
+
 - `employee.created`: When a new employee is created (e.g. POST to employees API, DocuSeal completion, or Baserow automation).
 - `onboarding.checklist.progressed`: When onboarding checklist items are completed (requires an API or webhook that updates checklist progress).
 
@@ -37,6 +39,7 @@ Full review of the House of Veritas operations implementation: bugs, gaps, misse
 **Impact:** Lockout is recorded but never enforced. Users can still check out assets (via whatever manual process exists) without the system blocking them.
 
 **Fix:** Add asset checkout/checkin API (e.g. PATCH `/api/assets/[id]`) that:
+
 - Rejects checkout when `lateReturnLockoutUntil` is in the future.
 - Updates `checkedOutBy`, `expectedReturnDate`, `checkOutDate` on checkout.
 
@@ -49,6 +52,7 @@ Full review of the House of Veritas operations implementation: bugs, gaps, misse
 **Impact:** Any employee can change another employee's tasks (status, assignee, etc.).
 
 **Fix:** Restrict PATCH so that:
+
 - Admins can update any task.
 - Operators/employees can only update tasks assigned to them or in projects they belong to.
 
@@ -63,6 +67,7 @@ Full review of the House of Veritas operations implementation: bugs, gaps, misse
 **Impact:** Victim support incidents are treated like normal ones; no special routing or confidentiality handling.
 
 **Fix:** Extend `incident.created` payload with `victimSupportPath`. When true:
+
 - Route notification to external/HR contact (configurable) instead of or in addition to Hans.
 - Use different notification wording (e.g. "Confidential incident – external review required").
 - Optionally suppress or limit internal visibility.
@@ -147,16 +152,16 @@ Full review of the House of Veritas operations implementation: bugs, gaps, misse
 
 ## Summary of Recommended Fixes (Priority Order)
 
-| Priority | Item | Effort |
-|----------|------|--------|
-| P0 | Persist incidents to Baserow (or unify data source) | Medium |
-| P0 | Add asset checkout API with lockout enforcement | Medium |
-| P1 | Emit `employee.created` and `onboarding.checklist.progressed` | Medium |
-| P1 | Restrict tasks PATCH to assignee/project | Low |
-| P1 | Handle victim support path in incident workflow | Low |
-| P2 | Overtime: subtract break duration | Low |
-| P2 | Add USE_INNGEST_APPROVALS to .env.example | Trivial |
-| P2 | Update workflow spec documentation | Low |
+| Priority | Item                                                          | Effort  |
+| -------- | ------------------------------------------------------------- | ------- |
+| P0       | Persist incidents to Baserow (or unify data source)           | Medium  |
+| P0       | Add asset checkout API with lockout enforcement               | Medium  |
+| P1       | Emit `employee.created` and `onboarding.checklist.progressed` | Medium  |
+| P1       | Restrict tasks PATCH to assignee/project                      | Low     |
+| P1       | Handle victim support path in incident workflow               | Low     |
+| P2       | Overtime: subtract break duration                             | Low     |
+| P2       | Add USE_INNGEST_APPROVALS to .env.example                     | Trivial |
+| P2       | Update workflow spec documentation                            | Low     |
 
 ---
 

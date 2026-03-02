@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest"
-import { rateLimit } from "@/lib/auth/rate-limit"
+import { describe, it, expect, vi } from "vitest"
+import { rateLimit, rateLimitAsync, isRedisRateLimitConfigured } from "@/lib/auth/rate-limit"
 
 describe("rateLimit", () => {
   it("should allow requests within limit", () => {
@@ -31,5 +31,26 @@ describe("rateLimit", () => {
     }
     const result = rateLimit(key, 5, 1)
     expect(result.allowed).toBe(true)
+  })
+})
+
+describe("rateLimitAsync", () => {
+  it("returns in-memory result when Redis not configured", async () => {
+    const orig = process.env.REDIS_URL
+    delete process.env.REDIS_URL
+    const key = `async-${Date.now()}`
+    const result = await rateLimitAsync(key, 3, 60_000)
+    expect(result.allowed).toBe(true)
+    expect(result.remaining).toBe(2)
+    process.env.REDIS_URL = orig
+  })
+})
+
+describe("isRedisRateLimitConfigured", () => {
+  it("returns false when REDIS_URL unset", () => {
+    const orig = process.env.REDIS_URL
+    delete process.env.REDIS_URL
+    expect(isRedisRateLimitConfigured()).toBe(false)
+    process.env.REDIS_URL = orig
   })
 })

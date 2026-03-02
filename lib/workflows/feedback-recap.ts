@@ -8,13 +8,13 @@ export const feedbackRecap = inngest.createFunction(
   async ({ step }) => {
     await step.run("send-notification", async () => {
       await sendNotification({
-      type: "system_alert",
-      userId: getAdminNotificationRecipient(),
-      title: "Quarterly Feedback Recap",
-      message: "Review aggregated pain points for quarterly improvement or sprint sessions",
-      channels: ["in_app"],
-      data: { type: "feedback_recap" },
-      priority: "medium",
+        type: "system_alert",
+        userId: getAdminNotificationRecipient(),
+        title: "Quarterly Feedback Recap",
+        message: "Review aggregated pain points for quarterly improvement or sprint sessions",
+        channels: ["in_app"],
+        data: { type: "feedback_recap" },
+        priority: "medium",
       })
     })
 

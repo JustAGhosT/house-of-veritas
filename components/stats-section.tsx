@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
 import { apiFetchSafe } from "@/lib/api-client"
+import { useMotion } from "@/lib/motion-context"
+import { motion } from "framer-motion"
+import { useEffect, useState } from "react"
 
 interface Stats {
   users?: { total: number; active: number; names: string[] }
@@ -13,6 +14,7 @@ interface Stats {
 
 export function StatsSection() {
   const [stats, setStats] = useState<Stats | null>(null)
+  const { motionEnabled } = useMotion()
 
   useEffect(() => {
     apiFetchSafe<Stats | null>("/api/stats", null, { label: "Stats" }).then(setStats)
@@ -55,17 +57,17 @@ export function StatsSection() {
     <section className="px-4 py-16">
       <div className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={motionEnabled ? { duration: 0.6 } : { duration: 0 }}
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
         >
           {statsData.map((stat, index) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
+              initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              transition={motionEnabled ? { duration: 0.6, delay: index * 0.1 } : { duration: 0 }}
               className="relative rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all duration-300 hover:border-zinc-700"
             >
               <div className="text-center">

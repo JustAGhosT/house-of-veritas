@@ -88,10 +88,10 @@ House of Veritas' Operations Swimlane Process Maps encode comprehensive, audit-r
 
 ### Expanded Workflows
 
-- **Reference/Background Verification:** System-initiated on candidate entry; auto-triggers background/reference check with external parties. Includes status tracking dashboard and automated reminders for delayed responses. *Escalation:* Missed/failed verification triggers admin and HR/legal hold, onboarding paused.
+- **Reference/Background Verification:** System-initiated on candidate entry; auto-triggers background/reference check with external parties. Includes status tracking dashboard and automated reminders for delayed responses. _Escalation:_ Missed/failed verification triggers admin and HR/legal hold, onboarding paused.
 - **IT/Account Provisioning:** System-initiated on checklist progression; system creates IT/workshop accounts and notifies IT for equipment setup. If onboarding fails, accounts/equipment access auto-revoked.
-- **Buddy/Mentor Assignment:** System-initiated; assigns a current staff mentor, notified by automated task. System tracks duration (configurable, e.g. 14 or 30 days) and issues reminders until marked as complete or expired. *Escalation:* If not completed within period, supervisor alerted for direct follow-up.
-- **Scheduled Anonymous Feedback (30/90 Days):** System-scheduled; prompts new joiner at day 30 and 90 for confidential feedback via digital form. Results tracked, aggregated, and surfaced to Hans/admin for onboarding improvement. *Missed Feedback:* System escalates unsubmitted surveys to admin for personal outreach.
+- **Buddy/Mentor Assignment:** System-initiated; assigns a current staff mentor, notified by automated task. System tracks duration (configurable, e.g. 14 or 30 days) and issues reminders until marked as complete or expired. _Escalation:_ If not completed within period, supervisor alerted for direct follow-up.
+- **Scheduled Anonymous Feedback (30/90 Days):** System-scheduled; prompts new joiner at day 30 and 90 for confidential feedback via digital form. Results tracked, aggregated, and surfaced to Hans/admin for onboarding improvement. _Missed Feedback:_ System escalates unsubmitted surveys to admin for personal outreach.
 
 ---
 
@@ -109,8 +109,8 @@ House of Veritas' Operations Swimlane Process Maps encode comprehensive, audit-r
 
 ### Expanded Workflows
 
-- **Task Handover on Absence:** System/user-initiated; upon leave/sick mark, tasks auto-reassigned or next responsible party gets urgent notification. *Audit Log:* Maintains record of handover—ensures nothing is orphaned.
-- **Rolling/Rotating Assignment:** System-enforced; tracks past assignments and rotates critical tasks to balance load; prevents overburdening same individuals. *Escalation:* If system detects assignment isn't accepted, triggers alternative routing.
+- **Task Handover on Absence:** System/user-initiated; upon leave/sick mark, tasks auto-reassigned or next responsible party gets urgent notification. _Audit Log:_ Maintains record of handover—ensures nothing is orphaned.
+- **Rolling/Rotating Assignment:** System-enforced; tracks past assignments and rotates critical tasks to balance load; prevents overburdening same individuals. _Escalation:_ If system detects assignment isn't accepted, triggers alternative routing.
 - **Task Failure Propagation:** System-initiated; if a critical task is missed, any downstream/dependent workflows are auto-paused or blocked (e.g., asset checkout denied if safety check not done). Admins are notified and issue must be resolved before resumption.
 
 ---
@@ -194,17 +194,17 @@ This section captures all critical flows for financial controls including Leave,
 
 ### Core Flows & Participants
 
-| Workflow | Triggers | Approvers | System Involved | External |
-| -------- | -------- | --------- | --------------- | -------- |
-| Leave Request | Employee/resident submission | Hans | Baserow, Notifications | — |
-| Payroll Processing | System calendar event | Hans (final), System | Payroll API, Baserow | Bank |
-| Expense/Reimbursement Claim | Expense incurred & claim upload | Hans | Baserow, Notification | — |
-| Loan/Advance Request | Employee/resident request | Hans | Baserow, Notification, Scheduler | Bank |
-| Petty Cash Request/Logging | Expense or cash shortfall | Hans | Baserow, Notification | — |
-| Scheduled/Contractor Payment | Contractual milestone/date | Hans or Auto | Baserow, Notifications | Contractor/Bank |
-| Monthly Financial Audit Review | Month close / scheduled event | Hans | Baserow, Notification | External Auditor (if any) |
-| Budget Amendment | Budget need detected/requested | Hans | Baserow/DocuSeal (signoff) | — |
-| Insurance Claim | Insurable incident | Hans, System | Baserow, Notification | Insurance Portal |
+| Workflow                       | Triggers                        | Approvers            | System Involved                  | External                  |
+| ------------------------------ | ------------------------------- | -------------------- | -------------------------------- | ------------------------- |
+| Leave Request                  | Employee/resident submission    | Hans                 | Baserow, Notifications           | —                         |
+| Payroll Processing             | System calendar event           | Hans (final), System | Payroll API, Baserow             | Bank                      |
+| Expense/Reimbursement Claim    | Expense incurred & claim upload | Hans                 | Baserow, Notification            | —                         |
+| Loan/Advance Request           | Employee/resident request       | Hans                 | Baserow, Notification, Scheduler | Bank                      |
+| Petty Cash Request/Logging     | Expense or cash shortfall       | Hans                 | Baserow, Notification            | —                         |
+| Scheduled/Contractor Payment   | Contractual milestone/date      | Hans or Auto         | Baserow, Notifications           | Contractor/Bank           |
+| Monthly Financial Audit Review | Month close / scheduled event   | Hans                 | Baserow, Notification            | External Auditor (if any) |
+| Budget Amendment               | Budget need detected/requested  | Hans                 | Baserow/DocuSeal (signoff)       | —                         |
+| Insurance Claim                | Insurable incident              | Hans, System         | Baserow, Notification            | Insurance Portal          |
 
 ### Swimlane Actions: Key Elements per Workflow
 
@@ -397,11 +397,11 @@ This comprehensive approach future-proofs governance and day-to-day operations a
 
 ## Measurable Objectives
 
-| Metric | Baseline | Target | Timeline |
-| ------ | -------- | ------ | -------- |
-| Financial/Audit exception resolution time | 72 hrs | <24 hrs | Q2 2024 |
-| % of overdue loan/advance cases escalated | — | 100% within 48h | Q2 2024 |
-| Workflow coverage for finance controls | 0 | 100% | Q2 2024 |
+| Metric                                    | Baseline | Target          | Timeline |
+| ----------------------------------------- | -------- | --------------- | -------- |
+| Financial/Audit exception resolution time | 72 hrs   | <24 hrs         | Q2 2024  |
+| % of overdue loan/advance cases escalated | —        | 100% within 48h | Q2 2024  |
+| Workflow coverage for finance controls    | 0        | 100%            | Q2 2024  |
 
 ---
 
@@ -416,7 +416,7 @@ Expanded External: add Bank, Insurance, Auditor to External Parties as per above
 ### Additional Stories
 
 - **As an employee or resident**, I want to request a loan/advance for legitimate expenses, get timely response and clear repayment terms so that I can manage urgent needs responsibly.  
-  *Acceptance:* System validates eligibility, Hans approval, clear notifications, repayment tracked.
+  _Acceptance:_ System validates eligibility, Hans approval, clear notifications, repayment tracked.
 
 - **As Hans**, I want to be notified of any overdue financial obligations or escalated exceptions so risk is managed and audit trails are maintained.
 
@@ -513,22 +513,22 @@ Integrated milestones for:
 
 ## Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-| ---- | ------ | ----------- | ---------- |
-| Financial workflow configuration gaps | High | Medium | Pre-launch test, admin super-user |
-| Overdue escalations missed | High | Low | Automated alerts, periodic checks |
+| Risk                                  | Impact | Probability | Mitigation                        |
+| ------------------------------------- | ------ | ----------- | --------------------------------- |
+| Financial workflow configuration gaps | High   | Medium      | Pre-launch test, admin super-user |
+| Overdue escalations missed            | High   | Low         | Automated alerts, periodic checks |
 
 ---
 
 ## Open Questions
 
-| Question | Owner | Target Date | Impact if Unresolved |
-| -------- | ----- | ----------- | ------------------- |
-| What are permissible purposes/limits for loans/advances? | Hans | May 2024 | Policy gaps, uncontrolled risk |
-| Who authorizes exceptions or overrides in financial workflows? | Hans/Admin Board | May 2024 | Audit ambiguity, compliance concerns |
-| What is the final process approval authority? | Hans | May 2024 | Process ambiguity |
-| Payroll/calendar API compatibility? | IT | May 2024 | Incomplete automation |
-| Required document retention periods? | Legal | June 2024 | Compliance gaps |
+| Question                                                       | Owner            | Target Date | Impact if Unresolved                 |
+| -------------------------------------------------------------- | ---------------- | ----------- | ------------------------------------ |
+| What are permissible purposes/limits for loans/advances?       | Hans             | May 2024    | Policy gaps, uncontrolled risk       |
+| Who authorizes exceptions or overrides in financial workflows? | Hans/Admin Board | May 2024    | Audit ambiguity, compliance concerns |
+| What is the final process approval authority?                  | Hans             | May 2024    | Process ambiguity                    |
+| Payroll/calendar API compatibility?                            | IT               | May 2024    | Incomplete automation                |
+| Required document retention periods?                           | Legal            | June 2024   | Compliance gaps                      |
 
 ---
 

@@ -31,18 +31,18 @@
 
 ## 02-architecture/ -- Technical Architecture
 
-| Document                                                                         | Description                                                                              |
-| -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| [01-technical-design.md](02-architecture/01-technical-design.md)                 | System architecture, data models, API design, security model                             |
-| [02-naming-convention.md](02-architecture/02-naming-convention.md)               | Azure resource naming convention (`{prefix}-{env}-{project}-{type}-{region}`)            |
-| [03-infrastructure.md](02-architecture/03-infrastructure.md)                     | Terraform module map, Azure resource inventory, traffic flow, cost estimate              |
-| [04-api-versioning.md](02-architecture/04-api-versioning.md)                     | API versioning strategy                                                                  |
-| [05-persistence-strategy-adr.md](02-architecture/05-persistence-strategy-adr.md) | ADR: Persistence strategy, polyglot stores, weighted decision matrices                   |
-| [06-access-control-adr.md](02-architecture/06-access-control-adr.md)             | ADR: Access control model — roles, responsibilities, project membership, task visibility |
-| [07-ai-integration-adr.md](02-architecture/07-ai-integration-adr.md)             | ADR: AI integration strategy — Azure Foundry, suggestion APIs, fallback behavior         |
-| [08-testing-strategy-adr.md](02-architecture/08-testing-strategy-adr.md)         | ADR: Testing strategy — Vitest, Playwright, coverage targets, CI integration             |
-| [09-workflow-orchestration-adr.md](02-architecture/09-workflow-orchestration-adr.md) | ADR: Workflow orchestration — Inngest, workflow layer, n8n roadmap, weighted decision matrix |
-| [10-workflow-specifications.md](02-architecture/10-workflow-specifications.md)       | Full workflow catalog — employee, asset, incident, safety, payroll, n8n rules                |
+| Document                                                                                         | Description                                                                                      |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| [01-technical-design.md](02-architecture/01-technical-design.md)                                 | System architecture, data models, API design, security model                                     |
+| [02-naming-convention.md](02-architecture/02-naming-convention.md)                               | Azure resource naming convention (`{prefix}-{env}-{project}-{type}-{region}`)                    |
+| [03-infrastructure.md](02-architecture/03-infrastructure.md)                                     | Terraform module map, Azure resource inventory, traffic flow, cost estimate                      |
+| [04-api-versioning.md](02-architecture/04-api-versioning.md)                                     | API versioning strategy                                                                          |
+| [05-persistence-strategy-adr.md](02-architecture/05-persistence-strategy-adr.md)                 | ADR: Persistence strategy, polyglot stores, weighted decision matrices                           |
+| [06-access-control-adr.md](02-architecture/06-access-control-adr.md)                             | ADR: Access control model — roles, responsibilities, project membership, task visibility         |
+| [07-ai-integration-adr.md](02-architecture/07-ai-integration-adr.md)                             | ADR: AI integration strategy — Azure Foundry, suggestion APIs, fallback behavior                 |
+| [08-testing-strategy-adr.md](02-architecture/08-testing-strategy-adr.md)                         | ADR: Testing strategy — Vitest, Playwright, coverage targets, CI integration                     |
+| [09-workflow-orchestration-adr.md](02-architecture/09-workflow-orchestration-adr.md)             | ADR: Workflow orchestration — Inngest, workflow layer, n8n roadmap, weighted decision matrix     |
+| [10-workflow-specifications.md](02-architecture/10-workflow-specifications.md)                   | Full workflow catalog — employee, asset, incident, safety, payroll, n8n rules                    |
 | [11-operations-swimlane-process-maps.md](02-architecture/11-operations-swimlane-process-maps.md) | Operations swimlane process maps — onboarding, daily ops, assets, incidents, financial workflows |
 
 ## 03-deployment/ -- Deployment and Operations

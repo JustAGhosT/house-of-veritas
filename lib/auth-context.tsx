@@ -1,7 +1,7 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react"
 
 interface User {
   id: string
@@ -24,6 +24,9 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   isAuthenticated: boolean
+  requiresAuth: boolean
+  setRequiresAuth: (value: boolean) => void
+  clearRequiresAuth: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -31,6 +34,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [requiresAuth, setRequiresAuth] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -40,11 +44,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const data = await res.json()
         setUser(data.user)
+        setRequiresAuth(false)
       } else {
         setUser(null)
+        setRequiresAuth(true)
       }
     } catch {
       setUser(null)
+      setRequiresAuth(true)
     } finally {
       setIsLoading(false)
     }
@@ -62,8 +69,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isOnboardingPage = pathname === "/onboarding"
 
     if (!user && isDashboardPage) {
-      router.push("/login")
-    } else if (user && isAuthPage) {
+      setRequiresAuth(true)
+    } else if (user) {
+      setRequiresAuth(false)
+    }
+
+    if (user && isAuthPage) {
       router.push(`/dashboard/${user.id}`)
     } else if (user && isOnboardingPage && user.onboardingStatus === "completed") {
       router.push(`/dashboard/${user.id}`)
@@ -95,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       setUser(data.user)
+      setRequiresAuth(false)
       router.push(data.redirectTo)
       return { success: true }
     } catch {
@@ -109,7 +121,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Clear state even if server call fails
     }
     setUser(null)
-    router.push("/login")
+    setRequiresAuth(true)
+  }
+
+  const clearRequiresAuth = () => {
+    setRequiresAuth(false)
   }
 
   return (
@@ -120,6 +136,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         isAuthenticated: !!user,
+        requiresAuth,
+        setRequiresAuth,
+        clearRequiresAuth,
       }}
     >
       {children}
@@ -137,23 +156,26 @@ export function useAuth() {
 
 export function withAuth<P extends object>(
   WrappedComponent: React.ComponentType<P>,
-  options?: { allowedUsers?: string[] }
+  options?: { allowedUsers?: string[]; fallback?: ReactNode }
 ) {
   return function ProtectedComponent(props: P) {
-    const { user, isLoading, isAuthenticated } = useAuth()
+    const { user, isLoading, isAuthenticated, requiresAuth } = useAuth()
     const router = useRouter()
 
     useEffect(() => {
-      if (!isLoading && !isAuthenticated) {
-        router.push("/login")
-      }
-
       if (!isLoading && user && options?.allowedUsers) {
         if (!options.allowedUsers.includes(user.id) && user.role !== "admin") {
           router.push(`/dashboard/${user.id}`)
         }
       }
-    }, [isLoading, isAuthenticated, user, router])
+    }, [isLoading, user, router])
+
+    // Handle navigation in useEffect to avoid side effects in render
+    useEffect(() => {
+      if (!isLoading && requiresAuth && !isAuthenticated && !options?.fallback) {
+        router.push("/login")
+      }
+    }, [isLoading, isAuthenticated, requiresAuth, router])
 
     if (isLoading) {
       return (
@@ -163,7 +185,12 @@ export function withAuth<P extends object>(
       )
     }
 
+    // Only block rendering when user is not authenticated
     if (!isAuthenticated) {
+      // Render fallback if provided, otherwise return null and let useEffect handle navigation
+      if (options?.fallback) {
+        return <>{options.fallback}</>
+      }
       return null
     }
 

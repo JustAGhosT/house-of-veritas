@@ -1,5 +1,6 @@
 "use client"
 
+import { useMotion } from "@/lib/motion-context"
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 
@@ -17,13 +18,14 @@ const logos = [
 export function LogoMarquee() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const { motionEnabled } = useMotion()
 
   return (
     <section ref={ref} className="overflow-hidden py-16">
       <motion.div
-        initial={{ opacity: 0 }}
+        initial={motionEnabled ? { opacity: 0 } : { opacity: 1 }}
         animate={isInView ? { opacity: 1 } : {}}
-        transition={{ duration: 0.6 }}
+        transition={motionEnabled ? { duration: 0.6 } : { duration: 0 }}
         className="mb-10 text-center"
       >
         <p className="text-sm font-medium tracking-wider text-zinc-500 uppercase">
@@ -37,7 +39,7 @@ export function LogoMarquee() {
         <div className="pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-32 bg-linear-to-l from-zinc-950 to-transparent" />
 
         {/* Marquee container */}
-        <div className="animate-marquee flex">
+        <div className={`flex ${motionEnabled ? "animate-marquee" : ""}`}>
           {[...logos, ...logos].map((logo, index) => (
             <div
               key={index}

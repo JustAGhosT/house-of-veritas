@@ -3,11 +3,7 @@ import type { DocumentExpiryRow } from "@/lib/services/baserow"
 import { getDocumentExpiryRows } from "@/lib/services/baserow"
 import { sendNotification } from "@/lib/services/notification-service"
 import { getAdminNotificationRecipient } from "@/lib/workflows/notification-recipients"
-import {
-  buildSummaryMessage,
-  daysUntil,
-  getAlertLevel,
-} from "@/lib/workflows/utils"
+import { buildSummaryMessage, daysUntil, getAlertLevel } from "@/lib/workflows/utils"
 
 export const documentExpiryCheck = inngest.createFunction(
   { id: "document-expiry-check", retries: 2 },

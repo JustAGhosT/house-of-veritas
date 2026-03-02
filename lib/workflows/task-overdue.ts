@@ -17,28 +17,26 @@ export const taskOverdueCheck = inngest.createFunction(
 
     const tasks = await getTasks()
     const overdue = tasks.filter(
-      (t) =>
-        t.status !== "Completed" &&
-        t.dueDate &&
-        t.dueDate < cutoffStr
+      (t) => t.status !== "Completed" && t.dueDate && t.dueDate < cutoffStr
     )
 
     if (overdue.length > 0) {
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: `Task Escalation: ${overdue.length} overdue tasks`,
-        message: overdue
-          .slice(0, 5)
-          .map((t) => `${t.title} (due ${t.dueDate})`)
-          .join("; ") + (overdue.length > 5 ? ` +${overdue.length - 5} more` : ""),
-        channels: ["in_app"],
-        data: {
-          count: overdue.length,
-          taskIds: overdue.map((t) => t.id),
-        },
-        priority: "high",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: `Task Escalation: ${overdue.length} overdue tasks`,
+          message:
+            overdue
+              .slice(0, 5)
+              .map((t) => `${t.title} (due ${t.dueDate})`)
+              .join("; ") + (overdue.length > 5 ? ` +${overdue.length - 5} more` : ""),
+          channels: ["in_app"],
+          data: {
+            count: overdue.length,
+            taskIds: overdue.map((t) => t.id),
+          },
+          priority: "high",
         })
       })
     }

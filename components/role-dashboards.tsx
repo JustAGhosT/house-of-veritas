@@ -1,8 +1,9 @@
 "use client"
 
+import { useMotion } from "@/lib/motion-context"
 import { motion, useInView } from "framer-motion"
+import { Home, Shield, Sprout, Wrench } from "lucide-react"
 import { useRef } from "react"
-import { Shield, Wrench, Sprout, Home } from "lucide-react"
 
 const roles = [
   {
@@ -89,14 +90,15 @@ const colorClasses: Record<string, { bg: string; border: string; text: string; i
 export function RoleDashboards() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const { motionEnabled } = useMotion()
 
   return (
     <section className="px-4 py-24">
       <div className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={motionEnabled ? { duration: 0.6 } : { duration: 0 }}
           className="mb-16 text-center"
         >
           <h2
@@ -119,9 +121,9 @@ export function RoleDashboards() {
             return (
               <motion.div
                 key={role.name}
-                initial={{ opacity: 0, y: 20 }}
+                initial={motionEnabled ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                transition={motionEnabled ? { duration: 0.6, delay: index * 0.1 } : { duration: 0 }}
                 className={`rounded-2xl bg-linear-to-br p-6 ${colors.bg} border ${colors.border} transition-all duration-300 hover:scale-[1.02]`}
               >
                 <div className={`rounded-lg p-3 ${colors.icon} mb-4 w-fit`}>

@@ -20,9 +20,7 @@ describe("POST /api/users/me/onboarding-feedback", () => {
   })
 
   beforeEach(async () => {
-    const { getUserWithManagement, updateUserManagement } = await import(
-      "@/lib/user-management"
-    )
+    const { getUserWithManagement, updateUserManagement } = await import("@/lib/user-management")
     vi.mocked(getUserWithManagement).mockResolvedValue({
       id: "charl",
       name: "Charl",

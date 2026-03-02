@@ -9,17 +9,17 @@ export const taskCreated = inngest.createFunction(
   async ({ event, step }) => {
     const payload = event.data as TaskPayload
     const userId = payload.assigneeId
-      ? BASEROW_ID_TO_APP_ID[payload.assigneeId] ?? "hans"
+      ? (BASEROW_ID_TO_APP_ID[payload.assigneeId] ?? "hans")
       : "hans"
     await step.run("send-notification", async () => {
       await sendNotification({
-      type: "task_assigned",
-      userId,
-      title: "New Task Assigned",
-      message: `${payload.title}${payload.assigneeEmail ? ` (assigned to you)` : ""}`,
-      channels: ["in_app"],
-      data: { taskId: payload.id },
-      priority: "medium",
+        type: "task_assigned",
+        userId,
+        title: "New Task Assigned",
+        message: `${payload.title}${payload.assigneeEmail ? ` (assigned to you)` : ""}`,
+        channels: ["in_app"],
+        data: { taskId: payload.id },
+        priority: "medium",
       })
     })
     return { notified: true, taskId: payload.id }

@@ -1,21 +1,23 @@
 "use client"
 
-import { useState, useEffect, startTransition } from "react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { useAuth } from "@/lib/auth-context"
-import { apiFetch } from "@/lib/api-client"
-import { NotificationPanel } from "@/components/notification-panel"
-import { RealTimeIndicator } from "@/components/realtime-indicator"
 import { ConnectionStatus } from "@/components/connection-status"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { SimpleGridBackground } from "@/components/grid-room-background"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { NotificationPanel } from "@/components/notification-panel"
 import { OnboardingTutorial } from "@/components/onboarding-tutorial"
-import { LogOut, Menu, X, ChevronDown, ChevronRight } from "lucide-react"
+import { RealTimeIndicator } from "@/components/realtime-indicator"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { UserProfileDropdown } from "@/components/user-profile-dropdown"
-import { getNavForPersona, isCategory } from "@/lib/nav-config"
+import { WidgetErrorBoundary } from "@/components/widget-error-boundary"
+import { apiFetch } from "@/lib/api-client"
+import { useAuth } from "@/lib/auth-context"
+import { useLoginModal } from "@/lib/login-modal-context"
 import type { NavEntry } from "@/lib/nav-config"
+import { getNavForPersona, isCategory } from "@/lib/nav-config"
+import { ChevronRight, Menu, X } from "lucide-react"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { startTransition, useEffect, useRef, useState } from "react"
 
 const PERSONA_INFO = {
   hans: { name: "Hans", role: "Owner & Administrator", color: "blue", icon: "👔" },
@@ -45,16 +47,25 @@ function getFlatNavItems(entries: NavEntry[]): { name: string; href: string }[] 
 export default function DashboardLayout({ children, persona }: DashboardLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, logout, isLoading, isAuthenticated } = useAuth()
+  const { user, logout, isLoading, isAuthenticated, requiresAuth } = useAuth()
+  const { openLoginModal } = useLoginModal()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
+  const hasOpenedLogin = useRef(false)
 
-  // Auth protection
+  // Auth protection - open login modal when auth is required
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push("/login")
+    if (requiresAuth && !hasOpenedLogin.current) {
+      hasOpenedLogin.current = true
+      openLoginModal()
     }
-  }, [isLoading, isAuthenticated, router])
+    // Reset flag when user becomes authenticated
+    if (!requiresAuth) {
+      hasOpenedLogin.current = false
+    }
+  }, [requiresAuth, openLoginModal])
+
+  // Removed unused handleLoginModalClose function
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -73,10 +84,42 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
     }
   }, [user, pathname])
 
-  // Show loading while checking auth
-  if (isLoading || !isAuthenticated) {
+  // Show loading while checking auth (only for protected routes)
+  if (isLoading && requiresAuth) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0f]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
+        <button
+          onClick={() => {
+            hasOpenedLogin.current = true
+            openLoginModal()
+          }}
+          className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
+          Login
+        </button>
+      </div>
+    )
+  }
+
+  // For non-authenticated users on non-requiresAuth pages, show content
+  if (!isAuthenticated && !requiresAuth) {
+    return <>{children}</>
+  }
+
+  // Block rendering of protected pages for unauthenticated users
+  if (requiresAuth && !isAuthenticated) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0f]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
+      </div>
+    )
+  }
+
+  // For authenticated users or requiresAuth pages, show loading or content
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0f]">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-500" />
       </div>
     )
@@ -268,28 +311,34 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
             {/* Right Side Actions */}
             <div className="flex items-center gap-4">
               <ConnectionStatus />
-              <RealTimeIndicator />
+              <WidgetErrorBoundary>
+                <RealTimeIndicator />
+              </WidgetErrorBoundary>
 
               {/* Notifications */}
-              <NotificationPanel />
+              <WidgetErrorBoundary>
+                <NotificationPanel />
+              </WidgetErrorBoundary>
 
               {/* User Profile Dropdown */}
               <div className="hidden md:block">
-                <UserProfileDropdown
-                  user={{
-                    id: user?.id ?? persona,
-                    name: user?.name ?? "",
-                    email: user?.email ?? "",
-                    phone: user?.phone,
-                    role: user?.role ?? "",
-                    color: (user as { color?: string })?.color,
-                    icon: (user as { icon?: string })?.icon,
-                    photoUrl: (user as { photoUrl?: string })?.photoUrl,
-                  }}
-                  personaInfo={personaInfo}
-                  onLogout={handleLogout}
-                  onRepeatTutorial={() => setShowTutorial(true)}
-                />
+                <WidgetErrorBoundary>
+                  <UserProfileDropdown
+                    user={{
+                      id: user?.id ?? persona,
+                      name: user?.name ?? "",
+                      email: user?.email ?? "",
+                      phone: user?.phone,
+                      role: user?.role ?? "",
+                      color: (user as { color?: string })?.color,
+                      icon: (user as { icon?: string })?.icon,
+                      photoUrl: (user as { photoUrl?: string })?.photoUrl,
+                    }}
+                    personaInfo={personaInfo}
+                    onLogout={handleLogout}
+                    onRepeatTutorial={() => setShowTutorial(true)}
+                  />
+                </WidgetErrorBoundary>
               </div>
             </div>
           </div>

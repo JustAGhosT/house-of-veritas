@@ -34,10 +34,7 @@ import { leaveCompulsoryAudit } from "@/lib/workflows/leave-compulsory-audit"
 import { loanRequestSubmitted } from "@/lib/workflows/loan-request-submitted"
 import { loanRepaymentReminder } from "@/lib/workflows/loan-repayment-reminder"
 import { loanOverdueEscalation } from "@/lib/workflows/loan-overdue-escalation"
-import {
-  pettyCashRequestSubmitted,
-  pettyCashPolicyViolation,
-} from "@/lib/workflows/petty-cash"
+import { pettyCashRequestSubmitted, pettyCashPolicyViolation } from "@/lib/workflows/petty-cash"
 import { contractorPaymentDue } from "@/lib/workflows/contractor-payment-due"
 import { monthlyFinancialAudit } from "@/lib/workflows/monthly-financial-audit"
 import { budgetBreachAlert } from "@/lib/workflows/budget-breach-alert"

@@ -468,12 +468,12 @@ pending = collection.find({"status": "pending"})
 Node.js (mongodb driver):
 
 ```typescript
-import { MongoClient } from "mongodb";
+import { MongoClient } from "mongodb"
 
-const client = new MongoClient(process.env.COSMOS_MONGO_CONNECTION!);
-await client.connect();
-const db = client.db(process.env.COSMOS_MONGO_DATABASE);
-const collection = db.collection("kiosk_requests");
+const client = new MongoClient(process.env.COSMOS_MONGO_CONNECTION!)
+await client.connect()
+const db = client.db(process.env.COSMOS_MONGO_DATABASE)
+const collection = db.collection("kiosk_requests")
 
 // Insert a kiosk request
 await collection.insertOne({
@@ -482,11 +482,11 @@ await collection.insertOne({
   employeeName: "Lucky",
   data: { itemName: "Garden tools", quantity: 5 },
   timestamp: new Date().toISOString(),
-  status: "pending"
-});
+  status: "pending",
+})
 
 // Query pending requests
-const pending = await collection.find({ status: "pending" }).toArray();
+const pending = await collection.find({ status: "pending" }).toArray()
 ```
 
 **Collection: `kiosk_requests`**

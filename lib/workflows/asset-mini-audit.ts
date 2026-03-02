@@ -24,13 +24,13 @@ export const assetMiniAudit = inngest.createFunction(
     if (task) {
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "task_assigned",
-        userId: getAdminNotificationRecipient(),
-        title: "Asset Mini-Audit Due",
-        message: `Cycle count for ${subset.length} assets`,
-        channels: ["in_app"],
-        data: { taskId: task.id },
-        priority: "medium",
+          type: "task_assigned",
+          userId: getAdminNotificationRecipient(),
+          title: "Asset Mini-Audit Due",
+          message: `Cycle count for ${subset.length} assets`,
+          channels: ["in_app"],
+          data: { taskId: task.id },
+          priority: "medium",
         })
       })
     }

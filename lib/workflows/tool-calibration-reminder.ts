@@ -23,13 +23,13 @@ export const toolCalibrationReminder = inngest.createFunction(
     if (task) {
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "task_assigned",
-        userId: getAdminNotificationRecipient(),
-        title: "Tool Calibration Due",
-        message: "Monthly calibration check for workshop tools",
-        channels: ["in_app"],
-        data: { taskId: task.id },
-        priority: "medium",
+          type: "task_assigned",
+          userId: getAdminNotificationRecipient(),
+          title: "Tool Calibration Due",
+          message: "Monthly calibration check for workshop tools",
+          channels: ["in_app"],
+          data: { taskId: task.id },
+          priority: "medium",
         })
       })
     }

@@ -3,11 +3,7 @@ import { createHmac, timingSafeEqual } from "crypto"
 import { routeToInngest } from "@/lib/workflows"
 import { logger } from "@/lib/logger"
 
-function validateSignature(
-  body: string,
-  signature: string,
-  secret: string
-): boolean {
+function validateSignature(body: string, signature: string, secret: string): boolean {
   const isDev = process.env.NODE_ENV === "development"
 
   if (!secret) {
@@ -39,9 +35,9 @@ function validateSignature(
 export async function POST(request: Request) {
   try {
     const body = await request.text()
-    const headerName =
-      process.env.DOCUSEAL_WEBHOOK_HEADER || "X-DocuSeal-Signature"
-    const signature = request.headers.get(headerName) || request.headers.get("X-DocuSeal-Signature") || ""
+    const headerName = process.env.DOCUSEAL_WEBHOOK_HEADER || "X-DocuSeal-Signature"
+    const signature =
+      request.headers.get(headerName) || request.headers.get("X-DocuSeal-Signature") || ""
     const secret = process.env.DOCUSEAL_WEBHOOK_SECRET || ""
 
     if (!validateSignature(body, signature, secret)) {

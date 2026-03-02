@@ -35,13 +35,13 @@ export const emergencyDrillReminder = inngest.createFunction(
       for (const emp of staff) {
         const appUserId = BASEROW_ID_TO_APP_ID[emp.id] ?? "hans"
         await sendNotification({
-        type: "system_alert",
-        userId: appUserId,
-        title: "Emergency Drill Scheduled",
-        message: `Quarterly emergency drill scheduled for ${drillDateStr}. Please confirm attendance.`,
-        channels: ["in_app"],
-        data: { drillDate: drillDateStr, taskId: task?.id },
-        priority: "high",
+          type: "system_alert",
+          userId: appUserId,
+          title: "Emergency Drill Scheduled",
+          message: `Quarterly emergency drill scheduled for ${drillDateStr}. Please confirm attendance.`,
+          channels: ["in_app"],
+          data: { drillDate: drillDateStr, taskId: task?.id },
+          priority: "high",
         })
       }
     })

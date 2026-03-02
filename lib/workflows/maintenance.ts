@@ -11,13 +11,13 @@ export const maintenanceScheduled = inngest.createFunction(
     const userId = payload.assigneeId ?? "charl"
     await runNotificationStep(step, async () => {
       await sendNotification({
-      type: "task_assigned",
-      userId,
-      title: "Maintenance Scheduled",
-      message: `Maintenance scheduled for ${payload.scheduledDate}`,
-      channels: ["in_app"],
-      data: { maintenanceId: payload.id },
-      priority: "medium",
+        type: "task_assigned",
+        userId,
+        title: "Maintenance Scheduled",
+        message: `Maintenance scheduled for ${payload.scheduledDate}`,
+        channels: ["in_app"],
+        data: { maintenanceId: payload.id },
+        priority: "medium",
       })
     })
     return { notified: true, maintenanceId: payload.id }

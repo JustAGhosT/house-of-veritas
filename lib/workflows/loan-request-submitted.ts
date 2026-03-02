@@ -16,14 +16,14 @@ export const loanRequestSubmitted = inngest.createFunction(
         userId: getAdminNotificationRecipient(),
         title: "Loan/Advance Request Pending Approval",
         message: `Employee ${data.employeeId} requested ${formatCurrency(data.amount ?? 0)} - ${data.purpose || "No purpose"}`,
-      channels: ["in_app"],
-      data: {
-        loanId: data.id,
-        employeeId: data.employeeId,
-        amount: data.amount,
-        purpose: data.purpose,
-      },
-      priority: "medium",
+        channels: ["in_app"],
+        data: {
+          loanId: data.id,
+          employeeId: data.employeeId,
+          amount: data.amount,
+          purpose: data.purpose,
+        },
+        priority: "medium",
       })
     })
 

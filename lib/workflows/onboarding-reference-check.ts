@@ -13,13 +13,13 @@ export const onboardingReferenceCheck = inngest.createFunction(
     const displayName = data?.name || `#${employeeId}`
     await step.run("send-notification", async () => {
       await sendNotification({
-      type: "approval_required",
-      userId: getAdminNotificationRecipient(),
-      title: "Reference Verification Required",
-      message: `New employee ${displayName} - please initiate reference/background check`,
-      channels: ["in_app"],
-      data: { employeeId },
-      priority: "medium",
+        type: "approval_required",
+        userId: getAdminNotificationRecipient(),
+        title: "Reference Verification Required",
+        message: `New employee ${displayName} - please initiate reference/background check`,
+        channels: ["in_app"],
+        data: { employeeId },
+        priority: "medium",
       })
     })
 

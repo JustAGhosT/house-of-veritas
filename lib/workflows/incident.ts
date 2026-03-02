@@ -16,17 +16,17 @@ export const incidentCreated = inngest.createFunction(
     await step.run("send-notifications", async () => {
       if (isVictimSupport) {
         await sendNotification({
-        type: "system_alert",
-        userId: VICTIM_SUPPORT_USER,
-        title: "Confidential Incident – External/HR Review Required",
-        message: `Incident ${payload.id} (Victim Support Path) – route to external arbiter, bypass normal admin channel`,
-        channels: ["in_app", "sms"],
-        data: {
-          incidentId: payload.id,
-          severity: payload.severity,
-          victimSupportPath: true,
-        },
-        priority: "urgent",
+          type: "system_alert",
+          userId: VICTIM_SUPPORT_USER,
+          title: "Confidential Incident – External/HR Review Required",
+          message: `Incident ${payload.id} (Victim Support Path) – route to external arbiter, bypass normal admin channel`,
+          channels: ["in_app", "sms"],
+          data: {
+            incidentId: payload.id,
+            severity: payload.severity,
+            victimSupportPath: true,
+          },
+          priority: "urgent",
         })
       }
 
@@ -36,7 +36,11 @@ export const incidentCreated = inngest.createFunction(
         title: `Incident Reported${isHighOrCritical ? " (Urgent)" : ""}${isVictimSupport ? " [Victim Support Path]" : ""}`,
         message: `Incident ${payload.id} - Severity: ${payload.severity}${isVictimSupport ? " - Confidential routing active" : ""}`,
         channels: isHighOrCritical ? ["in_app", "sms"] : ["in_app"],
-        data: { incidentId: payload.id, severity: payload.severity, victimSupportPath: isVictimSupport },
+        data: {
+          incidentId: payload.id,
+          severity: payload.severity,
+          victimSupportPath: isVictimSupport,
+        },
         priority: isHighOrCritical ? "urgent" : "high",
       })
     })

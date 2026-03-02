@@ -1,6 +1,6 @@
-import { NextResponse, type NextRequest } from "next/server"
-import { verifyToken, COOKIE_NAME } from "@/lib/auth/jwt"
+import { COOKIE_NAME, verifyToken } from "@/lib/auth/jwt"
 import { rateLimitAsync } from "@/lib/auth/rate-limit-edge"
+import { NextResponse, type NextRequest } from "next/server"
 
 const PUBLIC_PATHS = [
   "/api/auth/login",
@@ -8,7 +8,6 @@ const PUBLIC_PATHS = [
   "/api/auth/logout",
   "/api/health",
   "/api/kiosk",
-  "/login",
   "/kiosk",
   "/offline",
   "/",
@@ -80,9 +79,10 @@ export async function proxy(request: NextRequest) {
     if (isApiRoute) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
-    const loginUrl = new URL("/login", request.url)
-    loginUrl.searchParams.set("redirect", pathname)
-    return NextResponse.redirect(loginUrl)
+    const homeUrl = new URL("/", request.url)
+    homeUrl.searchParams.set("redirect", pathname + request.nextUrl.search)
+    homeUrl.searchParams.set("login", "true")
+    return NextResponse.redirect(homeUrl)
   }
 
   const payload = await verifyToken(token)
@@ -90,8 +90,10 @@ export async function proxy(request: NextRequest) {
     if (isApiRoute) {
       return NextResponse.json({ error: "Invalid or expired session" }, { status: 401 })
     }
-    const loginUrl = new URL("/login", request.url)
-    return NextResponse.redirect(loginUrl)
+    const homeUrl = new URL("/", request.url)
+    homeUrl.searchParams.set("login", "true")
+    homeUrl.searchParams.set("redirect", pathname + request.nextUrl.search)
+    return NextResponse.redirect(homeUrl)
   }
 
   if (isApiRoute) {
@@ -126,5 +128,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/:path*", "/dashboard/:path*", "/login", "/onboarding", "/onboarding/:path*"],
+  matcher: ["/api/:path*", "/dashboard/:path*", "/onboarding", "/onboarding/:path*"],
 }

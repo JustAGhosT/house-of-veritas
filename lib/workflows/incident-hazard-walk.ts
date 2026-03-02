@@ -27,13 +27,13 @@ export const incidentHazardWalk = inngest.createFunction(
       const appId = BASEROW_ID_TO_APP_ID[assignee.id] ?? "hans"
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "task_assigned",
-        userId: appId,
-        title: "Hazard Walk Assigned",
-        message: "Weekly safety walk - complete and log findings",
-        channels: ["in_app"],
-        data: { taskId: task.id },
-        priority: "medium",
+          type: "task_assigned",
+          userId: appId,
+          title: "Hazard Walk Assigned",
+          message: "Weekly safety walk - complete and log findings",
+          channels: ["in_app"],
+          data: { taskId: task.id },
+          priority: "medium",
         })
       })
     }

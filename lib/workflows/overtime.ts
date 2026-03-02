@@ -20,11 +20,7 @@ function getWeekRange(d: Date): { start: string; end: string } {
   return { start: toISODateString(start), end: toISODateString(end) }
 }
 
-function parseHours(
-  clockIn?: string,
-  clockOut?: string,
-  breakDurationMinutes?: number
-): number {
+function parseHours(clockIn?: string, clockOut?: string, breakDurationMinutes?: number): number {
   if (!clockIn || !clockOut) return 0
   try {
     const [ih, im] = clockIn.split(":").map(Number)
@@ -53,12 +49,9 @@ export const overtimeCalculate = inngest.createFunction(
       const { items } = await getTimeClockEntriesPaginated(1, 100, {
         employee: emp.id,
       })
-      const weekEntries = items.filter(
-        (e) => e.date >= start && e.date <= end && e.clockOut
-      )
+      const weekEntries = items.filter((e) => e.date >= start && e.date <= end && e.clockOut)
       const totalHours = weekEntries.reduce(
-        (sum, e) =>
-          sum + parseHours(e.clockIn, e.clockOut, e.breakDuration),
+        (sum, e) => sum + parseHours(e.clockIn, e.clockOut, e.breakDuration),
         0
       )
       const overtimeHours = Math.max(0, totalHours - STANDARD_HOURS)
@@ -77,13 +70,13 @@ export const overtimeCalculate = inngest.createFunction(
     if (reports.length > 0) {
       await step.run("send-notification", async () => {
         await sendNotification({
-        type: "system_alert",
-        userId: getAdminNotificationRecipient(),
-        title: `Weekly Overtime: ${reports.length} employees need approval`,
-        message: reports.map((r) => `${r.name}: ${r.overtimeHours.toFixed(1)}h OT`).join("; "),
-        channels: ["in_app"],
-        data: { weekStart: start, weekEnd: end, count: reports.length },
-        priority: "high",
+          type: "system_alert",
+          userId: getAdminNotificationRecipient(),
+          title: `Weekly Overtime: ${reports.length} employees need approval`,
+          message: reports.map((r) => `${r.name}: ${r.overtimeHours.toFixed(1)}h OT`).join("; "),
+          channels: ["in_app"],
+          data: { weekStart: start, weekEnd: end, count: reports.length },
+          priority: "high",
         })
       })
     }
