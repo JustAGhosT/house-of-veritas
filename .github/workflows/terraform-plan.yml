@@ -18,9 +18,9 @@ env:
 jobs:
   terraform-plan:
     name: "Terraform Plan"
-    runs-on: [self-hosted, azure-vnet-ghost]
+    runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Skip fork PRs: untrusted code would run in VNet-capable runner. Same-repo PRs only.
+    # Skip fork PRs: terraform plan touches secrets/Azure, only run on same-repo PRs.
     if: github.event_name != 'pull_request' || github.repository == github.event.pull_request.head.repo.full_name
 
     steps:

@@ -200,7 +200,7 @@ jobs:
   # ============================================
   deploy-infrastructure:
     name: "Deploy Infrastructure"
-    runs-on: [self-hosted, azure-vnet-ghost]
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     needs: [build]
     if: ${{ inputs.deploy_infrastructure }}

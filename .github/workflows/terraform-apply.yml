@@ -18,7 +18,7 @@ env:
 jobs:
   terraform-apply:
     name: "Terraform Apply"
-    runs-on: [self-hosted, azure-vnet-ghost]
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production
 

@@ -13,7 +13,7 @@ env:
 jobs:
   terraform-destroy:
     name: "Terraform Destroy"
-    runs-on: [self-hosted, azure-vnet-ghost]
+    runs-on: ubuntu-latest
     environment: production
 
     steps:
