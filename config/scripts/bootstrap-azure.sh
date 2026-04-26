@@ -152,7 +152,12 @@ cat <<EOF
  Secrets set       : AZURE_CREDENTIALS, TF_STATE_*, DB_ADMIN_PASSWORD
 
  Still TODO before triggering deploy:
-   - SMTP_USERNAME, SMTP_PASSWORD               (SendGrid / SMTP account)
+   - ACS_CONNECTION_STRING                      (Azure Communication Services
+                                                 Email — Functions + Next.js
+                                                 app email)
+   - SMTP_USERNAME, SMTP_PASSWORD               (DocuSeal SMTP relay — point
+                                                 at smtp.azurecomm.net:587
+                                                 with ACS-derived creds)
    - SSL_CERTIFICATE_DATA, SSL_CERTIFICATE_PASSWORD
        (PFX cert — or change terraform/modules/gateway to use an
         Azure-managed cert if the domain is already in your tenant)
