@@ -44,6 +44,8 @@ terraform/crash.log
 # Claude agent reports and state (generated)
 .claude/reports/
 .claude/state/*.json
+.claude/worktrees/
+.claude/settings.local.json
 
 # Coverage
 coverage/
