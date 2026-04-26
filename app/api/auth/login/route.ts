@@ -34,10 +34,23 @@ export async function POST(request: Request) {
 
     const cookie = getSessionCookieConfig(token)
     const userWithMgmt = await getUserWithManagement(user.id)
+    const getDashboardPath = (userId: string, role: string) => {
+      const personas = ["hans", "charl", "irma", "lucky"]
+      if (personas.includes(userId.toLowerCase())) return `/dashboard/${userId}`
+      
+      const roleMapping: Record<string, string> = {
+        admin: "hans",
+        operator: "charl",
+        resident: "irma",
+        employee: "lucky",
+      }
+      return `/dashboard/${roleMapping[role] || "hans"}`
+    }
+
     const redirectTo =
       userWithMgmt && userWithMgmt.onboardingStatus !== "completed" && userWithMgmt.role !== "admin"
         ? "/onboarding"
-        : `/dashboard/${user.id}`
+        : getDashboardPath(user.id, user.role)
     const response = NextResponse.json({
       success: true,
       user: userWithMgmt ? { ...safeUser(user), ...userWithMgmt } : safeUser(user),

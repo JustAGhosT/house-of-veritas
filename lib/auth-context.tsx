@@ -74,15 +74,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setRequiresAuth(false)
     }
 
+    const getDashboardPath = (userId: string, role: string) => {
+      const personas = ["hans", "charl", "irma", "lucky"]
+      if (personas.includes(userId.toLowerCase())) return `/dashboard/${userId}`
+
+      const roleMapping: Record<string, string> = {
+        admin: "hans",
+        operator: "charl",
+        resident: "irma",
+        employee: "lucky",
+      }
+      return `/dashboard/${roleMapping[role] || "hans"}`
+    }
+
     if (user && isAuthPage) {
-      router.push(`/dashboard/${user.id}`)
+      router.push(getDashboardPath(user.id, user.role))
     } else if (user && isOnboardingPage && user.onboardingStatus === "completed") {
-      router.push(`/dashboard/${user.id}`)
+      router.push(getDashboardPath(user.id, user.role))
     } else if (user && isDashboardPage) {
       const dashboardUser = pathname?.split("/")[2]
-      if (dashboardUser && dashboardUser !== user.id) {
+      if (dashboardUser && !["hans", "charl", "irma", "lucky"].includes(dashboardUser.toLowerCase())) {
         if (user.role !== "admin") {
-          router.push(`/dashboard/${user.id}`)
+          router.push(getDashboardPath(user.id, user.role))
         }
       }
     }
