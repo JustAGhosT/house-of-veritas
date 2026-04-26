@@ -12,7 +12,7 @@ Project context for Claude Code / Cursor AI sessions.
 - **Backend:** Next.js API routes, Azure Functions (Python)
 - **Database:** Baserow (operational), PostgreSQL (DocuSeal/Baserow backend), MongoDB (kiosk)
 - **Infrastructure:** Terraform (Azure), Docker, GitHub Actions CI/CD
-- **Integrations:** DocuSeal (e-signatures), Baserow (data), SendGrid (email), Twilio (SMS)
+- **Integrations:** DocuSeal (e-signatures), Baserow (data), Azure Communication Services (email), Twilio (SMS)
 
 ## Key Commands
 
