@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   DropdownMenu,
@@ -132,6 +132,11 @@ export function UserProfileDropdown({
     router.push(`/dashboard/${user.id}?tutorial=1`)
   }
 
+  const crestCore = useMemo(
+    () => generateCrest(user.name || personaInfo.name).core,
+    [user.name, personaInfo.name]
+  )
+
   return (
     <>
       <DropdownMenu>
@@ -146,7 +151,7 @@ export function UserProfileDropdown({
               {user.photoUrl ? (
                 <Image src={user.photoUrl} alt="" fill className="object-cover" unoptimized />
               ) : (
-                <span className="text-xl leading-none">{generateCrest(user.name || personaInfo.name).core}</span>
+                <span className="text-xl leading-none">{crestCore}</span>
               )}
             </div>
             <div className="hidden min-w-0 flex-1 sm:block">

@@ -157,7 +157,7 @@ export function BentoGrid() {
           className="mb-16 text-center"
         >
           <h2
-            className="mb-4 text-3xl font-bold font-serif text-white sm:text-4xl"
+            className="mb-4 text-3xl font-bold font-serif text-foreground sm:text-4xl"
           >
             Everything you need to ship
           </h2>
@@ -184,7 +184,7 @@ export function BentoGrid() {
                 <div className="mb-4 w-fit rounded-lg bg-muted p-2">
                   <Activity className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                 </div>
-                <h3 className="mb-2 text-xl font-semibold text-white">Real-time Monitoring</h3>
+                <h3 className="mb-2 text-xl font-semibold text-foreground">Real-time Monitoring</h3>
                 <p className="text-sm text-muted-foreground">
                   Track system health, performance metrics, and alerts in real-time across all your
                   deployments.
@@ -195,7 +195,7 @@ export function BentoGrid() {
             <div className="grid grid-cols-4 gap-4">
               {metricValues.map(({ name, value }) => (
                 <div key={name} className="text-center">
-                  <div className="mb-1 text-2xl font-bold text-white">{value}%</div>
+                  <div className="mb-1 text-2xl font-bold text-foreground">{value}%</div>
                   <div className="text-xs text-muted-foreground">{name}</div>
                 </div>
               ))}
@@ -210,7 +210,7 @@ export function BentoGrid() {
             <div className="mb-4 w-fit rounded-lg bg-muted p-2">
               <Command className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-white">Command Palette</h3>
+            <h3 className="mb-2 text-lg font-semibold text-foreground">Command Palette</h3>
             <p className="mb-6 text-sm text-muted-foreground">
               Navigate anywhere instantly with powerful keyboard shortcuts.
             </p>
@@ -225,7 +225,7 @@ export function BentoGrid() {
             <div className="mb-4 w-fit rounded-lg bg-muted p-2">
               <BarChart3 className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-white">Analytics</h3>
+            <h3 className="mb-2 text-lg font-semibold text-foreground">Analytics</h3>
             <p className="mb-4 text-sm text-muted-foreground">
               Deep insights into your application performance.
             </p>
@@ -240,7 +240,7 @@ export function BentoGrid() {
             <div className="mb-4 w-fit rounded-lg bg-muted p-2">
               <Zap className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-white">Blazing Fast</h3>
+            <h3 className="mb-2 text-lg font-semibold text-foreground">Blazing Fast</h3>
             <p className="mb-4 text-sm text-muted-foreground">
               Edge-optimized infrastructure for sub-50ms response times globally.
             </p>
@@ -258,7 +258,7 @@ export function BentoGrid() {
             <div className="mb-4 w-fit rounded-lg bg-muted p-2">
               <Shield className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-white">Enterprise Security</h3>
+            <h3 className="mb-2 text-lg font-semibold text-foreground">Enterprise Security</h3>
             <p className="mb-4 text-sm text-muted-foreground">
               SOC2 compliant with end-to-end encryption and SSO support.
             </p>

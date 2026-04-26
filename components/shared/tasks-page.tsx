@@ -67,8 +67,19 @@ const PERSONA_TO_ID: Record<string, number> = { hans: 1, charl: 2, lucky: 3, irm
 
 type TaskFilter = "today" | "open" | "overdue" | "all"
 
-const todayKey = () => new Date().toISOString().slice(0, 10)
-const dueDateKey = (d?: string) => (d ? new Date(d).toISOString().slice(0, 10) : "")
+const localDayKey = (date: Date) => {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${y}-${m}-${day}`
+}
+const todayKey = () => localDayKey(new Date())
+const dueDateKey = (d?: string) => {
+  if (!d) return ""
+  // Treat "YYYY-MM-DD" inputs as local dates so timezone doesn't roll them.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d
+  return localDayKey(new Date(d))
+}
 
 export function TasksPage({
   personaId,

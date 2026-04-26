@@ -93,7 +93,13 @@ export default function LoginPage() {
       <div className="flex min-h-screen flex-col bg-background">
         {/* Background Pattern */}
         <div className="fixed inset-0 -z-10 bg-linear-to-br from-background via-background/90 to-card/50" />
-        <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(var(--primary),0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--primary),0.03)_1px,transparent_1px)] bg-[size:50px_50px]" />
+        <div
+          className="fixed inset-0 -z-10 bg-[size:50px_50px]"
+          style={{
+            backgroundImage:
+              "linear-gradient(color-mix(in srgb, var(--primary) 3%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--primary) 3%, transparent) 1px, transparent 1px)",
+          }}
+        />
 
         {/* Header */}
         <header className="border-b border-border bg-background/40 backdrop-blur-xl">

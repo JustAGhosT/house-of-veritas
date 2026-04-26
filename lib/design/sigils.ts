@@ -3,16 +3,23 @@ export const sigilGlyphs = {
   heraldic: ["⚜", "♜", "♛", "⚔", "⛨"],
   alchemical: ["🜂", "🜄", "🜁", "🜃", "☿"],
   structural: ["⌘", "⟁", "△", "◈", "◇"],
-} as const;
+} as const
 
-export type SigilStyle = keyof typeof sigilGlyphs;
+export type SigilStyle = keyof typeof sigilGlyphs
 
-export function buildSigilText(
-  name: string,
-  style: SigilStyle = "sacred"
-): string {
-  const set = sigilGlyphs[style];
-  const left = set[Math.floor(Math.random() * set.length)];
-  const right = set[Math.floor(Math.random() * set.length)];
-  return `${left} ${name} ${right}`;
+function hash(s: string): number {
+  let h = 2166136261
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+export function buildSigilText(name: string, style: SigilStyle = "sacred"): string {
+  const set = sigilGlyphs[style]
+  const h = hash(`${name}:${style}`)
+  const left = set[h % set.length]
+  const right = set[(h >>> 8) % set.length]
+  return `${left} ${name} ${right}`
 }

@@ -1,5 +1,28 @@
+import Image from "next/image";
 import { IdentityBadgeCard } from "@/components/ui/identity-badge";
 import { generateIdentityBadge } from "@/lib/design/badges";
+
+type StitchConcept = { src: string; title: string; alt: string };
+
+// Only references assets that actually ship under public/brand/.
+const STITCH_CONCEPTS: StitchConcept[] = [
+  { src: "/brand/the-eternal-credential-pass-1.png", title: "The Eternal Credential Pass", alt: "Eternal Credential Pass mockup" },
+  { src: "/brand/forge-of-identity-3.png",            title: "Forge of Identity",           alt: "Forge of Identity mockup" },
+  { src: "/brand/the-grand-archives-4.png",           title: "The Grand Archives",          alt: "The Grand Archives mockup" },
+  { src: "/brand/ritual-notification-modal-5.png",    title: "Ritual Notification",         alt: "Ritual notification modal mockup" },
+  { src: "/brand/ritual-notification-modal-6.png",    title: "Ritual Notification",         alt: "Ritual notification modal mockup" },
+  { src: "/brand/the-eternal-credential-pass-7.png",  title: "The Eternal Credential Pass", alt: "Eternal Credential Pass mockup" },
+  { src: "/brand/the-dashboard-of-command-8.png",     title: "Dashboard of Command",        alt: "Dashboard of Command mockup" },
+  { src: "/brand/generated-screen-9.png",             title: "Generated Screen",            alt: "Generated screen mockup" },
+  { src: "/brand/house-of-veritas-sanctum-11.png",    title: "Sanctum",                     alt: "House of Veritas sanctum mockup" },
+  { src: "/brand/the-grand-forge-of-creation-12.png", title: "Grand Forge of Creation",     alt: "Grand Forge of Creation mockup" },
+  { src: "/brand/the-grand-archives-14.png",          title: "The Grand Archives",          alt: "The Grand Archives mockup" },
+  { src: "/brand/the-grand-archives-15.png",          title: "The Grand Archives",          alt: "The Grand Archives mockup" },
+  { src: "/brand/ritual-notification-modal-16.png",   title: "Ritual Notification",         alt: "Ritual notification modal mockup" },
+  { src: "/brand/ritual-notification-modal-17.png",   title: "Ritual Notification",         alt: "Ritual notification modal mockup" },
+  { src: "/brand/ritual-notification-modal-21.png",   title: "Ritual Notification",         alt: "Ritual notification modal mockup" },
+  { src: "/brand/library-of-oaths.png",               title: "Library of Oaths",            alt: "Library of Oaths mockup" },
+];
 
 function Color({ name, hex }: { name: string; hex: string }) {
   return (
@@ -116,102 +139,21 @@ export default function BrandPage() {
             <h2 className="ornate-border inline-block rounded-xl px-4 py-2 text-3xl font-serif text-foreground">Stitch Design Concepts</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8">
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">Brand Guidelines</div>
-                 <img src="/brand-guidelines.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="Brand Guidelines Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">Sigil Builder</div>
-                 <img src="/sigil-builder.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="Sigil Builder Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">Identity Badges</div>
-                 <img src="/identity-badges.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="Identity Badges Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">The Eternal Credential Pass</div>
-                 <img src="/brand/the-eternal-credential-pass-1.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="The Eternal Credential Pass Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">image.png</div>
-                 <img src="/brand/image-png-2.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="image.png Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">Forge of Identity</div>
-                 <img src="/brand/forge-of-identity-3.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="Forge of Identity Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">The Grand Archives</div>
-                 <img src="/brand/the-grand-archives-4.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="The Grand Archives Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">Ritual Notification Modal</div>
-                 <img src="/brand/ritual-notification-modal-5.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="Ritual Notification Modal Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">Ritual Notification Modal</div>
-                 <img src="/brand/ritual-notification-modal-6.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="Ritual Notification Modal Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">The Eternal Credential Pass</div>
-                 <img src="/brand/the-eternal-credential-pass-7.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="The Eternal Credential Pass Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">The Dashboard of Command</div>
-                 <img src="/brand/the-dashboard-of-command-8.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="The Dashboard of Command Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">Generated Screen</div>
-                 <img src="/brand/generated-screen-9.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="Generated Screen Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">image.png</div>
-                 <img src="/brand/image-png-10.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="image.png Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">House of Veritas Sanctum</div>
-                 <img src="/brand/house-of-veritas-sanctum-11.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="House of Veritas Sanctum Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">The Grand Forge of Creation</div>
-                 <img src="/brand/the-grand-forge-of-creation-12.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="The Grand Forge of Creation Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">image.png</div>
-                 <img src="/brand/image-png-13.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="image.png Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">The Grand Archives</div>
-                 <img src="/brand/the-grand-archives-14.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="The Grand Archives Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">The Grand Archives</div>
-                 <img src="/brand/the-grand-archives-15.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="The Grand Archives Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">Ritual Notification Modal</div>
-                 <img src="/brand/ritual-notification-modal-16.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="Ritual Notification Modal Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">Ritual Notification Modal</div>
-                 <img src="/brand/ritual-notification-modal-17.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="Ritual Notification Modal Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">image.png</div>
-                 <img src="/brand/image-png-18.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="image.png Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">Ritual Notification Modal</div>
-                 <img src="/brand/ritual-notification-modal-19.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="Ritual Notification Modal Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">image.png</div>
-                 <img src="/brand/image-png-20.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="image.png Mockup" />
-             </div>
-             <div className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center">
-                 <div className="font-serif text-xl text-primary mb-4 text-center">Ritual Notification Modal</div>
-                 <img src="/brand/ritual-notification-modal-21.png" className="rounded-lg border border-primary/10 object-cover w-full h-[500px]" alt="Ritual Notification Modal Mockup" />
-             </div>
+            {STITCH_CONCEPTS.map((c) => (
+              <div
+                key={c.src}
+                className="bg-card p-4 rounded-xl border border-border shadow-lg flex flex-col items-center"
+              >
+                <div className="font-serif text-xl text-primary mb-4 text-center">{c.title}</div>
+                <Image
+                  src={c.src}
+                  alt={c.alt}
+                  width={800}
+                  height={500}
+                  className="rounded-lg border border-primary/10 object-cover w-full h-[500px]"
+                />
+              </div>
+            ))}
           </div>
         </section>
       </div>

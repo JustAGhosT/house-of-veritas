@@ -15,10 +15,11 @@ import { useLoginModal } from "@/lib/login-modal-context"
 import type { NavEntry } from "@/lib/nav-config"
 import { getNavForPersona, isCategory } from "@/lib/nav-config"
 import { generateCrest } from "@/lib/design/crest"
+import { getDashboardPath, isPersonaId } from "@/lib/auth/dashboard-path"
 import { ChevronRight, Menu, X } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { startTransition, useEffect, useRef, useState } from "react"
+import { startTransition, useEffect, useMemo, useRef, useState } from "react"
 
 const PERSONA_INFO = {
   hans: { name: "Hans", role: "Owner & Administrator", color: "blue", icon: "👔" },
@@ -71,9 +72,12 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
   useEffect(() => {
     if (!isLoading && user) {
       const dashboardOwner = pathname?.split("/")[2]
-      if (dashboardOwner && dashboardOwner !== user.id && user.role !== "admin") {
-        router.push(`/dashboard/${user.id}`)
-      }
+      if (!dashboardOwner || user.role === "admin") return
+      // If the URL persona is one of the canonical four, the user is allowed
+      // to stay only when it matches their own canonical persona.
+      const own = getDashboardPath(user.id, user.role).split("/")[2]
+      if (isPersonaId(dashboardOwner) && dashboardOwner.toLowerCase() === own) return
+      router.push(getDashboardPath(user.id, user.role))
     }
   }, [isLoading, user, pathname, router])
 
@@ -84,6 +88,11 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
       startTransition(() => setShowTutorial(true))
     }
   }, [user, pathname])
+
+  // Compute the persona crest before any early returns so hook order stays
+  // stable across renders (React hooks rules).
+  const personaInfo = PERSONA_INFO[persona]
+  const crest = useMemo(() => generateCrest(personaInfo.name), [personaInfo.name])
 
   // Show loading while checking auth (only for protected routes)
   if (isLoading && requiresAuth) {
@@ -134,7 +143,6 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
       : undefined,
     isViewingOwnDashboard ? user?.responsibilities : undefined
   )
-  const personaInfo = PERSONA_INFO[persona]
 
   const colorClasses = {
     blue: "bg-primary",
@@ -167,14 +175,14 @@ export default function DashboardLayout({ children, persona }: DashboardLayoutPr
         {/* Logo */}
         <div className="border-b border-border p-6 bg-linear-to-b from-card to-background relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-            <span className="font-serif text-8xl leading-none">{generateCrest(personaInfo.name).suffix}</span>
+            <span className="font-serif text-8xl leading-none">{crest.suffix}</span>
           </div>
           <Link href="/" className="flex items-center gap-3 relative z-10">
             <div
               className={`h-10 w-10 rounded-xl ${colorClasses[personaInfo.color as keyof typeof colorClasses]} flex items-center justify-center`}
             >
               <span className="font-serif text-2xl leading-none text-primary-foreground">
-                {generateCrest(personaInfo.name).core}
+                {crest.core}
               </span>
             </div>
             <div>

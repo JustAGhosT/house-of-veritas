@@ -4,9 +4,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { Shield, Search, Filter, BookOpen, Lock, Hash, History, Users, MoreHorizontal, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import Image from "next/image"
+import { Shield, Lock, Hash, History, Users, Plus } from "lucide-react"
 
 const CATEGORIES = [
   { id: "all", label: "All Records", icon: Hash },
@@ -207,7 +205,7 @@ export default function LibraryPage() {
         whileTap={{ scale: 0.95 }}
         className="fixed bottom-10 right-10 bg-arcaneViolet hover:bg-arcaneViolet/90 text-parchment p-5 rounded-full shadow-2xl flex items-center gap-3 group transition-all z-50 ring-2 ring-arcaneViolet/20"
       >
-        <span className="ceremonial-text text-[10px] hidden group-hover:block transition-all pl-2 tracking-widest font-bold">Forgo New Pact</span>
+        <span className="ceremonial-text text-[10px] hidden group-hover:block transition-all pl-2 tracking-widest font-bold">Forge New Pact</span>
         <Plus className="h-6 w-6" />
       </motion.button>
     </div>

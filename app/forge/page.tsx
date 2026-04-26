@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { Shield, Lock, Zap, Star, Flame, Sun, Moon, Wind, Plus, Check } from "lucide-react"
+import { Shield, Zap, Star, Plus, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const HERITAGE_SYMBOLS = [
@@ -77,6 +77,8 @@ export default function ForgePage() {
                 <button
                   key={s.id}
                   onClick={() => setSelectedSymbol(s.id)}
+                  aria-label={s.label}
+                  aria-pressed={selectedSymbol === s.id}
                   className={`h-16 flex items-center justify-center text-3xl transition-all border ${
                     selectedSymbol === s.id ? "bg-sigilGold/10 border-sigilGold shadow-[0_0_15px_rgba(212,175,55,0.2)]" : "border-parchment/5 hover:border-parchment/20"
                   }`}
@@ -137,6 +139,8 @@ export default function ForgePage() {
                 <button
                   key={g.id}
                   onClick={() => setSelectedGlyph(g.id)}
+                  aria-label={`Glyph ${g.id}`}
+                  aria-pressed={selectedGlyph === g.id}
                   className={`h-16 flex items-center justify-center text-2xl transition-all border font-bold ${
                     selectedGlyph === g.id ? "bg-sigilGold/10 border-sigilGold text-sigilGold" : "border-parchment/5 text-parchment/40 hover:border-parchment/20"
                   }`}
@@ -156,6 +160,8 @@ export default function ForgePage() {
                   <button
                     key={c.id}
                     onClick={() => setSelectedColor(c.value)}
+                    aria-label={`Chromatic oath: ${c.id}`}
+                    aria-pressed={selectedColor === c.value}
                     className={`w-10 h-10 rounded-full transition-all ring-offset-2 ring-offset-obsidian ${
                       selectedColor === c.value ? "ring-2 ring-sigilGold scale-110" : "hover:scale-110"
                     }`}

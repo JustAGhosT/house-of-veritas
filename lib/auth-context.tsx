@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation"
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react"
+import { getDashboardPath, isPersonaId } from "@/lib/auth/dashboard-path"
 
 interface User {
   id: string
@@ -74,29 +75,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setRequiresAuth(false)
     }
 
-    const getDashboardPath = (userId: string, role: string) => {
-      const personas = ["hans", "charl", "irma", "lucky"]
-      if (personas.includes(userId.toLowerCase())) return `/dashboard/${userId}`
-
-      const roleMapping: Record<string, string> = {
-        admin: "hans",
-        operator: "charl",
-        resident: "irma",
-        employee: "lucky",
-      }
-      return `/dashboard/${roleMapping[role] || "hans"}`
-    }
-
     if (user && isAuthPage) {
       router.push(getDashboardPath(user.id, user.role))
     } else if (user && isOnboardingPage && user.onboardingStatus === "completed") {
       router.push(getDashboardPath(user.id, user.role))
     } else if (user && isDashboardPage) {
       const dashboardUser = pathname?.split("/")[2]
-      if (dashboardUser && !["hans", "charl", "irma", "lucky"].includes(dashboardUser.toLowerCase())) {
-        if (user.role !== "admin") {
-          router.push(getDashboardPath(user.id, user.role))
-        }
+      if (dashboardUser && !isPersonaId(dashboardUser) && user.role !== "admin") {
+        router.push(getDashboardPath(user.id, user.role))
       }
     }
   }, [user, isLoading, pathname, router])

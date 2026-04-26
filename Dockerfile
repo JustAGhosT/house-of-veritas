@@ -1,5 +1,10 @@
 FROM node:20-alpine AS base
-RUN corepack enable && corepack prepare pnpm@10.30.3 --activate
+# Bundled Corepack (≤0.30.0) lacks the npm registry signing keys updated in
+# January 2026, so `corepack prepare pnpm@10.30.x --activate` would fail with
+# "Cannot find matching keyid". Upgrade Corepack first.
+RUN npm install -g corepack@latest \
+  && corepack enable \
+  && corepack prepare pnpm@10.30.3 --activate
 
 FROM base AS deps
 WORKDIR /app

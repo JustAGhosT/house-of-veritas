@@ -8,6 +8,7 @@ import {
 } from "@/lib/users"
 import { getUserWithManagement } from "@/lib/user-management"
 import { signToken, getSessionCookieConfig } from "@/lib/auth/jwt"
+import { getDashboardPath } from "@/lib/auth/dashboard-path"
 import { logger } from "@/lib/logger"
 
 export async function POST(request: Request) {
@@ -34,18 +35,6 @@ export async function POST(request: Request) {
 
     const cookie = getSessionCookieConfig(token)
     const userWithMgmt = await getUserWithManagement(user.id)
-    const getDashboardPath = (userId: string, role: string) => {
-      const personas = ["hans", "charl", "irma", "lucky"]
-      if (personas.includes(userId.toLowerCase())) return `/dashboard/${userId}`
-      
-      const roleMapping: Record<string, string> = {
-        admin: "hans",
-        operator: "charl",
-        resident: "irma",
-        employee: "lucky",
-      }
-      return `/dashboard/${roleMapping[role] || "hans"}`
-    }
 
     const redirectTo =
       userWithMgmt && userWithMgmt.onboardingStatus !== "completed" && userWithMgmt.role !== "admin"
