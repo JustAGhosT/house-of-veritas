@@ -200,7 +200,7 @@ jobs:
   # ============================================
   deploy-infrastructure:
     name: "Deploy Infrastructure"
-    runs-on: [self-hosted, azure-vnet-ghost]
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     needs: [build]
     if: ${{ inputs.deploy_infrastructure }}
@@ -209,6 +209,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.0"
 
       - name: Verify Terraform
         run: |
