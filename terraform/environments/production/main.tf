@@ -150,24 +150,29 @@ module "compute" {
   depends_on = [module.network, module.storage, module.database, module.security]
 }
 
-# Gateway Module (Application Gateway)
-module "gateway" {
-  source = "../../modules/gateway"
-
-  resource_group_name      = azurerm_resource_group.main.name
-  location                 = azurerm_resource_group.main.location
-  environment              = var.environment
-  gateway_subnet_id        = module.network.gateway_subnet_id
-  domain_name              = var.domain_name
-  docuseal_ip_address      = module.compute.docuseal_ip_address
-  baserow_ip_address       = module.compute.baserow_ip_address
-  ssl_certificate_data     = var.ssl_certificate_data
-  ssl_certificate_password = var.ssl_certificate_password
-
-  tags = local.common_tags
-
-  depends_on = [module.network, module.compute]
-}
+# Gateway Module (Application Gateway) — DISABLED for MVP launch.
+# WAF_v2 SKU is ~$160/month and we don't have a real PFX cert / DNS yet.
+# The Next.js Web App is reachable directly at *.azurewebsites.net with
+# Microsoft-managed TLS, and DocuSeal/Baserow ACI containers expose their
+# own public IPs. Re-enable this block + module.dns + the gateway-related
+# outputs once a real domain + cert is in place.
+# module "gateway" {
+#   source = "../../modules/gateway"
+#
+#   resource_group_name      = azurerm_resource_group.main.name
+#   location                 = azurerm_resource_group.main.location
+#   environment              = var.environment
+#   gateway_subnet_id        = module.network.gateway_subnet_id
+#   domain_name              = var.domain_name
+#   docuseal_ip_address      = module.compute.docuseal_ip_address
+#   baserow_ip_address       = module.compute.baserow_ip_address
+#   ssl_certificate_data     = var.ssl_certificate_data
+#   ssl_certificate_password = var.ssl_certificate_password
+#
+#   tags = local.common_tags
+#
+#   depends_on = [module.network, module.compute]
+# }
 
 # Cognitive Services Module (Document Intelligence / OCR)
 module "cognitive" {
@@ -227,43 +232,46 @@ module "webapp" {
   depends_on = [module.network, module.storage, module.security, module.cognitive, module.cosmos_mongo]
 }
 
-# DNS Module (Azure DNS records for nexamesh.ai)
-module "dns" {
-  source = "../../modules/dns"
-
-  dns_zone_name           = var.dns_zone_name
-  dns_zone_resource_group = var.dns_zone_resource_group
-  gateway_public_ip       = module.gateway.public_ip_address
-  create_root_record      = true
-
-  tags = local.common_tags
-
-  depends_on = [module.gateway]
-}
+# DNS Module — DISABLED while module.gateway is off (DNS records point at
+# the gateway public IP). Re-enable together.
+# module "dns" {
+#   source = "../../modules/dns"
+#
+#   dns_zone_name           = var.dns_zone_name
+#   dns_zone_resource_group = var.dns_zone_resource_group
+#   gateway_public_ip       = module.gateway.public_ip_address
+#   create_root_record      = true
+#
+#   tags = local.common_tags
+#
+#   depends_on = [module.gateway]
+# }
 
 # Runner infrastructure is in phoenixvc-actions-runner repo (deploys into runner_subnet_id)
 
-# Monitoring Module (alerts, budgets, Log Analytics)
-module "monitoring" {
-  source = "../../modules/monitoring"
-
-  resource_group_name       = azurerm_resource_group.main.name
-  resource_group_id         = azurerm_resource_group.main.id
-  location                  = azurerm_resource_group.main.location
-  workspace_name            = "${var.project_prefix}-${var.environment}-${var.project_name}-law-${var.location_short}"
-  alert_email               = "hans@nexamesh.ai"
-  database_server_id        = module.database.server_id
-  enable_database_alerts    = true
-  function_app_id           = module.functions.function_app_id
-  enable_function_alerts    = true
-  web_app_id                = module.webapp.web_app_id
-  enable_webapp_alerts      = true
-  enable_consumption_budget = false # MS-AZR-0036P (Visual Studio) does not support Cost Management
-
-  tags = local.common_tags
-
-  depends_on = [module.database, module.functions, module.webapp]
-}
+# Monitoring Module — DISABLED for MVP launch. Log Analytics + alerts add
+# ~$10/month and aren't load-bearing for the first deploy. Re-enable once
+# we have actual production traffic worth alerting on.
+# module "monitoring" {
+#   source = "../../modules/monitoring"
+#
+#   resource_group_name       = azurerm_resource_group.main.name
+#   resource_group_id         = azurerm_resource_group.main.id
+#   location                  = azurerm_resource_group.main.location
+#   workspace_name            = "${var.project_prefix}-${var.environment}-${var.project_name}-law-${var.location_short}"
+#   alert_email               = "hans@nexamesh.ai"
+#   database_server_id        = module.database.server_id
+#   enable_database_alerts    = true
+#   function_app_id           = module.functions.function_app_id
+#   enable_function_alerts    = true
+#   web_app_id                = module.webapp.web_app_id
+#   enable_webapp_alerts      = true
+#   enable_consumption_budget = false
+#
+#   tags = local.common_tags
+#
+#   depends_on = [module.database, module.functions, module.webapp]
+# }
 
 # Random passwords for application secrets
 resource "random_password" "docuseal_secret" {

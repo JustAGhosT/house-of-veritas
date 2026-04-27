@@ -59,10 +59,11 @@ output "baserow_container_id" {
   value       = module.compute.baserow_container_id
 }
 
-output "application_gateway_public_ip" {
-  description = "Public IP address of the Application Gateway"
-  value       = module.gateway.public_ip_address
-}
+# Re-enable when module.gateway is uncommented in main.tf.
+# output "application_gateway_public_ip" {
+#   description = "Public IP address of the Application Gateway"
+#   value       = module.gateway.public_ip_address
+# }
 
 output "docuseal_url" {
   description = "URL for DocuSeal"
@@ -74,13 +75,14 @@ output "baserow_url" {
   value       = "https://ops.${var.domain_name}"
 }
 
-output "dns_records_required" {
-  description = "DNS records configured"
-  value = {
-    docs = module.dns.docs_fqdn
-    ops  = module.dns.ops_fqdn
-  }
-}
+# Re-enable when module.dns is uncommented in main.tf.
+# output "dns_records_required" {
+#   description = "DNS records configured"
+#   value = {
+#     docs = module.dns.docs_fqdn
+#     ops  = module.dns.ops_fqdn
+#   }
+# }
 
 output "document_intelligence_endpoint" {
   description = "Document Intelligence endpoint URL"

@@ -13,6 +13,12 @@ variable "account_name" {
   type        = string
 }
 
+variable "sku_name" {
+  description = "Pricing tier for Document Intelligence. F0 = free (500 txns/mo), S0 = standard."
+  type        = string
+  default     = "F0"
+}
+
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)
