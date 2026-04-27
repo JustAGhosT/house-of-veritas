@@ -27,7 +27,7 @@ All four should succeed cleanly. Fix anything red before promoting to CI.
 - [ ] Subscription chosen, owner has Contributor + User Access Administrator.
 - [ ] Service principal created (`az ad sp create-for-rbac --sdk-auth`) — JSON output goes into `AZURE_CREDENTIALS` secret.
 - [ ] Resource group `nl-prod-hov-rg-san` exists in `southafricanorth`.
-- [ ] Terraform state backend created: storage account `sthoveritastfstate`, container `tfstate` (one-time bootstrap).
+- [ ] Terraform state backend created: resource group `hov-shared-tfstate-rg`, storage account `hovsharedtfstatesa`, container `tfstate` (one-time via `config/scripts/bootstrap-azure.sh`).
 - [ ] Custom domain in DNS: `nexamesh.ai` (or `houseofv.com`) with the App Gateway public IP.
 
 ## 4. GitHub Actions secrets
@@ -35,8 +35,8 @@ All four should succeed cleanly. Fix anything red before promoting to CI.
 | Secret | Purpose |
 | --- | --- |
 | `AZURE_CREDENTIALS` | SP JSON for `azure/login@v2` |
-| `TF_STATE_RESOURCE_GROUP` | `rg-houseofveritas-tfstate` |
-| `TF_STATE_STORAGE_ACCOUNT` | `sthoveritastfstate` |
+| `TF_STATE_RESOURCE_GROUP` | `hov-shared-tfstate-rg` |
+| `TF_STATE_STORAGE_ACCOUNT` | `hovsharedtfstatesa` |
 | `TF_STATE_CONTAINER` | `tfstate` |
 | `TF_STATE_KEY` | `production.terraform.tfstate` |
 | `DB_ADMIN_PASSWORD` | PostgreSQL admin password |

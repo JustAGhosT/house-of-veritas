@@ -36,9 +36,9 @@ set -euo pipefail
 
 # ── Config (override via env) ────────────────────────────────────────────────
 SUBSCRIPTION_ID="${SUBSCRIPTION_ID:-}"
-SP_NAME="${SP_NAME:-hov-deploy-sp}"
-TF_RG="${TF_RG:-rg-houseofveritas-tfstate}"
-TF_STORAGE="${TF_STORAGE:-sthoveritastfstate}"
+SP_NAME="${SP_NAME:-hov-shared-deploy-sp}"
+TF_RG="${TF_RG:-hov-shared-tfstate-rg}"
+TF_STORAGE="${TF_STORAGE:-hovsharedtfstatesa}"
 TF_CONTAINER="${TF_CONTAINER:-tfstate}"
 TF_LOCATION="${TF_LOCATION:-southafricanorth}"
 TF_STATE_KEY="${TF_STATE_KEY:-production.terraform.tfstate}"
