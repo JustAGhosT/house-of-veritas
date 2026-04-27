@@ -3,9 +3,13 @@
 # bootstrap-azure.sh — one-shot Azure + GitHub Actions bootstrap for HoV.
 #
 # Creates:
-#   - Service principal (Contributor + User Access Administrator on the
-#     chosen subscription) — User Access Admin is needed because the
-#     Terraform Key Vault module assigns roles.
+#   - Service principal (Contributor on the chosen subscription, plus
+#     Storage Blob Data Contributor on the tfstate storage account so
+#     terraform can read/write state via Azure AD auth).
+#     The Key Vault module uses access_policy resources, not role
+#     assignments, so User Access Administrator is intentionally not
+#     granted — this avoids ABAC-condition AuthorizationFailed errors
+#     in tenants that restrict role-assignment elevation.
 #   - Terraform state backend: resource group, storage account, container.
 #
 # Sets the following GitHub Actions repo secrets via the gh CLI:
@@ -33,6 +37,13 @@
 #     assignments for the new SP).
 
 set -euo pipefail
+
+# Stop Git Bash / MSYS2 from rewriting Azure resource scopes like
+# "/subscriptions/<guid>" into Windows paths ("C:/Program Files/Git/...").
+# Without this every `az role assignment create` and `az ... --scopes` call
+# fails with MissingSubscription on Windows.
+export MSYS_NO_PATHCONV=1
+export MSYS2_ARG_CONV_EXCL='*'
 
 # ── Config (override via env) ────────────────────────────────────────────────
 SUBSCRIPTION_ID="${SUBSCRIPTION_ID:-}"
@@ -79,12 +90,6 @@ SP_JSON="$(az ad sp create-for-rbac \
   --scopes "/subscriptions/$SUBSCRIPTION_ID" \
   --json-auth)"
 SP_APPID="$(echo "$SP_JSON" | jq -r .clientId)"
-
-echo "      Granting 'User Access Administrator' (Key Vault role assignments)..."
-az role assignment create \
-  --assignee "$SP_APPID" \
-  --role "User Access Administrator" \
-  --scope "/subscriptions/$SUBSCRIPTION_ID" >/dev/null
 
 # ── 2. Terraform state backend ───────────────────────────────────────────────
 echo
@@ -162,7 +167,6 @@ cat <<EOF
        (PFX cert — or change terraform/modules/gateway to use an
         Azure-managed cert if the domain is already in your tenant)
    - DOCUSEAL_URL, BASEROW_URL                  (after first deploy)
-   - Self-hosted runner [self-hosted, azure-vnet-ghost] must be online
    - 'production' environment in the GitHub UI must approve the run
 
  DB_ADMIN_PASSWORD (saved only as a GitHub secret — copy now if you
